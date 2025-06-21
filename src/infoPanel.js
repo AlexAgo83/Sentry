@@ -16,7 +16,7 @@ export class InfoPanel extends CorePanel {
 
         this.setOnInit(() => {
             const result = [];
-            const processTime = this.createLabelValue("Process Time", "processTime");
+            const processTime = this.createLabelValue("processTime", "Process Time");
             result.push(processTime);
             console.log("setOnInit:Info panel setup", result);
             return result;
@@ -28,8 +28,12 @@ export class InfoPanel extends CorePanel {
                 const contentPanel = this.getContentPanel();
                 if (contentPanel) {
                     const processTime = contentPanel.querySelector(`#processTime`);
-                    if (processTime) processTime.textContent = String(this.instance.processTime);
+                    if (processTime) processTime.textContent = String(this.instance.lastTick);
+                } else {
+                    console.log("onRefresh:Info panel not setup");
                 }
+            } else {
+                console.log("onRefresh:Info panel not found");
             }
         })
     }

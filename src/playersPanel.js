@@ -20,6 +20,27 @@ export class PlayersPanel extends CorePanel {
                 const newPlayerDiv = document.createElement("div");
                 newPlayerDiv.id = "player-" + player.id;
                 newPlayerDiv.style.margin = "10px";
+                newPlayerDiv.appendChild(this.createButton(
+                    "remove-player-" + player.id, 
+                    "Remove", 
+                    () => {
+                        this.instance.removePlayer(player.id);
+                    }
+                ));
+                newPlayerDiv.appendChild(this.createButton(
+                    "start-combat-" + player.id, 
+                    "Start Combat", 
+                    () => {
+                        player.setCombat(true);
+                    }
+                ));
+                newPlayerDiv.appendChild(this.createButton(
+                    "stop-combat-" + player.id, 
+                    "Stop Combat", 
+                    () => {
+                        player.setCombat(false);
+                    }
+                ));
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
                 newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
                 newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));

@@ -24,6 +24,24 @@ export class Game {
         return this.players;
     }
 
+    createPlayer = (id) => {
+        const newPlayer = new Player(id);
+        this.players.push(newPlayer);
+        this.saveGame();
+        this.resetPanels();
+        this.initUI();
+        return newPlayer;
+    }
+
+    removePlayer = (id) => {
+        this.players = this.players.filter((player) => {
+            return player.id !== id;
+        });
+        this.saveGame();
+        this.resetPanels();
+        this.initUI();
+    }
+
     /* Game Data */
     saveGame = () => {
         // console.log("Game data to save", this.players);
@@ -71,11 +89,17 @@ export class Game {
         console.log("Game loaded", savedData);
     }
 
+    resetPanels = () => {
+        this.infoPanel?.remove();
+        this.playersPanel?.remove();
+        this.controlsPanel?.remove();
+        console.log("Panels removed");
+    }
+
     resetInstance = () => {
         clearInterval(this.interval);
         this.players = [];
-        this.infoPanel?.remove();
-        this.playersPanel?.remove();
+        this.resetPanels();
         console.log("Instance reset");
     }
 
@@ -90,6 +114,11 @@ export class Game {
     updateUI = () => {
         this.infoPanel?.refresh();
         this.playersPanel?.refresh();
+        this.controlsPanel?.refresh();
+    }
+
+    stopAction = () => {
+        if (this.interval) clearInterval(this.interval);
     }
 
     runAction = () => {
@@ -104,8 +133,12 @@ export class Game {
                     console.log(`Offline for ${diff}ms`);
                 }
             }
+            
             this.lastTick = dateNow;
-            this.players.forEach((player) => player.attack());
+            this.players.forEach((player) => {
+                if (player.isCombat()) player.attack();
+            });
+
             this.updateUI();
             this.saveGame();
         }, 250);
@@ -114,16 +147,9 @@ export class Game {
     debug = () => {
         /* Is First init ?! */
         if (this.players.length === 0) {
-
-            const char1 = new Player(1);
-            this.players.push(char1);
-
-            const char2 = new Player(2);
-            this.players.push(char2);
-
-            const char3 = new Player(3);
-            this.players.push(char3);
-
+            this.createPlayer(1);
+            this.createPlayer(2);
+            this.createPlayer(3);
             this.saveGame()
         }
     }
@@ -132,7 +158,6 @@ export class Game {
         console.log("Startup ...");
         this.debug();
         
-
         /* Run ... */
         this.initUI();
         this.runAction();

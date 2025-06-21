@@ -17,6 +17,7 @@ export class Player extends Entity {
         this.level = 1;
         this.gold = 0;
         this.dmg = 1;
+        this.actionCombat = false;
 
         this.setOnLoad((entityData) => {
             this.name = entityData.name;
@@ -26,6 +27,7 @@ export class Player extends Entity {
             this.level = entityData.level;
             this.gold = entityData.gold;
             this.dmg = entityData.dmg;
+            this.actionCombat = entityData.actionCombat;
         });
 
         this.setOnSave(() => {
@@ -37,8 +39,17 @@ export class Player extends Entity {
                 level: this.level,
                 gold: this.gold,
                 dmg: this.dmg,
+                actionCombat: this.actionCombat
             };
         });
+    }
+
+
+    setCombat(isCombat) {
+        this.actionCombat = isCombat;
+    }
+    isCombat() {
+        return this.actionCombat;
     }
 
     attack() {

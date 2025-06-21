@@ -18,6 +18,37 @@ export class ControlsPanel extends CorePanel {
             this.listenersInit = false;
             return [
                 this.createButton(
+                    "add-player-btn", 
+                    "Add Player", 
+                    () => {
+                        let lastUsedId = -1;
+                        this.instance.players.forEach((player) => {
+                            if (player.id > lastUsedId) {
+                                lastUsedId = player.id;
+                            }
+                        })
+                        const newId = lastUsedId + 1;
+                        this.instance.createPlayer(newId);
+                        this.instance.saveGame();
+                        this.instance.resetPanels();
+                        this.instance.initUI();
+                    }
+                ),
+                this.createButton(
+                    "start-btn", 
+                    "Start", 
+                    () => {
+                        this.instance.runAction();
+                    }
+                ),
+                this.createButton(
+                    "stop-btn", 
+                    "Stop", 
+                    () => {
+                        this.instance.stopAction();
+                    }
+                ),
+                this.createButton(
                     "save-btn", 
                     "Save", 
                     () => {
