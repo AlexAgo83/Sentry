@@ -34,8 +34,9 @@ export class CorePanel {
         else {
             const newContent = document.createElement("div");
             newContent.id = this.contentId;
-            const childs = this.onInit();
-            newContent.append(...childs);
+            newContent.style.display = "flex";
+            newContent.style.flexDirection = "row";
+            newContent.append(...this.onInit());
             panel?.appendChild(newContent);
             console.log(`init:Panel ${this.panelId} setup`);
         }
@@ -82,13 +83,10 @@ export class CorePanel {
     }
 
     getPanel = () => {
-        const panel = document.body.querySelector("#" + this.panelId);
-        return panel;
+        return document.body.querySelector("#" + this.panelId);
     }
+
     getContentPanel = () => {
-        const contentPanel = this.getPanel()?.querySelector("#" + this.contentId);
-        console.log("Parent : ", this.getPanel());
-        console.log("Content : ", contentPanel);
-        return contentPanel;
+        return this.getPanel()?.querySelector("#" + this.contentId);
     }
 }
