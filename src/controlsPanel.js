@@ -29,9 +29,6 @@ export class ControlsPanel extends CorePanel {
                         })
                         const newId = lastUsedId + 1;
                         this.instance.createPlayer(newId);
-                        this.instance.saveGame();
-                        this.instance.resetPanels();
-                        this.instance.initUI();
                     }
                 ),
                 this.createButton(
