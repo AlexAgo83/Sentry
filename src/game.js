@@ -56,7 +56,18 @@ export class Game {
                 if (diff > 1000) {
                     // Is this offline ?
                     const howMuchLoops = Math.floor(diff / this.loopInterval);
-                    console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times.`);
+                    if (howMuchLoops > 0) {
+                        console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
+                        for (let i = 0; i < howMuchLoops; i++) {
+                            this.playerManager.getPlayers().forEach((player) => {
+                                if (player.getSelectedAction()) {
+                                    player.getSelectedAction().doAction();
+                                }
+                            });
+                            console.log("Looping... " + (i+1) + " / " + howMuchLoops);
+                        }
+                        console.log("Offline looping done !");
+                    }
                 }
             }
             

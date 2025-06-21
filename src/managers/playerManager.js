@@ -28,7 +28,7 @@ export class PlayerManager extends CoreManager {
         /** Refresh last selected Action object */
         const loadedAction = this.instance.actionManager.loadAction(player.selectedActionID, player);
         player.setSelectedAction(loadedAction);
-        
+
         this.players.push(player);
     }
 
@@ -50,7 +50,7 @@ export class PlayerManager extends CoreManager {
     createPlayer = (id) => {
         const newPlayer = new Player(id);
         this.players.push(newPlayer);
-        this.instance.dataManager.saveGame();
+        this.instance.dataManager.save();
         this.instance.panelManager.remove();
         this.instance.initUI();
         return newPlayer;
@@ -60,7 +60,7 @@ export class PlayerManager extends CoreManager {
         this.players = this.players.filter((player) => {
             return player.id !== id;
         });
-        this.instance.dataManager.saveGame();
+        this.instance.dataManager.save();
         this.instance.panelManager.remove();
         this.instance.initUI();
     }

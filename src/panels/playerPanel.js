@@ -31,7 +31,7 @@ export class PlayerPanel extends CorePanel {
                 ));
                 newPlayerDiv.appendChild(this.createButton(
                     "start-combat-" + player.id, 
-                    "Start Combat", 
+                    "Start Action : Combat", 
                     () => {
                         player.setSelectedAction(new CombatAction(player));
                     },
@@ -39,7 +39,7 @@ export class PlayerPanel extends CorePanel {
                 ));
                 newPlayerDiv.appendChild(this.createButton(
                     "stop-combat-" + player.id, 
-                    "Stop Combat", 
+                    "Stop Action", 
                     () => {
                         player.setSelectedAction(null);
                     },

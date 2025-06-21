@@ -18,8 +18,8 @@ export class DataManager extends CoreManager {
         const savedData = {};
         const savedPlayers = {};
 
-        if (this.lastTick && this.lastTick > 0) {
-            savedData.lastTick = this.lastTick;
+        if (this.instance.lastIntervalTime && this.instance.lastIntervalTime > 0) {
+            savedData.lastIntervalTime = this.instance.lastIntervalTime;
         }
 
         this.instance.playerManager.savePlayers(savedPlayers, savedData);
@@ -31,8 +31,8 @@ export class DataManager extends CoreManager {
         const savedData = savedDataString ? JSON.parse(savedDataString) : {};
         console.log("saveGame to load", savedData);
 
-        if (savedData.lastTick) {
-            this.lastTick = savedData.lastTick;
+        if (savedData.lastIntervalTime) {
+            this.instance.lastIntervalTime = savedData.lastIntervalTime;
         }
         this.instance.playerManager.loadPlayers(savedData);
         return savedData;
