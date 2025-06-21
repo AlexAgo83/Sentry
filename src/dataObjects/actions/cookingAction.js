@@ -6,10 +6,10 @@ import { Action } from "./action.js";
 // @ts-check
 // combatAction.js
 
-export class HuntAction extends Action {
+export class CookingAction extends Action {
 
     constructor(player) {
-        super("Hunt", player);
+        super("Cooking", player);
         this.setOnDoAction(() => {
             this.attack();
         })

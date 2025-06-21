@@ -6,7 +6,7 @@
 
 import { CoreManager } from "./coreManager.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
-import { HuntAction } from "../dataObjects/actions/huntAction.js";
+import { HuntingAction } from "../dataObjects/actions/huntingAction.js";
 
 export class ActionManager extends CoreManager {
 
@@ -29,9 +29,12 @@ export class ActionManager extends CoreManager {
         if (id == "Combat") {
             console.log("createActionByID:Combat action created");
             return new CombatAction(...args);
-        } else if (id == "Hunt") {
-            console.log("createActionByID:Hunt action created");
-            return new HuntAction(...args);
+        } else if (id == "Hunting") {
+            console.log("createActionByID:Hunting action created");
+            return new HuntingAction(...args);
+        } else if (id == "Cooking") {
+            console.log("createActionByID:Cooking action created");
+            return new HuntingAction(...args);
         } else {
             console.warn("createActionByID:Action not found, id: " + id);
         }

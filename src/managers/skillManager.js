@@ -7,17 +7,21 @@
 import { CoreManager } from "./coreManager.js";
 
 import { CombatSkill } from "../dataObjects/skills/combatSkill.js";
-import { HuntSkill } from "../dataObjects/skills/huntSkill.js";
+import { HuntingSkill } from "../dataObjects/skills/huntingSkill.js";
+import { CookingSkill } from "../dataObjects/skills/cookingSkill.js";
 
-export const STATIC_SKILLS_LIST = ["Combat", "Hunt"];
+export const STATIC_SKILLS_LIST = ["Combat", "Hunting", "Cooking"];
 
 export const createSkillByID = (identifier) => {
     if (identifier == "Combat") {
         console.log("createSkillByID:Combat skill created");
         return new CombatSkill();
-    } else if (identifier == "Hunt") {
-        console.log("createSkillByID:Hunt skill created");
-        return new HuntSkill();
+    } else if (identifier == "Hunting") {
+        console.log("createSkillByID:Hunting skill created");
+        return new HuntingSkill();
+    } else if (identifier == "Cooking") {
+        console.log("createSkillByID:Cooking skill created");
+        return new CookingSkill();
     } else {
         console.log("createSkillByID:Skill not found");
     }

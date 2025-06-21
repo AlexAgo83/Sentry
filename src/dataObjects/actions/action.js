@@ -49,6 +49,6 @@ export class Action extends Entity {
         skill.xpNext = Math.floor(skill.xpNext * 1.5);
 
         player.dmg += 1;
-        console.log(`levelUp:Level up! Now level ${skill.level} xpNext ${skill.xpNext}`);
+        console.log(`(Level up!) PlayerID:${player.getIdentifier()}, level:${skill.level} xpNext:${skill.xpNext}`);
     }
 }

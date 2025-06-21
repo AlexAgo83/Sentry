@@ -2,12 +2,12 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// huntSkill.js
+// huntingSkill.js
 
 import { Skill } from "./skill.js";
 
-export class HuntSkill extends Skill {
+export class HuntingSkill extends Skill {
     constructor() {
-        super("Hunt");
+        super("Hunting");
     }
 }

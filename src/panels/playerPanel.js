@@ -6,7 +6,8 @@
 
 import { CorePanel } from "./corePanel.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
-import { HuntAction } from "../dataObjects/actions/huntAction.js";
+import { HuntingAction } from "../dataObjects/actions/huntingAction.js";
+import { CookingAction } from "../dataObjects/actions/cookingAction.js";
 
 export class PlayerPanel extends CorePanel {
     constructor(instance) {
@@ -46,12 +47,21 @@ export class PlayerPanel extends CorePanel {
                 ));
 
                 newPlayerDiv.appendChild(this.createButton(
-                    "start-hunt-" + player.id, 
-                    "Start Action : Hunt", 
+                    "start-hunting-" + player.id, 
+                    "Start Action : Hunting", 
                     () => {
-                        player.setSelectedAction(new HuntAction(player));
+                        player.setSelectedAction(new HuntingAction(player));
                     },
                     "lightgreen"
+                ));
+
+                newPlayerDiv.appendChild(this.createButton(
+                    "start-cooking-" + player.id, 
+                    "Start Action : Cooking", 
+                    () => {
+                        player.setSelectedAction(new CookingAction(player));
+                    },
+                    "lightpink"
                 ));
 
                 newPlayerDiv.appendChild(this.createButton(
@@ -112,8 +122,8 @@ export class PlayerPanel extends CorePanel {
                     } else {
                         console.log("setOnRefresh:Player element not found");
                     }
-                } else {
-                    console.log("setOnRefresh:Player panel or skills not setup", currentSkill);
+                // } else {
+                //     console.log("setOnRefresh:Player panel or skills not setup", currentSkill);
                 }
             });
         });
