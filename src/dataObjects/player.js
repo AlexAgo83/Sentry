@@ -40,13 +40,15 @@ export class Player extends Entity {
                 level: this.level,
                 gold: this.gold,
                 dmg: this.dmg,
-                selectedActionID: this.selectedAction?.getIdentifier()
+                selectedActionID: this.selectedActionID
             };
         });
     }
 
     setSelectedAction = (action) => {
         this.selectedAction = action;
+        this.selectedActionID = action?.getIdentifier();
+        console.log(`player:Selected action ${this.selectedActionID}`);
     }
     getSelectedAction = () => {
         return this.selectedAction;

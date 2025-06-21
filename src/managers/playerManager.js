@@ -24,9 +24,11 @@ export class PlayerManager extends CoreManager {
     loadPlayer = (playerId, savedData) => {
         const player = new Player(Number(playerId));
         player.load(savedData.players[playerId]);
-        if (player.selectedActionID && !player.selectedAction) {
-            this.instance.actionManager.loadAction(player.selectedActionID, player);
-        }
+
+        /** Refresh last selected Action object */
+        const loadedAction = this.instance.actionManager.loadAction(player.selectedActionID, player);
+        player.setSelectedAction(loadedAction);
+        
         this.players.push(player);
     }
 

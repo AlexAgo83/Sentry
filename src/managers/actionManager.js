@@ -14,9 +14,21 @@ export class ActionManager extends CoreManager {
     }
 
     loadAction(id, player) {
-        if (id == "Combat") {
-            player.setSelectedAction(new CombatAction(player));
+        if (!id) {
+            console.log("loadAction:Action not found");
+            return null;
         }
-        return 
+        console.log("loadAction:" + id + " action loaded");
+        return this.createActionByID(id, player);
+    }
+
+    createActionByID(id, ...args) {
+        if (id == "Combat") {
+            console.log("createActionByID:Combat action created");
+            return new CombatAction(...args);
+        } else {
+            console.log("createActionByID:Action not found");
+        }
+        return null;
     }
 }

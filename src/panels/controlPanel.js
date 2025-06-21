@@ -52,7 +52,7 @@ export class ControlPanel extends CorePanel {
                     "save-btn", 
                     "Save Game Data", 
                     () => {
-                        this.instance.dataManager.saveGame();
+                        this.instance.dataManager.save();
                     },
                     "yellow"
                 ),
