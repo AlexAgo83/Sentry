@@ -10,7 +10,7 @@ export class Entity {
         this.id = id;
     }
     
-    getIdentifier() {
+    getIdentifier = () => {
         return this.id;
     }
 

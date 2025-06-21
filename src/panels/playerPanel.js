@@ -5,8 +5,9 @@
 // playersPanel.js
 
 import { CorePanel } from "./corePanel.js";
+import { CombatAction } from "../dataObjects/combatAction.js";
 
-export class PlayersPanel extends CorePanel {
+export class PlayerPanel extends CorePanel {
     constructor(instance) {
         super(
             instance,
@@ -16,7 +17,7 @@ export class PlayersPanel extends CorePanel {
 
         this.setOnInit(() => {
             const result = [];
-            this.instance.players.forEach((player) => {
+            this.instance.playerManager.getPlayers().forEach((player) => {
                 const newPlayerDiv = document.createElement("div");
                 newPlayerDiv.id = "player-" + player.id;
                 newPlayerDiv.style.margin = "10px";
@@ -24,22 +25,25 @@ export class PlayersPanel extends CorePanel {
                     "remove-player-" + player.id, 
                     "Remove", 
                     () => {
-                        this.instance.removePlayer(player.id);
-                    }
+                        this.instance.playerManager.removePlayer(player.id);
+                    },
+                    "red"
                 ));
                 newPlayerDiv.appendChild(this.createButton(
                     "start-combat-" + player.id, 
                     "Start Combat", 
                     () => {
-                        player.setCombat(true);
-                    }
+                        player.setSelectedAction(new CombatAction(player));
+                    },
+                    "aqua"
                 ));
                 newPlayerDiv.appendChild(this.createButton(
                     "stop-combat-" + player.id, 
                     "Stop Combat", 
                     () => {
-                        player.setCombat(false);
-                    }
+                        player.setSelectedAction(null);
+                    },
+                    "aqua"
                 ));
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
                 newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
@@ -54,7 +58,7 @@ export class PlayersPanel extends CorePanel {
         })
 
         this.setOnRefresh(() => {
-            this.instance.players.forEach((player) => {
+            this.instance.playerManager.getPlayers().forEach((player) => {
                 const panel = this.getPanel();
                 if (panel) {
                     const playerElement = panel.querySelector(`#player-${player.id}`);

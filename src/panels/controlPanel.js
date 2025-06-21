@@ -6,7 +6,7 @@
 
 import { CorePanel } from "./corePanel.js";
 
-export class ControlsPanel extends CorePanel {
+export class ControlPanel extends CorePanel {
 
     constructor(instance) {
         super(
@@ -19,52 +19,62 @@ export class ControlsPanel extends CorePanel {
             return [
                 this.createButton(
                     "add-player-btn", 
-                    "Add Player", 
+                    "Add New Player", 
                     () => {
                         let lastUsedId = -1;
-                        this.instance.players.forEach((player) => {
+                        this.instance.playerManager.getPlayers().forEach((player) => {
                             if (player.id > lastUsedId) {
                                 lastUsedId = player.id;
                             }
                         })
                         const newId = lastUsedId + 1;
-                        this.instance.createPlayer(newId);
-                    }
+                        this.instance.playerManager.createPlayer(newId);
+                    },
+                    "red"
                 ),
                 this.createButton(
                     "start-btn", 
-                    "Start", 
+                    "Start Game Loop", 
                     () => {
                         this.instance.runAction();
-                    }
+                    },
+                    "cyan"
                 ),
                 this.createButton(
                     "stop-btn", 
-                    "Stop", 
+                    "Stop Game Loop", 
                     () => {
                         this.instance.stopAction();
-                    }
+                    },
+                    "cyan"
                 ),
                 this.createButton(
                     "save-btn", 
-                    "Save", 
+                    "Save Game Data", 
                     () => {
-                        this.instance.saveGame();
-                    }
+                        this.instance.dataManager.saveGame();
+                    },
+                    "yellow"
                 ),
                 this.createButton(
                     "load-btn", 
-                    "Load", 
+                    "Load Game Data", 
                     () => {
-                        this.instance.loadSavedGameWithRestart();
-                    }
+                        this.instance.resetInstance();
+                        const savedData = this.instance.dataManager.load();
+                        this.instance.initUI();
+                        this.instance.runAction();
+                        console.log("Game loaded", savedData);
+                    },
+                    "yellow"
                 ),
                 this.createButton(
                     "reset-btn", 
-                    "Reset", 
+                    "Reset Game Data", 
                     () => {
                         this.instance.resetInstance();
-                    }
+                    },
+                    "yellow"
                 )
             ]
         });

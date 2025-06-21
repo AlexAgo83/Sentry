@@ -28,7 +28,7 @@ export class InfoPanel extends CorePanel {
                 const contentPanel = this.getContentPanel();
                 if (contentPanel) {
                     const processTime = contentPanel.querySelector(`#processTime`);
-                    if (processTime) processTime.textContent = String(this.instance.lastTick);
+                    if (processTime) processTime.textContent = String(this.instance.lastIntervalTime);
                 } else {
                     console.log("onRefresh:Info panel not setup");
                 }

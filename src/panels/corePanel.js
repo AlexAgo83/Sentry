@@ -54,9 +54,10 @@ export class CorePanel {
         return newPanel;
     }
 
-    createButton = (id, label, onClick) => {
+    createButton = (id, label, onClick, color) => {
         const newButton = document.createElement("button");
         newButton.id = id;
+        if (color) newButton.style.backgroundColor = color;
         newButton.textContent = label;
         if (onClick) newButton.addEventListener("click", onClick);
         return newButton;
