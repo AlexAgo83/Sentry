@@ -6,10 +6,11 @@
 
 export class CorePanel {
     
-    constructor(instance, panelId, contentId) {
+    constructor(instance, panelId, contentId, columnMode=false) {
         this.instance = instance;
         this.panelId = panelId;
         this.contentId = contentId;
+        this.columnMode = columnMode;
     }
 
     getInstance = () => {
@@ -34,8 +35,11 @@ export class CorePanel {
         else {
             const newContent = document.createElement("div");
             newContent.id = this.contentId;
+            newContent.style.margin = "10px";
             newContent.style.display = "flex";
-            newContent.style.flexDirection = "row";
+            if (this.columnMode) {
+                newContent.style.flexDirection = "column";
+            } else newContent.style.flexDirection = "row";
             newContent.append(...this.onInit());
             panel?.appendChild(newContent);
             console.log(`init:Panel ${this.panelId} setup`);
@@ -44,6 +48,8 @@ export class CorePanel {
 
     createLabelValue = (id, label, defaultValue=null) => {
         const newPanel = document.createElement("p");
+        newPanel.style.margin = "2px";
+        newPanel.style.padding = "0px";
         const newSpanLabel = document.createElement("span");
         newSpanLabel.textContent = label + " : ";
         newPanel.appendChild(newSpanLabel);

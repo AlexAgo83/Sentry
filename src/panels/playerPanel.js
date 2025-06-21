@@ -6,6 +6,7 @@
 
 import { CorePanel } from "./corePanel.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
+import { HuntAction } from "../dataObjects/actions/huntAction.js";
 
 export class PlayerPanel extends CorePanel {
     constructor(instance) {
@@ -18,10 +19,13 @@ export class PlayerPanel extends CorePanel {
         this.setOnInit(() => {
             const result = [];
             const playersObject = this.instance.playerManager.getPlayers();
+
             playersObject.forEach((player) => {
                 const newPlayerDiv = document.createElement("div");
                 newPlayerDiv.id = "player-" + player.id;
-                newPlayerDiv.style.margin = "10px";
+                newPlayerDiv.style.marginRight = "10px";
+                newPlayerDiv.style.display = "flex";
+                newPlayerDiv.style.flexDirection = "column";
 
                 newPlayerDiv.appendChild(this.createButton(
                     "remove-player-" + player.id, 
@@ -38,7 +42,16 @@ export class PlayerPanel extends CorePanel {
                     () => {
                         player.setSelectedAction(new CombatAction(player));
                     },
-                    "aqua"
+                    "lightblue"
+                ));
+
+                newPlayerDiv.appendChild(this.createButton(
+                    "start-hunt-" + player.id, 
+                    "Start Action : Hunt", 
+                    () => {
+                        player.setSelectedAction(new HuntAction(player));
+                    },
+                    "lightgreen"
                 ));
 
                 newPlayerDiv.appendChild(this.createButton(
@@ -47,11 +60,12 @@ export class PlayerPanel extends CorePanel {
                     () => {
                         player.setSelectedAction(null);
                     },
-                    "aqua"
+                    "lightgray"
                 ));
 
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
                 newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
+                newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
                 newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));
                 newPlayerDiv.appendChild(this.createLabelValue("level", "Level"));
                 newPlayerDiv.appendChild(this.createLabelValue("xp", "XP"));
@@ -71,12 +85,18 @@ export class PlayerPanel extends CorePanel {
                 if (panel && currentSkill) {
                     const playerElement = panel.querySelector(`#player-${player.id}`);
                     if (playerElement) {
+                        const currAction = player.getSelectedAction();
+                        const currSkill = currAction?.getSkill();
+
                         /* ID */
                         const idElement = playerElement.querySelector("#id");
                         if (idElement) idElement.textContent = String(player.id);
                         /* Name */
                         const nameElement = playerElement.querySelector("#name");
                         if (nameElement) nameElement.textContent = player.name;
+                        /* Skill */
+                        const skillElement = playerElement.querySelector("#skill");
+                        if (skillElement) skillElement.textContent = String(currSkill?.getIdentifier() ?? "N/A");
                         /* HP */
                         const hpElement = playerElement.querySelector("#hp");
                         if (hpElement) hpElement.textContent = String(player.hp);

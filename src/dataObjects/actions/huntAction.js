@@ -17,10 +17,13 @@ export class HuntAction extends Action {
 
     attack = () => {
         const player = this.getPlayer();
+        const skill = this.getSkill();
+
         player.gold += 1;
-        player.xp += 1;
-        if (player.xp >= player.xpNext) {
-            player.levelUp();
+        skill.xp += 1;
+
+        if (skill.xp >= skill.xpNext) {
+            this.levelUp();
         }
     }
 }

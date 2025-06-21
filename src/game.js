@@ -10,6 +10,8 @@ import { ActionManager } from "./managers/actionManager.js";
 import { PlayerManager } from "./managers/playerManager.js";
 import { PanelManager } from "./managers/panelManager.js";
 
+export const STATIC_GAME_VERSION = "0.1.0";
+
 export class Game {
 
     constructor() {
@@ -21,6 +23,10 @@ export class Game {
         this.actionManager = new ActionManager(this);
         this.playerManager = new PlayerManager(this);
         this.panelManager = new PanelManager(this);
+    }
+
+    getGameVersion = () => {
+        return STATIC_GAME_VERSION;
     }
 
     resetUI = () => {

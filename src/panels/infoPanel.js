@@ -11,14 +11,14 @@ export class InfoPanel extends CorePanel {
         super(
             instance,
             "info-panel", 
-            "info-panel-content"
+            "info-panel-content",
+            true
         );
 
         this.setOnInit(() => {
             const result = [];
-            const processTime = this.createLabelValue("processTime", "Process Time");
-            result.push(processTime);
-            console.log("setOnInit:Info panel setup", result);
+            result.push(this.createLabelValue("processTime", "Process Time"));
+            result.push(this.createLabelValue("gameVersion", "Game Version"));
             return result;
         })
 
@@ -27,8 +27,12 @@ export class InfoPanel extends CorePanel {
             if (panel) {
                 const contentPanel = this.getContentPanel();
                 if (contentPanel) {
+                    /** Process Time */
                     const processTime = contentPanel.querySelector(`#processTime`);
                     if (processTime) processTime.textContent = String(this.instance.lastIntervalTime);
+                    /** Game Version */
+                    const gameVersion = contentPanel.querySelector(`#gameVersion`);
+                    if (gameVersion) gameVersion.textContent = String(this.instance.getGameVersion());
                 } else {
                     console.log("onRefresh:Info panel not setup");
                 }
