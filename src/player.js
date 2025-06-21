@@ -19,6 +19,7 @@ export class Player extends Entity {
         this.dmg = 1;
 
         this.setOnLoad((entityData) => {
+            this.name = entityData.name;
             this.hp = entityData.hp;
             this.xp = entityData.xp;
             this.xpNext = entityData.xpNext;
@@ -29,6 +30,7 @@ export class Player extends Entity {
 
         this.setOnSave(() => {
             return {
+                name: this.name,
                 hp: this.hp,
                 xp: this.xp,
                 xpNext: this.xpNext,
@@ -52,7 +54,7 @@ export class Player extends Entity {
         this.level += 1;
         this.xpNext = Math.floor(this.xpNext * 1.5);
         this.dmg += 1;
-        console.log(`Level up! Now level ${this.level}`);
+        console.log(`player:Level up! Now level ${this.level}`);
     }
 
 }
