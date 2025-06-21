@@ -6,6 +6,7 @@
 
 import { CoreManager } from "./coreManager.js";
 
+export const STATIC_SAVEGAME_TAG = "saveGame-v1";
 export class DataManager extends CoreManager {
     constructor(instance) {
         super(instance);
@@ -21,20 +22,22 @@ export class DataManager extends CoreManager {
         if (this.instance.lastIntervalTime && this.instance.lastIntervalTime > 0) {
             savedData.lastIntervalTime = this.instance.lastIntervalTime;
         }
-
         this.instance.playerManager.savePlayers(savedPlayers, savedData);
-        localStorage.setItem('saveGame-v0', JSON.stringify(savedData));
+
+        localStorage.setItem(STATIC_SAVEGAME_TAG, JSON.stringify(savedData));
     }
 
     load = () => {
-        const savedDataString = localStorage.getItem('saveGame-v0');
+        const savedDataString = localStorage.getItem(STATIC_SAVEGAME_TAG);
         const savedData = savedDataString ? JSON.parse(savedDataString) : {};
         console.log("saveGame to load", savedData);
 
         if (savedData.lastIntervalTime) {
             this.instance.lastIntervalTime = savedData.lastIntervalTime;
         }
+
         this.instance.playerManager.loadPlayers(savedData);
+
         return savedData;
     }
 }

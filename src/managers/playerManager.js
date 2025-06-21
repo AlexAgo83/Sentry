@@ -5,7 +5,7 @@
 // playerManager.js
 
 import { CoreManager } from "./coreManager.js";
-import { Player } from "../dataObjects/player.js";
+import { PlayerEntity } from "../dataObjects/entities/playerEntity.js";
 
 export class PlayerManager extends CoreManager {
     constructor(instance) {
@@ -22,20 +22,25 @@ export class PlayerManager extends CoreManager {
     }
 
     loadPlayer = (playerId, savedData) => {
-        const player = new Player(Number(playerId));
-        player.load(savedData.players[playerId]);
+        if (playerId === null || savedData === null) {
+            console.log("(important) loadPlayer can't load:" + playerId + ", saveData:", savedData);
+            return;
+        }
 
-        /** Refresh last selected Action object */
-        const loadedAction = this.instance.actionManager.loadAction(player.selectedActionID, player);
-        player.setSelectedAction(loadedAction);
+        console.log("(important) loadPlayer ID:" + playerId + ", saveData:", savedData);
+        const player = this.createPlayer(Number(playerId), false);
+        player.load(savedData);
 
-        this.players.push(player);
+        this.instance.skillManager.loadSkills(savedData.skillsData, player);
+        this.instance.actionManager.loadAction(savedData.selectedActionID, player);
     }
 
     loadPlayers = (savedData) => {
         if (savedData.players) {
-            Object.keys(savedData.players).forEach((playerId) => {
-                this.loadPlayer(playerId, savedData);
+            const savedPlayers = savedData.players;
+            Object.keys(savedPlayers).forEach((playerId) => {
+                const savedPlayer = savedPlayers[playerId];
+                this.loadPlayer(playerId, savedPlayer);
             });
         }
     }
@@ -47,12 +52,15 @@ export class PlayerManager extends CoreManager {
         savedData.players = savedPlayers;
     }
 
-    createPlayer = (id) => {
-        const newPlayer = new Player(id);
+    createPlayer = (id, withReset=true) => {
+        const newPlayer = new PlayerEntity(id);
         this.players.push(newPlayer);
-        this.instance.dataManager.save();
-        this.instance.panelManager.remove();
-        this.instance.initUI();
+        if (withReset) {
+            this.instance.dataManager.save();
+            this.instance.panelManager.remove();
+            this.instance.initUI();
+        }
+        console.log("createPlayer:" + id + " player created");
         return newPlayer;
     }
 

@@ -4,19 +4,27 @@
 // @ts-check
 // action.js
 
-export class Action {
+import { Entity } from "../entity.js";
+
+export class Action extends Entity {
 
     constructor(identifier, player) {
-        this.identifier = identifier;
+        super(identifier);
         this.player = player;
-    }
-
-    getIdentifier = () => {
-        return this.identifier;
+        this.setOnLoad((actionData) => {
+            // ...
+        });
+        this.setOnSave(() => {
+            return this.getIdentifier();
+        });
     }
 
     getPlayer = () => {
         return this.player;
+    }
+
+    getSkill = () => {
+        return this.player.skills.get(this.getIdentifier());
     }
 
     setOnDoAction(onDoAction) {

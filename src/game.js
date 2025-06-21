@@ -5,6 +5,7 @@
 // game.js
 
 import { DataManager } from "./managers/dataManager.js";
+import { SkillManager } from "./managers/skillManager.js";
 import { ActionManager } from "./managers/actionManager.js";
 import { PlayerManager } from "./managers/playerManager.js";
 import { PanelManager } from "./managers/panelManager.js";
@@ -16,6 +17,7 @@ export class Game {
         this.loopInterval = 500;
 
         this.dataManager = new DataManager(this);
+        this.skillManager = new SkillManager(this);
         this.actionManager = new ActionManager(this);
         this.playerManager = new PlayerManager(this);
         this.panelManager = new PanelManager(this);
@@ -43,7 +45,10 @@ export class Game {
     }
 
     stopAction = () => {
-        if (this.interval) clearInterval(this.interval);
+        if (this.interval) {
+            clearInterval(this.interval);
+            console.log("Game loop stopped");
+        }
     }
 
     runAction = () => {
@@ -58,13 +63,13 @@ export class Game {
                     const howMuchLoops = Math.floor(diff / this.loopInterval);
                     if (howMuchLoops > 0) {
                         console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
-                        for (let i = 0; i < howMuchLoops; i++) {
+                        for (let i = 1; i < howMuchLoops; i++) {
                             this.playerManager.getPlayers().forEach((player) => {
                                 if (player.getSelectedAction()) {
                                     player.getSelectedAction().doAction();
                                 }
                             });
-                            console.log("Looping... " + (i+1) + " / " + howMuchLoops);
+                            // console.log("runAction:Looping Offline:doAction " + (i) + " / " + howMuchLoops);
                         }
                         console.log("Offline looping done !");
                     }
@@ -72,6 +77,7 @@ export class Game {
             }
             
             this.lastIntervalTime = dateNow;
+            // console.log("runAction:doAction");
             this.playerManager.getPlayers().forEach((player) => {
                 if (player.getSelectedAction()) {
                     player.getSelectedAction().doAction();

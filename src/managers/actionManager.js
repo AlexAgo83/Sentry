@@ -5,7 +5,7 @@
 // actionManager.js
 
 import { CoreManager } from "./coreManager.js";
-import { CombatAction } from "../dataObjects/combatAction.js";
+import { CombatAction } from "../dataObjects/actions/combatAction.js";
 
 export class ActionManager extends CoreManager {
 
@@ -13,16 +13,18 @@ export class ActionManager extends CoreManager {
         super(instance);
     }
 
-    loadAction(id, player) {
+    loadAction = (id, player) => {
         if (!id) {
             console.log("loadAction:Action not found");
             return null;
         }
         console.log("loadAction:" + id + " action loaded");
-        return this.createActionByID(id, player);
+        const actionResult = this.createActionByID(id, player);
+        player.setSelectedAction(actionResult);
+        return actionResult;
     }
 
-    createActionByID(id, ...args) {
+    createActionByID = (id, ...args) => {
         if (id == "Combat") {
             console.log("createActionByID:Combat action created");
             return new CombatAction(...args);
