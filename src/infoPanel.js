@@ -25,8 +25,11 @@ export class InfoPanel extends CorePanel {
         this.setOnRefresh(() => {
             const panel = this.getPanel();
             if (panel) {
-                const processTime = panel.querySelector(`#processTime`);
-                if (processTime) processTime.textContent = String(this.instance.processTime);
+                const contentPanel = this.getContentPanel();
+                if (contentPanel) {
+                    const processTime = contentPanel.querySelector(`#processTime`);
+                    if (processTime) processTime.textContent = String(this.instance.processTime);
+                }
             }
         })
     }

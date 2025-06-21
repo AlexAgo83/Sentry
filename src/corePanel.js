@@ -54,6 +54,14 @@ export class CorePanel {
         return newPanel;
     }
 
+    createButton = (id, label, onClick) => {
+        const newButton = document.createElement("button");
+        newButton.id = id;
+        newButton.textContent = label;
+        if (onClick) newButton.addEventListener("click", onClick);
+        return newButton;
+    }
+
     remove = () => {
         const contentPanel = this.getContentPanel();
         if (contentPanel) {
@@ -88,5 +96,9 @@ export class CorePanel {
 
     getContentPanel = () => {
         return this.getPanel()?.querySelector("#" + this.contentId);
+    }
+
+    getElement(id) {
+        return this.getContentPanel()?.querySelector("#" + id);
     }
 }

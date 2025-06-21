@@ -7,6 +7,7 @@
 import { Player } from "./player.js";
 import { InfoPanel } from "./infoPanel.js";
 import { PlayersPanel } from "./playersPanel.js";
+import { ControlsPanel } from "./controlsPanel.js";
 
 export class Game {
 
@@ -16,11 +17,7 @@ export class Game {
 
         this.infoPanel = new InfoPanel(this);
         this.playersPanel = new PlayersPanel(this);
-
-        this.attackBtn = document.getElementById("attack-btn");
-        this.saveBtn = document.getElementById("save-btn");
-        this.loadBtn = document.getElementById("load-btn");
-        this.resetBtn = document.getElementById("reset-btn");
+        this.controlsPanel = new ControlsPanel(this);
     }
 
     getPlayers = () => {
@@ -86,24 +83,13 @@ export class Game {
     initUI = () => {
         this.infoPanel.init();
         this.playersPanel.init();
-        this.setupListener();
+        this.controlsPanel.init();
     }
 
     /** Update the game UI */
     updateUI = () => {
         this.infoPanel?.refresh();
         this.playersPanel?.refresh();
-    }
-
-    setupListener = () => {
-        this.attackBtn?.addEventListener("click", () => {
-            this.players.forEach((player) => player.attack());
-            this.updateUI();
-        });
-        this.saveBtn?.addEventListener('click', this.saveGame);
-        this.loadBtn?.addEventListener('click', this.loadSavedGameWithRestart);
-        this.resetBtn?.addEventListener('click', this.resetInstance);
-        console.log("Listener setup");
     }
 
     runAction = () => {
