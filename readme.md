@@ -30,8 +30,15 @@ The project is divided into several modules, including:
 # Setup and Installation
 
 1. Clone the repository: `git clone https://github.com/AlexAgo83/Sentry.git`
-<!-- 2. Install dependencies: `npm install` or `yarn install`
-3. Start the game: `npm start` or `yarn start` -->
+2. Install dependencies: `npm install` or `yarn install`
+3. Start the game: `npm start` or `yarn start`
+
+# Running Locally
+
+1. Install live-server: `npm install -g live-server``
+2. Run live-server: `live-server ./.`
+3. Navigate to: `/public``
+4. (Optional) Ctrl+C to kill the live-server
 
 # Troubleshooting
 
