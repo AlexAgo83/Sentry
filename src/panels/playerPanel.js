@@ -37,7 +37,14 @@ export class PlayerPanel extends CorePanel {
                     "Name", 
                     (value, ...args) => {
                         if (value != null && value.type == "change") {
-                            player.name = value.value;
+                            const input = newPlayerDiv.querySelector("#name");
+                            if (input) {
+                                const oldName = String(player.name);
+                                // @ts-ignore
+                                player.name = input.value;
+                                // this.instance.dataManager.save();
+                                console.log(`player:${player.id} name changed from '${oldName}' to '${player.name}'`);
+                            }
                         }
                     })
                 );
@@ -150,6 +157,15 @@ export class PlayerPanel extends CorePanel {
                     newPlayerDiv.appendChild(button);
                 }
 
+                newPlayerDiv.appendChild(this.createButton(
+                    "stop-action-" + player.id, 
+                    "Stop Action", 
+                    () => {
+                        player.setSelectedAction(null);
+                    },
+                    "lightgray"
+                ));
+
                 result.push(newPlayerDiv);
             })
             console.log("(important) setOnInit:Players panel setup", result);
@@ -176,7 +192,7 @@ export class PlayerPanel extends CorePanel {
                             let i = 0;
                             for (const key of currSkill.recipes.keys()) {
                                 const lRecipe = currSkill.recipes.get(key);
-                                if (i<this.maxRecipe) {
+                                if (i < this.maxRecipe) {
                                     const recipeSelector = playerElement.querySelector(`#recipe-selector-${i}-${player.id}`);
                                     if (recipeSelector) {
                                         // @ts-ignore
@@ -211,8 +227,10 @@ export class PlayerPanel extends CorePanel {
                         const idElement = playerElement.querySelector("#id");
                         if (idElement) idElement.textContent = String(player.id);
                         /* Name */
-                        const nameElement = playerElement.querySelector("#name");
-                        if (nameElement) nameElement.textContent = player.name;
+                        const nameElement = playerElement.querySelector(`#name`);
+                        if (nameElement) 
+                            // @ts-ignore
+                            nameElement.value = String(player.name);
                         /* Date Created */
                         const dateCreatedElement = playerElement.querySelector("#dateCreated");
                         if (dateCreatedElement) dateCreatedElement.textContent = new Date(player.dateCreated)?.toLocaleString();
@@ -247,8 +265,6 @@ export class PlayerPanel extends CorePanel {
                     } else {
                         console.log("setOnRefresh:Player element not found");
                     }
-                // } else {
-                //     console.log("setOnRefresh:Player panel or skills not setup", currentSkill);
                 }
             });
         });
