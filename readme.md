@@ -39,7 +39,8 @@ The project is divided into several modules, including:
 
 # Running Locally
 
-1. Run live-server: `live-server ./. --port=8080 --ignore=".git/**/*,*.md" --open="public"`
+1. Run live-server: `live-server ./. --open="public" --port=8080`
+1. Run live-server (Debug Mode): `live-server ./. --ignore=".git/**/*,*.md" --watch="./." --open="public" --port=8080`
 2. (Optional) Ctrl+C to kill the live-server
 
 # Troubleshooting

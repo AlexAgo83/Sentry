@@ -27,12 +27,16 @@ export class CorePanel {
         this.onInit = func;
     }
 
+    /**
+     * Initializes the panel
+     */
     init = () => {
         /** INFO PANEL */
         const panel = this.getPanel();
         const contentPanel = this.getContentPanel();
-        if (contentPanel) console.log(`init:Panel ${this.panelId} already setup`);
-        else {
+        if (contentPanel) {
+            // console.log(`init:Panel ${this.panelId} already setup, skip!`);
+        } else {
             const newContent = document.createElement("div");
             newContent.id = this.contentId;
             newContent.style.margin = "10px";
@@ -46,6 +50,15 @@ export class CorePanel {
         }
     }
 
+    /**
+     * Creates a label value
+     * 
+     * @param {string} id - The id
+     * @param {string} label - The label
+     * @param {*} defaultValue - The default value
+     * @param {string} valueSize - The size of the value
+     * @returns {Element} The label value panel
+     */
     createLabelValue = (id, label, defaultValue=null, valueSize="fs-m") => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
@@ -69,6 +82,14 @@ export class CorePanel {
         return newPanel;
     }
 
+    /**
+     * Creates a button
+     * @param {string} id - the id of the button
+     * @param {string} label - the label of the button
+     * @param {*} onClick - the function to call when the button is clicked
+     * @param {*} color - the color of the button
+     * @returns {Element} the button panel 
+     */
     createButton = (id, label, onClick, color) => {
         const newButton = document.createElement("button");
         newButton.id = id;
@@ -78,6 +99,14 @@ export class CorePanel {
         return newButton;
     }
 
+    /**
+     * Creates an input field
+     * 
+     * @param {string} id - the id of the input
+     * @param {string} label - the label of the input
+     * @param {*} onChange - the function to call when the input is changed
+     * @returns {Element} the input field panel
+     */
     createInput = (id, label, onChange) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
@@ -108,11 +137,15 @@ export class CorePanel {
         return newPanel;
     }
 
+    /**
+     * Creates a progress bar
+     * @param {string} id - the id of the progress bar
+     * @param {string} label - the label of the progress bar
+     * @returns {Element} the progress bar panel.
+     */
     createProgress = (id, label) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
-        newPanel.style.margin = "2px";
-        newPanel.style.padding = "0px";
 
         /* Label */
         const newSpanLabel = document.createElement("span");
@@ -139,6 +172,46 @@ export class CorePanel {
         return newPanel;
     }
 
+    /**
+     * Creates a select
+     * 
+     * @param {string} id 
+     * @param {string} label 
+     * @param {Array<{value: string, label: string}>} options
+     * @returns 
+     */
+    createSelect = (id, label, options) => {
+        const newPanel = document.createElement("p");
+        newPanel.classList.add("generic-field", "panel");
+
+        /* Label */
+        const newSpanLabel = document.createElement("span");
+        newSpanLabel.classList.add("generic-field", "label");
+        newSpanLabel.textContent = label;
+        newPanel.appendChild(newSpanLabel);
+
+        /* Buffer */
+        const newSpanBuffer = document.createElement("span");
+        newSpanBuffer.classList.add("generic-field", "buffer");
+        newPanel.appendChild(newSpanBuffer);
+
+        /* Select */
+        const newSelect = document.createElement("select");
+        newSelect.classList.add("generic-field", "select");
+        newSelect.id = id;
+        options.forEach((option) => {
+            const newOption = document.createElement("option");
+            newOption.value = option.value;
+            newOption.textContent = option.label;
+            newSelect.appendChild(newOption);
+        });
+        newPanel.appendChild(newSelect);
+        return newPanel;
+    }
+
+    /**
+     * Removes the panel.
+     */
     remove = () => {
         const contentPanel = this.getContentPanel();
         if (contentPanel) {
@@ -159,6 +232,9 @@ export class CorePanel {
         console.log("onRefresh:Default onRefresh ...");
     }
 
+    /**
+     * Refreshes the panel.
+     */
     refresh = () => {
         if (!this.getPanel()) {
             console.log("refresh:Panel not found for " + this.panelId);
@@ -167,14 +243,30 @@ export class CorePanel {
         this.onRefresh();
     }
 
+    /**
+     * Retrieves the panel by its ID.
+     * 
+     * @returns {Element|null|undefined} The panel, or null if not found.
+     */
     getPanel = () => {
         return document.body.querySelector("#" + this.panelId);
     }
 
+    /**
+     * Retrieves the content panel of the panel.
+     * 
+     * @returns {Element|null|undefined} The content panel, or null if not found.
+     */
     getContentPanel = () => {
         return this.getPanel()?.querySelector("#" + this.contentId);
     }
 
+    /**
+     * Retrieves an element by its ID from the content panel.
+     * 
+     * @param {string} id - The ID of the element to retrieve.
+     * @returns {Element|null|undefined} The element with the specified ID, or null if not found.
+     */
     getElement(id) {
         return this.getContentPanel()?.querySelector("#" + id);
     }

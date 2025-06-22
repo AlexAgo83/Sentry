@@ -16,7 +16,8 @@ export class PlayerPanel extends CorePanel {
         super(
             instance,
             "players-panel", 
-            "players-panel-content"
+            "players-panel-content",
+            false
         );
         this.maxRecipe = 10;
 
@@ -158,6 +159,7 @@ export class PlayerPanel extends CorePanel {
                         },
                         "lightpurple"
                     );
+                    // @ts-ignore
                     button.style.display = "none";
                     newPlayerDiv.appendChild(button);
                 }

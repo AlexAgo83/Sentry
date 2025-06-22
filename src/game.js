@@ -18,14 +18,18 @@ import { PlayerManager } from "./managers/playerManager.js";
 import { PanelManager } from "./managers/panelManager.js";
 
 export const STATIC_GAME_VERSION = "0.1.1";
+export const STATIC_DEFAULT_LOOP_INTERVAL = 250;
+export const STATIC_DEFAULT_LOOP_OFFLINE = 500;
+export const STATIC_DEFAULT_OFFLINE_THRESHOLD = 1.5;
 
 export class Game {
 
     constructor() {
         this.lastIntervalTime = null;
-        this.loopInterval = 250;
-        this.loopIntervalOffline = 500;
-        this.loopIntervalOfflineThreshold = 1.5;
+        
+        this.loopInterval = STATIC_DEFAULT_LOOP_INTERVAL;
+        this.loopIntervalOffline = STATIC_DEFAULT_LOOP_OFFLINE;
+        this.loopIntervalOfflineThreshold = STATIC_DEFAULT_OFFLINE_THRESHOLD;
 
         this.dataManager = new DataManager(this);
         this.skillManager = new SkillManager(this);

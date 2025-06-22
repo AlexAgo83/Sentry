@@ -4,8 +4,8 @@
   "description": "Sentry Idle",
   "main": "src/game.js",
   "scripts": {
-    "start": "live-server ./. --port=8080 --ignore=\".git/**/*,*.md\" --open=\"public\"",
-    "test": "live-server ./. --port=8080 --open=\"public\""
+    "start": "live-server ./. --open=\"public\" --port=8080",
+    "test": "live-server ./. --ignore=\".git/**/*,*.md\" --watch=\"./.\" --open=\"public\" --port=8080"
   },
   "repository": {
     "type": "git",
