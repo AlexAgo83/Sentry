@@ -9,6 +9,7 @@ This project is a JavaScript game engine with a focus on simplicity and ease of 
 * Combat mechanics
 * Hunting mechanics
 * Cooking mechanics
+* More mechanics to be implemented in the future
 * Recipe system
 * Panel system for game UI
 * Core game logic and utilities
@@ -16,14 +17,16 @@ This project is a JavaScript game engine with a focus on simplicity and ease of 
 # Technical Details
 
 * Programming language: JavaScript
-* Frameworks/Libraries: None
-* Database: None
 
 # Project Structure
 
 The project is divided into several modules, including:
 
 * `src/dataObjects`: Contains data object definitions for the game.
+* `src/dataObjects/actions`: Contains action definitions for the game.
+* `src/dataObjects/entities`: Contains entity definitions for the game.
+* `src/dataObjects/recipes`: Contains recipe definitions for the game.
+* `src/dataObjects/skills`: Contains skill definitions for the game.
 * `src/managers`: Contains manager classes for handling game logic.
 * `src/panels`: Contains panel components for the game UI.
 
@@ -36,10 +39,9 @@ The project is divided into several modules, including:
 # Running Locally
 
 1. Install live-server: `npm install -g live-server``
-2. Run live-server: `live-server ./.`
+2. Run live-server: `live-server ./. --port=8080 --ignore=".,.git/*,*.md" --open="public"`
 3. Navigate to: `/public``
 4. (Optional) Ctrl+C to kill the live-server
-
 # Troubleshooting
 
 If you encounter any issues, check the console logs for errors.
