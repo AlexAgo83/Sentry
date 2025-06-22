@@ -17,7 +17,8 @@ export class InfoPanel extends CorePanel {
 
         this.setOnInit(() => {
             const result = [];
-            result.push(this.createLabelValue("processTime", "Process Time"));
+            result.push(this.createLabelValue("processTime", "Time"));
+            result.push(this.createLabelValue("actionExecutionTime", "Execution Process"));
             result.push(this.createLabelValue("gameVersion", "Game Version"));
             return result;
         })
@@ -29,7 +30,10 @@ export class InfoPanel extends CorePanel {
                 if (contentPanel) {
                     /** Process Time */
                     const processTime = contentPanel.querySelector(`#processTime`);
-                    if (processTime) processTime.textContent = String(this.instance.lastIntervalTime);
+                    if (processTime) processTime.textContent = new Date(this.instance.lastIntervalTime)?.toLocaleString();
+                    /** Action Execution Time */
+                    const actionExecutionTime = contentPanel.querySelector(`#actionExecutionTime`);
+                    if (actionExecutionTime) actionExecutionTime.textContent = String(this.instance.executionTime);
                     /** Game Version */
                     const gameVersion = contentPanel.querySelector(`#gameVersion`);
                     if (gameVersion) gameVersion.textContent = String(this.instance.getGameVersion());

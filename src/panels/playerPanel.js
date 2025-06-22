@@ -273,7 +273,7 @@ export class PlayerPanel extends CorePanel {
                         if (recipeXpElement) recipeXpElement.textContent = String(currentSkill?.getSelectedRecipe()?.xp) + "/" + String(currentSkill?.getSelectedRecipe()?.xpNext); 
                         /* Recipe Progression */
                         const recipeProgressionElement = playerElement.querySelector("#recipeProgression");
-                        if (recipeProgressionElement) recipeProgressionElement.textContent = String(currAction?.getProgression() ?? "N/A");  
+                        if (recipeProgressionElement) recipeProgressionElement.textContent = String(currAction?.getProgression() ?? "N/A") + " %";  
                         const recipeProgressionViewElement = playerElement.querySelector("#recipeProgressionView");
                         if (recipeProgressionViewElement) 
                             /** @ts-ignore */ 

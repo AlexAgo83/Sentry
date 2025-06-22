@@ -90,20 +90,9 @@ export class Game {
             }
             
             this.lastIntervalTime = dateNow;
-            this.threads = [];
-            this.playerManager.getPlayers().forEach((player) => {
-                if (player.getSelectedAction()) {
-                    // const asyncAction = () => {
-                    //     player.getSelectedAction().doAction();
-                    // }
-                    // setTimeout(asyncAction, 0);
-                    // this.threads?.push(asyncAction);
-                }
-            });
-
-
+            
+            /** Threads management */
             const threads = [];
-
             this.playerManager.getPlayers().forEach((player) => {
                 if (player.getSelectedAction()) {
                     const asyncAction = () => {
@@ -115,12 +104,11 @@ export class Game {
                     threads.push(asyncAction());
                 }
             });
-
             Promise.all(threads).then(() => {
-                // console.log("All threads done !");
                 this.dataManager.save();
                 this.updateUI();
             });
+            this.executionTime = Date.now() - this.lastIntervalTime;
         }, this.loopInterval);
     }
 
