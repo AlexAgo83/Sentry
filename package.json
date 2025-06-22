@@ -1,0 +1,27 @@
+{
+  "name": "sentry",
+  "version": "0.1.1",
+  "description": "Sentry Idle",
+  "main": "src/game.js",
+  "scripts": {
+    "start": "live-server ./. --port=8080 --ignore=\".git/**/*,*.md\" --open=\"public\"",
+    "test": "live-server ./. --port=8080 --open=\"public\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexAgo83/Sentry.git"
+  },
+  "keywords": [
+    "sentry",
+    "idle"
+  ],
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  },
+  "author": "a.agostini.fr@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlexAgo83/Sentry/issues"
+  },
+  "homepage": "https://github.com/AlexAgo83/Sentry#readme"
+}
