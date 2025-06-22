@@ -32,7 +32,16 @@ export class PlayerPanel extends CorePanel {
 
 
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
-                newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
+                newPlayerDiv.appendChild(this.createInput(
+                    "name", 
+                    "Name", 
+                    (value, ...args) => {
+                        if (value != null && value.type == "change") {
+                            player.name = value.value;
+                        }
+                    })
+                );
+
                 newPlayerDiv.appendChild(this.createLabelValue("dateCreated", "Date Created"));
                 newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));
                 newPlayerDiv.appendChild(this.createLabelValue("gold", "Gold"));

@@ -69,6 +69,28 @@ export class CorePanel {
         return newButton;
     }
 
+    createInput = (id, label, onChange) => {
+        const newPanel = document.createElement("p");
+        newPanel.style.margin = "2px";
+        newPanel.style.padding = "0px";
+
+        /* Label */
+        const newSpanLabel = document.createElement("span");
+        newSpanLabel.textContent = label + " : ";
+        newPanel.appendChild(newSpanLabel);
+
+        /* Input */
+        const newInput = document.createElement("input");
+        newInput.id = id;
+        // newInput.type = type;
+        newInput.value = "N/A";
+        newInput.placeholder = label;
+        if (onChange) newInput.addEventListener("change", onChange);
+        newPanel.appendChild(newInput);
+
+        return newPanel;
+    }
+
     remove = () => {
         const contentPanel = this.getContentPanel();
         if (contentPanel) {
