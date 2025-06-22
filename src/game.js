@@ -4,6 +4,11 @@
 // @ts-check
 // game.js
 
+// Plan to 0.2.X :
+// Stage 001 - Basics UI ; Img, Btn and Selector
+// Stage 002 - Workflow : (Select)Skill -> (Select)Recipe -> (Button)Action
+// Stage 003 - Offline Processing on thread
+
 import { DataManager } from "./managers/dataManager.js";
 import { SkillManager } from "./managers/skillManager.js";
 import { RecipeManager } from "./managers/recipeManager.js";
