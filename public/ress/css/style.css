@@ -22,6 +22,13 @@
     font-size: var(--text-m-size);
     font-family: var(--default-font);
 }
+/** Containers / Pages */
+.generic-container-players {
+    margin-right: 10px;
+    display: flex;
+    min-width: 210px;
+    flex-direction: column;
+}
 
 /** PANELS */
 .generic-panel {
@@ -32,7 +39,7 @@
     padding-top: 5px;
     display: flex;
     flex-wrap: wrap;
-    min-width: fit-content;
+    min-width: fit-content; 
     box-shadow: inset 0px 5px 0px 0px var(--color-text-background-fade);
     border: 1px solid var(--color-text-background-fade);
     background-color: var(--color-text-background);
@@ -41,13 +48,19 @@
 /** Generic Fields */
 .generic-field {
     margin: 0px;
-    padding: 0px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 /** Field Container */
 .generic-field.panel {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
     min-width: fit-content;
+    margin-left: 2px;
+    margin-right: 2px;
     background-color: var(--color-text-background-alt);
 }
 
@@ -61,14 +74,27 @@
 /** LABEL & VALUE */
 .generic-field.label {
     color: var(--color-text-fade);
+    margin-left: 2px;
 }
 
 .generic-field.value {
     color: var(--color-text);
+    margin-right: 2px;
+}
+
+/** Button */
+.generic-field.button {
+    border: 1px solid var(--color-text);
+    border-radius: var(--border-radius-harmonized);
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 /** PROGRESS */
 .generic-field.progress {
+    width: 100%;
     accent-color:var(--color-primary);
     background-color:var(--color-tertiary);
     -webkit-appearence:none;
@@ -99,7 +125,7 @@
     border-radius: var(--border-radius-harmonized);
     padding-left: 5px;
     padding-right: 5px;
-    width: 120px;
+    width: 100%;
 }
 
 /** TEXT */

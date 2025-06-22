@@ -29,15 +29,13 @@ export class PlayerPanel extends CorePanel {
             playersObject.forEach((player) => {
                 const newPlayerDiv = document.createElement("div");
                 newPlayerDiv.id = "player-" + player.id;
-                newPlayerDiv.style.marginRight = "10px";
-                newPlayerDiv.style.display = "flex";
-                newPlayerDiv.style.flexDirection = "column";
-
+                newPlayerDiv.classList.add("generic-container-players");
 
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
+                newPlayerDiv.appendChild(this.createLabel("Name")); /* ONLY LABEL */
                 newPlayerDiv.appendChild(this.createInput(
                     "name", 
-                    "Name", 
+                    null, /* NO LABEL */
                     (value, ...args) => {
                         if (value != null && value.type == "change") {
                             const input = newPlayerDiv.querySelector("#name");
@@ -63,7 +61,7 @@ export class PlayerPanel extends CorePanel {
                 newPlayerDiv.appendChild(this.createLabelValue("recipeLevel", "Recipe Level"));
                 newPlayerDiv.appendChild(this.createLabelValue("recipeXp", "Recipe XP"));
                 newPlayerDiv.appendChild(this.createLabelValue("recipeProgression", "Recipe Progression"));
-                newPlayerDiv.appendChild(this.createProgress("recipeProgressionView", "Action"));
+                newPlayerDiv.appendChild(this.createProgress("recipeProgressionView"));
 
 
                 newPlayerDiv.appendChild(this.createButton(

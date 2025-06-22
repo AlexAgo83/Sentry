@@ -51,6 +51,24 @@ export class CorePanel {
     }
 
     /**
+     * Creates a label
+     * 
+     * @param {string} label - The label
+     * @returns {Element} The label panel
+     */
+    createLabel = (label) => {
+        const newPanel = document.createElement("p");
+        newPanel.classList.add("generic-field", "panel");
+        newPanel.style.margin = "2px";
+        newPanel.style.padding = "0px";
+        const newSpanLabel = document.createElement("span");
+        newSpanLabel.classList.add("generic-field", "label");
+        newSpanLabel.textContent = label;
+        newPanel.appendChild(newSpanLabel);
+        return newPanel;
+    }
+
+    /**
      * Creates a label value
      * 
      * @param {string} id - The id
@@ -92,6 +110,7 @@ export class CorePanel {
      */
     createButton = (id, label, onClick, color) => {
         const newButton = document.createElement("button");
+        newButton.classList.add("generic-field", "button");
         newButton.id = id;
         if (color) newButton.style.backgroundColor = color;
         newButton.textContent = label;
@@ -103,26 +122,28 @@ export class CorePanel {
      * Creates an input field
      * 
      * @param {string} id - the id of the input
-     * @param {string} label - the label of the input
+     * @param {string|null|undefined} label - the label of the input
      * @param {*} onChange - the function to call when the input is changed
      * @returns {Element} the input field panel
      */
-    createInput = (id, label, onChange) => {
+    createInput = (id, label=null, onChange) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
         newPanel.style.margin = "2px";
         newPanel.style.padding = "0px";
 
-        /* Label */
-        const newSpanLabel = document.createElement("span");
-        newSpanLabel.classList.add("generic-field", "label");
-        newSpanLabel.textContent = label;
-        newPanel.appendChild(newSpanLabel);
-
-        /* Buffer */
-        const newSpanBuffer = document.createElement("span");
-        newSpanBuffer.classList.add("generic-field", "buffer");
-        newPanel.appendChild(newSpanBuffer);
+        if (label) {
+            /* Label */
+            const newSpanLabel = document.createElement("span");
+            newSpanLabel.classList.add("generic-field", "label");
+            newSpanLabel.textContent = label;
+            newPanel.appendChild(newSpanLabel);
+            
+            /* Buffer */
+            const newSpanBuffer = document.createElement("span");
+            newSpanBuffer.classList.add("generic-field", "buffer");
+            newPanel.appendChild(newSpanBuffer);
+        }
 
         /* Input */
         const newInput = document.createElement("input");
@@ -130,7 +151,7 @@ export class CorePanel {
         newInput.id = id;
         // newInput.type = type;
         newInput.value = "N/A";
-        newInput.placeholder = label;
+        if (label) newInput.placeholder = label;
         if (onChange) newInput.addEventListener("change", onChange);
         newPanel.appendChild(newInput);
 
@@ -140,23 +161,25 @@ export class CorePanel {
     /**
      * Creates a progress bar
      * @param {string} id - the id of the progress bar
-     * @param {string} label - the label of the progress bar
+     * @param {string|null|undefined} label - the label of the progress bar
      * @returns {Element} the progress bar panel.
      */
-    createProgress = (id, label) => {
+    createProgress = (id, label=null) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
 
-        /* Label */
-        const newSpanLabel = document.createElement("span");
-        newSpanLabel.classList.add("generic-field", "label");
-        newSpanLabel.textContent = label;
-        newPanel.appendChild(newSpanLabel);
-
-        /* Buffer */
-        const newSpanBuffer = document.createElement("span");
-        newSpanBuffer.classList.add("generic-field", "buffer");
-        newPanel.appendChild(newSpanBuffer);
+        if (label) {
+            /* Label */
+            const newSpanLabel = document.createElement("span");
+            newSpanLabel.classList.add("generic-field", "label");
+            newSpanLabel.textContent = label;
+            newPanel.appendChild(newSpanLabel);
+            
+            /* Buffer */
+            const newSpanBuffer = document.createElement("span");
+            newSpanBuffer.classList.add("generic-field", "buffer");
+            newPanel.appendChild(newSpanBuffer);   
+        }
 
         /* Progress */
         const newProgress = document.createElement("progress");
