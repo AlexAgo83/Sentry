@@ -14,6 +14,7 @@ export class Skill extends Entity {
         this.level = 1;
         this.maxLevel = 120;
         this.xpNext = 10;
+        this.baseInterval = 1000;
         this.recipes = new Map();
         this.selectedRecipeID = null;
 
@@ -44,6 +45,10 @@ export class Skill extends Entity {
                 recipesData: this.saveRecipes()
             };
         })
+    }
+
+    setBaseInterval(interval) {
+        this.baseInterval = interval;
     }
 
     getRecipeByID = (identifier) => {

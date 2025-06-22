@@ -9,5 +9,6 @@ import { Skill } from "./skill.js";
 export class CombatSkill extends Skill {
     constructor() {
         super("Combat");
+        this.baseInterval = 1500;
     }
 }

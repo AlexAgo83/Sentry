@@ -91,6 +91,25 @@ export class CorePanel {
         return newPanel;
     }
 
+    createProgress = (id, label) => {
+        const newPanel = document.createElement("p");
+        newPanel.style.margin = "2px";
+        newPanel.style.padding = "0px";
+        const newSpanLabel = document.createElement("span");
+        newSpanLabel.textContent = label + " : ";
+        newPanel.appendChild(newSpanLabel);
+        const newProgress = document.createElement("progress");
+        newProgress.id = id;
+        
+        // @ts-ignore
+        newProgress.max = "100";
+        // @ts-ignore
+        newProgress.value = "0";
+        
+        newPanel.appendChild(newProgress);
+        return newPanel;
+    }
+
     remove = () => {
         const contentPanel = this.getContentPanel();
         if (contentPanel) {

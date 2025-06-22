@@ -19,6 +19,8 @@ export class PlayerPanel extends CorePanel {
             "players-panel-content"
         );
         this.maxRecipe = 10;
+
+        /** ON INIT */
         this.setOnInit(() => {
             const result = [];
             const playersObject = this.instance.playerManager.getPlayers();
@@ -55,9 +57,12 @@ export class PlayerPanel extends CorePanel {
                 newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
                 newPlayerDiv.appendChild(this.createLabelValue("skillLevel", "Skill Level"));
                 newPlayerDiv.appendChild(this.createLabelValue("skillXp", "Skill XP"));
+                newPlayerDiv.appendChild(this.createLabelValue("skillInterval", "Skill Interval"));
                 newPlayerDiv.appendChild(this.createLabelValue("recipe", "Recipe"));
-                newPlayerDiv.appendChild(this.createLabelValue("recipeXp", "Recipe XP"));
                 newPlayerDiv.appendChild(this.createLabelValue("recipeLevel", "Recipe Level"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipeXp", "Recipe XP"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipeProgression", "Recipe Progression"));
+                newPlayerDiv.appendChild(this.createProgress("recipeProgressionView", "Recipe Progression"));
 
 
                 newPlayerDiv.appendChild(this.createButton(
@@ -172,6 +177,7 @@ export class PlayerPanel extends CorePanel {
             return result;
         })
 
+        /** ON REFRESH */
         this.setOnRefresh(() => {
             this.instance.playerManager.getPlayers().forEach((player) => {
                 const selectedAction = player.getSelectedAction();
@@ -251,6 +257,9 @@ export class PlayerPanel extends CorePanel {
                         /* Skill XP */
                         const skillXpElement = playerElement.querySelector("#skillXp");
                         if (skillXpElement) skillXpElement.textContent = String(currentSkill?.xp) + "/" + String(currentSkill?.xpNext);
+                        /* Skill XP */
+                        const skillIntervalElement = playerElement.querySelector("#skillInterval");
+                        if (skillIntervalElement) skillIntervalElement.textContent = String(currSkill.baseInterval);
 
                         /* Recipe Data */
                         /* Recipe */
@@ -262,6 +271,13 @@ export class PlayerPanel extends CorePanel {
                         /* Recipe XP */
                         const recipeXpElement = playerElement.querySelector("#recipeXp");
                         if (recipeXpElement) recipeXpElement.textContent = String(currentSkill?.getSelectedRecipe()?.xp) + "/" + String(currentSkill?.getSelectedRecipe()?.xpNext); 
+                        /* Recipe Progression */
+                        const recipeProgressionElement = playerElement.querySelector("#recipeProgression");
+                        if (recipeProgressionElement) recipeProgressionElement.textContent = String(currAction?.getProgression() ?? "N/A");  
+                        const recipeProgressionViewElement = playerElement.querySelector("#recipeProgressionView");
+                        if (recipeProgressionViewElement) 
+                            /** @ts-ignore */ 
+                            recipeProgressionViewElement.value = currAction?.getProgression();
                     } else {
                         console.log("setOnRefresh:Player element not found");
                     }

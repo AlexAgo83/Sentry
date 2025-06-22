@@ -11,12 +11,14 @@ export class Action extends Entity {
     constructor(identifier, player) {
         super(identifier);
         this.player = player;
+        this.progression = null;
         this.setOnLoad((actionData) => {
             // ...
         });
         this.setOnSave(() => {
             return this.getIdentifier();
         });
+        this.startInterval = null;
     }
 
     getPlayer = () => {
@@ -31,6 +33,10 @@ export class Action extends Entity {
         return this.getSkill().getSelectedRecipe();
     }
 
+    getProgression = () => {
+        return this.progression;
+    }
+
     setOnDoAction(onDoAction) {
         this.onDoAction = onDoAction;
     }
@@ -41,52 +47,63 @@ export class Action extends Entity {
         return false;
     }
 
-    doAction = (player) => {
+    doAction = (player, intervalFilter=true) => {
         if (this.getSkill().getSelectedRecipe()) {
+            /** Test interval */
+            if (this.startInterval == null) this.startInterval = Date.now();
+            else {
+                /** Request found */
+                const diffInterval = Date.now() - this.startInterval;
+                if (diffInterval >= this.getSkill().baseInterval) {
+                    this.startInterval = null;
+                } else if (diffInterval > 0 && isFinite(diffInterval)) {
+                    this.progression = Math.floor((diffInterval / this.getSkill().baseInterval) * 100);
+                }
+                return
+            }
+            /** Time to do action */
             if (this.onDoAction()) {
                 const currSkill = this.getSkill();
                 const currRecipe = this.getSkill()?.getSelectedRecipe();
-                // console.log(`(Action done!) PlayerID:${player.getIdentifier()}, Skill:${currSkill.getIdentifier()}, Recipe:${currRecipe.getIdentifier()}`); 
                 if (currSkill.xp >= currSkill.xpNext) {
                     this.levelUpSkill(currSkill);
                 }
                 if (currRecipe.xp >= currRecipe.xpNext) {
                     this.levelUpRecipe(currRecipe);
                 }
-            } else console.log("doAction:Action failed.");
+            } else console.log("doAction:Action failed."); 
         } else {
             console.log("doAction:No recipe selected.");
         }
     };
 
     levelUpSkill = (skillObject) => {
+        if (skillObject.level >= skillObject.maxLevel) return;
+
+        skillObject.xp -= skillObject.xpNext;
+        skillObject.level += 1;
+        skillObject.xpNext = Math.floor(skillObject.xpNext * 1.5);
+
         const player = this.getPlayer();
-        const skill = skillObject;
-
-        if (skill.level >= skill.maxLevel) {
-            return;
-        }
-
-        skill.xp -= skill.xpNext;
-        skill.level += 1;
-        skill.xpNext = Math.floor(skill.xpNext * 1.5);
-
         player.dmg += 1;
-        console.log(`(Level Skill up!) PlayerID:${player.getIdentifier()}, Skill:${skill.getIdentifier()}, level:${skill.level} xpNext:${skill.xpNext}`);
+        console.log(`(Level Skill up!) 
+            PlayerID:${player.getIdentifier()}, 
+            Skill:${skillObject.getIdentifier()}, 
+            level:${skillObject.level} 
+            xpNext:${skillObject.xpNext}`);
     }
 
     levelUpRecipe = (recipeObject) => {
-        const player = this.getPlayer();
-        const recipe = recipeObject;
+        if (recipeObject.level >= recipeObject.maxLevel) return;
 
-        if (recipe.level >= recipe.maxLevel) {
-            return;
-        }
+        recipeObject.xp -= recipeObject.xpNext;
+        recipeObject.level += 1;
+        recipeObject.xpNext = Math.floor(recipeObject.xpNext * 1.5);
 
-        recipe.xp -= recipe.xpNext;
-        recipe.level += 1;
-        recipe.xpNext = Math.floor(recipe.xpNext * 1.5);
-
-        console.log(`(Level Recipe up!) PlayerID:${player.getIdentifier()}, Recipe:${recipe.getIdentifier()}, level:${recipe.level} xpNext:${recipe.xpNext}`);
+        console.log(`(Level Recipe up!) 
+            PlayerID:${this.getPlayer().getIdentifier()}, 
+            Recipe:${recipeObject.getIdentifier()}, 
+            level:${recipeObject.level} 
+            xpNext:${recipeObject.xpNext}`);
     }
 }

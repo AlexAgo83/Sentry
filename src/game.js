@@ -17,7 +17,7 @@ export class Game {
 
     constructor() {
         this.lastIntervalTime = null;
-        this.loopInterval = 500;
+        this.loopInterval = 250;
         this.loopIntervalOfflineThreshold = 1.5;
 
         this.dataManager = new DataManager(this);
@@ -108,7 +108,7 @@ export class Game {
                 if (player.getSelectedAction()) {
                     const asyncAction = () => {
                         return new Promise((resolve) => {
-                            player.getSelectedAction().doAction();
+                            player.getSelectedAction().doAction(player, true);
                             resolve(true);
                         });
                     }
@@ -136,7 +136,7 @@ export class Game {
             for (let i = 1; i < howMuchLoops; i++) {
                 this.playerManager.getPlayers().forEach((player) => {
                     if (player.getSelectedAction()) {
-                        player.getSelectedAction().doAction();
+                        player.getSelectedAction().doAction(player, false);
                     }
                 });
             }
