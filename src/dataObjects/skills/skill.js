@@ -19,6 +19,7 @@ export class Skill extends Entity {
 
         for (const value of STATIC_RECIPES_LIST) {
             const skillIdentifier = value[0];
+            if (skillIdentifier != this.getIdentifier()) continue;
             const arrayOfRecipeIdentifier = value[1];
             for (const recipeIdentifier of arrayOfRecipeIdentifier) {
                 this.addRecipe(createRecipeByID(skillIdentifier, recipeIdentifier))
@@ -61,14 +62,13 @@ export class Skill extends Entity {
     setSelectedRecipe(recipe) {
         this.selectedRecipe = recipe;
         this.selectedRecipeID = recipe?.getIdentifier();
-        console.log(`skill:Selected recipe ${this.selectedRecipeID}`);
+        console.log(`(important) skill:Selected recipe ${this.selectedRecipeID}`);
     }
     getSelectedRecipe() {
         return this.selectedRecipe;
     }
 
     addRecipe(recipe) {
-        this.recipes.set(recipe.getIdentifier(), recipe);
+        if (recipe) this.recipes.set(recipe.getIdentifier(), recipe);
     }
-
 }

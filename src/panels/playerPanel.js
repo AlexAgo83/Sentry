@@ -82,14 +82,18 @@ export class PlayerPanel extends CorePanel {
                     "lightpink"
                 ));
 
-                newPlayerDiv.appendChild(this.createButton(
-                    "stop-combat-" + player.id, 
-                    "Stop Action", 
-                    () => {
-                        player.setSelectedAction(null);
-                    },
-                    "lightgray"
-                ));
+                for (let i = 0; i < 10; i++) {
+                    const button = this.createButton(
+                        "recipe-selector-" + i + "-" + player.id, 
+                        "Select Recipe", 
+                        () => {
+                            player.setSelectedAction(null);
+                        },
+                        "lightpurple"
+                    );
+                    button.style.display = "none";
+                    newPlayerDiv.appendChild(button);
+                }
 
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
                 newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
@@ -113,12 +117,49 @@ export class PlayerPanel extends CorePanel {
                 const selectedAction = player.getSelectedAction();
                 const currentSkill = selectedAction?.getSkill();
                 const panel = this.getPanel();
+
                 if (panel && currentSkill) {
+
                     const playerElement = panel.querySelector(`#player-${player.id}`);
                     if (playerElement) {
+
                         const currAction = player.getSelectedAction();
                         const currSkill = currAction?.getSkill();
                         const currRecipe = currSkill?.getSelectedRecipe();
+
+                        /** Recipe Selector */
+                        if (currSkill) {
+                            let i = 0;
+                            const max = 10;
+                            for (const key of currSkill.recipes.keys()) {
+                                const lRecipe = currSkill.recipes.get(key);
+                                if (i<max) {
+                                    const recipeSelector = playerElement.querySelector(`#recipe-selector-${i}-${player.id}`);
+                                    if (recipeSelector) {
+                                        // @ts-ignore
+                                        recipeSelector.style.display = "inline-block";
+                                        recipeSelector.textContent = "Select Recipe : " + key;
+                                        recipeSelector.addEventListener("click", () => {
+                                            currSkill.setSelectedRecipe(currSkill.getRecipeByID(key));
+                                            console.log("(important) setSelectedRecipe:" + key);
+
+                                            const recipe = currAction.getSkill().recipes.get(key);
+                                            currAction.getSkill().setSelectedRecipe(recipe);
+                                            player.setSelectedAction(currAction);
+                                        });
+                                    } 
+                                    i+=1;
+                                }
+                            }
+                            if (i<max) {
+                                const recipeSelector = panel.querySelector(`#recipe-selector-${i}`);
+                                if (recipeSelector) {
+                                    // @ts-ignore
+                                    recipeSelector.style.display = "none";
+                                    recipeSelector.textContent = "Select Recipe : N/A";
+                                } 
+                            }
+                        }
 
                         /* Player Data */
                         /* ID */

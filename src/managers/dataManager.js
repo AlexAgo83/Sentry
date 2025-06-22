@@ -6,7 +6,7 @@
 
 import { CoreManager } from "./coreManager.js";
 
-export const STATIC_SAVEGAME_TAG = "saveGame-v2";
+export const STATIC_SAVEGAME_TAG = "saveGame-v4";
 export class DataManager extends CoreManager {
     constructor(instance) {
         super(instance);
@@ -25,6 +25,8 @@ export class DataManager extends CoreManager {
         this.instance.playerManager.savePlayers(savedPlayers, savedData);
 
         localStorage.setItem(STATIC_SAVEGAME_TAG, JSON.stringify(savedData));
+
+        // console.log("Game data saved", savedData);
     }
 
     load = () => {

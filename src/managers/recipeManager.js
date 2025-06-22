@@ -19,15 +19,15 @@ export const STATIC_COMBAT_RECIPES_LIST = [
     "monster003"
 ];
 export const STATIC_HUNTING_RECIPES_LIST = [
-    "meal001",
-    "meal002"
-];
-export const STATIC_COOKING_RECIPES_LIST = [
     "hunt001",
     "hunt002"
 ];
+export const STATIC_COOKING_RECIPES_LIST = [
+    "meal001",
+    "meal002"
+];
 export const STATIC_RECIPES_LIST = [
-    ["Combat", STATIC_COMBAT_RECIPES_LIST], 
+    ["Combat",  STATIC_COMBAT_RECIPES_LIST], 
     ["Hunting", STATIC_HUNTING_RECIPES_LIST], 
     ["Cooking", STATIC_COOKING_RECIPES_LIST]
 ];
@@ -42,16 +42,16 @@ export const createRecipeByID = (skillIdentifier, recipeIdentifier) => {
             return new Monster_003();
         }
     } else if (skillIdentifier == "Hunting") {
-        if (recipeIdentifier == "meal001") {
-            return new Meal_001();
-        } else if (recipeIdentifier == "meal002") {
-            return new Meal_002();
-        }
-    } else if (skillIdentifier == "Cooking") {
         if (recipeIdentifier == "hunt001") {
             return new Hunt_001();
         } else if (recipeIdentifier == "hunt002") {
             return new Hunt_002();
+        }
+    } else if (skillIdentifier == "Cooking") {
+        if (recipeIdentifier == "meal001") {
+            return new Meal_001();
+        } else if (recipeIdentifier == "meal002") {
+            return new Meal_002();
         }
     } else {
         console.warn("(important)createRecipeByID:recipe not found, skillId:"+skillIdentifier);
