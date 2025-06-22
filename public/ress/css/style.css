@@ -1,0 +1,133 @@
+/** SETUP */
+:root {
+    --text-xs-size: 8px;
+    --text-s-size: 10px;
+    --text-m-size: 12px;
+    --text-l-size: 18px;
+    --text-xl-size: 24px;
+    --default-font: 'Fira Mono', 'Consolas', monospace;
+    --color-text: #000000;
+    --color-text-fade: #454545;
+    --color-text-background: #ffffff;
+    --color-text-background-fade: #d9d9d9a3;
+    --color-text-background-alt: #7493a915;
+    --color-primary: #3ea7f3;
+    --color-secondary: #506574;
+    --color-tertiary: #7493a9;
+    --border-radius-harmonized: 5px;
+}
+
+/** Global definitions */
+.generic-global {
+    font-size: var(--text-m-size);
+    font-family: var(--default-font);
+}
+
+/** PANELS */
+.generic-panel {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    min-width: fit-content;
+    box-shadow: inset 0px 5px 0px 0px var(--color-text-background-fade);
+    border: 1px solid var(--color-text-background-fade);
+    background-color: var(--color-text-background);
+}
+
+/** Generic Fields */
+.generic-field {
+    margin: 0px;
+    padding: 0px;
+}
+/** Field Container */
+.generic-field.panel {
+    display: flex;
+    flex-wrap: wrap;
+    min-width: fit-content;
+    background-color: var(--color-text-background-alt);
+}
+
+/** Space Buffer */
+.generic-field.buffer {
+    flex: 1;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+/** LABEL & VALUE */
+.generic-field.label {
+    color: var(--color-text-fade);
+}
+
+.generic-field.value {
+    color: var(--color-text);
+}
+
+/** PROGRESS */
+.generic-field.progress {
+    accent-color:var(--color-primary);
+    background-color:var(--color-tertiary);
+    -webkit-appearence:none;
+    border-radius: var(--border-radius-harmonized);
+}
+
+/** Progress bar color */
+.generic-field.progress::-webkit-progress-bar {
+    background-color:var(--color-tertiary);
+    border-radius: var(--border-radius-harmonized);
+}
+
+/** Progress value color */
+.generic-field.progress::-webkit-progress-value {
+    background-color:var(--color-secondary);
+    border-radius: var(--border-radius-harmonized);
+}
+
+/** Progress value color - alternative */
+.generic-field.progress::-moz-progress-bar {
+    background-color:var(--color-secondary);
+}
+
+/** Inputfield */
+.generic-field.input {
+    background-color: var(--color-text-background);
+    border: 1px solid var(--color-text-background-fade);
+    border-radius: var(--border-radius-harmonized);
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 120px;
+}
+
+/** TEXT */
+.generic-text {
+    font-size: var(--text-m-size);
+    font-family: var(--default-font);
+}
+
+.generic-text.no-bg {
+    background-color: transparent;
+}
+
+.generic-text.fs-xs {
+    font-size: var(--text-xs-size);
+}
+
+.generic-text.fs-s {
+    font-size: var(--text-s-size);
+}
+
+.generic-text.fs-m {
+    font-size: var(--text-m-size);
+}
+
+.generic-text.fs-l {
+    font-size: var(--text-l-size);
+}
+
+.generic-text.fs-xl {
+    font-size: var(--text-xl-size);
+}

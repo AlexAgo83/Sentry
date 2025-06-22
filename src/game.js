@@ -4,6 +4,12 @@
 // @ts-check
 // game.js
 
+// ########## STAGES ##########
+// Plan: to 0.2.0
+//  Stage 1     -   Asset Manager
+//  Stage 2     -   Theme/CSS
+//  Stage 3     -   Stamina
+
 import { DataManager } from "./managers/dataManager.js";
 import { SkillManager } from "./managers/skillManager.js";
 import { RecipeManager } from "./managers/recipeManager.js";
@@ -93,6 +99,7 @@ export class Game {
             this.lastIntervalTime = startTime;
             
             /** Threads management */
+            
             this.threads = [];
             this.playerManager.getPlayers().forEach((player) => {
                 if (player.getSelectedAction()) {
@@ -113,7 +120,6 @@ export class Game {
             });
         }, this.loopInterval);
     }
-
 
     /**
      * Handles the game loop when the game was offline for a period.

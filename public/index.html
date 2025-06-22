@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <title>Sentry Idle</title>
+  <link rel="stylesheet" href="ress/css/style.css">
 </head>
 <body>
-  <h1>Sentry Idle</h1>
+  <h1 class="generic-field value generic-text fs-xl no-bg">Sentry Idle</h1>
   <link rel="shortcut icon" href="#" />
-  <div id="info-panel"></div>
-  <div id="players-panel"></div>
-  <div id="controls-panel"></div>
+  <div id="game" class="generic-global">
+    <div id="info-panel" class="generic-panel"></div>
+    <div id="players-panel" class="generic-panel"></div>
+    <div id="controls-panel" class="generic-panel"></div>
+  </div>
   <script type="module" src="../src/game.js"></script>
 </body>
 </html>

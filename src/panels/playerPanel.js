@@ -51,7 +51,7 @@ export class PlayerPanel extends CorePanel {
                     })
                 );
 
-                newPlayerDiv.appendChild(this.createLabelValue("dateCreated", "Date Created"));
+                newPlayerDiv.appendChild(this.createLabelValue("dateCreated", "Date Created")); // , null, "fs-s"));
                 newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));
                 newPlayerDiv.appendChild(this.createLabelValue("gold", "Gold"));
                 newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
@@ -62,7 +62,7 @@ export class PlayerPanel extends CorePanel {
                 newPlayerDiv.appendChild(this.createLabelValue("recipeLevel", "Recipe Level"));
                 newPlayerDiv.appendChild(this.createLabelValue("recipeXp", "Recipe XP"));
                 newPlayerDiv.appendChild(this.createLabelValue("recipeProgression", "Recipe Progression"));
-                newPlayerDiv.appendChild(this.createProgress("recipeProgressionView", "Recipe Progression"));
+                newPlayerDiv.appendChild(this.createProgress("recipeProgressionView", "Action"));
 
 
                 newPlayerDiv.appendChild(this.createButton(
@@ -239,7 +239,7 @@ export class PlayerPanel extends CorePanel {
                             nameElement.value = String(player.name);
                         /* Date Created */
                         const dateCreatedElement = playerElement.querySelector("#dateCreated");
-                        if (dateCreatedElement) dateCreatedElement.textContent = new Date(player.dateCreated)?.toLocaleString();
+                        if (dateCreatedElement) dateCreatedElement.textContent = new Date(player.dateCreated)?.toLocaleDateString();
                         /* HP */
                         const hpElement = playerElement.querySelector("#hp");
                         if (hpElement) hpElement.textContent = String(player.hp);

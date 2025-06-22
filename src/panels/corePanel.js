@@ -46,15 +46,24 @@ export class CorePanel {
         }
     }
 
-    createLabelValue = (id, label, defaultValue=null) => {
+    createLabelValue = (id, label, defaultValue=null, valueSize="fs-m") => {
         const newPanel = document.createElement("p");
+        newPanel.classList.add("generic-field", "panel");
         newPanel.style.margin = "2px";
         newPanel.style.padding = "0px";
         const newSpanLabel = document.createElement("span");
-        newSpanLabel.textContent = label + " : ";
+        newSpanLabel.classList.add("generic-field", "label");
+        newSpanLabel.textContent = label;
         newPanel.appendChild(newSpanLabel);
+        const newSpanBuffer = document.createElement("span");
+        newSpanBuffer.classList.add("generic-field", "buffer");
+        newPanel.appendChild(newSpanBuffer);
         const newSpanValue = document.createElement("span");
         newSpanValue.id = id;
+        newSpanValue.classList.add("generic-field", "value");
+        if (valueSize != null) {
+            newSpanValue.classList.add("generic-text", valueSize);
+        }
         newSpanValue.textContent = defaultValue ? defaultValue : "N/A";
         newPanel.appendChild(newSpanValue);
         return newPanel;
@@ -71,16 +80,24 @@ export class CorePanel {
 
     createInput = (id, label, onChange) => {
         const newPanel = document.createElement("p");
+        newPanel.classList.add("generic-field", "panel");
         newPanel.style.margin = "2px";
         newPanel.style.padding = "0px";
 
         /* Label */
         const newSpanLabel = document.createElement("span");
-        newSpanLabel.textContent = label + " : ";
+        newSpanLabel.classList.add("generic-field", "label");
+        newSpanLabel.textContent = label;
         newPanel.appendChild(newSpanLabel);
+
+        /* Buffer */
+        const newSpanBuffer = document.createElement("span");
+        newSpanBuffer.classList.add("generic-field", "buffer");
+        newPanel.appendChild(newSpanBuffer);
 
         /* Input */
         const newInput = document.createElement("input");
+        newInput.classList.add("generic-field", "value", "input");
         newInput.id = id;
         // newInput.type = type;
         newInput.value = "N/A";
@@ -93,12 +110,24 @@ export class CorePanel {
 
     createProgress = (id, label) => {
         const newPanel = document.createElement("p");
+        newPanel.classList.add("generic-field", "panel");
         newPanel.style.margin = "2px";
         newPanel.style.padding = "0px";
+
+        /* Label */
         const newSpanLabel = document.createElement("span");
-        newSpanLabel.textContent = label + " : ";
+        newSpanLabel.classList.add("generic-field", "label");
+        newSpanLabel.textContent = label;
         newPanel.appendChild(newSpanLabel);
+
+        /* Buffer */
+        const newSpanBuffer = document.createElement("span");
+        newSpanBuffer.classList.add("generic-field", "buffer");
+        newPanel.appendChild(newSpanBuffer);
+
+        /* Progress */
         const newProgress = document.createElement("progress");
+        newProgress.classList.add("generic-field", "progress");
         newProgress.id = id;
         
         // @ts-ignore
