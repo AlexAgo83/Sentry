@@ -8,6 +8,8 @@ import { CorePanel } from "./corePanel.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
 import { HuntingAction } from "../dataObjects/actions/huntingAction.js";
 import { CookingAction } from "../dataObjects/actions/cookingAction.js";
+import { ExcavationAction } from "../dataObjects/actions/excavationAction.js";
+import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
 
 export class PlayerPanel extends CorePanel {
     constructor(instance) {
@@ -77,7 +79,7 @@ export class PlayerPanel extends CorePanel {
 
                         player.setSelectedAction(huntingAction);
                     },
-                    "lightgreen"
+                    "lightpink"
                 ));
 
                 newPlayerDiv.appendChild(this.createButton(
@@ -93,6 +95,36 @@ export class PlayerPanel extends CorePanel {
                         player.setSelectedAction(cookingAction);
                     },
                     "lightpink"
+                ));
+
+                newPlayerDiv.appendChild(this.createButton(
+                    "start-excavation-" + player.id, 
+                    "Start Action : Excavation", 
+                    () => {
+                        const excavationAction = new ExcavationAction(player);
+                        
+                        /** Select exca001 */
+                        const exca001 = excavationAction.getSkill().recipes.get("exca001");
+                        excavationAction.getSkill().setSelectedRecipe(exca001);
+
+                        player.setSelectedAction(excavationAction);
+                    },
+                    "lightgreen"
+                ));
+
+                newPlayerDiv.appendChild(this.createButton(
+                    "start-metalwork-" + player.id, 
+                    "Start Action : MetalWork", 
+                    () => {
+                        const metalWorkAction = new MetalWorkAction(player);
+                        
+                        /** Select mw001 */
+                        const mw001 = metalWorkAction.getSkill().recipes.get("mw001");
+                        metalWorkAction.getSkill().setSelectedRecipe(mw001);
+
+                        player.setSelectedAction(metalWorkAction);
+                    },
+                    "lightgreen"
                 ));
 
                 for (let i = 0; i < 10; i++) {

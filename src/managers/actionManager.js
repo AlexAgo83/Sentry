@@ -8,6 +8,8 @@ import { CoreManager } from "./coreManager.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
 import { HuntingAction } from "../dataObjects/actions/huntingAction.js";
 import { CookingAction } from "../dataObjects/actions/cookingAction.js";
+import { ExcavationAction } from "../dataObjects/actions/excavationAction.js";
+import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
 
 export class ActionManager extends CoreManager {
 
@@ -27,18 +29,26 @@ export class ActionManager extends CoreManager {
         return actionResult;
     }
 
+    /**
+     * Creates an action based on the provided identifier.
+     * 
+     * @param {string} identifier - The type of action to create.
+     * @param {...any} args - Additional arguments for the action constructor.
+     * @returns {Object|null} - The created action instance or null if not found.
+     */
     createActionByID = (identifier, ...args) => {
         if (identifier == "Combat") {
-            console.log("createActionByID:Combat action created");
             return new CombatAction(...args);
         } else if (identifier == "Hunting") {
-            console.log("createActionByID:Hunting action created");
             return new HuntingAction(...args);
         } else if (identifier == "Cooking") {
-            console.log("createActionByID:Cooking action created");
             return new CookingAction(...args);
+        } else if (identifier == "Excavation") {
+            return new ExcavationAction(...args)
+        } else if (identifier == "MetalWork") {
+            return new MetalWorkAction(...args)
         } else {
-            console.warn("createActionByID:Action not found, id: " + identifier);
+            console.error("Action not found, id (May be nothing...) " + identifier);
         }
         return null;
     }

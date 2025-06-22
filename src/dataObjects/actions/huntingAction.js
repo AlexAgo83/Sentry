@@ -1,10 +1,10 @@
 // Copyright (c) 2025 <a.agostini.fr@gmail.com>
 // This work is free. You can redistribute it and/or modify it
 
-import { Action } from "./action.js";
-
 // @ts-check
-// combatAction.js
+// huntingAction.js
+
+import { Action } from "./action.js";
 
 export class HuntingAction extends Action {
 

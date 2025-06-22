@@ -9,7 +9,8 @@ This project is a JavaScript game engine with a focus on simplicity and ease of 
 * Combat mechanics
 * Hunting mechanics
 * Cooking mechanics
-* More mechanics to be implemented in the future
+* Excavation mechanics
+* ... and more mechanis to be implemented in the future
 * Recipe system
 * Panel system for game UI
 * Core game logic and utilities
@@ -39,7 +40,7 @@ The project is divided into several modules, including:
 # Running Locally
 
 1. Install live-server: `npm install -g live-server``
-2. Run live-server: `live-server ./. --port=8080 --ignore=".,.git/*,*.md" --open="public"`
+2. Run live-server: `live-server ./. --port=8080 --ignore=".git/**/*,*.md" --open="public"`
 4. (Optional) Ctrl+C to kill the live-server
 # Troubleshooting
 

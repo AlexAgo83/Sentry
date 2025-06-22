@@ -2,14 +2,14 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// combatAction.js
+// metalWorkAction.js
 
 import { Action } from "./action.js";
 
-export class CombatAction extends Action {
+export class MetalWorkAction extends Action {
 
     constructor(player) {
-        super("Combat", player);
+        super("MetalWork", player);
         this.setOnDoAction(() => {
             this.attack();
             return true;
@@ -19,10 +19,9 @@ export class CombatAction extends Action {
     attack = () => {
         const player = this.getPlayer();
         const skill = this.getSkill();
-        const recipe = skill.getSelectedRecipe();
+        const recipe = this.getRecipe();
 
         player.gold += 1;
-        
         skill.xp += 1;
         recipe.xp += 2;
     }

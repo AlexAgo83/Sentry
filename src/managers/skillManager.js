@@ -9,21 +9,24 @@ import { CoreManager } from "./coreManager.js";
 import { CombatSkill } from "../dataObjects/skills/combatSkill.js";
 import { HuntingSkill } from "../dataObjects/skills/huntingSkill.js";
 import { CookingSkill } from "../dataObjects/skills/cookingSkill.js";
+import { ExcavationSkill } from "../dataObjects/skills/excavationSkill.js";
+import { MetalWorkSkill } from "../dataObjects/skills/metalWorkSkill.js";
 
-export const STATIC_SKILLS_LIST = ["Combat", "Hunting", "Cooking"];
+export const STATIC_SKILLS_LIST = ["Combat", "Hunting", "Cooking", "Excavation", "MetalWork"];
 
 export const createSkillByID = (identifier) => {
     if (identifier == "Combat") {
-        console.log("createSkillByID:Combat skill created");
         return new CombatSkill();
     } else if (identifier == "Hunting") {
-        console.log("createSkillByID:Hunting skill created");
         return new HuntingSkill();
     } else if (identifier == "Cooking") {
-        console.log("createSkillByID:Cooking skill created");
         return new CookingSkill();
+    } else if (identifier == "Excavation") {
+        return new ExcavationSkill();
+    } else if (identifier == "MetalWork") {
+        return new MetalWorkSkill();
     } else {
-        console.warn("createSkillByID:Skill not found");
+        console.warn("(createSkillByID) Skill not found, id:" + identifier);
     }
     return null;
 }
@@ -38,7 +41,6 @@ export class SkillManager extends CoreManager {
         if (skillsData == null || skillsData == {}) {
             console.warn("loadSkills:skillsData not found for player " + playerObject.getIdentifier(), skillsData);
         } else {
-            console.log("loadSkills:skillsData found for player " + playerObject.getIdentifier(), skillsData);
             Object.keys(skillsData).forEach((key) => {
                 const savedSkill = skillsData[key];
                 if (savedSkill) {
@@ -48,7 +50,6 @@ export class SkillManager extends CoreManager {
                         if (savedSkill.recipesData) {
                             this.instance.recipeManager.loadRecipes(savedSkill.recipesData, currSkill);
                         }
-                        console.log("loadSkill:" + key + " skill loaded for player " + playerObject.getIdentifier());
                     } else {
                         console.warn("loadSkill:" + key + " skill not found for player " + playerObject.getIdentifier());
                     }
