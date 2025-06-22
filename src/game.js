@@ -97,7 +97,7 @@ export class Game {
                 if (player.getSelectedAction()) {
                     const asyncAction = () => {
                         return new Promise((resolve) => {
-                            player.getSelectedAction().doAction(player, true);
+                            const actionDiff = player.getSelectedAction().doAction(player, this.loopInterval, true);
                             resolve(true);
                         });
                     }
@@ -118,13 +118,14 @@ export class Game {
      * @param {number} diff - The time difference in milliseconds since the last interval.
      */
     offlineLoop = (diff) => {        
-        const howMuchLoops = Math.floor(diff / this.loopInterval);
+        let howMuchLoops = Math.floor(diff / this.loopInterval);
         if (howMuchLoops > 0) {
             console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
             for (let i = 1; i < howMuchLoops; i++) {
                 this.playerManager.getPlayers().forEach((player) => {
                     if (player.getSelectedAction()) {
-                        player.getSelectedAction().doAction(player, false);
+                        const actionDiff = player.getSelectedAction().doAction(player, this.loopInterval, false);
+                        console.log(`Offline loop ${i}/${howMuchLoops} - ${actionDiff}ms`);
                     }
                 });
             }

@@ -11,6 +11,7 @@ export class Action extends Entity {
     constructor(identifier, player) {
         super(identifier);
         this.player = player;
+        this.currentInterval = 0;
         this.progression = null;
         this.setOnLoad((actionData) => {
             // ...
@@ -47,20 +48,20 @@ export class Action extends Entity {
         return false;
     }
 
-    doAction = (player, intervalFilter=true) => {
+    doAction = (player, loopInterval, intervalFilter=true) => {
         if (this.getSkill().getSelectedRecipe()) {
-            /** Test interval */
-            if (this.startInterval == null) this.startInterval = Date.now();
-            else {
-                /** Request found */
-                const diffInterval = Date.now() - this.startInterval;
-                if (diffInterval >= this.getSkill().baseInterval) {
-                    this.startInterval = null;
-                } else if (diffInterval > 0 && isFinite(diffInterval)) {
-                    this.progression = Math.floor((diffInterval / this.getSkill().baseInterval) * 100);
-                }
-                return
+            let diffToReturn = 0;
+
+            this.currentInterval += loopInterval;
+            if (this.currentInterval >= this.getSkill().baseInterval) {
+                diffToReturn = this.currentInterval - this.getSkill().baseInterval;
+                this.currentInterval = 0;
+            } else {
+                const diffInterval = this.getSkill().baseInterval - this.currentInterval;
+                this.progression = Math.floor((1-(diffInterval / this.getSkill().baseInterval)) * 100);
+                return diffToReturn;
             }
+            
             /** Time to do action */
             if (this.onDoAction()) {
                 const currSkill = this.getSkill();
@@ -72,6 +73,8 @@ export class Action extends Entity {
                     this.levelUpRecipe(currRecipe);
                 }
             } else console.log("doAction:Action failed."); 
+
+            return diffToReturn;
         } else {
             console.log("doAction:No recipe selected.");
         }
