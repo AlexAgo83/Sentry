@@ -24,7 +24,7 @@ export class Entity {
     load(entityData) {
         if (entityData) {
             if (this.onLoad) this.onLoad(entityData);
-            console.log("Entity loaded", entityData);
+            console.log("Entity ID:"+this.getIdentifier()+", loaded", entityData);
         } else console.log("Entity data not found");
     }
 

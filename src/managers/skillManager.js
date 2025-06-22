@@ -34,27 +34,30 @@ export class SkillManager extends CoreManager {
         super(instance);
     }
 
-    loadSkills = (skillsData, player) => {
+    loadSkills = (skillsData, playerObject) => {
         if (skillsData == null || skillsData == {}) {
-            console.warn("loadSkills:skillsData not found for player " + player.getIdentifier(), skillsData);
+            console.warn("loadSkills:skillsData not found for player " + playerObject.getIdentifier(), skillsData);
         } else {
-            console.log("loadSkills:skillsData found for player " + player.getIdentifier(), skillsData);
+            console.log("loadSkills:skillsData found for player " + playerObject.getIdentifier(), skillsData);
             Object.keys(skillsData).forEach((key) => {
                 const savedSkill = skillsData[key];
                 if (savedSkill) {
-                    const currSkill = player.skills.get(key);
+                    const currSkill = playerObject.skills.get(key);
                     if (currSkill) {   
                         currSkill.load(savedSkill);
-                        console.log("loadSkill:" + key + " skill loaded for player " + player.getIdentifier());
+                        if (savedSkill.recipesData) {
+                            this.instance.recipeManager.loadRecipes(savedSkill.recipesData, currSkill);
+                        }
+                        console.log("loadSkill:" + key + " skill loaded for player " + playerObject.getIdentifier());
                     } else {
-                        console.warn("loadSkill:" + key + " skill not found for player " + player.getIdentifier());
+                        console.warn("loadSkill:" + key + " skill not found for player " + playerObject.getIdentifier());
                     }
                 } else {
-                    console.warn("loadSkill:" + key + " skill not found for player " + player.getIdentifier());
+                    console.warn("loadSkill:" + key + " skill not found for player " + playerObject.getIdentifier());
                 }
             });
         }
-        return player.skills;
+        return playerObject.skills;
     }
 
     

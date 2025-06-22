@@ -64,34 +64,33 @@ export class RecipeManager extends CoreManager {
         super(instance);
     }
 
-    loadRecipes = (recipesData, player) => {
+    loadRecipes = (recipesData, skillObject) => {
         if (recipesData == null || recipesData == {}) {
-            console.warn("loadRecipes:recipesData not found for player " + player.getIdentifier(), recipesData);
+            console.warn("loadRecipes:recipesData not found.", recipesData);
         } else {
-            console.log("loadRecipes:skillsData found for player " + player.getIdentifier(), recipesData);
-            Object.keys(recipesData).forEach((key) => {
+            // console.log("loadRecipes:skillsData found.", recipesData);
+            for (const key of Object.keys(recipesData)) {
+                // console.log("loadRecipes:skillsData key:" + key + ".");
                 const savedRecipe = recipesData[key];
-                const currSkill = player.skills.get(key);
                 if (savedRecipe) {
-                    if (currSkill) {
-                        if (savedRecipe.selectedRecipeID) {
-                            let recipeObject = currSkill.getRecipeByID(savedRecipe.selectedRecipeID);
-                            if (!recipeObject) {
-                                recipeObject = createRecipeByID(currSkill.getIdentifier(), key);
-                                currSkill.addRecipe(recipeObject);
-                                console.log("loadRecipes:" + key + " recipe created for player " + player.getIdentifier(), recipeObject);   
-                            }
-                            currSkill.setSelectedRecipe(recipeObject);
+                    if (skillObject) {
+                        if (!skillObject.recipes.has(key)) {
+                            skillObject.recipes.set(key, createRecipeByID(skillObject.getIdentifier(), key));
+                            console.log("loadRecipes:createRecipe key:" + key + ".");
                         }
-                        currSkill.getSelectedRecipe().load(savedRecipe);
+                        skillObject.recipes.get(key).load(savedRecipe);
                     } else {
-                        console.warn("loadRecipes:" + key + " skill not found for player " + player.getIdentifier(), currSkill);
+                        console.warn("loadRecipes:" + key + " skill not found.");
                     }
                 } else {
-                    console.warn("loadRecipes:" + key + " savedRecipe not found for player " + player.getIdentifier(), savedRecipe);
+                    console.warn("loadRecipes:" + key + " savedRecipe not found.", savedRecipe);
                 }
-            });
+            };
+            if (skillObject.selectedRecipeID) {
+                const currRecipe = skillObject.recipes.get(skillObject.selectedRecipeID);
+                skillObject.setSelectedRecipe(currRecipe);
+            }
         }
-        return player.skills;
+        return skillObject.recipes;
     }
 }
