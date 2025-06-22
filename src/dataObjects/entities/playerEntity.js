@@ -19,6 +19,7 @@ export class PlayerEntity extends CharacterEntity {
 
         this.selectedAction = null;
         this.selectedActionID = null;
+        this.dateCreated = Date.now();
 
         this.skills = new Map();
 
@@ -33,6 +34,7 @@ export class PlayerEntity extends CharacterEntity {
             this.dmg = entityData.dmg;
             this.selectedActionID = entityData.selectedActionID;
             this.skillsData = entityData.skillsData;
+            this.dateCreated = entityData.dateCreated ?? Date.now();
         });
 
         this.setOnSave(() => {
@@ -42,9 +44,9 @@ export class PlayerEntity extends CharacterEntity {
                 gold: this.gold,
                 dmg: this.dmg,
                 selectedActionID: this.selectedActionID,
-                skillsData: this.saveSkills()
+                skillsData: this.saveSkills(),
+                dateCreated: this.dateCreated
             };
-            // console.log("(important)PlayerEntity:save: save for player: " + this.getIdentifier(), resultSave);
             return resultSave
         });
     }

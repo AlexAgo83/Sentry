@@ -18,7 +18,7 @@ export class PlayerPanel extends CorePanel {
             "players-panel", 
             "players-panel-content"
         );
-
+        this.maxRecipe = 10;
         this.setOnInit(() => {
             const result = [];
             const playersObject = this.instance.playerManager.getPlayers();
@@ -33,6 +33,7 @@ export class PlayerPanel extends CorePanel {
 
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
                 newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
+                newPlayerDiv.appendChild(this.createLabelValue("dateCreated", "Date Created"));
                 newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));
                 newPlayerDiv.appendChild(this.createLabelValue("gold", "Gold"));
                 newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
@@ -127,7 +128,7 @@ export class PlayerPanel extends CorePanel {
                     "lightgreen"
                 ));
 
-                for (let i = 0; i < 10; i++) {
+                for (let i = 0; i < this.maxRecipe; i++) {
                     const button = this.createButton(
                         "recipe-selector-" + i + "-" + player.id, 
                         "Select Recipe", 
@@ -164,10 +165,9 @@ export class PlayerPanel extends CorePanel {
                         /** Recipe Selector */
                         if (currSkill) {
                             let i = 0;
-                            const max = 10;
                             for (const key of currSkill.recipes.keys()) {
                                 const lRecipe = currSkill.recipes.get(key);
-                                if (i<max) {
+                                if (i<this.maxRecipe) {
                                     const recipeSelector = playerElement.querySelector(`#recipe-selector-${i}-${player.id}`);
                                     if (recipeSelector) {
                                         // @ts-ignore
@@ -185,13 +185,15 @@ export class PlayerPanel extends CorePanel {
                                     i+=1;
                                 }
                             }
-                            if (i<max) {
-                                const recipeSelector = panel.querySelector(`#recipe-selector-${i}`);
-                                if (recipeSelector) {
-                                    // @ts-ignore
-                                    recipeSelector.style.display = "none";
-                                    recipeSelector.textContent = "Select Recipe : N/A";
-                                } 
+                            if (i<this.maxRecipe) {
+                                for (i = i; i<this.maxRecipe; i++) {
+                                    const recipeSelector = panel.querySelector(`#recipe-selector-${i}-${player.id}`);
+                                    if (recipeSelector) {
+                                        // @ts-ignore
+                                        recipeSelector.style.display = "none";
+                                        recipeSelector.textContent = "Select Recipe : N/A";
+                                    }     
+                                }
                             }
                         }
 
@@ -202,6 +204,9 @@ export class PlayerPanel extends CorePanel {
                         /* Name */
                         const nameElement = playerElement.querySelector("#name");
                         if (nameElement) nameElement.textContent = player.name;
+                        /* Date Created */
+                        const dateCreatedElement = playerElement.querySelector("#dateCreated");
+                        if (dateCreatedElement) dateCreatedElement.textContent = new Date(player.dateCreated)?.toLocaleString();
                         /* HP */
                         const hpElement = playerElement.querySelector("#hp");
                         if (hpElement) hpElement.textContent = String(player.hp);

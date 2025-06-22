@@ -8,6 +8,7 @@ import { CoreManager }  from    "./coreManager.js";
 import { Monster_001 }  from    "../dataObjects/recipes/combat/monster001.js";
 import { Monster_002 }  from    "../dataObjects/recipes/combat/monster002.js";
 import { Monster_003 }  from    "../dataObjects/recipes/combat/monster003.js";
+import { Monster_004 }  from    "../dataObjects/recipes/combat/monster004.js";
 import { Hunt_001 }     from    "../dataObjects/recipes/hunting/hunt001.js";
 import { Hunt_002 }     from    "../dataObjects/recipes/hunting/hunt002.js";
 import { Meal_001 }     from    "../dataObjects/recipes/cooking/meal001.js";
@@ -15,14 +16,15 @@ import { Meal_002 }     from    "../dataObjects/recipes/cooking/meal002.js";
 import { Exca_001 }     from    "../dataObjects/recipes/excavation/exca001.js";
 import { Exca_002 }     from    "../dataObjects/recipes/excavation/exca002.js";
 import { Exca_003 }     from    "../dataObjects/recipes/excavation/exca003.js";
-import { MW_001 } from "../dataObjects/recipes/metalWork/mw001.js";
-import { MW_002 } from "../dataObjects/recipes/metalWork/mw002.js";
-import { MW_003 } from "../dataObjects/recipes/metalWork/mw003.js";
+import { MW_001 }       from "../dataObjects/recipes/metalWork/mw001.js";
+import { MW_002 }       from "../dataObjects/recipes/metalWork/mw002.js";
+import { MW_003 }       from "../dataObjects/recipes/metalWork/mw003.js";
 
 export const STATIC_COMBAT_RECIPES_LIST = [
     "monster001", 
     "monster002", 
-    "monster003"
+    "monster003",
+    "monster004"
 ];
 export const STATIC_HUNTING_RECIPES_LIST = [
     "hunt001",
@@ -59,6 +61,8 @@ export const createRecipeByID = (skillIdentifier, recipeIdentifier) => {
             return new Monster_002();
         } else if (recipeIdentifier == "monster003") {
             return new Monster_003();
+        } else if (recipeIdentifier == "monster004") {
+            return new Monster_004();
         }
     } else if (skillIdentifier == "Hunting") {
         /** Hunting */
@@ -92,6 +96,7 @@ export const createRecipeByID = (skillIdentifier, recipeIdentifier) => {
         } else if (recipeIdentifier == "mw003") {
             return new MW_003();
         }
+
     } else {
         console.warn("(important)createRecipeByID:recipe not found, skillId:"+skillIdentifier);
     }
