@@ -10,7 +10,7 @@ export class CookingSkill extends SkillEntity {
     constructor() {
         super(
             "Cooking",
-            "assets/ic_cooking.png");
+            "ress/assets/ic_cooking.png");
         this.baseInterval = 2500;
     }
 }

@@ -10,7 +10,7 @@ export class HuntingSkill extends SkillEntity {
     constructor() {
         super(
             "Hunting",
-            "assets/ic_hunting.png");
+            "ress/assets/ic_hunting.png");
         this.baseInterval = 2000;
     }
 }

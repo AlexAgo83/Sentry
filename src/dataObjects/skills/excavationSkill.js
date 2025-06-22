@@ -10,7 +10,7 @@ export class ExcavationSkill extends SkillEntity {
     constructor() {
         super(
             "Excavation",
-            "assets/ic_excavation.png");
+            "ress/assets/ic_excavation.png");
         this.baseInterval = 2000;
     }
 }
