@@ -18,6 +18,7 @@ export class Game {
     constructor() {
         this.lastIntervalTime = null;
         this.loopInterval = 100;
+        this.loopIntervalOffline = 500;
         this.loopIntervalOfflineThreshold = 1.5;
 
         this.dataManager = new DataManager(this);
@@ -97,7 +98,7 @@ export class Game {
                 if (player.getSelectedAction()) {
                     const asyncAction = () => {
                         return new Promise((resolve) => {
-                            const actionDiff = player.getSelectedAction().doAction(player, this.loopInterval, true);
+                            const actionDiff = player.getSelectedAction().doAction(player, this.loopInterval);
                             resolve(true);
                         });
                     }
@@ -118,14 +119,20 @@ export class Game {
      * @param {number} diff - The time difference in milliseconds since the last interval.
      */
     offlineLoop = (diff) => {        
-        let howMuchLoops = Math.floor(diff / this.loopInterval);
+        let howMuchLoops = Math.floor(diff / this.loopIntervalOffline);
         if (howMuchLoops > 0) {
             console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
+            let garbageTime = 0;
             for (let i = 1; i < howMuchLoops; i++) {
                 this.playerManager.getPlayers().forEach((player) => {
                     if (player.getSelectedAction()) {
-                        const actionDiff = player.getSelectedAction().doAction(player, this.loopInterval, false);
-                        console.log(`Offline loop ${i}/${howMuchLoops} - ${actionDiff}ms`);
+                        const actionDiff = player.getSelectedAction().doAction(player, this.loopIntervalOffline);
+                        garbageTime += actionDiff;
+                        if (garbageTime >= this.loopIntervalOffline) {
+                            console.log(`Offline loop ${i}/${howMuchLoops} - ActionTime:${actionDiff}ms - garbage time ${garbageTime}ms, one loop skipped`);
+                            howMuchLoops -= 1;
+                            garbageTime -= this.loopIntervalOffline;
+                        }
                     }
                 });
             }

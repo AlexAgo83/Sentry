@@ -14,6 +14,7 @@ export class Skill extends Entity {
         this.level = 1;
         this.maxLevel = 120;
         this.xpNext = 10;
+        this.xpNextMultiplier = 1.5;
         this.baseInterval = 1000;
         this.recipes = new Map();
         this.selectedRecipeID = null;

@@ -13,9 +13,7 @@ export class Action extends Entity {
         this.player = player;
         this.currentInterval = 0;
         this.progression = null;
-        this.setOnLoad((actionData) => {
-            // ...
-        });
+        this.setOnLoad((actionData) => {});
         this.setOnSave(() => {
             return this.getIdentifier();
         });
@@ -48,7 +46,7 @@ export class Action extends Entity {
         return false;
     }
 
-    doAction = (player, loopInterval, intervalFilter=true) => {
+    doAction = (player, loopInterval) => {
         if (this.getSkill().getSelectedRecipe()) {
             let diffToReturn = 0;
 
@@ -59,7 +57,7 @@ export class Action extends Entity {
             } else {
                 const diffInterval = this.getSkill().baseInterval - this.currentInterval;
                 this.progression = Math.floor((1-(diffInterval / this.getSkill().baseInterval)) * 100);
-                return diffToReturn;
+                return -diffInterval;
             }
             
             /** Time to do action */
@@ -85,7 +83,7 @@ export class Action extends Entity {
 
         skillObject.xp -= skillObject.xpNext;
         skillObject.level += 1;
-        skillObject.xpNext = Math.floor(skillObject.xpNext * 1.5);
+        skillObject.xpNext = Math.floor(skillObject.xpNext * skillObject.xpNextMultiplier);
 
         const player = this.getPlayer();
         player.dmg += 1;
@@ -101,7 +99,7 @@ export class Action extends Entity {
 
         recipeObject.xp -= recipeObject.xpNext;
         recipeObject.level += 1;
-        recipeObject.xpNext = Math.floor(recipeObject.xpNext * 1.5);
+        recipeObject.xpNext = Math.floor(recipeObject.xpNext * recipeObject.xpNextMultiplier);
 
         console.log(`(Level Recipe up!) 
             PlayerID:${this.getPlayer().getIdentifier()}, 

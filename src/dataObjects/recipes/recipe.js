@@ -13,6 +13,7 @@ export class RecipeEntity extends Entity {
         this.level = 1;
         this.maxLevel = 99;
         this.xpNext = 10;
+        this.xpNextMultiplier = 1.5;
 
         this.setOnLoad((skillData) => {
             this.xp = skillData.xp;
