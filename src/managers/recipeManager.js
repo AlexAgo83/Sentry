@@ -5,20 +5,12 @@
 // recipeManager.js
 
 import { CoreManager }  from    "./coreManager.js";
-import { Monster_001 }  from    "../dataObjects/recipes/combat/monster001.js";
-import { Monster_002 }  from    "../dataObjects/recipes/combat/monster002.js";
-import { Monster_003 }  from    "../dataObjects/recipes/combat/monster003.js";
-import { Monster_004 }  from    "../dataObjects/recipes/combat/monster004.js";
-import { Hunt_001 }     from    "../dataObjects/recipes/hunting/hunt001.js";
-import { Hunt_002 }     from    "../dataObjects/recipes/hunting/hunt002.js";
-import { Meal_001 }     from    "../dataObjects/recipes/cooking/meal001.js";
-import { Meal_002 }     from    "../dataObjects/recipes/cooking/meal002.js";
-import { Exca_001 }     from    "../dataObjects/recipes/excavation/exca001.js";
-import { Exca_002 }     from    "../dataObjects/recipes/excavation/exca002.js";
-import { Exca_003 }     from    "../dataObjects/recipes/excavation/exca003.js";
-import { MW_001 }       from "../dataObjects/recipes/metalWork/mw001.js";
-import { MW_002 }       from "../dataObjects/recipes/metalWork/mw002.js";
-import { MW_003 }       from "../dataObjects/recipes/metalWork/mw003.js";
+import { RecipeEntity } from "../dataObjects/recipes/recipeEntity.js";
+import { CombatRecipe } from "../dataObjects/recipes/combatRecipe.js";
+import { CookingRecipe } from "../dataObjects/recipes/cookingRecipe.js";
+import { ExcavationRecipe } from "../dataObjects/recipes/excavationRecipe.js";
+import { HuntingRecipe } from "../dataObjects/recipes/huntingRecipe.js";
+import { MetalWorkRecipe } from "../dataObjects/recipes/metalWorkRecipe.js";
 
 export const STATIC_COMBAT_RECIPES_LIST = [
     "monster001", 
@@ -52,51 +44,23 @@ export const STATIC_RECIPES_LIST = [
     ["MetalWork", STATIC_METALWORK_RECIPES_LIST]
 ];
 
+/**
+ * Create a recipe by its identifier.
+ * @param {string} skillIdentifier - The identifier of the skill which the recipe is a part of.
+ * @param {string} recipeIdentifier - The identifier of the recipe.
+ * @returns {RecipeEntity|null} The created recipe.
+ */
 export const createRecipeByID = (skillIdentifier, recipeIdentifier) => {
     if (skillIdentifier == "Combat") {
-        /** Combat */
-        if (recipeIdentifier == "monster001") {
-            return new Monster_001();
-        } else if (recipeIdentifier == "monster002") {
-            return new Monster_002();
-        } else if (recipeIdentifier == "monster003") {
-            return new Monster_003();
-        } else if (recipeIdentifier == "monster004") {
-            return new Monster_004();
-        }
+        return new CombatRecipe(recipeIdentifier);
     } else if (skillIdentifier == "Hunting") {
-        /** Hunting */
-        if (recipeIdentifier == "hunt001") {
-            return new Hunt_001();
-        } else if (recipeIdentifier == "hunt002") {
-            return new Hunt_002();
-        }
+        return new HuntingRecipe(recipeIdentifier);
     } else if (skillIdentifier == "Cooking") {
-        /** Cooking */
-        if (recipeIdentifier == "meal001") {
-            return new Meal_001();
-        } else if (recipeIdentifier == "meal002") {
-            return new Meal_002();
-        }
+        return new CookingRecipe(recipeIdentifier);
     } else if (skillIdentifier == "Excavation") {
-        /** Excavation */
-        if (recipeIdentifier == "exca001") {
-            return new Exca_001();
-        } else if (recipeIdentifier == "exca002") {
-            return new Exca_002();
-        } else if (recipeIdentifier == "exca003") {
-            return new Exca_003();
-        }
+        return new ExcavationRecipe(recipeIdentifier);
     } else if (skillIdentifier == "MetalWork") {
-        /** MetalWork */
-        if (recipeIdentifier == "mw001") {
-            return new MW_001();
-        } else if (recipeIdentifier == "mw002") {
-            return new MW_002();
-        } else if (recipeIdentifier == "mw003") {
-            return new MW_003();
-        }
-
+        return new MetalWorkRecipe(recipeIdentifier);
     } else {
         console.warn("(important)createRecipeByID:recipe not found, skillId:"+skillIdentifier);
     }

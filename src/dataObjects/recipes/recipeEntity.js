@@ -2,7 +2,7 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// recipe.js
+// recipeEntity.js
 
 import { Entity } from "../entity.js";
 

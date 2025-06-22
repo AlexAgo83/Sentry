@@ -2,12 +2,12 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// skill.js
+// skillEntity.js
 
 import { createRecipeByID, STATIC_RECIPES_LIST } from "../../managers/recipeManager.js";
 import { Entity } from "../entity.js";
 
-export class Skill extends Entity {
+export class SkillEntity extends Entity {
     constructor(identifier) {
         super(identifier);
         this.xp = 0;
@@ -20,7 +20,7 @@ export class Skill extends Entity {
         this.selectedRecipeID = null;
 
         for (const value of STATIC_RECIPES_LIST) {
-            const skillIdentifier = value[0];
+            const skillIdentifier = String(value[0]);
             if (skillIdentifier != this.getIdentifier()) continue;
             const arrayOfRecipeIdentifier = value[1];
             for (const recipeIdentifier of arrayOfRecipeIdentifier) {

@@ -2,11 +2,11 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// cookingRecipe.js
+// excavationRecipe.js
 
-import { RecipeEntity } from "../recipe.js";
+import { RecipeEntity } from "./recipeEntity.js";
 
-export class CookingRecipe extends RecipeEntity {
+export class ExcavationRecipe extends RecipeEntity {
     constructor(identifier) {
         super(identifier);
     }

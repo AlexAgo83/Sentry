@@ -4,9 +4,9 @@
 // @ts-check
 // huntingSkill.js
 
-import { Skill } from "./skill.js";
+import { SkillEntity } from "./skillEntity.js";
 
-export class HuntingSkill extends Skill {
+export class HuntingSkill extends SkillEntity {
     constructor() {
         super("Hunting");
         this.baseInterval = 2000;
