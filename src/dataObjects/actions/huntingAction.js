@@ -12,18 +12,17 @@ export class HuntingAction extends Action {
         super("Hunting", player);
         this.setOnDoAction(() => {
             this.attack();
+            return true;
         })
     }
 
     attack = () => {
         const player = this.getPlayer();
         const skill = this.getSkill();
+        const recipe = this.getRecipe();
 
         player.gold += 1;
         skill.xp += 1;
-
-        if (skill.xp >= skill.xpNext) {
-            this.levelUp();
-        }
+        recipe.xp += 2;
     }
 }

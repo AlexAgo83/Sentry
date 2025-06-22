@@ -93,12 +93,14 @@ export class PlayerPanel extends CorePanel {
 
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
                 newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
-                newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
-                newPlayerDiv.appendChild(this.createLabelValue("recipe", "Recipe"));
                 newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));
-                newPlayerDiv.appendChild(this.createLabelValue("level", "Level"));
-                newPlayerDiv.appendChild(this.createLabelValue("xp", "XP"));
                 newPlayerDiv.appendChild(this.createLabelValue("gold", "Gold"));
+                newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
+                newPlayerDiv.appendChild(this.createLabelValue("skillLevel", "Skill Level"));
+                newPlayerDiv.appendChild(this.createLabelValue("skillXp", "Skill XP"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipe", "Recipe"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipeXp", "Recipe XP"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipeLevel", "Recipe Level"));
 
                 result.push(newPlayerDiv);
             })
@@ -118,30 +120,41 @@ export class PlayerPanel extends CorePanel {
                         const currSkill = currAction?.getSkill();
                         const currRecipe = currSkill?.getSelectedRecipe();
 
+                        /* Player Data */
                         /* ID */
                         const idElement = playerElement.querySelector("#id");
                         if (idElement) idElement.textContent = String(player.id);
                         /* Name */
                         const nameElement = playerElement.querySelector("#name");
                         if (nameElement) nameElement.textContent = player.name;
-                        /* Skill */
-                        const skillElement = playerElement.querySelector("#skill");
-                        if (skillElement) skillElement.textContent = String(currSkill?.getIdentifier() ?? "N/A");
-                        /* Recipe */
-                        const recipeElement = playerElement.querySelector("#recipe");
-                        if (recipeElement) recipeElement.textContent = String(currRecipe?.getIdentifier() ?? "N/A");
                         /* HP */
                         const hpElement = playerElement.querySelector("#hp");
                         if (hpElement) hpElement.textContent = String(player.hp);
-                        /* LEVEL */
-                        const levelElement = playerElement.querySelector("#level");
-                        if (levelElement) levelElement.textContent = String(currentSkill.level);
-                        /* XP */
-                        const xpElement = playerElement.querySelector("#xp");
-                        if (xpElement) xpElement.textContent = String(currentSkill.xp);
-                        /* GOLD */
+                        /* Gold */
                         const goldElement = playerElement.querySelector("#gold");
                         if (goldElement) goldElement.textContent = String(player.gold);
+
+                        /* Skill Data */
+                        /* Skill */
+                        const skillElement = playerElement.querySelector("#skill");
+                        if (skillElement) skillElement.textContent = String(currSkill?.getIdentifier() ?? "N/A");
+                        /* Skill Level */
+                        const skillLevelElement = playerElement.querySelector("#skillLevel");
+                        if (skillLevelElement) skillLevelElement.textContent = String(currentSkill?.level);
+                        /* Skill XP */
+                        const skillXpElement = playerElement.querySelector("#skillXp");
+                        if (skillXpElement) skillXpElement.textContent = String(currentSkill?.xp);
+
+                        /* Recipe Data */
+                        /* Recipe */
+                        const recipeElement = playerElement.querySelector("#recipe");
+                        if (recipeElement) recipeElement.textContent = String(currRecipe?.getIdentifier() ?? "N/A");
+                        /* Recipe Level */
+                        const recipeLevelElement = playerElement.querySelector("#recipeLevel");
+                        if (recipeLevelElement) recipeLevelElement.textContent = String(currentSkill?.getSelectedRecipe()?.level);
+                        /* Recipe XP */
+                        const recipeXpElement = playerElement.querySelector("#recipeXp");
+                        if (recipeXpElement) recipeXpElement.textContent = String(currentSkill?.getSelectedRecipe()?.xp);
                     } else {
                         console.log("setOnRefresh:Player element not found");
                     }
