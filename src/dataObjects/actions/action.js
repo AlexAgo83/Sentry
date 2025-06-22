@@ -35,6 +35,10 @@ export class Action extends Entity {
     getProgression = () => {
         return this.progression;
     }
+    getTimeLeft = () => {
+        const diff = this.getSkill().baseInterval - this.currentInterval;
+        return diff > 0 ? diff : 0;
+    }
 
     setOnDoAction(onDoAction) {
         this.onDoAction = onDoAction;

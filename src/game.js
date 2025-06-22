@@ -17,7 +17,7 @@ export class Game {
 
     constructor() {
         this.lastIntervalTime = null;
-        this.loopInterval = 50;
+        this.loopInterval = 250;
         this.loopIntervalOffline = 500;
         this.loopIntervalOfflineThreshold = 1.5;
 

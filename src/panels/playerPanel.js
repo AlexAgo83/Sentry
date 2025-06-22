@@ -275,9 +275,11 @@ export class PlayerPanel extends CorePanel {
                         const recipeProgressionElement = playerElement.querySelector("#recipeProgression");
                         if (recipeProgressionElement) recipeProgressionElement.textContent = String(currAction?.getProgression() ?? "N/A") + " %";  
                         const recipeProgressionViewElement = playerElement.querySelector("#recipeProgressionView");
-                        if (recipeProgressionViewElement) 
+                        if (recipeProgressionViewElement) {
                             /** @ts-ignore */ 
                             recipeProgressionViewElement.value = currAction?.getProgression();
+                        }
+
                     } else {
                         console.log("setOnRefresh:Player element not found");
                     }
