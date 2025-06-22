@@ -53,7 +53,7 @@ export class Action extends Entity {
             this.currentInterval += loopInterval;
             if (this.currentInterval >= this.getSkill().baseInterval) {
                 diffToReturn = this.currentInterval - this.getSkill().baseInterval;
-                this.currentInterval = 0;
+                this.currentInterval -= this.getSkill().baseInterval;
             } else {
                 const diffInterval = this.getSkill().baseInterval - this.currentInterval;
                 this.progression = Math.floor((1-(diffInterval / this.getSkill().baseInterval)) * 100);
