@@ -8,7 +8,9 @@ import { SkillEntity } from "./skillEntity.js";
 
 export class MetalWorkSkill extends SkillEntity {
     constructor() {
-        super("MetalWork");
+        super(
+            "MetalWork",
+            "assets/ic_metalWork.png");
         this.baseInterval = 2500;
     }
 }

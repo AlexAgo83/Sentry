@@ -8,7 +8,7 @@ import { createRecipeByID, STATIC_RECIPES_LIST } from "../../managers/recipeMana
 import { Entity } from "../entity.js";
 
 export class SkillEntity extends Entity {
-    constructor(identifier) {
+    constructor(identifier, mediaPath) {
         super(identifier);
         this.xp = 0;
         this.level = 1;
@@ -18,6 +18,7 @@ export class SkillEntity extends Entity {
         this.baseInterval = 1000;
         this.recipes = new Map();
         this.selectedRecipeID = null;
+        this.media = mediaPath;
 
         for (const value of STATIC_RECIPES_LIST) {
             const skillIdentifier = String(value[0]);

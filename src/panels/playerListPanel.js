@@ -2,7 +2,7 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// playersPanel.js
+// playersListPanel.js
 
 import { CorePanel } from "./corePanel.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
@@ -11,12 +11,12 @@ import { CookingAction } from "../dataObjects/actions/cookingAction.js";
 import { ExcavationAction } from "../dataObjects/actions/excavationAction.js";
 import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
 
-export class PlayerPanel extends CorePanel {
+export class PlayerListPanel extends CorePanel {
     constructor(instance) {
         super(
             instance,
-            "players-panel", 
-            "players-panel-content",
+            "players-list-panel", 
+            "players-list-panel-content",
             false
         );
         this.maxRecipe = 10;
@@ -173,7 +173,6 @@ export class PlayerPanel extends CorePanel {
 
                 result.push(newPlayerDiv);
             })
-            console.log("(important) setOnInit:Players panel setup", result);
             return result;
         })
 
