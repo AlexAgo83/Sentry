@@ -15,8 +15,8 @@ export class PlayerListPanel extends CorePanel {
     constructor(instance) {
         super(
             instance,
-            "players-list-panel", 
-            "players-list-panel-content",
+            "player-list-panel", 
+            "player-list-panel-content",
             false
         );
         this.maxRecipe = 10;
