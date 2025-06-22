@@ -11,12 +11,10 @@ export class PlayerEntity extends CharacterEntity {
 
     constructor(identifier) {
         super(identifier);
-        
-        this.name = "Player_"+identifier;
         this.hp = 100;
         this.gold = 0;
         this.dmg = 1;
-
+        this.setName("Player_" + identifier);
         this.selectedAction = null;
         this.selectedActionID = null;
         this.dateCreated = Date.now();

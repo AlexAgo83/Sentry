@@ -43,7 +43,7 @@ export class PlayerPanel extends CorePanel {
                             if (input) {
                                 const oldName = String(player.name);
                                 // @ts-ignore
-                                player.name = input.value;
+                                player.setName(input.value);
                                 // this.instance.dataManager.save();
                                 console.log(`player:${player.id} name changed from '${oldName}' to '${player.name}'`);
                             }

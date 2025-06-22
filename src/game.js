@@ -11,7 +11,7 @@ import { ActionManager } from "./managers/actionManager.js";
 import { PlayerManager } from "./managers/playerManager.js";
 import { PanelManager } from "./managers/panelManager.js";
 
-export const STATIC_GAME_VERSION = "0.1.0";
+export const STATIC_GAME_VERSION = "0.1.1";
 
 export class Game {
 
