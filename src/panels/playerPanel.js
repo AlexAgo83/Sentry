@@ -41,7 +41,13 @@ export class PlayerPanel extends CorePanel {
                     "start-combat-" + player.id, 
                     "Start Action : Combat", 
                     () => {
-                        player.setSelectedAction(new CombatAction(player));
+                        const combatAction = new CombatAction(player);
+                        
+                        /** Select monster001 */
+                        const monster001 = combatAction.getSkill().recipes.get("monster001");
+                        combatAction.getSkill().setSelectedRecipe(monster001);
+
+                        player.setSelectedAction(combatAction);
                     },
                     "lightblue"
                 ));
@@ -50,7 +56,13 @@ export class PlayerPanel extends CorePanel {
                     "start-hunting-" + player.id, 
                     "Start Action : Hunting", 
                     () => {
-                        player.setSelectedAction(new HuntingAction(player));
+                        const huntingAction = new HuntingAction(player);
+                        
+                        /** Select hunt001 */
+                        const hunt001 = huntingAction.getSkill().recipes.get("hunt001");
+                        huntingAction.getSkill().setSelectedRecipe(hunt001);
+
+                        player.setSelectedAction(huntingAction);
                     },
                     "lightgreen"
                 ));
@@ -59,7 +71,13 @@ export class PlayerPanel extends CorePanel {
                     "start-cooking-" + player.id, 
                     "Start Action : Cooking", 
                     () => {
-                        player.setSelectedAction(new CookingAction(player));
+                        const cookingAction = new CookingAction(player);
+                        
+                        /** Select meal001 */
+                        const meal001 = cookingAction.getSkill().recipes.get("meal001");
+                        cookingAction.getSkill().setSelectedRecipe(meal001);
+
+                        player.setSelectedAction(cookingAction);
                     },
                     "lightpink"
                 ));
@@ -76,6 +94,7 @@ export class PlayerPanel extends CorePanel {
                 newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
                 newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
                 newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipe", "Recipe"));
                 newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));
                 newPlayerDiv.appendChild(this.createLabelValue("level", "Level"));
                 newPlayerDiv.appendChild(this.createLabelValue("xp", "XP"));
@@ -97,6 +116,7 @@ export class PlayerPanel extends CorePanel {
                     if (playerElement) {
                         const currAction = player.getSelectedAction();
                         const currSkill = currAction?.getSkill();
+                        const currRecipe = currSkill?.getSelectedRecipe();
 
                         /* ID */
                         const idElement = playerElement.querySelector("#id");
@@ -107,6 +127,9 @@ export class PlayerPanel extends CorePanel {
                         /* Skill */
                         const skillElement = playerElement.querySelector("#skill");
                         if (skillElement) skillElement.textContent = String(currSkill?.getIdentifier() ?? "N/A");
+                        /* Recipe */
+                        const recipeElement = playerElement.querySelector("#recipe");
+                        if (recipeElement) recipeElement.textContent = String(currRecipe?.getIdentifier() ?? "N/A");
                         /* HP */
                         const hpElement = playerElement.querySelector("#hp");
                         if (hpElement) hpElement.textContent = String(player.hp);

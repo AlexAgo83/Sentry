@@ -6,6 +6,7 @@
 
 import { DataManager } from "./managers/dataManager.js";
 import { SkillManager } from "./managers/skillManager.js";
+import { RecipeManager } from "./managers/recipeManager.js";
 import { ActionManager } from "./managers/actionManager.js";
 import { PlayerManager } from "./managers/playerManager.js";
 import { PanelManager } from "./managers/panelManager.js";
@@ -17,9 +18,11 @@ export class Game {
     constructor() {
         this.lastIntervalTime = null;
         this.loopInterval = 500;
+        this.loopIntervalOfflineThreshold = 1.5;
 
         this.dataManager = new DataManager(this);
         this.skillManager = new SkillManager(this);
+        this.recipeManager = new RecipeManager(this);
         this.actionManager = new ActionManager(this);
         this.playerManager = new PlayerManager(this);
         this.panelManager = new PanelManager(this);
@@ -29,10 +32,16 @@ export class Game {
         return STATIC_GAME_VERSION;
     }
 
+    /**
+     * Resets the UI
+     */
     resetUI = () => {
         this.panelManager.remove();
     }
 
+    /**
+     * Resets the instance
+     */
     resetInstance = () => {
         clearInterval(this.interval);
         this.playerManager.reset();
@@ -40,16 +49,23 @@ export class Game {
         console.log("Instance reset");
     }
 
-    /** UI Setup */
+    /**
+     * Initializes the UI
+     */
     initUI = () => {
         this.panelManager.init();
     }
 
-    /** Update the game UI */
+    /**
+     * Updates the UI
+     */
     updateUI = () => {
         this.panelManager.refresh();
     }
 
+    /**
+     * Stops the game loop
+     */
     stopAction = () => {
         if (this.interval) {
             clearInterval(this.interval);
@@ -57,6 +73,9 @@ export class Game {
         }
     }
 
+    /**
+     * Starts the game loop
+     */
     runAction = () => {
         if (this.interval) clearInterval(this.interval);
         /** GAME LOOP */
@@ -64,39 +83,73 @@ export class Game {
             const dateNow = Date.now();
             if (this.lastIntervalTime) {
                 const diff = dateNow - this.lastIntervalTime;
-                if (diff > 1000) {
-                    // Is this offline ?
-                    const howMuchLoops = Math.floor(diff / this.loopInterval);
-                    if (howMuchLoops > 0) {
-                        console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
-                        for (let i = 1; i < howMuchLoops; i++) {
-                            this.playerManager.getPlayers().forEach((player) => {
-                                if (player.getSelectedAction()) {
-                                    player.getSelectedAction().doAction();
-                                }
-                            });
-                            // console.log("runAction:Looping Offline:doAction " + (i) + " / " + howMuchLoops);
-                        }
-                        console.log("Offline looping done !");
-                    }
+                const threshold = this.loopInterval * this.loopIntervalOfflineThreshold;
+                if (diff > threshold) {
+                    this.offlineLoop(diff);
                 }
             }
             
             this.lastIntervalTime = dateNow;
-            // console.log("runAction:doAction");
+            this.threads = [];
             this.playerManager.getPlayers().forEach((player) => {
                 if (player.getSelectedAction()) {
-                    player.getSelectedAction().doAction();
+                    // const asyncAction = () => {
+                    //     player.getSelectedAction().doAction();
+                    // }
+                    // setTimeout(asyncAction, 0);
+                    // this.threads?.push(asyncAction);
                 }
             });
 
-            this.updateUI();
-            this.dataManager.save();
+
+            const threads = [];
+
+            this.playerManager.getPlayers().forEach((player) => {
+                if (player.getSelectedAction()) {
+                    const asyncAction = () => {
+                        return new Promise((resolve) => {
+                            player.getSelectedAction().doAction();
+                            resolve(true);
+                        });
+                    }
+                    threads.push(asyncAction());
+                }
+            });
+
+            Promise.all(threads).then(() => {
+                // console.log("All threads done !");
+                this.dataManager.save();
+                this.updateUI();
+            });
         }, this.loopInterval);
     }
 
+
+    /**
+     * Handles the game loop when the game was offline for a period.
+     * @param {number} diff - The time difference in milliseconds since the last interval.
+     */
+    offlineLoop = (diff) => {        
+        const howMuchLoops = Math.floor(diff / this.loopInterval);
+        if (howMuchLoops > 0) {
+            console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
+            for (let i = 1; i < howMuchLoops; i++) {
+                this.playerManager.getPlayers().forEach((player) => {
+                    if (player.getSelectedAction()) {
+                        player.getSelectedAction().doAction();
+                    }
+                });
+            }
+            console.log("Offline looping done !");
+        }
+    }
+
+    /**
+     * Turn on the game
+     */
     startup = () => {
         console.log("Startup ...");
+        this.dataManager.load();
         this.initUI();
         this.runAction();
         console.log("Game start !");
@@ -104,5 +157,4 @@ export class Game {
 }
 
 const _game = new Game();
-_game.dataManager.load();
 _game.startup();

@@ -23,7 +23,7 @@ export const createSkillByID = (identifier) => {
         console.log("createSkillByID:Cooking skill created");
         return new CookingSkill();
     } else {
-        console.log("createSkillByID:Skill not found");
+        console.warn("createSkillByID:Skill not found");
     }
     return null;
 }

@@ -7,13 +7,15 @@
 import { CoreManager } from "./coreManager.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
 import { HuntingAction } from "../dataObjects/actions/huntingAction.js";
+import { CookingAction } from "../dataObjects/actions/cookingAction.js";
 
 export class ActionManager extends CoreManager {
 
     constructor(instance) {
         super(instance);
+        this.selectedRecipe = null;
     }
-
+    
     loadAction = (id, player) => {
         if (!id) {
             console.log("loadAction:Action not found");
@@ -25,18 +27,18 @@ export class ActionManager extends CoreManager {
         return actionResult;
     }
 
-    createActionByID = (id, ...args) => {
-        if (id == "Combat") {
+    createActionByID = (identifier, ...args) => {
+        if (identifier == "Combat") {
             console.log("createActionByID:Combat action created");
             return new CombatAction(...args);
-        } else if (id == "Hunting") {
+        } else if (identifier == "Hunting") {
             console.log("createActionByID:Hunting action created");
             return new HuntingAction(...args);
-        } else if (id == "Cooking") {
+        } else if (identifier == "Cooking") {
             console.log("createActionByID:Cooking action created");
-            return new HuntingAction(...args);
+            return new CookingAction(...args);
         } else {
-            console.warn("createActionByID:Action not found, id: " + id);
+            console.warn("createActionByID:Action not found, id: " + identifier);
         }
         return null;
     }
