@@ -28,6 +28,19 @@ export class PlayerPanel extends CorePanel {
                 newPlayerDiv.style.display = "flex";
                 newPlayerDiv.style.flexDirection = "column";
 
+
+                newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
+                newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
+                newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));
+                newPlayerDiv.appendChild(this.createLabelValue("gold", "Gold"));
+                newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
+                newPlayerDiv.appendChild(this.createLabelValue("skillLevel", "Skill Level"));
+                newPlayerDiv.appendChild(this.createLabelValue("skillXp", "Skill XP"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipe", "Recipe"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipeXp", "Recipe XP"));
+                newPlayerDiv.appendChild(this.createLabelValue("recipeLevel", "Recipe Level"));
+
+
                 newPlayerDiv.appendChild(this.createButton(
                     "remove-player-" + player.id, 
                     "Remove", 
@@ -94,17 +107,6 @@ export class PlayerPanel extends CorePanel {
                     button.style.display = "none";
                     newPlayerDiv.appendChild(button);
                 }
-
-                newPlayerDiv.appendChild(this.createLabelValue("id", "ID"));
-                newPlayerDiv.appendChild(this.createLabelValue("name", "Name"));
-                newPlayerDiv.appendChild(this.createLabelValue("hp", "HP"));
-                newPlayerDiv.appendChild(this.createLabelValue("gold", "Gold"));
-                newPlayerDiv.appendChild(this.createLabelValue("skill", "Skill"));
-                newPlayerDiv.appendChild(this.createLabelValue("skillLevel", "Skill Level"));
-                newPlayerDiv.appendChild(this.createLabelValue("skillXp", "Skill XP"));
-                newPlayerDiv.appendChild(this.createLabelValue("recipe", "Recipe"));
-                newPlayerDiv.appendChild(this.createLabelValue("recipeXp", "Recipe XP"));
-                newPlayerDiv.appendChild(this.createLabelValue("recipeLevel", "Recipe Level"));
 
                 result.push(newPlayerDiv);
             })
@@ -181,10 +183,10 @@ export class PlayerPanel extends CorePanel {
                         if (skillElement) skillElement.textContent = String(currSkill?.getIdentifier() ?? "N/A");
                         /* Skill Level */
                         const skillLevelElement = playerElement.querySelector("#skillLevel");
-                        if (skillLevelElement) skillLevelElement.textContent = String(currentSkill?.level);
+                        if (skillLevelElement) skillLevelElement.textContent = String(currentSkill?.level) + "/" + String(currentSkill?.maxLevel);
                         /* Skill XP */
                         const skillXpElement = playerElement.querySelector("#skillXp");
-                        if (skillXpElement) skillXpElement.textContent = String(currentSkill?.xp);
+                        if (skillXpElement) skillXpElement.textContent = String(currentSkill?.xp) + "/" + String(currentSkill?.xpNext);
 
                         /* Recipe Data */
                         /* Recipe */
@@ -192,10 +194,10 @@ export class PlayerPanel extends CorePanel {
                         if (recipeElement) recipeElement.textContent = String(currRecipe?.getIdentifier() ?? "N/A");
                         /* Recipe Level */
                         const recipeLevelElement = playerElement.querySelector("#recipeLevel");
-                        if (recipeLevelElement) recipeLevelElement.textContent = String(currentSkill?.getSelectedRecipe()?.level);
+                        if (recipeLevelElement) recipeLevelElement.textContent = String(currentSkill?.getSelectedRecipe()?.level) + "/" + String(currentSkill?.getSelectedRecipe()?.maxLevel);  
                         /* Recipe XP */
                         const recipeXpElement = playerElement.querySelector("#recipeXp");
-                        if (recipeXpElement) recipeXpElement.textContent = String(currentSkill?.getSelectedRecipe()?.xp);
+                        if (recipeXpElement) recipeXpElement.textContent = String(currentSkill?.getSelectedRecipe()?.xp) + "/" + String(currentSkill?.getSelectedRecipe()?.xpNext); 
                     } else {
                         console.log("setOnRefresh:Player element not found");
                     }
