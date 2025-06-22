@@ -19,6 +19,7 @@ export class InfoPanel extends CorePanel {
             const result = [];
             result.push(this.createLabelValue("processTime", "Time"));
             result.push(this.createLabelValue("actionExecutionTime", "Execution Process"));
+            result.push(this.createLabelValue("actionThreadCount", "Thread Count"));
             result.push(this.createLabelValue("gameVersion", "Game Version"));
             return result;
         })
@@ -33,7 +34,10 @@ export class InfoPanel extends CorePanel {
                     if (processTime) processTime.textContent = new Date(this.instance.lastIntervalTime)?.toLocaleString();
                     /** Action Execution Time */
                     const actionExecutionTime = contentPanel.querySelector(`#actionExecutionTime`);
-                    if (actionExecutionTime) actionExecutionTime.textContent = String(this.instance.executionTime);
+                    if (actionExecutionTime) actionExecutionTime.textContent = String(this.instance.executionTime) + " ms";
+                    /** Action Thread Count */
+                    const actionThreadCount = contentPanel.querySelector(`#actionThreadCount`);
+                    if (actionThreadCount) actionThreadCount.textContent = String(this.instance.threads.length) + " t";
                     /** Game Version */
                     const gameVersion = contentPanel.querySelector(`#gameVersion`);
                     if (gameVersion) gameVersion.textContent = String(this.instance.getGameVersion());

@@ -81,19 +81,19 @@ export class Game {
         if (this.interval) clearInterval(this.interval);
         /** GAME LOOP */
         this.interval = setInterval(() => {
-            const dateNow = Date.now();
+            const startTime = Date.now();
             if (this.lastIntervalTime) {
-                const diff = dateNow - this.lastIntervalTime;
+                const diff = startTime - this.lastIntervalTime;
                 const threshold = this.loopInterval * this.loopIntervalOfflineThreshold;
                 if (diff > threshold) {
                     this.offlineLoop(diff);
                 }
             }
             
-            this.lastIntervalTime = dateNow;
+            this.lastIntervalTime = startTime;
             
             /** Threads management */
-            const threads = [];
+            this.threads = [];
             this.playerManager.getPlayers().forEach((player) => {
                 if (player.getSelectedAction()) {
                     const asyncAction = () => {
@@ -102,14 +102,15 @@ export class Game {
                             resolve(true);
                         });
                     }
-                    threads.push(asyncAction());
+                    this.threads?.push(asyncAction());
                 }
             });
-            Promise.all(threads).then(() => {
+            Promise.all(this.threads).then(() => {
                 this.dataManager.save();
                 this.updateUI();
+                this.executionTime = Date.now() - startTime;
+                this.threads = [];
             });
-            this.executionTime = Date.now() - this.lastIntervalTime;
         }, this.loopInterval);
     }
 
