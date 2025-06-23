@@ -7,7 +7,7 @@
 import { CoreManager } from "./coreManager.js";
 import { InfoPanel } from "../panels/infoPanel.js";
 import { PlayerListPanel } from "../panels/playerListPanel.js";
-import { ControlPanel } from "../panels/controlPanel.js";
+import { ToolsPanel } from "../panels/toolsPanel.js";
 
 export class PanelManager extends CoreManager {
 
@@ -16,7 +16,7 @@ export class PanelManager extends CoreManager {
 
         this.infoPanel = new InfoPanel(instance);
         this.playersPanel = new PlayerListPanel(instance);
-        this.controlsPanel = new ControlPanel(instance);
+        this.controlsPanel = new ToolsPanel(instance);
     }
 
     init = () => {

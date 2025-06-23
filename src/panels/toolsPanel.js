@@ -2,28 +2,37 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// controlsPanel.js
+// toolsPanel.js
+
+const REF_TOOLS_PANEL = "tools-panel";
+const REF_TOOLS_PANEL_CONTENT = "tools-panel-content";
+
+const REF_TOOLS_ADMIN_BTN = "admin-buttons";
+const REF_TOOLS_ADD_PLAYER_BTN = "add-player-btn";
+const REF_TOOLS_START_LOOP_BTN = "start-loop-btn";
+const REF_TOOLS_STOP_LOOP_BTN = "stop-loop-btn";
 
 import { CorePanel } from "./corePanel.js";
 
-export class ControlPanel extends CorePanel {
+export class ToolsPanel extends CorePanel {
 
     constructor(instance) {
         super(
             instance, 
-            "controls-panel", 
-            "controls-panel-content");
+            REF_TOOLS_PANEL, 
+            REF_TOOLS_PANEL_CONTENT
+        );
 
         this.setOnInit(() => {
             const result = [];
 
             const newCtrlBtnDiv = document.createElement("div");
-            newCtrlBtnDiv.id = this.genId("admin-buttons");
+            newCtrlBtnDiv.id = this.genId(REF_TOOLS_ADMIN_BTN);
 
             this.registerComponent(
                 newCtrlBtnDiv,
                 this.createButton(
-                    "add-player-btn", 
+                    REF_TOOLS_ADD_PLAYER_BTN, 
                     "Add New Player", 
                     () => {
                         let lastUsedId = -1;
@@ -42,24 +51,22 @@ export class ControlPanel extends CorePanel {
             this.registerComponent(
                 newCtrlBtnDiv,
                 this.createButton(
-                    "start-btn", 
+                    REF_TOOLS_START_LOOP_BTN, 
                     "Start Game Loop", 
                     () => {
                         this.instance.runAction();
-                    },
-                    "cyan"
+                    }
                 )
             );
 
             this.registerComponent(
                 newCtrlBtnDiv,
                 this.createButton(
-                    "stop-btn", 
+                    REF_TOOLS_STOP_LOOP_BTN, 
                     "Stop Game Loop",
                     () => {
                         this.instance.stopLoop();
-                    },
-                    "cyan"
+                    }
                 )
             );
               
