@@ -67,10 +67,17 @@ export class PlayerListPanel extends CorePanel {
                 const onChangeInterval = () => {
                     const selectedAction = player.getSelectedAction();
                     const currentSkill = selectedAction?.getSkill();
+                    const progress = selectedAction?.getProgression();
                     if (currentSkill) {
-                        return currentSkill.baseInterval;
+                        return {
+                            interval: currentSkill.baseInterval,
+                            progression: progress
+                        };
                     }
-                    return 0;
+                    return {
+                        interval: 0, 
+                        progression: 0
+                    };
                 }
                 newPlayerDiv.appendChild(this.createProgress("recipeProgressionView"+player.id, null, onChangeInterval));
 
@@ -88,9 +95,9 @@ export class PlayerListPanel extends CorePanel {
                     "start-combat-" + player.id, 
                     "Start Action : Combat", 
                     () => {
-                        const combatAction = new CombatAction(player);
+                        player.setSelectedAction(null);
                         
-                        /** Select monster001 */
+                        const combatAction = new CombatAction(player);
                         const monster001 = combatAction.getSkill().recipes.get("monster001");
                         combatAction.getSkill().setSelectedRecipe(monster001);
 
@@ -103,9 +110,9 @@ export class PlayerListPanel extends CorePanel {
                     "start-hunting-" + player.id, 
                     "Start Action : Hunting", 
                     () => {
+                        player.setSelectedAction(null);
+
                         const huntingAction = new HuntingAction(player);
-                        
-                        /** Select hunt001 */
                         const hunt001 = huntingAction.getSkill().recipes.get("hunt001");
                         huntingAction.getSkill().setSelectedRecipe(hunt001);
 
@@ -118,9 +125,9 @@ export class PlayerListPanel extends CorePanel {
                     "start-cooking-" + player.id, 
                     "Start Action : Cooking", 
                     () => {
+                        player.setSelectedAction(null);
+
                         const cookingAction = new CookingAction(player);
-                        
-                        /** Select meal001 */
                         const meal001 = cookingAction.getSkill().recipes.get("meal001");
                         cookingAction.getSkill().setSelectedRecipe(meal001);
 
@@ -133,9 +140,9 @@ export class PlayerListPanel extends CorePanel {
                     "start-excavation-" + player.id, 
                     "Start Action : Excavation", 
                     () => {
+                        player.setSelectedAction(null);
+
                         const excavationAction = new ExcavationAction(player);
-                        
-                        /** Select exca001 */
                         const exca001 = excavationAction.getSkill().recipes.get("exca001");
                         excavationAction.getSkill().setSelectedRecipe(exca001);
 
@@ -148,9 +155,9 @@ export class PlayerListPanel extends CorePanel {
                     "start-metalwork-" + player.id, 
                     "Start Action : MetalWork", 
                     () => {
+                        player.setSelectedAction(null);
+
                         const metalWorkAction = new MetalWorkAction(player);
-                        
-                        /** Select mw001 */
                         const mw001 = metalWorkAction.getSkill().recipes.get("mw001");
                         metalWorkAction.getSkill().setSelectedRecipe(mw001);
 
@@ -288,7 +295,6 @@ export class PlayerListPanel extends CorePanel {
                         if (recipeProgressionViewElement) {
                             /** @ts-ignore */ 
                             recipeProgressionViewElement.value = currAction?.getProgression();
-                            
                         }
 
                     } else {

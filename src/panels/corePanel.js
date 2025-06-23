@@ -195,14 +195,19 @@ export class CorePanel {
         /** Animation */
         if (onChangeInterval) {
             const loopTime = 10;
+            let lastInterval = 0;
             const intervalId = setInterval(() => {
                 const rawInterval = onChangeInterval(); /* Ex: 2500 ms */
-                const progressIncr = 100 / (rawInterval / loopTime);
-
-                // @ts-ignore
-                newProgress.value += progressIncr;
-                if (newProgress.value >= 100) {
-                    newProgress.value = 0;
+                if (rawInterval.interval > 0 && rawInterval.interval === lastInterval) {
+                    const progressIncr = 100 / (rawInterval.interval / loopTime);
+                    // @ts-ignore
+                    newProgress.value += progressIncr;
+                    if (newProgress.value >= 100) {
+                        newProgress.value = 0;
+                    }
+                } else {
+                    newProgress.value = rawInterval.progression;
+                    lastInterval = rawInterval.interval;
                 }
                 if (!document.getElementById(id)) {
                     clearInterval(intervalId);
