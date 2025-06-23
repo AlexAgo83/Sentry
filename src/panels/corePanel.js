@@ -251,6 +251,7 @@ export class CorePanel {
                     if (newProgress.value >= 100) {
                         newProgress.value = 0;
                     }
+
                     // console.log(
                     //     "Update progress bar animation -> "
                     //         + "id: " + newProgress.id 

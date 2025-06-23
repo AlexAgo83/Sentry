@@ -174,7 +174,7 @@ export class PlayerCardPanel extends CorePanel {
             this.registerComponent(
                 newCardDiv,
                 this.createButton(
-                    "start-combat",
+                    "start-metalWork",
                     "Start MetalWork", 
                     () => {
                         player.setSelectedAction(null);
@@ -275,11 +275,13 @@ export class PlayerCardPanel extends CorePanel {
 
                             /* Recipe Progression */
                             const recipeProgressionElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS);
-                            if (recipeProgressionElement) recipeProgressionElement.textContent = String(currAction?.getProgression() ?? "N/A") + " %";  
+                            const progress = currAction?.getProgression();
+                            const progressStr = progress ? String(Math.floor(progress)) + " %" : "N/A";
+                            if (recipeProgressionElement) recipeProgressionElement.textContent = progressStr;  
                             const recipeProgressionViewElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS_VIEW);
                             if (recipeProgressionViewElement) {
                                 /** @ts-ignore */ 
-                                recipeProgressionViewElement.value = currAction?.getProgression();
+                                recipeProgressionViewElement.value = progress;
                             }
     
                         } else {

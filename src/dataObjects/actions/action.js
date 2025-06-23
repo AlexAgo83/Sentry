@@ -13,6 +13,7 @@ export class Action extends Entity {
         this.player = player;
         this.currentInterval = 0;
         this.progression = null;
+        this.lastExecutionTime = null;
         this.setOnLoad((actionData) => {});
         this.setOnSave(() => {
             return this.getIdentifier();
@@ -54,23 +55,36 @@ export class Action extends Entity {
         if (this.getSkill().getSelectedRecipe()) {
             let diffToReturn = 0;
 
+            // Each turn, add loop interval time to current action interval time
             this.currentInterval += loopInterval;
+
+            const diffInterval = this.getSkill().baseInterval - this.currentInterval;
             if (this.currentInterval >= this.getSkill().baseInterval) {
-                diffToReturn = this.currentInterval - this.getSkill().baseInterval;
+                // If current interval is greater than base interval 
+                // Action is ready to go and now we need to keep extra time for next action...     
+                diffToReturn = -diffInterval;
+                this.lastExecutionTime = this.currentInterval;
                 this.currentInterval -= this.getSkill().baseInterval;
+                this.progression = 100;
+                console.log("doAction:Action ready to start, time used:" + this.lastExecutionTime + "ms, time left:" + diffToReturn + "ms");
             } else {
-                const diffInterval = this.getSkill().baseInterval - this.currentInterval;
-                this.progression = Math.floor((1-(diffInterval / this.getSkill().baseInterval)) * 100);
-                return -diffInterval;
+                // If current interval is less than base interval
+                // Action is not ready, so we need to :
+                // * Compute action progression : (currentInterval / baseInterval) * 100
+                // * Return diffInterval (negative value)
+                this.progression = (this.currentInterval / this.getSkill().baseInterval) * 100;
+                return diffInterval;
             }
             
             /** Time to do action */
             if (this.onDoAction()) {
                 const currSkill = this.getSkill();
                 const currRecipe = this.getSkill()?.getSelectedRecipe();
+                // Test if skill xp reach limit and need to call levelup
                 if (currSkill.xp >= currSkill.xpNext) {
                     this.levelUpSkill(currSkill);
                 }
+                // Test if recipe xp reach limit and need to call levelup
                 if (currRecipe.xp >= currRecipe.xpNext) {
                     this.levelUpRecipe(currRecipe);
                 }
