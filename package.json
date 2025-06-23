@@ -1,8 +1,7 @@
 {
   "name": "sentry",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Sentry Idle",
-  "main": "src/game.js",
   "scripts": {
     "start": "live-server ./. --open=\"public\" --port=8080",
     "test": "live-server ./. --ignore=\".git/**/*,*.md\" --watch=\"./.\" --open=\"public\" --port=8080"

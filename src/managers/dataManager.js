@@ -6,7 +6,7 @@
 
 import { CoreManager } from "./coreManager.js";
 
-export const STATIC_SAVEGAME_TAG = "saveGame-v6";
+export const STATIC_SAVEGAME_TAG = "saveGame-v7";
 export class DataManager extends CoreManager {
     constructor(instance) {
         super(instance);
