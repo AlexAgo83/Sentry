@@ -12,6 +12,7 @@ export class CorePanel {
         this.contentId = contentId;
         this.columnMode = columnMode;
 
+        this.subComponents = [];
         this.subPanels = [];
     }
 
@@ -119,7 +120,7 @@ export class CorePanel {
         newSpanBuffer.classList.add("generic-field", "buffer");
         newPanel.appendChild(newSpanBuffer);
         const newSpanValue = document.createElement("span");
-        newSpanValue.id = id;
+        newSpanValue.id = this.genId(id);
         newSpanValue.classList.add("generic-field", "value");
         if (valueSize != null) {
             newSpanValue.classList.add("generic-text", valueSize);
@@ -140,7 +141,7 @@ export class CorePanel {
     createButton = (id, label, onClick, color) => {
         const newButton = document.createElement("button");
         newButton.classList.add("generic-field", "button");
-        newButton.id = id;
+        newButton.id = this.genId(id);
         if (color) newButton.style.backgroundColor = color;
         newButton.textContent = label;
         if (onClick) newButton.addEventListener("click", onClick);
@@ -177,7 +178,7 @@ export class CorePanel {
         /* Input */
         const newInput = document.createElement("input");
         newInput.classList.add("generic-field", "value", "input");
-        newInput.id = id;
+        newInput.id = this.genId(id);
         // newInput.type = type;
         newInput.value = "N/A";
         if (label) newInput.placeholder = label;
@@ -213,7 +214,7 @@ export class CorePanel {
         /* Progress */
         const newProgress = document.createElement("progress");
         newProgress.classList.add("generic-field", "progress");
-        newProgress.id = id;
+        newProgress.id = this.genId(id);
         
         
         // @ts-ignore
@@ -275,7 +276,7 @@ export class CorePanel {
         /* Select */
         const newSelect = document.createElement("select");
         newSelect.classList.add("generic-field", "select");
-        newSelect.id = id;
+        newSelect.id = this.genId(id);
         options.forEach((option) => {
             const newOption = document.createElement("option");
             newOption.value = option.value;
@@ -361,5 +362,44 @@ export class CorePanel {
      */
     getElement(id) {
         return this.getContentPanel()?.querySelector("#" + id);
+    }
+
+    /**
+     * Registers a component with a given ID.
+     * 
+     * @param {string} id - The ID of the component.
+     * @param {Element} newElement - The element of the component.
+     */
+    registerComponent = (targetPanel, id, newElement) => {
+        this.subComponents[this.genId(id)] = newElement;
+        targetPanel.appendChild(newElement)
+    }
+    
+    /**
+     * Retrieves a component by its ID.
+     * 
+     * @param {string} id - The ID of the component to retrieve.
+     * @returns {Element|null|undefined} The component element with the specified ID, or null if not found.
+     */
+    getComponent = (id) => {
+        return this.subComponents[id];
+    }
+    getComponentContent = (id) => {
+        return this.getComponent(this.genId(id))?.querySelector("#"+this.genId(id));
+    }
+
+    setOnGenId = (func) => {
+        this.onGenId = func;
+        console.log("setOnGenId:onGenId set", func);
+    }
+    onGenId = () => {
+        // Default onGenId ...
+        return null;
+    }
+
+    genId = (newId) => {
+        const gen = this.onGenId();
+        if (gen != null) return newId + "-" + gen;
+        return newId;
     }
 }
