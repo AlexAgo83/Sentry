@@ -28,6 +28,9 @@ export class PlayerControlsPanel extends CorePanel {
 
             const newCardDiv = document.createElement("div");
             newCardDiv.id = this.genId("constrols");
+            newCardDiv.style.display = "flex";
+            newCardDiv.style.width = "100%";
+            newCardDiv.style.flexDirection = "column";
 
             /** Start Action Combat */
             this.registerComponent(

@@ -15,8 +15,13 @@ export class ControlPanel extends CorePanel {
             "controls-panel-content");
 
         this.setOnInit(() => {
-            this.listenersInit = false;
-            return [
+            const result = [];
+
+            const newCtrlBtnDiv = document.createElement("div");
+            newCtrlBtnDiv.id = this.genId("admin-buttons");
+
+            this.registerComponent(
+                newCtrlBtnDiv,
                 this.createButton(
                     "add-player-btn", 
                     "Add New Player", 
@@ -31,7 +36,11 @@ export class ControlPanel extends CorePanel {
                         this.instance.playerManager.createPlayer(newId);
                     },
                     "red"
-                ),
+                )
+            );
+                
+            this.registerComponent(
+                newCtrlBtnDiv,
                 this.createButton(
                     "start-btn", 
                     "Start Game Loop", 
@@ -39,7 +48,11 @@ export class ControlPanel extends CorePanel {
                         this.instance.runAction();
                     },
                     "cyan"
-                ),
+                )
+            );
+
+            this.registerComponent(
+                newCtrlBtnDiv,
                 this.createButton(
                     "stop-btn", 
                     "Stop Game Loop",
@@ -47,36 +60,11 @@ export class ControlPanel extends CorePanel {
                         this.instance.stopLoop();
                     },
                     "cyan"
-                ),
-                this.createButton(
-                    "save-btn", 
-                    "Save Game Data", 
-                    () => {
-                        this.instance.dataManager.save();
-                    },
-                    "yellow"
-                ),
-                this.createButton(
-                    "load-btn", 
-                    "Load Game Data", 
-                    () => {
-                        this.instance.resetInstance();
-                        const savedData = this.instance.dataManager.load();
-                        this.instance.initUI();
-                        this.instance.runAction();
-                        console.log("Game loaded", savedData);
-                    },
-                    "yellow"
-                ),
-                this.createButton(
-                    "reset-btn", 
-                    "Reset Game Data", 
-                    () => {
-                        this.instance.resetInstance();
-                    },
-                    "yellow"
                 )
-            ]
+            );
+              
+            result.push(newCtrlBtnDiv);
+            return result;
         });
 
         this.setOnRefresh(() => {

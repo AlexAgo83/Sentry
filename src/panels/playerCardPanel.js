@@ -149,7 +149,7 @@ export class PlayerCardPanel extends CorePanel {
             /** RECIPE PROGRESSION */
             this.registerComponent(
                 newCardDiv,
-                this.createLabelValue(REF_PLAYER_RECIPE_PROGRESS, "Recipe Progression"));
+                this.createLabelValue(REF_PLAYER_RECIPE_PROGRESS, "Action :"));
 
             /** Progression - Custom animation */
             const onChangeInterval = () => {

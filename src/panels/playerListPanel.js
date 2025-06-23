@@ -15,8 +15,7 @@ export class PlayerListPanel extends CorePanel {
             "player-list-panel-content",
             false
         );
-        this.maxRecipe = 10;
-
+        
         this.setOnPrepare(() => {
             const playersObject = this.instance.playerManager.getPlayers();
             playersObject.forEach((player) => {
@@ -38,26 +37,5 @@ export class PlayerListPanel extends CorePanel {
                 }
             });
         })
-
-        /** ON INIT */
-        this.setOnInit(() => {
-            const result = [];
-            // const playersObject = this.instance.playerManager.getPlayers();
-            // playersObject.forEach((player) => {
-            //     // ...
-            // })
-            return result;
-        })
-
-        /** ON REFRESH */
-        this.setOnRefresh(() => {
-            // const panel = this.getPanel();
-            // if (panel) {
-            //     const contentPanel = this.getContentPanel();
-            //     if (contentPanel) {
-            //         // ...
-            //     }
-            // }
-        });
     }
 }
