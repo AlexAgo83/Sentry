@@ -47,6 +47,15 @@ export class CorePanel {
         this.onInit = func;
     }
 
+    onPostInit = () => {
+        // Default onPostInit ...
+        // console.log("onPostInit:Default onPostInit ...");
+    }
+
+    setOnPostInit = (func) => {
+        this.onPostInit = func;
+    }
+
     /**
      * Initializes the panel
      */
@@ -62,14 +71,16 @@ export class CorePanel {
             this.onPrepare();
             const newContent = document.createElement("div");
             newContent.id = this.contentId;
-            newContent.style.margin = "10px";
-            newContent.style.display = "flex";
+            newContent.classList.add("generic-container-players");
+            // newContent.style.margin = "10px";
+            // newContent.style.display = "flex";
             if (this.columnMode) {
                 newContent.style.flexDirection = "column";
             } else newContent.style.flexDirection = "row";
             newContent.append(...this.onInit());
             panel?.appendChild(newContent);
             // console.log(`init:Panel ${this.panelId} setup`);
+            this.onPostInit();
         }
 
         /** Running init for subPanels */
@@ -152,7 +163,7 @@ export class CorePanel {
         newButton.classList.add("generic-field", "button");
         newButton.id = this.genId(id);
         newButton.textContent = label;
-        
+
         if (onClick) newButton.addEventListener("click", onClick);
         
         newPanel.appendChild(newButton);

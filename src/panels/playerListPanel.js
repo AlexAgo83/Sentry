@@ -37,5 +37,15 @@ export class PlayerListPanel extends CorePanel {
                 }
             });
         })
+
+        this.setOnInit(() => {
+            const result = [];
+            // this.getPanel()?.classList.add("overflow-panel");
+            return result;
+        })
+
+        this.setOnPostInit(() => {
+            // ...
+        })
     }
 }

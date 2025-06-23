@@ -64,6 +64,7 @@ export class PlayerCardPanel extends CorePanel {
 
             const newCardDiv = document.createElement("div");
             newCardDiv.id = this.genId(REF_PLAYER_CARD);
+            newCardDiv.classList.add("player-card-content");
 
             // /** ID */
             // this.registerComponent(
@@ -261,6 +262,10 @@ export class PlayerCardPanel extends CorePanel {
                 }
             }
         })
+
+        this.setOnPostInit(() => {
+            this.getContentPanel()?.classList.add("player-card-panel");
+        });
     }
 
     genId = (newId) => {

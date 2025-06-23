@@ -15,6 +15,8 @@
     --color-secondary: #506574;
     --color-tertiary: #7493a9;
     --border-radius-harmonized: 5px;
+    --min-screen-size: 250px;
+    --min-panel-size: 200px;
 }
 
 /** Global definitions */
@@ -26,7 +28,6 @@
 .generic-container-players {
     margin-right: 10px;
     display: flex;
-    min-width: 210px;
     flex-direction: column;
 }
 
@@ -43,6 +44,13 @@
     box-shadow: inset 0px 5px 0px 0px var(--color-text-background-fade);
     border: 1px solid var(--color-text-background-fade);
     background-color: var(--color-text-background);
+}
+
+.generic-core-panel {
+    display: flex;
+    flex-wrap: wrap;
+    min-width: fit-content;
+    flex-direction: column;
 }
 
 /** Generic Fields */
@@ -81,25 +89,6 @@
     color: var(--color-text);
     margin-right: 2px;
 }
-
-/** Button */
-/* .generic-field.button {
-    border: 1px solid var(--color-text);
-    border-radius: var(--border-radius-harmonized);
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    margin: 1px;
-} */
-
-/* .generic-field.button:disabled {
-    background-color: red;
-    border: transparent;
-    border-radius: inherit;
-    color: var(--color-text-fade);
-    opacity: 0.5;
-} */
 
 .generic-field.button {
   border: 1px solid var(--color-tertiary);
@@ -229,4 +218,18 @@
 
 .generic-text.fs-xl {
     font-size: var(--text-xl-size);
+}
+
+.player-card-panel {
+    margin: 0px;
+}
+
+.player-card-content {
+    min-width: 200px;
+    width: 200px;
+}
+
+.info-panel-content {
+    min-width: 200px;
+    width: 200px;
 }

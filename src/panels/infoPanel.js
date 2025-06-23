@@ -49,5 +49,9 @@ export class InfoPanel extends CorePanel {
                 console.log("onRefresh:Info panel not found");
             }
         })
+
+        this.setOnPostInit(() => {
+            this.getContentPanel()?.classList.add("info-panel-content");
+        })
     }
 }
