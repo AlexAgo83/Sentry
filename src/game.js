@@ -154,7 +154,7 @@ export class Game {
             for (let i = 1; i < howMuchLoops; i++) {
                 this.playerManager.getPlayers().forEach((player) => {
                     if (player.getSelectedAction()) {
-                        let gt = garbageTime.get(player.id) ?? 0;
+                        let gt = garbageTime.get(player.getIdentifier()) ?? 0;
                         const actionDiff = player.getSelectedAction().doAction(player, this.loopIntervalOffline);
                         gt += actionDiff;
                         if (gt >= this.loopIntervalOffline) {
@@ -162,7 +162,7 @@ export class Game {
                             gt -= this.loopIntervalOffline;
                             skippedLoop++;
                         }
-                        garbageTime.set(player.id, 0);
+                        garbageTime.set(player.getIdentifier(), 0);
                         // console.log(`Offline loop ${i}/${howMuchLoops} - ActionTime:${actionDiff}ms - garbage time ${garbageTime}ms`);
                     }
                 });

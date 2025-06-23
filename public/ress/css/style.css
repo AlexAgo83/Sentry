@@ -126,6 +126,8 @@
     padding-left: 5px;
     padding-right: 5px;
     width: 100%;
+    color: var(--color-text);
+    pointer-events: all;
 }
 
 /** TEXT */

@@ -8,6 +8,7 @@ import { formatDate } from "../utils.js";
 import { CorePanel } from "./corePanel.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
 import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
+import { PlayerControlsPanel } from "./playerControlsPanel.js";
 
 const REF_PLAYER_ID = "id";
 const REF_PLAYER_NAME_LABEL = "nameLabel";
@@ -34,18 +35,36 @@ export class PlayerCardPanel extends CorePanel {
             contentId,
             false
         );
-        
+
         this.player = player;
 
         this.setOnGenId(() => {
-            return player.id;
+            return player.getIdentifier();
         })
+
+        this.setOnPrepare(() => {
+            let isAlreadyAdded = false;
+            this.subPanels.forEach((subPanel) => {
+                if (subPanel instanceof PlayerControlsPanel
+                    && subPanel.player.getIdentifier() == player.getIdentifier()) {
+                    isAlreadyAdded = true;
+                }
+            });
+            /** If not already added */
+            if (!isAlreadyAdded) {
+                this.registerSubPanel(
+                    new PlayerControlsPanel(
+                        this.instance, 
+                        this.contentId, 
+                        this.genId("player-controls"), player));
+            }
+        });
 
         this.setOnInit(() => {
             const result = [];
 
             const newCardDiv = document.createElement("div");
-            newCardDiv.id = "card-" + player.id;
+            newCardDiv.id = "card-" + player.getIdentifier();
 
             /** ID */
             this.registerComponent(
@@ -71,7 +90,7 @@ export class PlayerCardPanel extends CorePanel {
                                 // @ts-ignore
                                 player.setName(input.value);
                                 // this.instance.dataManager.save();
-                                console.log(`player:${player.id} name changed from '${oldName}' to '${player.name}'`);
+                                console.log(`player:${player.getIdentifier()} name changed from '${oldName}' to '${player.name}'`);
                             }
                         }
                     }
@@ -214,8 +233,20 @@ export class PlayerCardPanel extends CorePanel {
                     const currentSkill = selectedAction?.getSkill();
                     const panel = this.getPanel();
     
-                    if (panel && currentSkill) {
-                        const cardElement = panel.querySelector(`#card-${player.id}`);
+                    if (panel && !selectedAction) {
+                        /** No active Action */
+
+                        /* Name */
+                        const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
+                        if (nameElement) {
+                            // @ts-ignore
+                            nameElement.disabled = false;
+                        }
+                    } else if (panel && !currentSkill) {
+                        /** No active Skill */
+                    } else if (panel && currentSkill) {
+                        /** Active Skill */
+                        const cardElement = panel.querySelector(`#card-${player.getIdentifier()}`);
                         if (cardElement) {
     
                             const currAction = player.getSelectedAction();
@@ -225,13 +256,16 @@ export class PlayerCardPanel extends CorePanel {
                             /* Player Data */
                             /* ID */
                             const idElement = this.getComponentContent(REF_PLAYER_ID);
-                            if (idElement) idElement.textContent = String(player.id);
+                            if (idElement) idElement.textContent = String();
 
                             /* Name */
                             const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
-                            if (nameElement) 
+                            if (nameElement) {
                                 // @ts-ignore
                                 nameElement.value = String(player.name);
+                                // @ts-ignore
+                                nameElement.disabled = true;
+                            }
 
                             /* Date Created */
                             const dateCreatedElement = this.getComponentContent(REF_PLAYER_DATE_CREATED);
@@ -294,179 +328,6 @@ export class PlayerCardPanel extends CorePanel {
     }
 
     genId = (newId) => {
-        return newId + "-" + this.player.id;
+        return newId + "-" + this.player.getIdentifier();
     }
 }
-
-
-// const newPlayerDiv = document.createElement("div");
-// newPlayerDiv.id = "player-list-item-" + player.id;
-// newPlayerDiv.classList.add("generic-container-players");
-
-// newPlayerDiv.appendChild(this.createButton(
-//     "remove-player-" + player.id, 
-//     "Remove", 
-//     () => {
-//         this.instance.playerManager.removePlayer(player.id);
-//     },
-//     "red"
-// ));
-
-// newPlayerDiv.appendChild(this.createButton(
-//     "start-combat-" + player.id, 
-//     "Start Action : Combat", 
-//     () => {
-//         player.setSelectedAction(null);
-        
-//         const combatAction = new CombatAction(player);
-//         const monster001 = combatAction.getSkill().recipes.get("monster001");
-//         combatAction.getSkill().setSelectedRecipe(monster001);
-
-//         player.setSelectedAction(combatAction);
-//     },
-//     "lightblue"
-// ));
-
-// newPlayerDiv.appendChild(this.createButton(
-//     "start-hunting-" + player.id, 
-//     "Start Action : Hunting", 
-//     () => {
-//         player.setSelectedAction(null);
-
-//         const huntingAction = new HuntingAction(player);
-//         const hunt001 = huntingAction.getSkill().recipes.get("hunt001");
-//         huntingAction.getSkill().setSelectedRecipe(hunt001);
-
-//         player.setSelectedAction(huntingAction);
-//     },
-//     "lightpink"
-// ));
-
-// newPlayerDiv.appendChild(this.createButton(
-//     "start-cooking-" + player.id, 
-//     "Start Action : Cooking", 
-//     () => {
-//         player.setSelectedAction(null);
-
-//         const cookingAction = new CookingAction(player);
-//         const meal001 = cookingAction.getSkill().recipes.get("meal001");
-//         cookingAction.getSkill().setSelectedRecipe(meal001);
-
-//         player.setSelectedAction(cookingAction);
-//     },
-//     "lightpink"
-// ));
-
-// newPlayerDiv.appendChild(this.createButton(
-//     "start-excavation-" + player.id, 
-//     "Start Action : Excavation", 
-//     () => {
-//         player.setSelectedAction(null);
-
-//         const excavationAction = new ExcavationAction(player);
-//         const exca001 = excavationAction.getSkill().recipes.get("exca001");
-//         excavationAction.getSkill().setSelectedRecipe(exca001);
-
-//         player.setSelectedAction(excavationAction);
-//     },
-//     "lightgreen"
-// ));
-
-// newPlayerDiv.appendChild(this.createButton(
-//     "start-metalwork-" + player.id, 
-//     "Start Action : MetalWork", 
-//     () => {
-//         player.setSelectedAction(null);
-
-//         const metalWorkAction = new MetalWorkAction(player);
-//         const mw001 = metalWorkAction.getSkill().recipes.get("mw001");
-//         metalWorkAction.getSkill().setSelectedRecipe(mw001);
-
-//         player.setSelectedAction(metalWorkAction);
-//     },
-//     "lightgreen"
-// ));
-
-// for (let i = 0; i < this.maxRecipe; i++) {
-//     const button = this.createButton(
-//         "recipe-selector-" + i + "-" + player.id, 
-//         "Select Recipe", 
-//         () => {
-//             player.setSelectedAction(null);
-//         },
-//         "lightpurple"
-//     );
-//     // @ts-ignore
-//     button.style.display = "none";
-//     newPlayerDiv.appendChild(button);
-// }
-
-// newPlayerDiv.appendChild(this.createButton(
-//     "stop-action-" + player.id, 
-//     "Stop Action", 
-//     () => {
-//         player.setSelectedAction(null);
-//     },
-//     "lightgray"
-// ));
-
-
-
-
-/////////////////////////:
-
-// onRefresh()
-
-// this.instance.playerManager.getPlayers().forEach((player) => {
-//     const selectedAction = player.getSelectedAction();
-//     const currentSkill = selectedAction?.getSkill();
-//     const panel = this.getPanel();
-
-//     if (panel && currentSkill) {
-
-//         const playerElement = panel.querySelector(`#player-${player.id}`);
-//         if (playerElement) {
-//             const currAction = player.getSelectedAction();
-//             const currSkill = currAction?.getSkill();
-//             const currRecipe = currSkill?.getSelectedRecipe();
-
-//             /** Recipe Selector */
-//             if (currSkill) {
-//                 let i = 0;
-//                 for (const key of currSkill.recipes.keys()) {
-//                     const lRecipe = currSkill.recipes.get(key);
-//                     if (i < this.maxRecipe) {
-//                         const recipeSelector = playerElement.querySelector(`#recipe-selector-${i}-${player.id}`);
-//                         if (recipeSelector) {
-//                             // @ts-ignore
-//                             recipeSelector.style.display = "inline-block";
-//                             recipeSelector.textContent = "Select Recipe : " + key;
-//                             recipeSelector.addEventListener("click", () => {
-//                                 currSkill.setSelectedRecipe(currSkill.getRecipeByID(key));
-//                                 console.log("(important) setSelectedRecipe:" + key);
-
-//                                 const recipe = currAction.getSkill().recipes.get(key);
-//                                 currAction.getSkill().setSelectedRecipe(recipe);
-//                                 player.setSelectedAction(currAction);
-//                             });
-//                         } 
-//                         i+=1;
-//                     }
-//                 }
-
-//                 if (i<this.maxRecipe) {
-//                     for (i = i; i<this.maxRecipe; i++) {
-//                         const recipeSelector = panel.querySelector(`#recipe-selector-${i}-${player.id}`);
-//                         if (recipeSelector) {
-//                             // @ts-ignore
-//                             recipeSelector.style.display = "none";
-//                             recipeSelector.textContent = "Select Recipe : N/A";
-//                         }     
-//                     }
-//                 }
-//             }
-//         } else {
-//             console.log("setOnRefresh:Player element not found");
-//         }
-//     }
-// });

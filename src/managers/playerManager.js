@@ -66,7 +66,7 @@ export class PlayerManager extends CoreManager {
 
     removePlayer = (id) => {
         this.players = this.players.filter((player) => {
-            return player.id !== id;
+            return player.getIdentifier() !== id;
         });
         this.instance.dataManager.save();
         this.instance.panelManager.remove();

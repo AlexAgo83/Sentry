@@ -24,15 +24,17 @@ export class PlayerListPanel extends CorePanel {
                 let isAlreadyAdded = false;
                 this.subPanels.forEach((subPanel) => {
                     if (subPanel instanceof PlayerCardPanel
-                        && subPanel.player.id == player.id) {
+                        && subPanel.player.getIdentifier() == player.getIdentifier()) {
                         isAlreadyAdded = true;
                     }
                 });
                 /** If not already added */
                 if (!isAlreadyAdded) {
-                    const playerCardPanel = new PlayerCardPanel(this.instance, this.contentId, "player-card-" + player.id, player);
-                    this.registerSubPanel(playerCardPanel);
-                    // console.log(`SubModule: player-card-${player.id}-panel registered !`);
+                    this.registerSubPanel(
+                        new PlayerCardPanel(
+                            this.instance, 
+                            this.contentId, 
+                            "player-card-"+player.getIdentifier(), player));
                 }
             });
         })

@@ -23,8 +23,8 @@ export class ControlPanel extends CorePanel {
                     () => {
                         let lastUsedId = -1;
                         this.instance.playerManager.getPlayers().forEach((player) => {
-                            if (player.id > lastUsedId) {
-                                lastUsedId = player.id;
+                            if (player.getIdentifier() > lastUsedId) {
+                                lastUsedId = player.getIdentifier();
                             }
                         })
                         const newId = lastUsedId + 1;
