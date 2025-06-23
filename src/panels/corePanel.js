@@ -27,9 +27,18 @@ export class CorePanel {
         return this.instance;
     }
 
+    onPrepare = () => {
+        // Default onPrepare ...
+        // console.log("onPrepare:Default onPreInit ...");
+    }
+
+    setOnPrepare = (func) => {
+        this.onPrepare = func;
+    }
+
     onInit = () => {
         // Default onInit ...
-        console.log("onInit:Default onInit ...");
+        // console.log("onInit:Default onInit ...");
         return []
     }
     
@@ -44,9 +53,12 @@ export class CorePanel {
         /** INFO PANEL */
         const panel = this.getPanel();
         const contentPanel = this.getContentPanel();
+
         if (contentPanel) {
-            // console.log(`init:Panel ${this.panelId} already setup, skip!`);
+            // Already initialized ...
         } else {
+            /** Create new content */
+            this.onPrepare();
             const newContent = document.createElement("div");
             newContent.id = this.contentId;
             newContent.style.margin = "10px";
@@ -57,6 +69,13 @@ export class CorePanel {
             newContent.append(...this.onInit());
             panel?.appendChild(newContent);
             console.log(`init:Panel ${this.panelId} setup`);
+        }
+
+        /** Running init for subPanels */
+        if (this.subPanels.length > 0) {
+            this.subPanels.forEach((panel) => {
+                panel.init();
+            });
         }
     }
 
@@ -319,6 +338,10 @@ export class CorePanel {
      */
     getPanel = () => {
         return document.body.querySelector("#" + this.panelId);
+    }
+
+    getPanelId = () => {
+        return this.panelId;
     }
 
     /**
