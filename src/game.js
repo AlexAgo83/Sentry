@@ -16,7 +16,7 @@ import { ActionManager } from "./managers/actionManager.js";
 import { PlayerManager } from "./managers/playerManager.js";
 import { PanelManager } from "./managers/panelManager.js";
 
-export const STATIC_GAME_VERSION = "0.1.3";
+export const STATIC_GAME_VERSION = "0.1.4";
 export const STATIC_DEFAULT_LOOP_INTERVAL = 250;
 export const STATIC_DEFAULT_LOOP_OFFLINE = 500;
 export const STATIC_DEFAULT_OFFLINE_THRESHOLD = 1.5;
