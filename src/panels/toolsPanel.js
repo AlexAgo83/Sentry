@@ -28,6 +28,7 @@ export class ToolsPanel extends CorePanel {
 
             const newCtrlBtnDiv = document.createElement("div");
             newCtrlBtnDiv.id = this.genId(REF_TOOLS_ADMIN_BTN);
+            newCtrlBtnDiv.classList.add("tools-panel-content");
 
             const btAddPlayer = this.createButton(
                 REF_TOOLS_ADD_PLAYER_BTN, 
@@ -75,7 +76,7 @@ export class ToolsPanel extends CorePanel {
         });
 
         this.setOnPostInit(() => {
-            this.getContentPanel()?.classList.add("tools-panel-content");
+            // ...
         });
 
         this.setOnRefresh(() => {

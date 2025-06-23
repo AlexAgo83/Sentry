@@ -95,10 +95,10 @@ export class PlayerCardPanel extends CorePanel {
                 )
             );
 
-            /** DATE CREATED */
-            this.registerComponent(
-                newCardDiv,
-                this.createLabelValue(REF_PLAYER_DATE_CREATED, "Date Created")); // , null, "fs-s"));
+            // /** DATE CREATED */
+            // this.registerComponent(
+            //     newCardDiv,
+            //     this.createLabelValue(REF_PLAYER_DATE_CREATED, "Date Created")); // , null, "fs-s"));
 
             // /** HP */
             // this.registerComponent(
@@ -191,9 +191,9 @@ export class PlayerCardPanel extends CorePanel {
             // const idElement = this.getComponentContent(REF_PLAYER_ID);
             // if (idElement) idElement.textContent = String(player.getIdentifier());
 
-            /* Date Created */
-            const dateCreatedElement = this.getComponentContent(REF_PLAYER_DATE_CREATED);
-            if (dateCreatedElement) dateCreatedElement.textContent = formatDate(new Date(player.dateCreated));
+            // /* Date Created */
+            // const dateCreatedElement = this.getComponentContent(REF_PLAYER_DATE_CREATED);
+            // if (dateCreatedElement) dateCreatedElement.textContent = formatDate(new Date(player.dateCreated));
 
             // /* HP */
             // const hpElement = this.getComponentContent(REF_PLAYER_HP);

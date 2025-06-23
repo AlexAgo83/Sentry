@@ -34,7 +34,7 @@
     --min-screen-size: 330px;
     --min-panel-size: 300px;
 
-    --min-card-size: 300px;
+    --min-card-size: 330px;
     --min-info-size: 330px;
     --min-tools-size: 330px;
 }
@@ -268,7 +268,6 @@
     width: var(--min-tools-size);
     margin: auto;
     display: flex;
-    padding-bottom: var(--m1);
     justify-content: center;
     align-items: center;
 }

@@ -156,8 +156,6 @@ export class CorePanel {
     createButton = (id, label, onClick) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
-        newPanel.style.margin = "2px";
-        newPanel.style.padding = "0px";
 
         const newButton = document.createElement("button");
         newButton.classList.add("generic-field", "button");
