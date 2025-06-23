@@ -16,7 +16,7 @@
     --color-tertiary: #7493a9;
     --border-radius-harmonized: 5px;
     --min-screen-size: 250px;
-    --min-panel-size: 200px;
+    --min-panel-size: 210px;
 }
 
 /** Global definitions */
@@ -37,7 +37,8 @@
     margin-bottom: 5px;
     margin-left: 10px;
     margin-right: 10px;
-    padding-top: 5px;
+    padding-top: 2px;
+    padding-bottom: 1px;
     display: flex;
     flex-wrap: wrap !important;
     min-width: fit-content !important;
@@ -169,6 +170,7 @@
     margin-left: 0px;
     margin-right: 5px;
     width: 50%;
+    height: 14px;
     color: var(--color-text-fade);
     pointer-events: none;
 }
@@ -233,8 +235,8 @@
 }
 
 .player-card-content {
-    min-width: 195px;
-    width: 195px;
+    min-width: 200px;
+    width: 200px;
 }
 
 .info-panel-content {
