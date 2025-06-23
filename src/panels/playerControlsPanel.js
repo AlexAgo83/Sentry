@@ -199,6 +199,18 @@ export class PlayerControlsPanel extends CorePanel {
                     selectRecipe.disabled = true;
                 }
             }
+
+            const btStartAction = this.getComponentContent(REF_PLAYER_ACTION_START);
+            if (btStartAction) {
+                // @ts-ignore
+                btStartAction.disabled = !this.userSelectedSkill || !this.userSelectedRecipe;
+            }
+
+            const btStopAction = this.getComponentContent(REF_PLAYER_ACTION_STOP);
+            if (btStopAction) {
+                // @ts-ignore
+                btStopAction.disabled = !player.getSelectedAction();
+            }
             
         })
     }

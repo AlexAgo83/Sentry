@@ -140,10 +140,10 @@ export class CorePanel {
      * @param {string} id - the id of the button
      * @param {string} label - the label of the button
      * @param {*} onClick - the function to call when the button is clicked
-     * @param {*} color - the color of the button
+     * @param {string|null} color - the color of the button
      * @returns {Element} the button panel 
      */
-    createButton = (id, label, onClick, color) => {
+    createButton = (id, label, onClick, color=null) => {
         const newButton = document.createElement("button");
         newButton.classList.add("generic-field", "button");
         newButton.id = this.genId(id);
