@@ -26,11 +26,11 @@ export class Action extends Entity {
     }
 
     getSkill = () => {
-        return this.player.skills.get(this.getIdentifier());
+        return this.player?.skills?.get(this.getIdentifier());
     }
 
     getRecipe = () => {
-        return this.getSkill().getSelectedRecipe();
+        return this.getSkill()?.getSelectedRecipe();
     }
 
     getProgression = () => {
