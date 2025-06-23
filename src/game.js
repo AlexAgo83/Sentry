@@ -76,7 +76,7 @@ export class Game {
     /**
      * Stops the game loop
      */
-    stopAction = () => {
+    stopLoop = () => {
         if (this.interval) {
             clearInterval(this.interval);
             console.log("Game loop stopped");

@@ -42,9 +42,9 @@ export class ControlPanel extends CorePanel {
                 ),
                 this.createButton(
                     "stop-btn", 
-                    "Stop Game Loop", 
+                    "Stop Game Loop",
                     () => {
-                        this.instance.stopAction();
+                        this.instance.stopLoop();
                     },
                     "cyan"
                 ),

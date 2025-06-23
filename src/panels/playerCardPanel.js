@@ -6,8 +6,6 @@
 
 import { formatDate } from "../utils.js";
 import { CorePanel } from "./corePanel.js";
-import { CombatAction } from "../dataObjects/actions/combatAction.js";
-import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
 import { PlayerControlsPanel } from "./playerControlsPanel.js";
 
 const REF_PLAYER_ID = "id";
@@ -55,8 +53,9 @@ export class PlayerCardPanel extends CorePanel {
                 this.registerSubPanel(
                     new PlayerControlsPanel(
                         this.instance, 
-                        this.contentId, 
-                        this.genId("player-controls"), player));
+                        this.genId("card"), // Attach to the current "card"
+                        this.genId("player-controls"), 
+                        player));
             }
         });
 
@@ -64,7 +63,7 @@ export class PlayerCardPanel extends CorePanel {
             const result = [];
 
             const newCardDiv = document.createElement("div");
-            newCardDiv.id = "card-" + player.getIdentifier();
+            newCardDiv.id = this.genId("card");
 
             /** ID */
             this.registerComponent(
@@ -171,53 +170,6 @@ export class PlayerCardPanel extends CorePanel {
             this.registerComponent(
                 newCardDiv,
                 this.createProgress(REF_PLAYER_RECIPE_PROGRESS_VIEW, null, onChangeInterval));
-
-            /** Start Action Combat */
-            this.registerComponent(
-                newCardDiv,
-                this.createButton(
-                    "start-combat",
-                    "Start Combat", 
-                    () => {
-                        player.setSelectedAction(null);
-                        const action = new CombatAction(player);
-                        const recipe = action.getSkill().recipes.get("monster001");
-                        action.getSkill().setSelectedRecipe(recipe);
-                        player.setSelectedAction(action);
-                    },
-                    "lightblue"
-                )
-            );
-
-            /** Start Action MetalWork */
-            this.registerComponent(
-                newCardDiv,
-                this.createButton(
-                    "start-metalWork",
-                    "Start MetalWork", 
-                    () => {
-                        player.setSelectedAction(null);
-                        const action = new MetalWorkAction(player);
-                        const recipe = action.getSkill().recipes.get("mw001");
-                        action.getSkill().setSelectedRecipe(recipe);
-                        player.setSelectedAction(action);
-                    },
-                    "lightgreen"
-                )
-            );
-
-            /** Stop Action */
-            this.registerComponent(
-                newCardDiv,
-                this.createButton(
-                    "stop-action", 
-                    "Stop Action", 
-                    () => {
-                        player.setSelectedAction(null);
-                    },
-                    "lightgray"
-                )
-            );
 
             // End of init
             result.push(newCardDiv);
