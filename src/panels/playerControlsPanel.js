@@ -5,10 +5,7 @@
 // playerControlsPanel.js
 
 import { CorePanel } from "./corePanel.js";
-import { CombatAction } from "../dataObjects/actions/combatAction.js";
-import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
 import { STATIC_SKILLS_LIST } from "../managers/skillManager.js";
-import { createRecipeByID } from "../managers/recipeManager.js";
 import { createActionByID } from "../managers/actionManager.js";
 
 const REF_PLAYER_CONTROLS = "controls";
@@ -16,6 +13,9 @@ const REF_PLAYER_SELECT_SKILL = "select-skill";
 const REF_PLAYER_SELECT_RECIPE = "select-recipe";
 const REF_PLAYER_ACTION_START = "start-action";
 const REF_PLAYER_ACTION_STOP = "stop-action";
+
+const REF_SELECT_DEFAULT_SKILL_LABEL = "Select Skill";
+const REF_SELECT_DEFAULT_RECIPE_LABEL = "Select Recipe";
 
 export class PlayerControlsPanel extends CorePanel {
     constructor(instance, parentId, contentId, player) {
@@ -29,7 +29,7 @@ export class PlayerControlsPanel extends CorePanel {
         this.player = player;
 
         this.optionSkills = [];
-        this.optionSkills.push(new Option("Select Skill", ""));
+        this.optionSkills.push(new Option(REF_SELECT_DEFAULT_SKILL_LABEL, ""));
         STATIC_SKILLS_LIST.forEach((identifier) => {
             this.optionSkills.push(new Option(identifier, identifier));
         })
@@ -53,40 +53,6 @@ export class PlayerControlsPanel extends CorePanel {
             newCardDiv.style.display = "flex";
             newCardDiv.style.width = "100%";
             newCardDiv.style.flexDirection = "column";
-
-            // /** Start Action Combat */
-            // this.registerComponent(
-            //     newCardDiv,
-            //     this.createButton(
-            //         "start-combat",
-            //         "Start Combat", 
-            //         () => {
-            //             player.setSelectedAction(null);
-            //             const action = new CombatAction(player);
-            //             const recipe = action.getSkill().recipes.get("monster001");
-            //             action.getSkill().setSelectedRecipe(recipe);
-            //             player.setSelectedAction(action);
-            //         },
-            //         "lightblue"
-            //     )
-            // );
-
-            // /** Start Action MetalWork */
-            // this.registerComponent(
-            //     newCardDiv,
-            //     this.createButton(
-            //         "start-metalWork",
-            //         "Start MetalWork", 
-            //         () => {
-                        // player.setSelectedAction(null);
-                        // const action = new MetalWorkAction(player);
-                        // const recipe = action.getSkill().recipes.get("mw001");
-                        // action.getSkill().setSelectedRecipe(recipe);
-                        // player.setSelectedAction(action);
-            //         },
-            //         "lightgreen"
-            //     )
-            // );
 
             /** Select Skill */
             this.registerComponent(
@@ -181,7 +147,10 @@ export class PlayerControlsPanel extends CorePanel {
                     if (this.optionRecipes) {
                         // DO NOTHING - Keep threads safe
                     } else {
+                        // SETUP Options with recipes from user selected skill
                         options.length = 0;
+                        options.add(
+                                new Option(REF_SELECT_DEFAULT_RECIPE_LABEL, ""));
                         for (const key of this.userSelectedSkill.recipes.keys()) {
                             const recipeToAdd = this.userSelectedSkill.recipes.get(key);
                             options.add(
