@@ -144,9 +144,8 @@
 .generic-field.progress {
     width: 100%;
     accent-color:var(--color-primary);
-    background-color:var(--color-tertiary);
+    background-color:transparent;
     -webkit-appearence:none;
-    border-radius: var(--border-radius-harmonized);
 }
 
 /** Progress bar color */

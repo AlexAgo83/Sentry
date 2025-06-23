@@ -156,6 +156,8 @@ export class CorePanel {
     createButton = (id, label, onClick) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
+        newPanel.style.margin = "2px";
+        newPanel.style.padding = "0px";
 
         const newButton = document.createElement("button");
         newButton.classList.add("generic-field", "button");
@@ -221,6 +223,8 @@ export class CorePanel {
     createProgress = (id, label=null, onChangeInterval) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
+        newPanel.style.margin = "2px";
+        newPanel.style.padding = "0px";
 
         if (label) {
             /* Label */
@@ -296,6 +300,8 @@ export class CorePanel {
     createSelect = (id, label=null, options, onChange) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
+        newPanel.style.margin = "2px";
+        newPanel.style.padding = "0px";
 
         if (label) {   
             /* Label */
