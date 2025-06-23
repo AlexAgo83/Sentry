@@ -23,7 +23,7 @@ export class ActionManager extends CoreManager {
             console.log("loadAction:Action not found");
             return null;
         }
-        console.log("loadAction:" + id + " action loaded");
+        // console.log("loadAction:" + id + " action loaded");
         const actionResult = this.createActionByID(id, player);
         player.setSelectedAction(actionResult);
         return actionResult;

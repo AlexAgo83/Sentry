@@ -88,40 +88,57 @@ export class Game {
      */
     runAction = () => {
         if (this.interval) clearInterval(this.interval);
+
         /** GAME LOOP */
-        this.interval = setInterval(() => {
+        let handleOfflineLoop = null;
+        this.interval = setInterval(() => {    
+            /* Skip if already handling offline */
+            if (handleOfflineLoop) return;
+
+            /** Start collect offline time */
             const startTime = Date.now();
             if (this.lastIntervalTime) {
                 const diff = startTime - this.lastIntervalTime;
                 const threshold = this.loopInterval * this.loopIntervalOfflineThreshold;
                 if (diff > threshold) {
-                    this.offlineLoop(diff);
+                    handleOfflineLoop = new Promise((resolve) => {
+                        this.offlineLoop(diff);    
+                        resolve(true);
+                    });
                 }
             }
             
-            this.lastIntervalTime = startTime;
-            
-            /** Threads management */
-            
-            this.threads = [];
-            this.playerManager.getPlayers().forEach((player) => {
-                if (player.getSelectedAction()) {
-                    const asyncAction = () => {
-                        return new Promise((resolve) => {
-                            const actionDiff = player.getSelectedAction().doAction(player, this.loopInterval);
-                            resolve(true);
-                        });
-                    }
-                    this.threads?.push(asyncAction());
-                }
-            });
-            Promise.all(this.threads).then(() => {
-                this.dataManager.save();
-                this.updateUI();
-                this.executionTime = Date.now() - startTime;
-                this.threads = [];
-            });
+            /** Handling offline process or run common action */
+            if (handleOfflineLoop) {
+                Promise.all([handleOfflineLoop]).then(() => {
+                    handleOfflineLoop = null;    
+                    this.onRunAction(startTime);
+                });
+            } else this.onRunAction(startTime);
         }, this.loopInterval);
+    }
+
+    onRunAction = (startTime) => {
+        /** Threads management */
+        this.lastIntervalTime = startTime;
+        this.threads = [];
+        this.playerManager.getPlayers().forEach((player) => {
+            if (player.getSelectedAction()) {
+                const asyncAction = () => {
+                    return new Promise((resolve) => {
+                        const actionDiff = player.getSelectedAction().doAction(player, this.loopInterval);
+                        resolve(true);
+                    });
+                }
+                this.threads?.push(asyncAction());
+            }
+        });
+        Promise.all(this.threads).then(() => {
+            this.dataManager.save();
+            this.updateUI();
+            this.executionTime = Date.now() - startTime;
+            this.threads = [];
+        });
     }
 
     /**
@@ -132,21 +149,25 @@ export class Game {
         let howMuchLoops = Math.floor(diff / this.loopIntervalOffline);
         if (howMuchLoops > 0) {
             console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
-            let garbageTime = 0;
+            const garbageTime = new Map();
+            let skippedLoop = 0;
             for (let i = 1; i < howMuchLoops; i++) {
                 this.playerManager.getPlayers().forEach((player) => {
                     if (player.getSelectedAction()) {
+                        let gt = garbageTime.get(player.id) ?? 0;
                         const actionDiff = player.getSelectedAction().doAction(player, this.loopIntervalOffline);
-                        garbageTime += actionDiff;
-                        if (garbageTime >= this.loopIntervalOffline) {
-                            console.log(`Offline loop ${i}/${howMuchLoops} - ActionTime:${actionDiff}ms - garbage time ${garbageTime}ms, one loop skipped`);
+                        gt += actionDiff;
+                        if (gt >= this.loopIntervalOffline) {
                             howMuchLoops -= 1;
-                            garbageTime -= this.loopIntervalOffline;
+                            gt -= this.loopIntervalOffline;
+                            skippedLoop++;
                         }
+                        garbageTime.set(player.id, 0);
+                        // console.log(`Offline loop ${i}/${howMuchLoops} - ActionTime:${actionDiff}ms - garbage time ${garbageTime}ms`);
                     }
                 });
             }
-            console.log("Offline looping done !");
+            console.log(`Offline '${howMuchLoops} actions' processed ! loop skipped: ${skippedLoop}`);
         }
     }
 

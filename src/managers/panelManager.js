@@ -23,14 +23,14 @@ export class PanelManager extends CoreManager {
         this.infoPanel.init();
         this.playersPanel.init();
         this.controlsPanel.init();
-        console.log("init:Panels setup");
+        // console.log("init:Panels setup");
     }
 
     remove = () => {
         this.infoPanel.remove();
         this.playersPanel.remove();
         this.controlsPanel.remove();
-        console.log("remove:Panels removed");
+        // console.log("remove:Panels removed");
     }
 
     refresh = () => {

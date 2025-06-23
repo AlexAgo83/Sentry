@@ -69,7 +69,7 @@ export class SkillEntity extends Entity {
     setSelectedRecipe(recipe) {
         this.selectedRecipe = recipe;
         this.selectedRecipeID = recipe?.getIdentifier();
-        console.log(`(important) skill:Selected recipe ${this.selectedRecipeID}`);
+        // console.log(`(important) skill:Selected recipe ${this.selectedRecipeID}`);
     }
     getSelectedRecipe() {
         return this.selectedRecipe;

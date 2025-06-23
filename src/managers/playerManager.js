@@ -60,7 +60,7 @@ export class PlayerManager extends CoreManager {
             this.instance.panelManager.remove();
             this.instance.initUI();
         }
-        console.log("createPlayer:" + id + " player created");
+        // console.log("createPlayer:" + id + " player created");
         return newPlayer;
     }
 

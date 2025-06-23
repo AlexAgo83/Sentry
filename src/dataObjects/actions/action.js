@@ -66,7 +66,10 @@ export class Action extends Entity {
                 this.lastExecutionTime = this.currentInterval;
                 this.currentInterval -= this.getSkill().baseInterval;
                 this.progression = 100;
-                console.log("doAction:Action ready to start, time used:" + this.lastExecutionTime + "ms, time left:" + diffToReturn + "ms");
+                // (VERBOSE) 
+                // console.log("doAction:Action ready to start, 
+                //      time used:" + this.lastExecutionTime + "ms, 
+                //      time left:" + diffToReturn + "ms");
             } else {
                 // If current interval is less than base interval
                 // Action is not ready, so we need to :
@@ -105,11 +108,7 @@ export class Action extends Entity {
 
         const player = this.getPlayer();
         player.dmg += 1;
-        console.log(`(Level Skill up!) 
-            PlayerID:${player.getIdentifier()}, 
-            Skill:${skillObject.getIdentifier()}, 
-            level:${skillObject.level} 
-            xpNext:${skillObject.xpNext}`);
+        console.log(`(Level Up) PlayerID:${player.getIdentifier()}, SkillID:${skillObject.getIdentifier()}, newLevel:${skillObject.level}`);
     }
 
     levelUpRecipe = (recipeObject) => {
@@ -119,10 +118,6 @@ export class Action extends Entity {
         recipeObject.level += 1;
         recipeObject.xpNext = Math.floor(recipeObject.xpNext * recipeObject.xpNextMultiplier);
 
-        console.log(`(Level Recipe up!) 
-            PlayerID:${this.getPlayer().getIdentifier()}, 
-            Recipe:${recipeObject.getIdentifier()}, 
-            level:${recipeObject.level} 
-            xpNext:${recipeObject.xpNext}`);
+        console.log(`(Level Up) PlayerID:${this.getPlayer().getIdentifier()}, RecipeId:${recipeObject.getIdentifier()}, newLevel:${recipeObject.level}`);
     }
 }

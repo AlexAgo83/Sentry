@@ -70,7 +70,7 @@ export class PlayerEntity extends CharacterEntity {
     setSelectedAction = (action) => {
         this.selectedAction = action;
         this.selectedActionID = action?.getIdentifier();
-        console.log(`player:Selected action ${this.selectedActionID}`);
+        // console.log(`player:Selected action ${this.selectedActionID}`);
     }
     getSelectedAction = () => {
         return this.selectedAction;

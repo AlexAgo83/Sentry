@@ -69,7 +69,7 @@ export class CorePanel {
             } else newContent.style.flexDirection = "row";
             newContent.append(...this.onInit());
             panel?.appendChild(newContent);
-            console.log(`init:Panel ${this.panelId} setup`);
+            // console.log(`init:Panel ${this.panelId} setup`);
         }
 
         /** Running init for subPanels */
@@ -251,13 +251,6 @@ export class CorePanel {
                     if (newProgress.value >= 100) {
                         newProgress.value = 0;
                     }
-
-                    // console.log(
-                    //     "Update progress bar animation -> "
-                    //         + "id: " + newProgress.id 
-                    //         + ", incr: " + progressIncr 
-                    //         + ", from: " + oldValue 
-                    //         + ", to: " + newProgress.value);
                 } else {
                     newProgress.value = rawInterval.progression;
                     lastInterval = rawInterval.interval;
@@ -336,7 +329,7 @@ export class CorePanel {
 
     setOnRefresh = (func) => {
         this.onRefresh = func;
-        console.log("setOnRefresh:onRefresh set", func);
+        // console.log("setOnRefresh:onRefresh set", func);
     }
 
     onRefresh = () => {
@@ -423,7 +416,7 @@ export class CorePanel {
 
     setOnGenId = (func) => {
         this.onGenId = func;
-        console.log("setOnGenId:onGenId set", func);
+        // console.log("setOnGenId:onGenId set", func);
     }
     onGenId = () => {
         // Default onGenId ...
