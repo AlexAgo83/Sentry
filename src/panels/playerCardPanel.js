@@ -175,102 +175,88 @@ export class PlayerCardPanel extends CorePanel {
     
         this.setOnRefresh(() => {
             const panel = this.getPanel();
-            if (panel) {
-                const contentPanel = this.getContentPanel();
-                if (contentPanel) {
-                    const selectedAction = player.getSelectedAction();
-                    const currentSkill = selectedAction?.getSkill();
-                    const panel = this.getPanel();
-    
-                    if (panel && !selectedAction) {
-                        /** No active Action */
+            const contentPanel = this.getContentPanel();
+            if (!panel || !contentPanel) return;
 
-                        /* Name */
-                        const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
-                        if (nameElement) {
-                            // @ts-ignore
-                            nameElement.disabled = false;
-                        }
-                    } else if (panel && !currentSkill) {
-                        /** No active Skill */
-                    } else if (panel && currentSkill) {
-                        /** Active Skill */
-                        const cardElement = panel.querySelector(`#card-${player.getIdentifier()}`);
-                        if (cardElement) {
-    
-                            const currAction = player.getSelectedAction();
-                            const currSkill = currAction?.getSkill();
-                            const currRecipe = currSkill?.getSelectedRecipe();
-    
-                            // /* Player Data */
-                            // /* ID */
-                            // const idElement = this.getComponentContent(REF_PLAYER_ID);
-                            // if (idElement) idElement.textContent = String(player.getIdentifier());
+            const cardElement = panel.querySelector(`#${this.genId("card")}`);
+            if (!cardElement) return;
 
-                            /* Name */
-                            const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
-                            if (nameElement) {
-                                // @ts-ignore
-                                nameElement.value = String(player.name);
-                                // @ts-ignore
-                                nameElement.disabled = true;
-                            }
+            const currAction = player.getSelectedAction();
+            const currSkill = currAction?.getSkill();
+            const currRecipe = currSkill?.getSelectedRecipe();
 
-                            /* Date Created */
-                            const dateCreatedElement = this.getComponentContent(REF_PLAYER_DATE_CREATED);
-                            if (dateCreatedElement) dateCreatedElement.textContent = formatDate(new Date(player.dateCreated));
+            // /* ID */
+            // const idElement = this.getComponentContent(REF_PLAYER_ID);
+            // if (idElement) idElement.textContent = String(player.getIdentifier());
 
-                            // /* HP */
-                            // const hpElement = this.getComponentContent(REF_PLAYER_HP);
-                            // if (hpElement) hpElement.textContent = String(player.hp);
+            /* Date Created */
+            const dateCreatedElement = this.getComponentContent(REF_PLAYER_DATE_CREATED);
+            if (dateCreatedElement) dateCreatedElement.textContent = formatDate(new Date(player.dateCreated));
 
-                            /* Gold */
-                            const goldElement = this.getComponentContent(REF_PLAYER_GOLD);
-                            if (goldElement) goldElement.textContent = String(player.gold)+"o";
-    
-                            /* Skill */
-                            const skillElement = this.getComponentContent(REF_PLAYER_SKILL);
-                            if (skillElement) skillElement.textContent = String(currSkill?.getIdentifier() ?? "N/A");
+            // /* HP */
+            // const hpElement = this.getComponentContent(REF_PLAYER_HP);
+            // if (hpElement) hpElement.textContent = String(player.hp);
 
-                            /* Skill Level */
-                            const skillLevelElement = this.getComponentContent(REF_PLAYER_SKILL_LEVEL);
-                            if (skillLevelElement) skillLevelElement.textContent = String(currentSkill?.level) + "/" + String(currentSkill?.maxLevel);
+            /* Gold */
+            const goldElement = this.getComponentContent(REF_PLAYER_GOLD);
+            if (goldElement) goldElement.textContent = String(player.gold)+"o";
 
-                            /* Skill XP */
-                            const skillXpElement = this.getComponentContent(REF_PLAYER_SKILL_XP);
-                            if (skillXpElement) skillXpElement.textContent = String(currentSkill?.xp) + "/" + String(currentSkill?.xpNext);
+            /** SPECIFIC IDLING */
+            if (!currAction) {
+                /* Name */
+                const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
+                // @ts-ignore
+                // Allow to edit the name 
+                if (nameElement) nameElement.disabled = false;
+            /** SPECIFIC DOING ACTION */
+            } else {
+                /* Name */
+                const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
+                if (nameElement) {
+                    // @ts-ignore
+                    nameElement.value = String(player.name);
+                    // @ts-ignore
+                    // Prevent to edit the name
+                    nameElement.disabled = true;
+                }
 
-                            /* Skill XP */
-                            const skillIntervalElement = this.getComponentContent(REF_PLAYER_SKILL_INTERVAL);
-                            if (skillIntervalElement) skillIntervalElement.textContent = String(currSkill.baseInterval / 1000)+"s";
-    
-                            /* Recipe */
-                            const recipeElement = this.getComponentContent(REF_PLAYER_RECIPE);
-                            if (recipeElement) recipeElement.textContent = String(currRecipe?.getIdentifier() ?? "N/A");
+                /* Skill */
+                const skillElement = this.getComponentContent(REF_PLAYER_SKILL);
+                if (skillElement) skillElement.textContent = String(currSkill?.getIdentifier() ?? "N/A");
 
-                            /* Recipe Level */
-                            const recipeLevelElement = this.getComponentContent(REF_PLAYER_RECIPE_LEVEL);
-                            if (recipeLevelElement) recipeLevelElement.textContent = String(currentSkill?.getSelectedRecipe()?.level) + "/" + String(currentSkill?.getSelectedRecipe()?.maxLevel);  
+                /* Skill Level */
+                const skillLevelElement = this.getComponentContent(REF_PLAYER_SKILL_LEVEL);
+                if (skillLevelElement) skillLevelElement.textContent = String(currSkill?.level) + "/" + String(currSkill?.maxLevel);
 
-                            /* Recipe XP */
-                            const recipeXpElement = this.getComponentContent(REF_PLAYER_RECIPE_XP);
-                            if (recipeXpElement) recipeXpElement.textContent = String(currentSkill?.getSelectedRecipe()?.xp) + "/" + String(currentSkill?.getSelectedRecipe()?.xpNext); 
+                /* Skill XP */
+                const skillXpElement = this.getComponentContent(REF_PLAYER_SKILL_XP);
+                if (skillXpElement) skillXpElement.textContent = String(currSkill?.xp) + "/" + String(currSkill?.xpNext);
 
-                            /* Recipe Progression */
-                            const recipeProgressionElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS);
-                            const progress = currAction?.getProgression();
-                            const progressStr = progress ? String(Math.floor(progress)) + " %" : "N/A";
-                            if (recipeProgressionElement) recipeProgressionElement.textContent = progressStr;  
-                            const recipeProgressionViewElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS_VIEW);
-                            if (recipeProgressionViewElement) {
-                                /** @ts-ignore */ 
-                                recipeProgressionViewElement.value = progress;
-                            }
-    
-                        } else {
-                            console.log("setOnRefresh:Player element not found");
-                        }
-                    }
+                /* Skill XP */
+                const skillIntervalElement = this.getComponentContent(REF_PLAYER_SKILL_INTERVAL);
+                if (skillIntervalElement) skillIntervalElement.textContent = String(currSkill.baseInterval / 1000)+"s";
+
+                /* Recipe */
+                const recipeElement = this.getComponentContent(REF_PLAYER_RECIPE);
+                if (recipeElement) recipeElement.textContent = String(currRecipe?.getIdentifier() ?? "N/A");
+
+                /* Recipe Level */
+                const recipeLevelElement = this.getComponentContent(REF_PLAYER_RECIPE_LEVEL);
+                if (recipeLevelElement) recipeLevelElement.textContent = String(currSkill?.getSelectedRecipe()?.level) + "/" + String(currSkill?.getSelectedRecipe()?.maxLevel);  
+
+                /* Recipe XP */
+                const recipeXpElement = this.getComponentContent(REF_PLAYER_RECIPE_XP);
+                if (recipeXpElement) recipeXpElement.textContent = String(currSkill?.getSelectedRecipe()?.xp) + "/" + String(currSkill?.getSelectedRecipe()?.xpNext); 
+
+                /* Recipe Progression */
+                const recipeProgressionElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS);
+                const progress = currAction?.getProgression();
+                const progressStr = progress ? String(Math.floor(progress)) + " %" : "N/A";
+                if (recipeProgressionElement) recipeProgressionElement.textContent = progressStr;  
+                const recipeProgressionViewElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS_VIEW);
+                if (recipeProgressionViewElement) {
+                    /** @ts-ignore */ 
+                    recipeProgressionViewElement.value = progress;
                 }
             }
         })
