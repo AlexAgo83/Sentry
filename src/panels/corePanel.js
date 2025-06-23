@@ -83,10 +83,11 @@ export class CorePanel {
     /**
      * Creates a label
      * 
+     * @param {string} id - The id
      * @param {string} label - The label
      * @returns {Element} The label panel
      */
-    createLabel = (label) => {
+    createLabel = (id, label) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
         newPanel.style.margin = "2px";
@@ -95,6 +96,8 @@ export class CorePanel {
         newSpanLabel.classList.add("generic-field", "label");
         newSpanLabel.textContent = label;
         newPanel.appendChild(newSpanLabel);
+        // @ts-ignore
+        newPanel.targetId = this.genId(id);
         return newPanel;
     }
 
@@ -127,6 +130,8 @@ export class CorePanel {
         }
         newSpanValue.textContent = defaultValue ? defaultValue : "N/A";
         newPanel.appendChild(newSpanValue);
+        // @ts-ignore
+        newPanel.targetId = this.genId(id);
         return newPanel;
     }
 
@@ -145,6 +150,8 @@ export class CorePanel {
         if (color) newButton.style.backgroundColor = color;
         newButton.textContent = label;
         if (onClick) newButton.addEventListener("click", onClick);
+        // @ts-ignore
+        newButton.targetId = this.genId(id);
         return newButton;
     }
 
@@ -185,6 +192,8 @@ export class CorePanel {
         if (onChange) newInput.addEventListener("change", onChange);
         newPanel.appendChild(newInput);
 
+        // @ts-ignore
+        newPanel.targetId = this.genId(id);
         return newPanel;
     }
 
@@ -226,8 +235,15 @@ export class CorePanel {
         if (onChangeInterval) {
             const loopTime = 10;
             let lastInterval = 0;
+            let lastNewValue = 0;
             const intervalId = setInterval(() => {
                 const rawInterval = onChangeInterval(); /* Ex: 2500 ms */
+                const oldValue = newProgress.value;
+                if (rawInterval.progression !== lastNewValue) {
+                    newProgress.value = rawInterval.progression;
+                    lastNewValue = rawInterval.progression;
+                    lastInterval = rawInterval.interval;
+                }
                 if (rawInterval.interval > 0 && rawInterval.interval === lastInterval) {
                     const progressIncr = 100 / (rawInterval.interval / loopTime);
                     // @ts-ignore
@@ -235,11 +251,17 @@ export class CorePanel {
                     if (newProgress.value >= 100) {
                         newProgress.value = 0;
                     }
+                    // console.log(
+                    //     "Update progress bar animation -> "
+                    //         + "id: " + newProgress.id 
+                    //         + ", incr: " + progressIncr 
+                    //         + ", from: " + oldValue 
+                    //         + ", to: " + newProgress.value);
                 } else {
                     newProgress.value = rawInterval.progression;
                     lastInterval = rawInterval.interval;
                 }
-                if (!document.getElementById(id)) {
+                if (!document.getElementById(newProgress.id)) {
                     clearInterval(intervalId);
                     console.log("Remove unused progress bar threads animation.");
                 }
@@ -247,6 +269,9 @@ export class CorePanel {
         }
         
         newPanel.appendChild(newProgress);
+
+        // @ts-ignore
+        newPanel.targetId = this.genId(id);
         return newPanel;
     }
 
@@ -284,6 +309,8 @@ export class CorePanel {
             newSelect.appendChild(newOption);
         });
         newPanel.appendChild(newSelect);
+        // @ts-ignore
+        newPanel.targetId = this.genId(id);
         return newPanel;
     }
 
@@ -367,12 +394,17 @@ export class CorePanel {
     /**
      * Registers a component with a given ID.
      * 
-     * @param {string} id - The ID of the component.
      * @param {Element} newElement - The element of the component.
      */
-    registerComponent = (targetPanel, id, newElement) => {
-        this.subComponents[this.genId(id)] = newElement;
-        targetPanel.appendChild(newElement)
+    registerComponent = (targetPanel, newElement) => {
+        // @ts-ignore
+        const targetId = newElement.targetId;
+        if (targetId) {
+            this.subComponents[targetId] = newElement;
+            targetPanel.appendChild(newElement)
+        } else {
+            console.warn("registerComponent:targetId not found");
+        }
     }
     
     /**

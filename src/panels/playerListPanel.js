@@ -30,7 +30,7 @@ export class PlayerListPanel extends CorePanel {
                 });
                 /** If not already added */
                 if (!isAlreadyAdded) {
-                    const playerCardPanel = new PlayerCardPanel(this.instance, player, "player-list-panel-content", "player-card-" + player.id);
+                    const playerCardPanel = new PlayerCardPanel(this.instance, this.contentId, "player-card-" + player.id, player);
                     this.registerSubPanel(playerCardPanel);
                     console.log(`SubModule: player-card-${player.id}-panel registered !`);
                 }

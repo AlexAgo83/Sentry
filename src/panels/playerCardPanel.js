@@ -6,10 +6,28 @@
 
 import { formatDate } from "../utils.js";
 import { CorePanel } from "./corePanel.js";
+import { CombatAction } from "../dataObjects/actions/combatAction.js";
+import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
+
+const REF_PLAYER_ID = "id";
+const REF_PLAYER_NAME_LABEL = "nameLabel";
+const REF_PLAYER_NAME_INPUT = "nameInput";
+const REF_PLAYER_DATE_CREATED = "dateCreated";
+const REF_PLAYER_HP = "hp";
+const REF_PLAYER_GOLD = "gold";
+const REF_PLAYER_SKILL = "shill";
+const REF_PLAYER_SKILL_LEVEL = "shillLevel";
+const REF_PLAYER_SKILL_XP = "shillXp";
+const REF_PLAYER_SKILL_INTERVAL = "shillInterval";
+const REF_PLAYER_RECIPE = "recipe";
+const REF_PLAYER_RECIPE_LEVEL = "recipeLevel";
+const REF_PLAYER_RECIPE_XP = "recipeXp";
+const REF_PLAYER_RECIPE_PROGRESS = "recipeProgress";
+const REF_PLAYER_RECIPE_PROGRESS_VIEW = "recipeProgressView";
 
 export class PlayerCardPanel extends CorePanel {
 
-    constructor(instance, player, parentId, contentId) {
+    constructor(instance, parentId, contentId, player) {
         super(
             instance,
             parentId, 
@@ -28,23 +46,22 @@ export class PlayerCardPanel extends CorePanel {
 
             const newCardDiv = document.createElement("div");
             newCardDiv.id = "card-" + player.id;
-            // newCardDiv.classList.add("generic-container-players");
 
             /** ID */
             this.registerComponent(
-                newCardDiv, "id", 
-                this.createLabelValue("id", "ID"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_ID, "ID"));
 
             /** NAME LABEL */
             this.registerComponent(
-                newCardDiv, "nameLabel", 
-                this.createLabel("Name")); /* ONLY LABEL */
+                newCardDiv, 
+                this.createLabel(REF_PLAYER_NAME_LABEL, "Name")); /* ONLY LABEL */
             
             /** NAME INPUT */
             this.registerComponent(
-                newCardDiv, "nameInput", 
+                newCardDiv,
                 this.createInput(
-                    "nameInput", 
+                    REF_PLAYER_NAME_INPUT, 
                     null, /* NO LABEL */
                     (value) => {
                         if (value != null && value.type == "change") {
@@ -63,58 +80,58 @@ export class PlayerCardPanel extends CorePanel {
 
             /** DATE CREATED */
             this.registerComponent(
-                newCardDiv, "dateCreated", 
-                this.createLabelValue("dateCreated", "Date Created")); // , null, "fs-s"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_DATE_CREATED, "Date Created")); // , null, "fs-s"));
 
             /** HP */
             this.registerComponent(
-                newCardDiv, "hp", 
-                this.createLabelValue("hp", "HP"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_HP, "HP"));
 
             /** GOLD */
             this.registerComponent(
-                newCardDiv, "gold", 
-                this.createLabelValue("gold", "Gold"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_GOLD, "Gold"));
 
             /** SKILL */
             this.registerComponent(
-                newCardDiv, "skill", 
-                this.createLabelValue("skill", "Skill"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_SKILL, "Skill"));
 
             /** SKILL LEVEL */
             this.registerComponent(
-                newCardDiv, "skillLevel", 
-                this.createLabelValue("skillLevel", "Skill Level"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_SKILL_LEVEL, "Skill Level"));
 
             /** SKILL XP */
             this.registerComponent(
-                newCardDiv, "skillXp", 
-                this.createLabelValue("skillXp", "Skill XP"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_SKILL_XP, "Skill XP"));
 
             /** SKILL INTERVAL */
             this.registerComponent(
-                newCardDiv, "skillInterval", 
-                this.createLabelValue("skillInterval", "Skill Interval"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_SKILL_INTERVAL, "Skill Interval"));
 
             /** RECIPE */
             this.registerComponent(
-                newCardDiv, "recipe", 
-                this.createLabelValue("recipe", "Recipe"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_RECIPE, "Recipe"));
 
             /** RECIPE LEVEL */
             this.registerComponent(
-                newCardDiv, "recipeLevel", 
-                this.createLabelValue("recipeLevel", "Recipe Level"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_RECIPE_LEVEL, "Recipe Level"));
 
             /** RECIPE XP */
             this.registerComponent(
-                newCardDiv, "recipeXp", 
-                this.createLabelValue("recipeXp", "Recipe XP"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_RECIPE_XP, "Recipe XP"));
 
             /** RECIPE PROGRESSION */
             this.registerComponent(
-                newCardDiv, "recipeProgression", 
-                this.createLabelValue("recipeProgression", "Recipe Progression"));
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_RECIPE_PROGRESS, "Recipe Progression"));
 
             /** Progression - Custom animation */
             const onChangeInterval = () => {
@@ -133,12 +150,46 @@ export class PlayerCardPanel extends CorePanel {
                 };
             }
             this.registerComponent(
-                newCardDiv, "recipeProgressionView", 
-                this.createProgress("recipeProgressionView", null, onChangeInterval));
+                newCardDiv,
+                this.createProgress(REF_PLAYER_RECIPE_PROGRESS_VIEW, null, onChangeInterval));
+
+            /** Start Action Combat */
+            this.registerComponent(
+                newCardDiv,
+                this.createButton(
+                    "start-combat",
+                    "Start Combat", 
+                    () => {
+                        player.setSelectedAction(null);
+                        const action = new CombatAction(player);
+                        const recipe = action.getSkill().recipes.get("monster001");
+                        action.getSkill().setSelectedRecipe(recipe);
+                        player.setSelectedAction(action);
+                    },
+                    "lightblue"
+                )
+            );
+
+            /** Start Action MetalWork */
+            this.registerComponent(
+                newCardDiv,
+                this.createButton(
+                    "start-combat",
+                    "Start MetalWork", 
+                    () => {
+                        player.setSelectedAction(null);
+                        const action = new MetalWorkAction(player);
+                        const recipe = action.getSkill().recipes.get("mw001");
+                        action.getSkill().setSelectedRecipe(recipe);
+                        player.setSelectedAction(action);
+                    },
+                    "lightgreen"
+                )
+            );
 
             /** Stop Action */
             this.registerComponent(
-                newCardDiv, "stop-action", 
+                newCardDiv,
                 this.createButton(
                     "stop-action", 
                     "Stop Action", 
@@ -173,59 +224,59 @@ export class PlayerCardPanel extends CorePanel {
     
                             /* Player Data */
                             /* ID */
-                            const idElement = this.getComponentContent("id");
+                            const idElement = this.getComponentContent(REF_PLAYER_ID);
                             if (idElement) idElement.textContent = String(player.id);
 
                             /* Name */
-                            const nameElement = this.getComponentContent("nameInput");
+                            const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
                             if (nameElement) 
                                 // @ts-ignore
                                 nameElement.value = String(player.name);
 
                             /* Date Created */
-                            const dateCreatedElement = this.getComponentContent("dateCreated");
+                            const dateCreatedElement = this.getComponentContent(REF_PLAYER_DATE_CREATED);
                             if (dateCreatedElement) dateCreatedElement.textContent = formatDate(new Date(player.dateCreated));
 
                             /* HP */
-                            const hpElement = this.getComponentContent("hp");
+                            const hpElement = this.getComponentContent(REF_PLAYER_HP);
                             if (hpElement) hpElement.textContent = String(player.hp);
 
                             /* Gold */
-                            const goldElement = this.getComponentContent("gold");
+                            const goldElement = this.getComponentContent(REF_PLAYER_GOLD);
                             if (goldElement) goldElement.textContent = String(player.gold);
     
                             /* Skill */
-                            const skillElement = this.getComponentContent("skill");
+                            const skillElement = this.getComponentContent(REF_PLAYER_SKILL);
                             if (skillElement) skillElement.textContent = String(currSkill?.getIdentifier() ?? "N/A");
 
                             /* Skill Level */
-                            const skillLevelElement = this.getComponentContent("skillLevel");
+                            const skillLevelElement = this.getComponentContent(REF_PLAYER_SKILL_LEVEL);
                             if (skillLevelElement) skillLevelElement.textContent = String(currentSkill?.level) + "/" + String(currentSkill?.maxLevel);
 
                             /* Skill XP */
-                            const skillXpElement = this.getComponentContent("skillXp");
+                            const skillXpElement = this.getComponentContent(REF_PLAYER_SKILL_XP);
                             if (skillXpElement) skillXpElement.textContent = String(currentSkill?.xp) + "/" + String(currentSkill?.xpNext);
 
                             /* Skill XP */
-                            const skillIntervalElement = this.getComponentContent("skillInterval");
+                            const skillIntervalElement = this.getComponentContent(REF_PLAYER_SKILL_INTERVAL);
                             if (skillIntervalElement) skillIntervalElement.textContent = String(currSkill.baseInterval);
     
                             /* Recipe */
-                            const recipeElement = this.getComponentContent("recipe");
+                            const recipeElement = this.getComponentContent(REF_PLAYER_RECIPE);
                             if (recipeElement) recipeElement.textContent = String(currRecipe?.getIdentifier() ?? "N/A");
 
                             /* Recipe Level */
-                            const recipeLevelElement = this.getComponentContent("recipeLevel");
+                            const recipeLevelElement = this.getComponentContent(REF_PLAYER_RECIPE_LEVEL);
                             if (recipeLevelElement) recipeLevelElement.textContent = String(currentSkill?.getSelectedRecipe()?.level) + "/" + String(currentSkill?.getSelectedRecipe()?.maxLevel);  
 
                             /* Recipe XP */
-                            const recipeXpElement = this.getComponentContent("recipeXp");
+                            const recipeXpElement = this.getComponentContent(REF_PLAYER_RECIPE_XP);
                             if (recipeXpElement) recipeXpElement.textContent = String(currentSkill?.getSelectedRecipe()?.xp) + "/" + String(currentSkill?.getSelectedRecipe()?.xpNext); 
 
                             /* Recipe Progression */
-                            const recipeProgressionElement = this.getComponentContent("recipeProgression");
+                            const recipeProgressionElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS);
                             if (recipeProgressionElement) recipeProgressionElement.textContent = String(currAction?.getProgression() ?? "N/A") + " %";  
-                            const recipeProgressionViewElement = this.getComponentContent("recipeProgressionView");
+                            const recipeProgressionViewElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS_VIEW);
                             if (recipeProgressionViewElement) {
                                 /** @ts-ignore */ 
                                 recipeProgressionViewElement.value = currAction?.getProgression();
