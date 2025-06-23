@@ -10,6 +10,7 @@ import { HuntingAction } from "../dataObjects/actions/huntingAction.js";
 import { CookingAction } from "../dataObjects/actions/cookingAction.js";
 import { ExcavationAction } from "../dataObjects/actions/excavationAction.js";
 import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
+import { formatDate } from "../utils.js";
 
 export class PlayerListPanel extends CorePanel {
     constructor(instance) {
@@ -61,7 +62,17 @@ export class PlayerListPanel extends CorePanel {
                 newPlayerDiv.appendChild(this.createLabelValue("recipeLevel", "Recipe Level"));
                 newPlayerDiv.appendChild(this.createLabelValue("recipeXp", "Recipe XP"));
                 newPlayerDiv.appendChild(this.createLabelValue("recipeProgression", "Recipe Progression"));
-                newPlayerDiv.appendChild(this.createProgress("recipeProgressionView"));
+
+
+                const onChangeInterval = () => {
+                    const selectedAction = player.getSelectedAction();
+                    const currentSkill = selectedAction?.getSkill();
+                    if (currentSkill) {
+                        return currentSkill.baseInterval;
+                    }
+                    return 0;
+                }
+                newPlayerDiv.appendChild(this.createProgress("recipeProgressionView"+player.id, null, onChangeInterval));
 
 
                 newPlayerDiv.appendChild(this.createButton(
@@ -238,7 +249,7 @@ export class PlayerListPanel extends CorePanel {
                             nameElement.value = String(player.name);
                         /* Date Created */
                         const dateCreatedElement = playerElement.querySelector("#dateCreated");
-                        if (dateCreatedElement) dateCreatedElement.textContent = new Date(player.dateCreated)?.toLocaleDateString();
+                        if (dateCreatedElement) dateCreatedElement.textContent = formatDate(new Date(player.dateCreated));
                         /* HP */
                         const hpElement = playerElement.querySelector("#hp");
                         if (hpElement) hpElement.textContent = String(player.hp);
@@ -277,6 +288,7 @@ export class PlayerListPanel extends CorePanel {
                         if (recipeProgressionViewElement) {
                             /** @ts-ignore */ 
                             recipeProgressionViewElement.value = currAction?.getProgression();
+                            
                         }
 
                     } else {

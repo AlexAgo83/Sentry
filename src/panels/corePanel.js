@@ -164,7 +164,7 @@ export class CorePanel {
      * @param {string|null|undefined} label - the label of the progress bar
      * @returns {Element} the progress bar panel.
      */
-    createProgress = (id, label=null) => {
+    createProgress = (id, label=null, onChangeInterval) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
 
@@ -186,10 +186,30 @@ export class CorePanel {
         newProgress.classList.add("generic-field", "progress");
         newProgress.id = id;
         
+        
         // @ts-ignore
-        newProgress.max = "100";
+        newProgress.max = 100;
         // @ts-ignore
-        newProgress.value = "0";
+        newProgress.value = 0;
+
+        /** Animation */
+        if (onChangeInterval) {
+            const loopTime = 10;
+            const intervalId = setInterval(() => {
+                const rawInterval = onChangeInterval(); /* Ex: 2500 ms */
+                const progressIncr = 100 / (rawInterval / loopTime);
+
+                // @ts-ignore
+                newProgress.value += progressIncr;
+                if (newProgress.value >= 100) {
+                    newProgress.value = 0;
+                }
+                if (!document.getElementById(id)) {
+                    clearInterval(intervalId);
+                    console.log("Remove unused progress bar threads animation.");
+                }
+            }, loopTime);
+        }
         
         newPanel.appendChild(newProgress);
         return newPanel;

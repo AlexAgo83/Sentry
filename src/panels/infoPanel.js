@@ -5,6 +5,7 @@
 // infoPanel.js
 
 import { CorePanel } from "./corePanel.js";
+import { formatDateTime } from "../utils.js";
 
 export class InfoPanel extends CorePanel {
     constructor(instance) {
@@ -18,8 +19,8 @@ export class InfoPanel extends CorePanel {
         this.setOnInit(() => {
             const result = [];
             result.push(this.createLabelValue("processTime", "Time"));
-            result.push(this.createLabelValue("actionExecutionTime", "Execution Process"));
-            result.push(this.createLabelValue("actionThreadCount", "Thread Count"));
+            result.push(this.createLabelValue("actionThreadCount", "Player Threads"));
+            result.push(this.createLabelValue("actionExecutionTime", "Process Time"));
             result.push(this.createLabelValue("gameVersion", "Game Version"));
             return result;
         })
@@ -31,7 +32,7 @@ export class InfoPanel extends CorePanel {
                 if (contentPanel) {
                     /** Process Time */
                     const processTime = contentPanel.querySelector(`#processTime`);
-                    if (processTime) processTime.textContent = new Date(this.instance.lastIntervalTime)?.toLocaleString();
+                    if (processTime) processTime.textContent = formatDateTime(new Date(this.instance.lastIntervalTime));
                     /** Action Execution Time */
                     const actionExecutionTime = contentPanel.querySelector(`#actionExecutionTime`);
                     if (actionExecutionTime) actionExecutionTime.textContent = String(this.instance.executionTime) + " ms";
