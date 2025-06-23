@@ -9,8 +9,10 @@ import { STATIC_SKILLS_LIST } from "../managers/skillManager.js";
 import { createActionByID } from "../managers/actionManager.js";
 
 const REF_PLAYER_CONTROLS = "controls";
+
 const REF_PLAYER_SELECT_SKILL = "select-skill";
 const REF_PLAYER_SELECT_RECIPE = "select-recipe";
+
 const REF_PLAYER_ACTION_START = "start-action";
 const REF_PLAYER_ACTION_STOP = "stop-action";
 
@@ -104,8 +106,7 @@ export class PlayerControlsPanel extends CorePanel {
                             action.getSkill().setSelectedRecipe(this.userSelectedRecipe);
                             player.setSelectedAction(action);
                         }
-                    },
-                    "lightgreen"
+                    }
                 )
             );
 
@@ -114,11 +115,10 @@ export class PlayerControlsPanel extends CorePanel {
                 newCardDiv,
                 this.createButton(
                     REF_PLAYER_ACTION_STOP, 
-                    "Stop Action", 
+                    "Stop", 
                     () => {
                         player.setSelectedAction(null);
-                    },
-                    "lightpink"
+                    }
                 )
             );
 

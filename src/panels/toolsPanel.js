@@ -43,8 +43,7 @@ export class ToolsPanel extends CorePanel {
                         })
                         const newId = lastUsedId + 1;
                         this.instance.playerManager.createPlayer(newId);
-                    },
-                    "red"
+                    }
                 )
             );
                 

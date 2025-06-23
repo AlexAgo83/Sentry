@@ -83,7 +83,7 @@
 }
 
 /** Button */
-.generic-field.button {
+/* .generic-field.button {
     border: 1px solid var(--color-text);
     border-radius: var(--border-radius-harmonized);
     padding-left: 5px;
@@ -91,14 +91,38 @@
     padding-top: 2px;
     padding-bottom: 2px;
     margin: 1px;
-}
+} */
 
-.generic-field.button:disabled {
+/* .generic-field.button:disabled {
     background-color: red;
     border: transparent;
     border-radius: inherit;
     color: var(--color-text-fade);
     opacity: 0.5;
+} */
+
+.generic-field.button {
+  border: 1px solid var(--color-tertiary);
+  background-color: var(--color-secondary);
+  border-radius: var(--border-radius-harmonized);
+  color: #ffffff;
+  width: 100%;
+  padding: 5px 10px;
+}
+
+.generic-field.button:hover {
+  border: 1px solid var(--color-tertiary);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  padding: 5px 10px;
+}
+
+.generic-field.button:disabled,
+.generic-field.button[disabled]{
+  border: 1px solid var(--color-secondary);
+  background-color: var(--color-tertiary);
+  opacity: 1;
+  color: var(--color-text-background-fade);
 }
 
 /** PROGRESS */

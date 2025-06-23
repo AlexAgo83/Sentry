@@ -139,20 +139,26 @@ export class CorePanel {
      * Creates a button
      * @param {string} id - the id of the button
      * @param {string} label - the label of the button
-     * @param {*} onClick - the function to call when the button is clicked
-     * @param {string|null} color - the color of the button
+     * @param {(this: HTMLButtonElement, ev: MouseEvent) => any} onClick - the function to call when the button is clicked
      * @returns {Element} the button panel 
      */
-    createButton = (id, label, onClick, color=null) => {
+    createButton = (id, label, onClick) => {
+        const newPanel = document.createElement("p");
+        newPanel.classList.add("generic-field", "panel");
+        newPanel.style.margin = "2px";
+        newPanel.style.padding = "0px";
+
         const newButton = document.createElement("button");
         newButton.classList.add("generic-field", "button");
         newButton.id = this.genId(id);
-        if (color) newButton.style.backgroundColor = color;
         newButton.textContent = label;
+        
         if (onClick) newButton.addEventListener("click", onClick);
+        
+        newPanel.appendChild(newButton);
         // @ts-ignore
-        newButton.targetId = this.genId(id);
-        return newButton;
+        newPanel.targetId = this.genId(id);
+        return newPanel;
     }
 
     /**
