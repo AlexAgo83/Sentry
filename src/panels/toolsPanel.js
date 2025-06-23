@@ -29,22 +29,23 @@ export class ToolsPanel extends CorePanel {
             const newCtrlBtnDiv = document.createElement("div");
             newCtrlBtnDiv.id = this.genId(REF_TOOLS_ADMIN_BTN);
 
+            const btAddPlayer = this.createButton(
+                REF_TOOLS_ADD_PLAYER_BTN, 
+                "Add New Player", 
+                () => {
+                    let lastUsedId = -1;
+                    this.instance.playerManager.getPlayers().forEach((player) => {
+                        if (player.getIdentifier() > lastUsedId) {
+                            lastUsedId = player.getIdentifier();
+                        }
+                    })
+                    const newId = lastUsedId + 1;
+                    this.instance.playerManager.createPlayer(newId);
+                }
+            );
             this.registerComponent(
                 newCtrlBtnDiv,
-                this.createButton(
-                    REF_TOOLS_ADD_PLAYER_BTN, 
-                    "Add New Player", 
-                    () => {
-                        let lastUsedId = -1;
-                        this.instance.playerManager.getPlayers().forEach((player) => {
-                            if (player.getIdentifier() > lastUsedId) {
-                                lastUsedId = player.getIdentifier();
-                            }
-                        })
-                        const newId = lastUsedId + 1;
-                        this.instance.playerManager.createPlayer(newId);
-                    }
-                )
+                btAddPlayer
             );
                 
             // this.registerComponent(
@@ -71,6 +72,10 @@ export class ToolsPanel extends CorePanel {
               
             result.push(newCtrlBtnDiv);
             return result;
+        });
+
+        this.setOnPostInit(() => {
+            this.getContentPanel()?.classList.add("tools-panel-content");
         });
 
         this.setOnRefresh(() => {

@@ -3,16 +3,16 @@
 :root {
     
     --m0:   0px;
-    --m1:   1.5px;
-    --m2:   3px;
-    --m4:   5px;
-    --m5:   7.5px;
-    --m7:   10.5px;
-    --m8:   12px;
-    --m10:  15px;
-    --m12:  18px;
-    --m14:  21px;
-    --m22:  33px;
+    --m1:   2px;
+    --m2:   4px;
+    --m4:   8px;
+    --m5:   10px;
+    --m7:   14px;
+    --m8:   16px;
+    --m10:  20px;
+    --m12:  24px;
+    --m14:  28px;
+    --m22:  44px;
 
     --text-xs-size: var(--m5);
     --text-s-size: var(--m7);
@@ -31,11 +31,12 @@
     --color-tertiary: #7493a9;
     --border-radius-harmonized: var(--m4);
 
-    --min-screen-size: 250px;
-    --min-panel-size: 220px;
+    --min-screen-size: 330px;
+    --min-panel-size: 300px;
 
-    --min-card-size: 220px;
-    --min-info-size: 220px;
+    --min-card-size: 300px;
+    --min-info-size: 330px;
+    --min-tools-size: 330px;
 }
 
 /** Global definitions */
@@ -260,4 +261,30 @@
 .info-panel-content {
     min-width: var(--min-info-size);
     width: var(--min-info-size);
+}
+
+.tools-panel-content {
+    min-width: var(--min-tools-size);
+    width: var(--min-tools-size);
+    margin: auto;
+    display: flex;
+    padding-bottom: var(--m1);
+    justify-content: center;
+    align-items: center;
+}
+
+.panel-overflow {
+    overflow-x: auto;
+}
+.panel-overflow::-webkit-scrollbar {
+    width: var(--m2);
+}
+.panel-overflow::-webkit-scrollbar-track {
+    background: var(--color-tertiary);
+}
+.panel-overflow::-webkit-scrollbar-thumb {
+    background: var(--color-secondary);
+}
+.panel-overflow::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
 }
