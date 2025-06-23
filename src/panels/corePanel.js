@@ -334,7 +334,7 @@ export class CorePanel {
 
     onRefresh = () => {
         // Default onRefresh ...
-        console.log("onRefresh:Default onRefresh ...");
+        // console.log("onRefresh:Default onRefresh ...");
     }
 
     /**

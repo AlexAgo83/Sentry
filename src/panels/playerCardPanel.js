@@ -8,8 +8,7 @@ import { formatDate } from "../utils.js";
 import { CorePanel } from "./corePanel.js";
 import { PlayerControlsPanel } from "./playerControlsPanel.js";
 
-const REF_PLAYER_ID = "id";
-const REF_PLAYER_NAME_LABEL = "nameLabel";
+const REF_PLAYER_ID = "identifier";
 const REF_PLAYER_NAME_INPUT = "nameInput";
 const REF_PLAYER_DATE_CREATED = "dateCreated";
 const REF_PLAYER_HP = "hp";
@@ -68,19 +67,17 @@ export class PlayerCardPanel extends CorePanel {
             /** ID */
             this.registerComponent(
                 newCardDiv,
-                this.createLabelValue(REF_PLAYER_ID, "ID"));
+                this.createLabelValue(
+                    REF_PLAYER_ID, 
+                    "ID")
+            );
 
-            /** NAME LABEL */
-            this.registerComponent(
-                newCardDiv, 
-                this.createLabel(REF_PLAYER_NAME_LABEL, "Name")); /* ONLY LABEL */
-            
             /** NAME INPUT */
             this.registerComponent(
                 newCardDiv,
                 this.createInput(
                     REF_PLAYER_NAME_INPUT, 
-                    null, /* NO LABEL */
+                    "Name",
                     (value) => {
                         if (value != null && value.type == "change") {
                             const input = this.getContentPanel()?.querySelector("#" + this.genId(REF_PLAYER_NAME_INPUT));
@@ -208,7 +205,7 @@ export class PlayerCardPanel extends CorePanel {
                             /* Player Data */
                             /* ID */
                             const idElement = this.getComponentContent(REF_PLAYER_ID);
-                            if (idElement) idElement.textContent = String();
+                            if (idElement) idElement.textContent = String(player.getIdentifier());
 
                             /* Name */
                             const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);

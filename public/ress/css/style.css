@@ -125,9 +125,23 @@
     border-radius: var(--border-radius-harmonized);
     padding-left: 5px;
     padding-right: 5px;
-    width: 100%;
+    width: 50%;
     color: var(--color-text);
     pointer-events: all;
+    text-align: right;
+}
+
+.generic-field.input:disabled {
+    background-color: transparent;
+    border: transparent;
+    border-radius: inherit;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-left: 0px;
+    margin-right: 5px;
+    width: 50%;
+    color: var(--color-text-fade);
+    pointer-events: none;
 }
 
 /** TEXT */
