@@ -76,4 +76,12 @@ export class PlayerEntity extends CharacterEntity {
         return this.selectedAction;
     }
 
+    getSelectedSkill = () => {
+        return this.selectedAction?.getSkill();
+    }
+    
+    getSelectedRecipe = () => {
+        return this.selectedAction?.getSkill()?.getSelectedRecipe();
+    }
+
 }

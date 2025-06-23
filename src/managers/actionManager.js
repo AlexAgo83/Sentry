@@ -11,6 +11,30 @@ import { CookingAction } from "../dataObjects/actions/cookingAction.js";
 import { ExcavationAction } from "../dataObjects/actions/excavationAction.js";
 import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
 
+/**
+ * Creates an action based on the provided identifier.
+ * 
+ * @param {string} identifier - The type of action to create.
+ * @param {...any} args - Additional arguments for the action constructor.
+ * @returns {Object|null} - The created action instance or null if not found.
+ */
+export const createActionByID = (identifier, ...args) => {
+    if (identifier == "Combat") {
+        return new CombatAction(...args);
+    } else if (identifier == "Hunting") {
+        return new HuntingAction(...args);
+    } else if (identifier == "Cooking") {
+        return new CookingAction(...args);
+    } else if (identifier == "Excavation") {
+        return new ExcavationAction(...args)
+    } else if (identifier == "MetalWork") {
+        return new MetalWorkAction(...args)
+    } else {
+        console.error("Action not found, id (May be nothing...) " + identifier);
+    }
+    return null;
+}
+
 export class ActionManager extends CoreManager {
 
     constructor(instance) {
@@ -24,32 +48,10 @@ export class ActionManager extends CoreManager {
             return null;
         }
         // console.log("loadAction:" + id + " action loaded");
-        const actionResult = this.createActionByID(id, player);
+        const actionResult = createActionByID(id, player);
         player.setSelectedAction(actionResult);
         return actionResult;
     }
 
-    /**
-     * Creates an action based on the provided identifier.
-     * 
-     * @param {string} identifier - The type of action to create.
-     * @param {...any} args - Additional arguments for the action constructor.
-     * @returns {Object|null} - The created action instance or null if not found.
-     */
-    createActionByID = (identifier, ...args) => {
-        if (identifier == "Combat") {
-            return new CombatAction(...args);
-        } else if (identifier == "Hunting") {
-            return new HuntingAction(...args);
-        } else if (identifier == "Cooking") {
-            return new CookingAction(...args);
-        } else if (identifier == "Excavation") {
-            return new ExcavationAction(...args)
-        } else if (identifier == "MetalWork") {
-            return new MetalWorkAction(...args)
-        } else {
-            console.error("Action not found, id (May be nothing...) " + identifier);
-        }
-        return null;
-    }
+    
 }

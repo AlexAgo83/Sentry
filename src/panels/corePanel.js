@@ -311,12 +311,14 @@ export class CorePanel {
         }
 
         /* Setup options */
-        options.forEach((option) => {
-            const newOption = document.createElement("option");
-            newOption.value = option.value;
-            newOption.textContent = option.label;
-            newSelect.appendChild(newOption);
-        });
+        if (options) {
+            options.forEach((option) => {
+                const newOption = document.createElement("option");
+                newOption.value = option.value;
+                newOption.textContent = option.label;
+                newSelect.appendChild(newOption);
+            });
+        }
 
         newPanel.appendChild(newSelect);
         // @ts-ignore

@@ -7,6 +7,12 @@
 import { CorePanel } from "./corePanel.js";
 import { CombatAction } from "../dataObjects/actions/combatAction.js";
 import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
+import { STATIC_SKILLS_LIST } from "../managers/skillManager.js";
+import { createRecipeByID } from "../managers/recipeManager.js";
+
+const REF_PLAYER_CONTROLS = "controls";
+const REF_PLAYER_SELECT_SKILL = "select-skill";
+const REF_PLAYER_SELECT_RECIPE = "select-recipe";
 
 export class PlayerControlsPanel extends CorePanel {
     constructor(instance, parentId, contentId, player) {
@@ -18,8 +24,18 @@ export class PlayerControlsPanel extends CorePanel {
         );
 
         this.player = player;
+
+        this.optionSkills = [];
+        this.optionSkills.push(new Option("Select Skill", ""));
+        STATIC_SKILLS_LIST.forEach((identifier) => {
+            this.optionSkills.push(new Option(identifier, identifier));
+        })
+
+        this.optionRecipes = null;
+
         
         this.userSelectedSkill = null;
+        this.currentLoadedRecipe = null;
         this.userSelectedRecipe = null;
 
         this.setOnGenId(() => {
@@ -30,7 +46,7 @@ export class PlayerControlsPanel extends CorePanel {
             const result = [];
 
             const newCardDiv = document.createElement("div");
-            newCardDiv.id = this.genId("constrols");
+            newCardDiv.id = this.genId(REF_PLAYER_CONTROLS);
             newCardDiv.style.display = "flex";
             newCardDiv.style.width = "100%";
             newCardDiv.style.flexDirection = "column";
@@ -86,20 +102,17 @@ export class PlayerControlsPanel extends CorePanel {
             this.registerComponent(
                 newCardDiv,
                 this.createSelect(
-                    "select-skill", 
+                    REF_PLAYER_SELECT_SKILL, 
                     null, 
-                    [{  value: "",        label: "Select Skill"},
-                     {  value: "Combat",        label: "Combat"},
-                     {  value: "Cooking",       label: "Cooking"},
-                     {  value: "Excavation",    label: "Excavation"},
-                     {  value: "Hunting",       label: "Hunting"},
-                     {  value: "MetalWork",     label: "MetalWork"}],
+                    this.optionSkills,
                     (value) => {
                         if (value == "") {
                             this.userSelectedSkill = null;
                             return;
                         }
                         this.userSelectedSkill = player.getSkillByID(value);
+                        this.optionRecipes = null;
+                        this.userSelectedRecipe = null;
                     }
                 )
             )
@@ -108,15 +121,16 @@ export class PlayerControlsPanel extends CorePanel {
             this.registerComponent(
                 newCardDiv,
                 this.createSelect(
-                    "select-recipe", 
+                    REF_PLAYER_SELECT_RECIPE, 
                     null, 
-                    [{  value: "",        label: "Select Recipe"}],
+                    this.optionRecipes,
                     (value) => {
                         if (value == "" || this.userSelectedSkill == null) {
                             this.userSelectedRecipe = null;
                             return;
                         }
-                        // const skill = player.getSkillByID(this.userSelectedRecipe)
+                        const selectedSkill = this.userSelectedSkill;
+                        this.userSelectedRecipe = createRecipeByID(selectedSkill.getIdentifier(), value);                        
                     }
                 )
             )
@@ -127,12 +141,44 @@ export class PlayerControlsPanel extends CorePanel {
 
         this.setOnRefresh(() => {
             const panel = this.getPanel();
-            if (panel) {
-                const contentPanel = this.getContentPanel();
-                if (contentPanel) {
+            const contentPanel = this.getContentPanel();
+            if (!panel || !contentPanel) return;
 
+            const controlsElement = panel.querySelector(`#${this.genId(REF_PLAYER_CONTROLS)}`);
+            if (!controlsElement) return;
+
+            /* TOOLS */
+            // const currAction = player.getSelectedAction();
+            // const currSkill = player.getSelectedSkill();
+            // const currRecipe = player.getSelectedRecipe();
+
+            const selectRecipe = this.getComponentContent(REF_PLAYER_SELECT_RECIPE);
+            if (selectRecipe) {
+                // @ts-ignore
+                const options = selectRecipe.options;
+                if (this.userSelectedSkill) {
+                    if (this.optionRecipes) {
+                        // DO NOTHING - Keep threads safe
+                    } else {
+                        options.length = 0;
+                        for (const key of this.userSelectedSkill.recipes.keys()) {
+                            const recipeToAdd = this.userSelectedSkill.recipes.get(key);
+                            options.add(
+                                new Option(
+                                    recipeToAdd.getIdentifier(), 
+                                    recipeToAdd.getIdentifier()))
+                        }
+                        // @ts-ignore
+                        selectRecipe.disabled = false;
+                        this.optionRecipes = options;
+                    }
+                } else {
+                    options.length = 0;
+                    // @ts-ignore
+                    selectRecipe.disabled = true;
                 }
             }
+            
         })
     }
 }

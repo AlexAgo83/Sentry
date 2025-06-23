@@ -8,6 +8,7 @@ import { formatDate } from "../utils.js";
 import { CorePanel } from "./corePanel.js";
 import { PlayerControlsPanel } from "./playerControlsPanel.js";
 
+const REF_PLAYER_CARD = "card";
 const REF_PLAYER_ID = "identifier";
 const REF_PLAYER_NAME_INPUT = "nameInput";
 const REF_PLAYER_DATE_CREATED = "dateCreated";
@@ -52,7 +53,7 @@ export class PlayerCardPanel extends CorePanel {
                 this.registerSubPanel(
                     new PlayerControlsPanel(
                         this.instance, 
-                        this.genId("card"), // Attach to the current "card"
+                        this.genId(REF_PLAYER_CARD), // Attach to the current "card"
                         this.genId("player-controls"), 
                         player));
             }
@@ -62,7 +63,7 @@ export class PlayerCardPanel extends CorePanel {
             const result = [];
 
             const newCardDiv = document.createElement("div");
-            newCardDiv.id = this.genId("card");
+            newCardDiv.id = this.genId(REF_PLAYER_CARD);
 
             // /** ID */
             // this.registerComponent(
@@ -182,8 +183,8 @@ export class PlayerCardPanel extends CorePanel {
             if (!cardElement) return;
 
             const currAction = player.getSelectedAction();
-            const currSkill = currAction?.getSkill();
-            const currRecipe = currSkill?.getSelectedRecipe();
+            const currSkill = player.getSelectedSkill();
+            const currRecipe = player.getSelectedRecipe();
 
             // /* ID */
             // const idElement = this.getComponentContent(REF_PLAYER_ID);
