@@ -83,7 +83,7 @@ export class PlayerCardPanel extends CorePanel {
                     null, /* NO LABEL */
                     (value) => {
                         if (value != null && value.type == "change") {
-                            const input = this.getContentPanel()?.querySelector("#name");
+                            const input = this.getContentPanel()?.querySelector("#" + this.genId(REF_PLAYER_NAME_INPUT));
                             if (input) {
                                 const oldName = String(player.name);
                                 // @ts-ignore
