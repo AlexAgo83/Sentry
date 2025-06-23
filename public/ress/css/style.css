@@ -1,10 +1,25 @@
+
 /** SETUP */
 :root {
-    --text-xs-size: 8px;
-    --text-s-size: 10px;
-    --text-m-size: 12px;
-    --text-l-size: 18px;
-    --text-xl-size: 24px;
+    
+    --m0:   0px;
+    --m1:   1.5px;
+    --m2:   3px;
+    --m4:   5px;
+    --m5:   7.5px;
+    --m7:   10.5px;
+    --m8:   12px;
+    --m10:  15px;
+    --m12:  18px;
+    --m14:  21px;
+    --m22:  33px;
+
+    --text-xs-size: var(--m5);
+    --text-s-size: var(--m7);
+    --text-m-size: var(--m8);
+    --text-l-size: var(--m12);
+    --text-xl-size: var(--m14);
+
     --default-font: 'Fira Mono', 'Consolas', monospace;
     --color-text: #000000;
     --color-text-fade: #454545;
@@ -14,9 +29,13 @@
     --color-primary: #3ea7f3;
     --color-secondary: #506574;
     --color-tertiary: #7493a9;
-    --border-radius-harmonized: 5px;
+    --border-radius-harmonized: var(--m4);
+
     --min-screen-size: 250px;
-    --min-panel-size: 210px;
+    --min-panel-size: 220px;
+
+    --min-card-size: 220px;
+    --min-info-size: 220px;
 }
 
 /** Global definitions */
@@ -33,17 +52,16 @@
 
 /** PANELS */
 .generic-panel {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding-top: 2px;
-    padding-bottom: 1px;
+    margin-top: var(--m5);
+    margin-bottom: var(--m5);
+    margin-left: var(--m10);
+    margin-right: var(--m10);
+    padding-top: var(--m2);
+    padding-bottom: var(--m1);
     display: flex;
     flex-wrap: wrap !important;
     min-width: fit-content !important;
-    /* box-shadow: inset 0px 5px 0px 0px var(--color-text-background-fade); */
-    border: 1px solid var(--color-text-background-fade);
+    border: var(--m1) solid var(--color-text-background-fade);
     background-color: var(--color-text-background);
     border-radius: var(--border-radius-harmonized);
     width: fit-content;
@@ -62,11 +80,11 @@
 
 /** Generic Fields */
 .generic-field {
-    margin: 0px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    margin: var(--m0);
+    padding-left: var(--m5);
+    padding-right: var(--m5);
+    padding-top: var(--m2);
+    padding-bottom: var(--m2);
 }
 /** Field Container */
 .generic-field.panel {
@@ -74,48 +92,48 @@
     align-items: center;
     flex-wrap: wrap;
     min-width: fit-content;
-    margin-left: 2px;
-    margin-right: 2px;
+    margin-left: var(--m2);
+    margin-right: var(--m2);
     background-color: var(--color-text-background-alt);
 }
 
 /** Space Buffer */
 .generic-field.buffer {
     flex: 1;
-    margin-left: 2px;
-    margin-right: 2px;
+    margin-left: var(--m2);
+    margin-right: var(--m2);
 }
 
 /** LABEL & VALUE */
 .generic-field.label {
     color: var(--color-text-fade);
-    margin-left: 2px;
+    margin-left: var(--m2);
 }
 
 .generic-field.value {
     color: var(--color-text);
-    margin-right: 2px;
+    margin-right: var(--m2);
 }
 
 .generic-field.button {
-  border: 1px solid var(--color-tertiary);
+  border: var(--m1) solid var(--color-tertiary);
   background-color: var(--color-secondary);
   border-radius: var(--border-radius-harmonized);
   color: #ffffff;
   width: 100%;
-  padding: 5px 10px;
+  padding: var(--m5) var(--m10);
 }
 
 .generic-field.button:hover {
-  border: 1px solid var(--color-tertiary);
+  border: var(--m1) solid var(--color-tertiary);
   background-color: var(--color-primary);
   color: #ffffff;
-  padding: 5px 10px;
+  padding: var(--m5) var(--m10);
 }
 
 .generic-field.button:disabled,
 .generic-field.button[disabled]{
-  border: 1px solid var(--color-secondary);
+  border: var(--m1) solid var(--color-secondary);
   background-color: var(--color-tertiary);
   opacity: 1;
   color: var(--color-text-background-fade);
@@ -150,12 +168,12 @@
 /** Inputfield */
 .generic-field.input {
     background-color: var(--color-text-background);
-    border: 1px solid var(--color-text-background-fade);
+    border: var(--m1) solid var(--color-text-background-fade);
     border-radius: var(--border-radius-harmonized);
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: var(--m5);
+    padding-right: var(--m5);
     width: 50%;
-    height: 12px;
+    height: var(--m12);
     color: var(--color-text);
     pointer-events: all;
     text-align: right;
@@ -165,12 +183,12 @@
     background-color: transparent;
     border: transparent;
     border-radius: inherit;
-    padding-left: 0px;
-    padding-right: 0px;
-    margin-left: 0px;
-    margin-right: 5px;
+    padding-left: var(--m0);
+    padding-right: var(--m0);
+    margin-left: var(--m0);
+    margin-right: var(--m5);
     width: 50%;
-    height: 14px;
+    height: var(--m14);
     color: var(--color-text-fade);
     pointer-events: none;
 }
@@ -178,12 +196,12 @@
 /** Select */
 .generic-field.select {
     background-color: var(--color-text-background);
-    border: 1px solid var(--color-text-background-fade);
+    border: var(--m1) solid var(--color-text-background-fade);
     border-radius: var(--border-radius-harmonized);
-    padding-left: 5px;
-    padding-right: 5px;
-    margin: 1px;
-    height: 22px;
+    padding-left: var(--m5);
+    padding-right: var(--m5);
+    margin: var(--m1);
+    height: var(--m22);
     width: 100%;
     color: var(--color-text);
     pointer-events: all;
@@ -193,8 +211,8 @@
     background-color: transparent;
     border: transparent;
     border-radius: inherit;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: var(--m5);
+    padding-right: var(--m5);
     width: 100%;
     color: var(--color-text-fade);
     pointer-events: none;
@@ -235,11 +253,11 @@
 }
 
 .player-card-content {
-    min-width: 200px;
-    width: 200px;
+    min-width: var(--min-card-size);
+    width: var(--min-card-size);
 }
 
 .info-panel-content {
-    min-width: 200px;
-    width: 200px;
+    min-width: var(--min-info-size);
+    width: var(--min-info-size);
 }
