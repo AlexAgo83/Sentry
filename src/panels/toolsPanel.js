@@ -47,27 +47,27 @@ export class ToolsPanel extends CorePanel {
                 )
             );
                 
-            this.registerComponent(
-                newCtrlBtnDiv,
-                this.createButton(
-                    REF_TOOLS_START_LOOP_BTN, 
-                    "Start Game Loop", 
-                    () => {
-                        this.instance.runAction();
-                    }
-                )
-            );
+            // this.registerComponent(
+            //     newCtrlBtnDiv,
+            //     this.createButton(
+            //         REF_TOOLS_START_LOOP_BTN, 
+            //         "Start Game Loop", 
+            //         () => {
+            //             this.instance.runAction();
+            //         }
+            //     )
+            // );
 
-            this.registerComponent(
-                newCtrlBtnDiv,
-                this.createButton(
-                    REF_TOOLS_STOP_LOOP_BTN, 
-                    "Stop Game Loop",
-                    () => {
-                        this.instance.stopLoop();
-                    }
-                )
-            );
+            // this.registerComponent(
+            //     newCtrlBtnDiv,
+            //     this.createButton(
+            //         REF_TOOLS_STOP_LOOP_BTN, 
+            //         "Stop Game Loop",
+            //         () => {
+            //             this.instance.stopLoop();
+            //         }
+            //     )
+            // );
               
             result.push(newCtrlBtnDiv);
             return result;
