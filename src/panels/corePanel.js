@@ -11,6 +11,16 @@ export class CorePanel {
         this.panelId = panelId;
         this.contentId = contentId;
         this.columnMode = columnMode;
+
+        this.subPanels = [];
+    }
+
+    registerSubPanel = (panel) => {
+        this.subPanels.push(panel);
+    }
+
+    getSubPanels = () => {
+        return this.subPanels;
     }
 
     getInstance = () => {
@@ -261,6 +271,12 @@ export class CorePanel {
      * Removes the panel.
      */
     remove = () => {
+        if (this.subPanels.length > 0) {
+            this.subPanels.forEach((panel) => {
+                panel.remove();
+            });
+            this.subPanels = [];
+        }
         const contentPanel = this.getContentPanel();
         if (contentPanel) {
             contentPanel.remove();
@@ -289,6 +305,11 @@ export class CorePanel {
             return;
         }
         this.onRefresh();
+        if (this.subPanels.length > 0) {
+            this.subPanels.forEach((panel) => {
+                panel.refresh();
+            });
+        }
     }
 
     /**
