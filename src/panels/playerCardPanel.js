@@ -64,13 +64,13 @@ export class PlayerCardPanel extends CorePanel {
             const newCardDiv = document.createElement("div");
             newCardDiv.id = this.genId("card");
 
-            /** ID */
-            this.registerComponent(
-                newCardDiv,
-                this.createLabelValue(
-                    REF_PLAYER_ID, 
-                    "ID")
-            );
+            // /** ID */
+            // this.registerComponent(
+            //     newCardDiv,
+            //     this.createLabelValue(
+            //         REF_PLAYER_ID, 
+            //         "ID")
+            // );
 
             /** NAME INPUT */
             this.registerComponent(
@@ -98,10 +98,10 @@ export class PlayerCardPanel extends CorePanel {
                 newCardDiv,
                 this.createLabelValue(REF_PLAYER_DATE_CREATED, "Date Created")); // , null, "fs-s"));
 
-            /** HP */
-            this.registerComponent(
-                newCardDiv,
-                this.createLabelValue(REF_PLAYER_HP, "HP"));
+            // /** HP */
+            // this.registerComponent(
+            //     newCardDiv,
+            //     this.createLabelValue(REF_PLAYER_HP, "HP"));
 
             /** GOLD */
             this.registerComponent(
@@ -112,16 +112,16 @@ export class PlayerCardPanel extends CorePanel {
             this.registerComponent(
                 newCardDiv,
                 this.createLabelValue(REF_PLAYER_SKILL, "Skill"));
+                
+            /** SKILL XP */
+            this.registerComponent(
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_SKILL_XP, "Skill XP"));
 
             /** SKILL LEVEL */
             this.registerComponent(
                 newCardDiv,
                 this.createLabelValue(REF_PLAYER_SKILL_LEVEL, "Skill Level"));
-
-            /** SKILL XP */
-            this.registerComponent(
-                newCardDiv,
-                this.createLabelValue(REF_PLAYER_SKILL_XP, "Skill XP"));
 
             /** SKILL INTERVAL */
             this.registerComponent(
@@ -132,16 +132,16 @@ export class PlayerCardPanel extends CorePanel {
             this.registerComponent(
                 newCardDiv,
                 this.createLabelValue(REF_PLAYER_RECIPE, "Recipe"));
+                
+            /** RECIPE XP */
+            this.registerComponent(
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_RECIPE_XP, "Recipe XP"));
 
             /** RECIPE LEVEL */
             this.registerComponent(
                 newCardDiv,
                 this.createLabelValue(REF_PLAYER_RECIPE_LEVEL, "Recipe Level"));
-
-            /** RECIPE XP */
-            this.registerComponent(
-                newCardDiv,
-                this.createLabelValue(REF_PLAYER_RECIPE_XP, "Recipe XP"));
 
             /** RECIPE PROGRESSION */
             this.registerComponent(
@@ -202,10 +202,10 @@ export class PlayerCardPanel extends CorePanel {
                             const currSkill = currAction?.getSkill();
                             const currRecipe = currSkill?.getSelectedRecipe();
     
-                            /* Player Data */
-                            /* ID */
-                            const idElement = this.getComponentContent(REF_PLAYER_ID);
-                            if (idElement) idElement.textContent = String(player.getIdentifier());
+                            // /* Player Data */
+                            // /* ID */
+                            // const idElement = this.getComponentContent(REF_PLAYER_ID);
+                            // if (idElement) idElement.textContent = String(player.getIdentifier());
 
                             /* Name */
                             const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
@@ -220,13 +220,13 @@ export class PlayerCardPanel extends CorePanel {
                             const dateCreatedElement = this.getComponentContent(REF_PLAYER_DATE_CREATED);
                             if (dateCreatedElement) dateCreatedElement.textContent = formatDate(new Date(player.dateCreated));
 
-                            /* HP */
-                            const hpElement = this.getComponentContent(REF_PLAYER_HP);
-                            if (hpElement) hpElement.textContent = String(player.hp);
+                            // /* HP */
+                            // const hpElement = this.getComponentContent(REF_PLAYER_HP);
+                            // if (hpElement) hpElement.textContent = String(player.hp);
 
                             /* Gold */
                             const goldElement = this.getComponentContent(REF_PLAYER_GOLD);
-                            if (goldElement) goldElement.textContent = String(player.gold);
+                            if (goldElement) goldElement.textContent = String(player.gold)+"o";
     
                             /* Skill */
                             const skillElement = this.getComponentContent(REF_PLAYER_SKILL);
@@ -242,7 +242,7 @@ export class PlayerCardPanel extends CorePanel {
 
                             /* Skill XP */
                             const skillIntervalElement = this.getComponentContent(REF_PLAYER_SKILL_INTERVAL);
-                            if (skillIntervalElement) skillIntervalElement.textContent = String(currSkill.baseInterval);
+                            if (skillIntervalElement) skillIntervalElement.textContent = String(currSkill.baseInterval / 1000)+"s";
     
                             /* Recipe */
                             const recipeElement = this.getComponentContent(REF_PLAYER_RECIPE);

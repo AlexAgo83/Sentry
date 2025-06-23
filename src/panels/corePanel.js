@@ -273,35 +273,51 @@ export class CorePanel {
      * Creates a select
      * 
      * @param {string} id 
-     * @param {string} label 
+     * @param {string|null|undefined} label 
      * @param {Array<{value: string, label: string}>} options
+     * @param {Function} onChange
      * @returns 
      */
-    createSelect = (id, label, options) => {
+    createSelect = (id, label=null, options, onChange) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
 
-        /* Label */
-        const newSpanLabel = document.createElement("span");
-        newSpanLabel.classList.add("generic-field", "label");
-        newSpanLabel.textContent = label;
-        newPanel.appendChild(newSpanLabel);
-
-        /* Buffer */
-        const newSpanBuffer = document.createElement("span");
-        newSpanBuffer.classList.add("generic-field", "buffer");
-        newPanel.appendChild(newSpanBuffer);
-
-        /* Select */
+        if (label) {   
+            /* Label */
+            const newSpanLabel = document.createElement("span");
+            newSpanLabel.classList.add("generic-field", "label");
+            newSpanLabel.textContent = label;
+            newPanel.appendChild(newSpanLabel);
+            
+            /* Buffer */
+            const newSpanBuffer = document.createElement("span");
+            newSpanBuffer.classList.add("generic-field", "buffer");
+            newPanel.appendChild(newSpanBuffer);
+        }
+            
+        /* Setup select view */
         const newSelect = document.createElement("select");
         newSelect.classList.add("generic-field", "select");
         newSelect.id = this.genId(id);
+
+        /* Setup listeners */
+        if (onChange) {
+            newSelect.addEventListener("change", (event) => {
+                if (onChange) {
+                    // @ts-ignore
+                    onChange(event?.target?.value);
+                }
+            });
+        }
+
+        /* Setup options */
         options.forEach((option) => {
             const newOption = document.createElement("option");
             newOption.value = option.value;
             newOption.textContent = option.label;
             newSelect.appendChild(newOption);
         });
+
         newPanel.appendChild(newSelect);
         // @ts-ignore
         newPanel.targetId = this.genId(id);
