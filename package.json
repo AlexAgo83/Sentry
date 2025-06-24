@@ -1,13 +1,12 @@
 {
   "name": "sentry",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Sentry Idle",
   "scripts": {
-    "live-server-prd": "live-server ./. --open=\"public\" --port=8080",
-    "live-server-dvt": "live-server ./. --ignore=\".git/**/*,*.md\" --watch=\"./.\" --open=\"public\" --port=8080",
     "dev": "vite --debug",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "live-server": "live-server --watch=\"./src/,./public/\" --port=8080"
   },
   "repository": {
     "type": "git",

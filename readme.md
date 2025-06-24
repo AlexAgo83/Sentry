@@ -41,14 +41,16 @@ The project is divided into several modules, including:
 
 # Running Locally
 
-* Vite
+* Vite Preview
 
 1. Run vite build: `npm run build`
 2. Run vite preview: `npm run preview`
+3. Follow the link
 
-* Vanilla
+* Vanilla Live Server
 
-1. Run live-server: `live-server ./. --port=8080`
+1. Run live-server: `npm run live-server`
+2. Follow the link
 
 # Troubleshooting
 
