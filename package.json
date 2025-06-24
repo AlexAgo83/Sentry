@@ -3,8 +3,11 @@
   "version": "0.1.4",
   "description": "Sentry Idle",
   "scripts": {
-    "start": "live-server ./. --open=\"public\" --port=8080",
-    "test": "live-server ./. --ignore=\".git/**/*,*.md\" --watch=\"./.\" --open=\"public\" --port=8080"
+    "live-server-prd": "live-server ./. --open=\"public\" --port=8080",
+    "live-server-dvt": "live-server ./. --ignore=\".git/**/*,*.md\" --watch=\"./.\" --open=\"public\" --port=8080",
+    "dev": "vite --debug",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -15,7 +18,8 @@
     "idle"
   ],
   "devDependencies": {
-    "live-server": "^1.2.1"
+    "live-server": "^1.2.1",
+    "vite": "^7.0.0"
   },
   "author": "a.agostini.fr@gmail.com",
   "license": "MIT",

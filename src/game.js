@@ -182,6 +182,3 @@ export class Game {
         console.log("Game start !");
     }
 }
-
-const _game = new Game();
-_game.startup();
