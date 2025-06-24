@@ -6,8 +6,7 @@
     "dev": "vite --debug",
     "live": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "live-server": "live-server --watch=\"./src/,./public/\" --port=8080"
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -18,7 +17,6 @@
     "idle"
   ],
   "devDependencies": {
-    "live-server": "^1.2.1",
     "vite": "^7.0.0"
   },
   "author": "a.agostini.fr@gmail.com",

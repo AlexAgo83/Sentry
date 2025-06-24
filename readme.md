@@ -52,11 +52,6 @@ The project is divided into several modules, including:
 2. Run vite preview: `npm run preview`
 3. Follow the link
 
-* Vanilla Live Server
-
-1. Run live-server: `npm run live-server`
-2. Follow the link
-
 # Troubleshooting
 
 If you encounter any issues, check the console logs for errors.
