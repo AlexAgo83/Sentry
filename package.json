@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/AlexAgo83/Sentry/issues"
   },
-  "homepage": "https://github.com/AlexAgo83/Sentry#readme"
+  "homepage": "https://github.com/AlexAgo83/Sentry#readme",
+  "dependencies": {
+    "sweetalert2": "^11.22.1"
+  }
 }

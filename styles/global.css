@@ -1,0 +1,56 @@
+@import 'varrefs.css';
+@import 'text.css';
+@import 'fields/fields.css';
+@import 'panels/info.css';
+@import 'panels/entity.css';
+@import 'panels/tools.css';
+
+/** Global definitions */
+.generic-global {
+    font-size: var(--text-m-size);
+    font-family: var(--default-font);
+}
+
+/** PANELS */
+.generic-panel {
+    margin-top: var(--m5);
+    margin-bottom: var(--m5);
+    margin-left: var(--m10);
+    margin-right: var(--m10);
+    padding-top: var(--m2);
+    padding-bottom: var(--m1);
+    display: flex;
+    flex-wrap: wrap !important;
+    min-width: fit-content !important;
+    border: var(--m1) solid var(--color-text-background-fade);
+    background-color: var(--color-text-background);
+    border-radius: var(--border-radius-harmonized);
+    width: fit-content;
+    box-shadow: 
+        0px 2px 4px -1px rgba(0,0,0,0.2), 
+        0px 4px 5px 0px rgba(0,0,0,0.14), 
+        0px 1px 0px 0px rgba(0,0,0,0.12);
+}
+
+.generic-core-panel {
+    display: flex;
+    flex-wrap: wrap;
+    min-width: fit-content;
+    flex-direction: column;
+}
+
+.panel-overflow {
+    overflow-x: auto;
+}
+.panel-overflow::-webkit-scrollbar {
+    width: var(--m2);
+}
+.panel-overflow::-webkit-scrollbar-track {
+    background: var(--color-tertiary);
+}
+.panel-overflow::-webkit-scrollbar-thumb {
+    background: var(--color-secondary);
+}
+.panel-overflow::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+}

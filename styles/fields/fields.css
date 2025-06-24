@@ -1,0 +1,139 @@
+
+/** Generic Fields */
+.generic-field {
+    margin: var(--m0);
+    padding-left: var(--m5);
+    padding-right: var(--m5);
+    padding-top: var(--m2);
+    padding-bottom: var(--m2);
+}
+/** Field Container */
+.generic-field.panel {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    min-width: fit-content;
+    margin-left: var(--m2);
+    margin-right: var(--m2);
+    background-color: var(--color-text-background-alt);
+}
+
+/** Space Buffer */
+.generic-field.buffer {
+    flex: 1;
+    margin-left: var(--m2);
+    margin-right: var(--m2);
+}
+
+/** LABEL & VALUE */
+.generic-field.label {
+    color: var(--color-text-fade);
+    margin-left: var(--m2);
+}
+
+.generic-field.value {
+    color: var(--color-text);
+    margin-right: var(--m2);
+}
+
+.generic-field.button {
+  border: var(--m1) solid var(--color-tertiary);
+  background-color: var(--color-secondary);
+  border-radius: var(--border-radius-harmonized);
+  color: #ffffff;
+  width: 100%;
+  padding: var(--m5) var(--m10);
+}
+
+.generic-field.button:hover {
+  border: var(--m1) solid var(--color-tertiary);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  padding: var(--m5) var(--m10);
+}
+
+.generic-field.button:disabled,
+.generic-field.button[disabled]{
+  border: var(--m1) solid var(--color-secondary);
+  background-color: var(--color-tertiary);
+  opacity: 1;
+  color: var(--color-text-background-fade);
+}
+
+/** PROGRESS */
+.generic-field.progress {
+    width: 100%;
+    accent-color:var(--color-primary);
+    background-color:transparent;
+    -webkit-appearence:none;
+}
+
+/** Progress bar color */
+.generic-field.progress::-webkit-progress-bar {
+    background-color:var(--color-tertiary);
+    border-radius: var(--border-radius-harmonized);
+}
+
+/** Progress value color */
+.generic-field.progress::-webkit-progress-value {
+    background-color:var(--color-secondary);
+    border-radius: var(--border-radius-harmonized);
+}
+
+/** Progress value color - alternative */
+.generic-field.progress::-moz-progress-bar {
+    background-color:var(--color-secondary);
+}
+
+/** Inputfield */
+.generic-field.input {
+    background-color: var(--color-text-background);
+    border: var(--m1) solid var(--color-text-background-fade);
+    border-radius: var(--border-radius-harmonized);
+    padding-left: var(--m5);
+    padding-right: var(--m5);
+    width: 50%;
+    height: var(--m12);
+    color: var(--color-text);
+    pointer-events: all;
+    text-align: right;
+}
+
+.generic-field.input:disabled {
+    background-color: transparent;
+    border: transparent;
+    border-radius: inherit;
+    padding-left: var(--m0);
+    padding-right: var(--m0);
+    margin-left: var(--m0);
+    margin-right: var(--m5);
+    width: 50%;
+    height: var(--m14);
+    color: var(--color-text-fade);
+    pointer-events: none;
+}
+
+/** Select */
+.generic-field.select {
+    background-color: var(--color-text-background);
+    border: var(--m1) solid var(--color-text-background-fade);
+    border-radius: var(--border-radius-harmonized);
+    padding-left: var(--m5);
+    padding-right: var(--m5);
+    margin: var(--m1);
+    height: var(--m22);
+    width: 100%;
+    color: var(--color-text);
+    pointer-events: all;
+}
+
+.generic-field.select:disabled {
+    background-color: transparent;
+    border: transparent;
+    border-radius: inherit;
+    padding-left: var(--m5);
+    padding-right: var(--m5);
+    width: 100%;
+    color: var(--color-text-fade);
+    pointer-events: none;
+}

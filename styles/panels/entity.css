@@ -1,0 +1,14 @@
+
+.generic-container-players {
+    display: flex;
+    flex-direction: column;
+}
+
+.player-card-panel {
+    margin: 0px;
+}
+
+.player-card-content {
+    min-width: var(--min-card-size);
+    width: var(--min-card-size);
+}

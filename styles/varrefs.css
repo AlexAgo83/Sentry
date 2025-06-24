@@ -1,0 +1,38 @@
+:root {
+    
+    --m0:   0px;
+    --m1:   2px;
+    --m2:   4px;
+    --m4:   8px;
+    --m5:   10px;
+    --m7:   14px;
+    --m8:   16px;
+    --m10:  20px;
+    --m12:  24px;
+    --m14:  28px;
+    --m22:  44px;
+
+    --text-xs-size: var(--m5);
+    --text-s-size: var(--m7);
+    --text-m-size: var(--m8);
+    --text-l-size: var(--m12);
+    --text-xl-size: var(--m14);
+
+    --default-font: 'Fira Mono', 'Consolas', monospace;
+    --color-text: #000000;
+    --color-text-fade: #454545;
+    --color-text-background: #ffffff;
+    --color-text-background-fade: #d9d9d9a3;
+    --color-text-background-alt: #7493a915;
+    --color-primary: #3ea7f3;
+    --color-secondary: #506574;
+    --color-tertiary: #7493a9;
+    --border-radius-harmonized: var(--m4);
+
+    --min-screen-size: 330px;
+    --min-panel-size: 300px;
+
+    --min-card-size: 330px;
+    --min-info-size: 330px;
+    --min-tools-size: 330px;
+}

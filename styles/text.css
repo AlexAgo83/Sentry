@@ -1,0 +1,29 @@
+
+.generic-text {
+    font-size: var(--text-m-size);
+    font-family: var(--default-font);
+}
+
+.generic-text.no-bg {
+    background-color: transparent;
+}
+
+.generic-text.fs-xs {
+    font-size: var(--text-xs-size);
+}
+
+.generic-text.fs-s {
+    font-size: var(--text-s-size);
+}
+
+.generic-text.fs-m {
+    font-size: var(--text-m-size);
+}
+
+.generic-text.fs-l {
+    font-size: var(--text-l-size);
+}
+
+.generic-text.fs-xl {
+    font-size: var(--text-xl-size);
+}

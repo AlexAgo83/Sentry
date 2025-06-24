@@ -1,0 +1,8 @@
+.tools-panel-content {
+    min-width: var(--min-tools-size);
+    width: var(--min-tools-size);
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

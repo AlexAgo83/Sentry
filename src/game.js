@@ -9,6 +9,8 @@
 // Stage 002 - Workflow : (Select)Skill -> (Select)Recipe -> (Button)Action
 // Stage 003 - Offline Processing on thread
 
+import Swal from 'sweetalert2';
+
 import { DataManager } from "./managers/dataManager.js";
 import { SkillManager } from "./managers/skillManager.js";
 import { RecipeManager } from "./managers/recipeManager.js";
@@ -158,6 +160,7 @@ export class Game {
      */
     offlineLoop = (diff) => {        
         let howMuchLoops = Math.floor(diff / this.loopIntervalOffline);
+        const memHowMuchLoops = howMuchLoops;
         if (howMuchLoops > 0) {
             console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
             const garbageTime = new Map();
@@ -178,6 +181,17 @@ export class Game {
                     }
                 });
             }
+            const dialStopOff = Swal.fire({
+                title: 'Offline loop!',
+                html: '<div class="generic-core-panel">'
+                    + '<span class="generic-field label generic-text">' + 'Offline for ' + diff + 'ms' + '</span>'
+                    + '<span class="generic-field label generic-text">' + 'Looping ' + memHowMuchLoops + ' times' + '</span>'
+                    + '<span class="generic-field label generic-text">' + 'Skipped ' + skippedLoop + ' actions' + '</span>'
+                    + '<span class="generic-field label generic-text">' + 'Executed ' + (memHowMuchLoops - skippedLoop) + ' actions' + '</span>'
+                    + '</div>',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
             console.log(`Offline '${howMuchLoops} actions' processed ! loop skipped: ${skippedLoop}`);
         }
     }
