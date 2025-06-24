@@ -16,7 +16,18 @@ import { ActionManager } from "./managers/actionManager.js";
 import { PlayerManager } from "./managers/playerManager.js";
 import { PanelManager } from "./managers/panelManager.js";
 
-export const STATIC_GAME_VERSION = "0.1.4";
+/* global __APP_VERSION__ */
+let parseGameVersion = () => { 
+    try {
+        // @ts-ignore
+        return __APP_VERSION__ 
+    } catch (error) {
+        return "<DEBUG>";
+    }
+}
+export const STATIC_GAME_VERSION = parseGameVersion();
+
+/* Loop Settings */
 export const STATIC_DEFAULT_LOOP_INTERVAL = 250;
 export const STATIC_DEFAULT_LOOP_OFFLINE = 500;
 export const STATIC_DEFAULT_OFFLINE_THRESHOLD = 1.5;
