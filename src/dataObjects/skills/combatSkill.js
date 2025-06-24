@@ -10,7 +10,7 @@ export class CombatSkill extends SkillEntity {
     constructor() {
         super(
             "Combat",
-            "ress/assets/ic_combat.png");
+            "ic_combat.png");
         this.baseInterval = 1500;
     }
 }

@@ -10,7 +10,7 @@ export class MetalWorkSkill extends SkillEntity {
     constructor() {
         super(
             "MetalWork",
-            "ress/assets/ic_metalWork.png");
+            "ic_metalWork.png");
         this.baseInterval = 2500;
     }
 }
