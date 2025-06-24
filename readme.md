@@ -41,6 +41,11 @@ The project is divided into several modules, including:
 
 # Running Locally
 
+* Vite Live
+
+1. Run vite build: `npm run live`
+2. Follow the link
+
 * Vite Preview
 
 1. Run vite build: `npm run build`
