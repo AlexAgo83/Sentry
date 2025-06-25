@@ -4,7 +4,7 @@
 // @ts-check
 // main.js
 
-import { Game } from "./engine.js";
+import { Engine } from "./engine.js";
 
-const _game = new Game();
+const _game = new Engine();
 _game.startup();

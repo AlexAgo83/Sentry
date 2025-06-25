@@ -18,7 +18,7 @@ import { DialogManager } from "./managers/dialogManager.js";
 import { PanelManager } from "./managers/panelManager.js";
 
 /* global __APP_VERSION__ */
-let parseGameVersion = () => { 
+let parseEngineVersion = () => { 
     try {
         // @ts-ignore
         return __APP_VERSION__ 
@@ -26,14 +26,14 @@ let parseGameVersion = () => {
         return "<DEBUG>";
     }
 }
-export const STATIC_GAME_VERSION = parseGameVersion();
+export const STATIC_GAME_VERSION = parseEngineVersion();
 
 /* Loop Settings */
 export const STATIC_DEFAULT_LOOP_INTERVAL = 250;
 export const STATIC_DEFAULT_LOOP_OFFLINE = 500;
 export const STATIC_DEFAULT_OFFLINE_THRESHOLD = 1.5;
 
-export class Game {
+export class Engine {
 
     constructor() {
         this.lastIntervalTime = null;
@@ -193,6 +193,6 @@ export class Game {
         this.dataManager.load();
         this.initUI();
         this.runAction();
-        console.log("Game start !");
+        console.log("Engine start !");
     }
 }
