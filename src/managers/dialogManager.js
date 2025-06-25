@@ -8,12 +8,13 @@ import Swal from 'sweetalert2';
 import { CoreManager } from './coreManager';
 
 export class DialogManager extends CoreManager {
+    
     constructor(instance) {
         super(instance);
     }
 
     openOffline = (diff, maxLoop, skippedLoop) => {
-        const dialOffline = Swal.fire({
+        Swal.fire({
             title: 'Offline loop!',
             html: '<div class="generic-core-panel">'
                     + '<span class="generic-field label generic-text">' + '<b>Offline</b> for ' + diff + 'ms' + '</span>'

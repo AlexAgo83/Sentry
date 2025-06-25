@@ -6,5 +6,5 @@
 
 import { Engine } from "./engine.js";
 
-const _game = new Engine();
-_game.startup();
+const _engine = new Engine();
+_engine.startup();

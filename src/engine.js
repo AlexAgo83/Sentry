@@ -16,12 +16,13 @@ import { ActionManager } from "./managers/actionManager.js";
 import { PlayerManager } from "./managers/playerManager.js";
 import { DialogManager } from "./managers/dialogManager.js";
 import { PanelManager } from "./managers/panelManager.js";
+import { AssetManager } from "./managers/assetManager.js";
 
 /* global __APP_VERSION__ */
 let parseEngineVersion = () => { 
     try {
         // @ts-ignore
-        return __APP_VERSION__ 
+        return __APP_VERSION__;
     } catch (error) {
         return "<DEBUG>";
     }
@@ -47,6 +48,7 @@ export class Engine {
         this.recipeManager = new RecipeManager(this);
         this.actionManager = new ActionManager(this);
         this.playerManager = new PlayerManager(this);
+        this.assetManager = new AssetManager(this);
         this.dialogManager = new DialogManager(this);
         this.panelManager = new PanelManager(this);
     }
