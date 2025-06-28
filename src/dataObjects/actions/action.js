@@ -6,14 +6,23 @@
 
 import { Entity } from "../entity.js";
 
+export const STATIC_DEFAULT_GOLD_MODIFIER = 1
+export const STATIC_DEFAULT_XP_SKILL_MODIFIER = 1;
+export const STATIC_DEFAULT_XP_RECIPE_MODIFIER = 2;
 export const STATIC_DEFAULT_STAMINA_MODIFIER = 10;
 
 export class Action extends Entity {
 
     constructor(identifier, player) {
         super(identifier);
+
         this.player = player;
+
+        this.goldModifier = STATIC_DEFAULT_GOLD_MODIFIER;
+        this.xpSkillModifier = STATIC_DEFAULT_XP_SKILL_MODIFIER;
+        this.xpRecipeModifier = STATIC_DEFAULT_XP_RECIPE_MODIFIER;
         this.staminaModifier = STATIC_DEFAULT_STAMINA_MODIFIER;
+
         this.currentInterval = 0;
         this.progression = null;
         this.lastExecutionTime = null;
@@ -92,6 +101,11 @@ export class Action extends Entity {
 
             const currSkill = this.getSkill();
             const currRecipe = this.getSkill()?.getSelectedRecipe();
+    
+            player.gold += this.goldModifier;
+            player.stamina -= this.staminaModifier;
+            currSkill.xp += this.xpSkillModifier;
+            currRecipe.xp += this.xpRecipeModifier;
 
             // Test if skill xp reach limit and need to call levelup
             if (currSkill.xp >= currSkill.xpNext) {
@@ -103,7 +117,6 @@ export class Action extends Entity {
                 this.levelUpRecipe(currRecipe);
             }
 
-            
         } else console.log("doAction:Action failed."); 
 
         return diffToReturn;

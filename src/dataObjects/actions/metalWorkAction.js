@@ -10,19 +10,16 @@ export class MetalWorkAction extends Action {
 
     constructor(player) {
         super("MetalWork", player);
+        // this.goldModifier = 1;
+        // this.xpSkillModifier = 1;
+        // this.xpRecipeModifier = 2;
         this.setOnDoAction(() => {
-            this.attack();
+            this.craft();
             return true;
         })
     }
 
-    attack = () => {
-        const player = this.getPlayer();
-        const skill = this.getSkill();
-        const recipe = this.getRecipe();
-
-        player.gold += 1;
-        skill.xp += 1;
-        recipe.xp += 2;
+    craft = () => {
+        // ...
     }
 }

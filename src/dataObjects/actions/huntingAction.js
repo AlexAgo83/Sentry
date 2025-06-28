@@ -10,19 +10,16 @@ export class HuntingAction extends Action {
 
     constructor(player) {
         super("Hunting", player);
+        // this.goldModifier = 1;
+        // this.xpSkillModifier = 1;
+        // this.xpRecipeModifier = 2;
         this.setOnDoAction(() => {
-            this.attack();
+            this.hunt();
             return true;
         })
     }
 
-    attack = () => {
-        const player = this.getPlayer();
-        const skill = this.getSkill();
-        const recipe = this.getRecipe();
-
-        player.gold += 1;
-        skill.xp += 1;
-        recipe.xp += 2;
+    hunt = () => {
+        // ...
     }
 }

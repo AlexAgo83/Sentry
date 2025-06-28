@@ -10,6 +10,9 @@ export class CombatAction extends Action {
 
     constructor(player) {
         super("Combat", player);
+        // this.goldModifier = 1;
+        // this.xpSkillModifier = 1;
+        // this.xpRecipeModifier = 2;
         this.setOnDoAction(() => {
             this.attack();
             return true;
@@ -17,13 +20,6 @@ export class CombatAction extends Action {
     }
 
     attack = () => {
-        const player = this.getPlayer();
-        const skill = this.getSkill();
-        const recipe = skill.getSelectedRecipe();
-
-        player.gold += 1;
-        
-        skill.xp += 1;
-        recipe.xp += 2;
+        // ...
     }
 }
