@@ -5,6 +5,8 @@
 // action.js
 
 import { Entity } from "../entity.js";
+
+import { PlayerEntity } from "../entities/playerEntity.js";
 import { RecipeEntity } from "../recipes/recipeEntity.js";
 import { SkillEntity } from "../skills/skillEntity.js";
 
@@ -37,14 +39,26 @@ export class Action extends Entity {
         this.startInterval = null;
     }
 
+    /**
+     * Retrieves the player associated with the action.
+     * @returns {PlayerEntity} The player entity associated with the action.
+     */
     getPlayer = () => {
         return this.player;
     }
 
+    /**
+     * Retrieves the skill associated with the action.
+     * @returns {SkillEntity} The skill entity or null if not found.
+     */
     getSkill = () => {
         return this.player?.skills?.get(this.getIdentifier());
     }
 
+    /**
+     * Retrieves the recipe associated with the action.
+     * @returns {RecipeEntity|null} The recipe entity or null if not found.
+     */
     getRecipe = () => {
         return this.getSkill()?.getSelectedRecipe();
     }
@@ -65,10 +79,18 @@ export class Action extends Entity {
         return diff > 0 ? diff : 0;
     }
 
-    setOnDoAction(onDoAction) {
+    /**
+     * Sets the function to be called when the action is executed.
+     * @param {*} onDoAction - The function to be called when the action is executed.
+     */
+    setOnDoAction = (onDoAction) => {
         this.onDoAction = onDoAction;
     }
 
+    /**
+     * The function to be called when the action is executed.
+     * @returns {boolean}
+     */
     onDoAction = () => {
         // Default onDoAction ...
         console.log("onDoAction:Default onDoAction ...");
@@ -86,7 +108,7 @@ export class Action extends Entity {
             console.log("doAction:No recipe selected.");
             return null;
         }
-        
+
         let diffToReturn = 0;
 
         // Each turn, add loop interval time to current action interval time
@@ -177,7 +199,7 @@ export class Action extends Entity {
         skillObject.xpNext = Math.floor(skillObject.xpNext * skillObject.xpNextMultiplier);
 
         const player = this.getPlayer();
-        player.dmg += 1;
+        // player.dmg += 1;
         console.log(`(Level Up) PlayerID:${player.getIdentifier()}, SkillID:${skillObject.getIdentifier()}, newLevel:${skillObject.level}`);
     }
 
