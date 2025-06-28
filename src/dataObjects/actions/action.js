@@ -10,6 +10,7 @@ export const STATIC_DEFAULT_GOLD_MODIFIER = 1
 export const STATIC_DEFAULT_XP_SKILL_MODIFIER = 1;
 export const STATIC_DEFAULT_XP_RECIPE_MODIFIER = 2;
 export const STATIC_DEFAULT_STAMINA_MODIFIER = 10;
+export const STATIC_DEFAULT_STUN_TIME = 5000;
 
 export class Action extends Entity {
 
@@ -22,6 +23,7 @@ export class Action extends Entity {
         this.xpSkillModifier = STATIC_DEFAULT_XP_SKILL_MODIFIER;
         this.xpRecipeModifier = STATIC_DEFAULT_XP_RECIPE_MODIFIER;
         this.staminaModifier = STATIC_DEFAULT_STAMINA_MODIFIER;
+        this.stunTime = STATIC_DEFAULT_STUN_TIME;
 
         this.currentInterval = 0;
         this.progression = null;
@@ -75,14 +77,20 @@ export class Action extends Entity {
         // Each turn, add loop interval time to current action interval time
         this.currentInterval += loopInterval;
 
-        const diffInterval = this.getSkill().baseInterval - this.currentInterval;
-        if (this.currentInterval >= this.getSkill().baseInterval) {
+        const actionInterval = this.actionInterval(player);
+
+        const diffInterval = actionInterval - this.currentInterval;
+        if (this.currentInterval >= actionInterval) {
             // If current interval is greater than base interval 
             // Action is ready to go and now we need to keep extra time for next action...     
             diffToReturn = -diffInterval;
             this.lastExecutionTime = this.currentInterval;
-            this.currentInterval -= this.getSkill().baseInterval;
+            this.currentInterval -= actionInterval;
             this.progression = 100;
+
+            if (this.player.stamina <= 0)
+                this.player.stamina = this.player.staminaMax;
+
             // (VERBOSE) 
             // console.log("doAction:Action ready to start, 
             //      time used:" + this.lastExecutionTime + "ms, 
@@ -92,7 +100,7 @@ export class Action extends Entity {
             // Action is not ready, so we need to :
             // * Compute action progression : (currentInterval / baseInterval) * 100
             // * Return diffInterval (negative value)
-            this.progression = (this.currentInterval / this.getSkill().baseInterval) * 100;
+            this.progression = (this.currentInterval / actionInterval) * 100;
             return diffInterval;
         }
         
@@ -117,11 +125,21 @@ export class Action extends Entity {
                 this.levelUpRecipe(currRecipe);
             }
 
+            // Test stamina 
+            // if (player.stamina <= player.staminaMax) {
+            //     player.stamina = player.staminaMax;
+            //     this.currentInterval -= STATIC_DEFAULT_STUN_TIME;
+            // }
+
         } else console.log("doAction:Action failed."); 
 
         return diffToReturn;
     
     };
+
+    actionInterval = (player) => {
+        return this.getSkill().baseInterval + (player.stamina <= 0 ? this.stunTime:0)
+    }
 
     levelUpSkill = (skillObject) => {
         if (skillObject.level >= skillObject.maxLevel) return;

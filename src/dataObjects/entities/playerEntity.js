@@ -8,8 +8,10 @@ import { createSkillByID, STATIC_SKILLS_LIST } from "../../managers/skillManager
 import { CharacterEntity } from "./characterEntity.js";
 
 export const STATIC_NAME_PREFIXE = "Player_";
-export const STATIC_DEFAULT_HP = 100;
-export const STATIC_DEFAULT_STAMINA = 100;
+export const STATIC_DEFAULT_HP_MAX = 100;
+export const STATIC_DEFAULT_HP = STATIC_DEFAULT_HP_MAX;
+export const STATIC_DEFAULT_STAMINA_MAX = 100;
+export const STATIC_DEFAULT_STAMINA = STATIC_DEFAULT_STAMINA_MAX;
 export const STATIC_DEFAULT_GOLD = 0;
 
 export class PlayerEntity extends CharacterEntity {
@@ -18,7 +20,11 @@ export class PlayerEntity extends CharacterEntity {
         super(identifier);
 
         this.hp = STATIC_DEFAULT_HP;
+        this.hpMax = STATIC_DEFAULT_HP_MAX;
+
         this.stamina = STATIC_DEFAULT_STAMINA;
+        this.staminaMax = STATIC_DEFAULT_STAMINA_MAX;
+
         this.gold = STATIC_DEFAULT_GOLD;
 
         this.setName(STATIC_NAME_PREFIXE + identifier);
@@ -35,7 +41,9 @@ export class PlayerEntity extends CharacterEntity {
         this.setOnLoad((entityData) => {
             this.name = entityData.name;
             this.hp = entityData.hp;
+            this.hpMax = entityData.hpMax ?? STATIC_DEFAULT_HP_MAX;
             this.stamina = entityData.stamina;
+            this.staminaMax = entityData.staminaMax ?? STATIC_DEFAULT_STAMINA_MAX;
             this.gold = entityData.gold;
             this.selectedActionID = entityData.selectedActionID;
             this.skillsData = entityData.skillsData;
@@ -46,7 +54,9 @@ export class PlayerEntity extends CharacterEntity {
             const resultSave = {
                 name: this.name,
                 hp: this.hp,
+                hpMax: this.hpMax,
                 stamina: this.stamina,
+                staminaMax: this.staminaMax,
                 gold: this.gold,
                 selectedActionID: this.selectedActionID,
                 skillsData: this.saveSkills(),

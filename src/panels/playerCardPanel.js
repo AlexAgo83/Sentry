@@ -23,6 +23,8 @@ const REF_PLAYER_RECIPE_LEVEL = "recipeLevel";
 const REF_PLAYER_RECIPE_XP = "recipeXp";
 const REF_PLAYER_RECIPE_PROGRESS = "recipeProgress";
 const REF_PLAYER_RECIPE_PROGRESS_VIEW = "recipeProgressView";
+const REF_PLAYER_STAMINA = "stamina";
+const REF_PLAYER_STAMINA_VIEW = "staminaView";
 
 export class PlayerCardPanel extends CorePanel {
 
@@ -148,16 +150,16 @@ export class PlayerCardPanel extends CorePanel {
             /** RECIPE PROGRESSION */
             this.registerComponent(
                 newCardDiv,
-                this.createLabelValue(REF_PLAYER_RECIPE_PROGRESS, "Action :"));
+                this.createLabelValue(REF_PLAYER_RECIPE_PROGRESS, "Action"));
 
             /** Progression - Custom animation */
-            const onChangeInterval = () => {
+            const onProgressChangeInterval = () => {
                 const selectedAction = player.getSelectedAction();
                 const currentSkill = selectedAction?.getSkill();
                 const progress = selectedAction?.getProgression();
                 if (currentSkill) {
                     return {
-                        interval: currentSkill.baseInterval,
+                        interval: selectedAction.actionInterval(player),
                         progression: progress
                     };
                 }
@@ -168,7 +170,16 @@ export class PlayerCardPanel extends CorePanel {
             }
             this.registerComponent(
                 newCardDiv,
-                this.createProgress(REF_PLAYER_RECIPE_PROGRESS_VIEW, null, onChangeInterval));
+                this.createProgress(REF_PLAYER_RECIPE_PROGRESS_VIEW, null, onProgressChangeInterval));
+
+            /** RECIPE PROGRESSION */
+            this.registerComponent(
+                newCardDiv,
+                this.createLabelValue(REF_PLAYER_STAMINA, "Stamina"));
+
+            this.registerComponent(
+                newCardDiv,
+                this.createProgress(REF_PLAYER_STAMINA_VIEW, null, null));
 
             // End of init
             result.push(newCardDiv);
@@ -203,17 +214,27 @@ export class PlayerCardPanel extends CorePanel {
             const goldElement = this.getComponentContent(REF_PLAYER_GOLD);
             if (goldElement) goldElement.textContent = String(player.gold)+"o";
 
+            const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
+            /* Stamina */
+            const staminaElement = this.getComponentContent(REF_PLAYER_STAMINA);
+            const staminaProgress = Math.floor(player.stamina / player.staminaMax * 100);
+            const staminaStr = staminaProgress > 0 ? String(staminaProgress) + " %" : "Stunned!";
+            if (staminaElement) staminaElement.textContent = staminaStr;  
+            const staminaViewElement = this.getComponentContent(REF_PLAYER_STAMINA_VIEW);
+            if (staminaViewElement) {
+                /** @ts-ignore */ 
+                staminaViewElement.value = staminaProgress;
+            }
+
             /** SPECIFIC IDLING */
             if (!currAction) {
                 /* Name */
-                const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
                 // @ts-ignore
                 // Allow to edit the name 
                 if (nameElement) nameElement.disabled = false;
             /** SPECIFIC DOING ACTION */
             } else {
                 /* Name */
-                const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
                 if (nameElement) {
                     // @ts-ignore
                     nameElement.value = String(player.name);
