@@ -89,16 +89,21 @@ export class Action extends Entity {
         
         /** Time to do action */
         if (this.onDoAction()) {
+
             const currSkill = this.getSkill();
             const currRecipe = this.getSkill()?.getSelectedRecipe();
+
             // Test if skill xp reach limit and need to call levelup
             if (currSkill.xp >= currSkill.xpNext) {
                 this.levelUpSkill(currSkill);
             }
+
             // Test if recipe xp reach limit and need to call levelup
             if (currRecipe.xp >= currRecipe.xpNext) {
                 this.levelUpRecipe(currRecipe);
             }
+
+            
         } else console.log("doAction:Action failed."); 
 
         return diffToReturn;
