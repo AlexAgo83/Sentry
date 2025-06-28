@@ -212,7 +212,7 @@ export class PlayerCardPanel extends CorePanel {
 
             /* Gold */
             const goldElement = this.getComponentContent(REF_PLAYER_GOLD);
-            if (goldElement) goldElement.textContent = String(player.gold)+"o";
+            if (goldElement) goldElement.textContent = String(player.storage.gold)+"o";
 
             const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
             /* Stamina */

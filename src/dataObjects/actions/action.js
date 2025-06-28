@@ -126,7 +126,7 @@ export class Action extends Entity {
             const currSkill = this.getSkill();
             const currRecipe = this.getSkill()?.getSelectedRecipe();
     
-            player.gold += this.goldModifier;
+            player.storage.gold += this.goldModifier;
             player.stamina -= this.staminaModifier;
             currSkill.xp += this.xpSkillModifier;
             currRecipe.xp += this.xpRecipeModifier;

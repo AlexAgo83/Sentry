@@ -13,7 +13,6 @@ export const STATIC_DEFAULT_HP_MAX = 100;
 export const STATIC_DEFAULT_HP = STATIC_DEFAULT_HP_MAX;
 export const STATIC_DEFAULT_STAMINA_MAX = 100;
 export const STATIC_DEFAULT_STAMINA = STATIC_DEFAULT_STAMINA_MAX;
-export const STATIC_DEFAULT_GOLD = 0;
 
 export class PlayerEntity extends CharacterEntity {
 
@@ -26,8 +25,6 @@ export class PlayerEntity extends CharacterEntity {
         this.staminaMax = STATIC_DEFAULT_STAMINA_MAX;
 
         this.storage = new StorageEntity(identifier);
-
-        this.gold = STATIC_DEFAULT_GOLD;
 
         this.setName(STATIC_NAME_PREFIXE + identifier);
         this.selectedAction = null;
@@ -48,7 +45,7 @@ export class PlayerEntity extends CharacterEntity {
             this.staminaMax = entityData.staminaMax ?? STATIC_DEFAULT_STAMINA_MAX;
             this.storage = new StorageEntity(identifier);
             this.storage.load(entityData.storageData);
-            this.gold = entityData.gold;
+            // this.gold = entityData.gold;
             this.selectedActionID = entityData.selectedActionID;
             this.skillsData = entityData.skillsData;
             this.dateCreated = entityData.dateCreated ?? Date.now();
@@ -62,7 +59,7 @@ export class PlayerEntity extends CharacterEntity {
                 stamina: this.stamina,
                 staminaMax: this.staminaMax,
                 storageData: this.saveStorage(),
-                gold: this.gold,
+                // gold: this.gold,
                 selectedActionID: this.selectedActionID,
                 skillsData: this.saveSkills(),
                 dateCreated: this.dateCreated

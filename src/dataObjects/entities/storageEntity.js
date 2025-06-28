@@ -6,20 +6,21 @@
 
 import { Entity } from "../entity";
 
-export const STATIC_DEFAULT_GOLD = 0;
+export const STATIC_DEFAULT_GOLD = 150;
 
 export class StorageEntity extends Entity {
     
     constructor(identifier) {
         super(identifier);
+
         this.gold = STATIC_DEFAULT_GOLD;
 
         this.setOnLoad((storageData) => {
-
+            this.gold = storageData.gold ?? STATIC_DEFAULT_GOLD;
         });
         this.setOnSave(() => {
             const resultSave = {
-                // name: this.name,
+                gold: this.gold
             };
             return resultSave;
         });
