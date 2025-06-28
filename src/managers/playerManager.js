@@ -87,6 +87,10 @@ export class PlayerManager extends CoreManager {
         return newPlayer;
     }
 
+    /**
+     * Deletes a player.
+     * @param {number} id - The ID of the player to delete.
+     */
     removePlayer = (id) => {
         this.players = this.players.filter((player) => {
             return player.getIdentifier() !== id;

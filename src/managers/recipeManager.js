@@ -69,6 +69,7 @@ export const createRecipeByID = (skillIdentifier, recipeIdentifier) => {
 }
 
 export class RecipeManager extends CoreManager {
+    
     constructor(instance) {
         super(instance);
     }

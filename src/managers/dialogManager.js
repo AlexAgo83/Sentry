@@ -13,6 +13,12 @@ export class DialogManager extends CoreManager {
         super(instance);
     }
 
+    /**
+     * Open a dialog after an offline loop
+     * @param {number} diff The time the game was offline in ms
+     * @param {number} maxLoop The maximum number of loops that could have been done
+     * @param {number} skippedLoop The number of loops that were skipped due to lack of resources
+     */
     openOffline = (diff, maxLoop, skippedLoop) => {
         Swal.fire({
             title: 'Offline loop!',
