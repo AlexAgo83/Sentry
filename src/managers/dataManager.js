@@ -32,7 +32,7 @@ export class DataManager extends CoreManager {
     load = () => {
         const savedDataString = localStorage.getItem(STATIC_SAVEGAME_TAG);
         const savedData = savedDataString ? JSON.parse(savedDataString) : {};
-        console.log("saveGame to load", savedData);
+        // console.log("saveGame to load", savedData);
 
         if (savedData.lastIntervalTime) {
             this.instance.lastIntervalTime = savedData.lastIntervalTime;

@@ -4,17 +4,21 @@
 // @ts-check
 // player.js
 
-import { SkillManager, createSkillByID, STATIC_SKILLS_LIST } from "../../managers/skillManager.js";
+import { createSkillByID, STATIC_SKILLS_LIST } from "../../managers/skillManager.js";
 import { CharacterEntity } from "./characterEntity.js";
+
+export const STATIC_NAME_PREFIXE = "Player_";
 
 export class PlayerEntity extends CharacterEntity {
 
     constructor(identifier) {
         super(identifier);
+
         this.hp = 100;
         this.gold = 0;
         this.dmg = 1;
-        this.setName("Player_" + identifier);
+
+        this.setName(STATIC_NAME_PREFIXE + identifier);
         this.selectedAction = null;
         this.selectedActionID = null;
         this.dateCreated = Date.now();

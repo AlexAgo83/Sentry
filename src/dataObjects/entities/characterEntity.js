@@ -7,6 +7,7 @@
 import { Entity } from "../entity.js";
 
 export class CharacterEntity extends Entity {
+    
     constructor(identifier) {
         super(identifier);
         this.name = "Entity_"+identifier;
