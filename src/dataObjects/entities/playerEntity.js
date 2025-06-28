@@ -2,21 +2,24 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// player.js
+// playerEntity.js
 
 import { createSkillByID, STATIC_SKILLS_LIST } from "../../managers/skillManager.js";
 import { CharacterEntity } from "./characterEntity.js";
 
 export const STATIC_NAME_PREFIXE = "Player_";
+export const STATIC_DEFAULT_HP = 100;
+export const STATIC_DEFAULT_STAMINA = 100;
+export const STATIC_DEFAULT_GOLD = 0;
 
 export class PlayerEntity extends CharacterEntity {
 
     constructor(identifier) {
         super(identifier);
 
-        this.hp = 100;
-        this.gold = 0;
-        this.dmg = 1;
+        this.hp = STATIC_DEFAULT_HP;
+        this.stamina = STATIC_DEFAULT_STAMINA;
+        this.gold = STATIC_DEFAULT_GOLD;
 
         this.setName(STATIC_NAME_PREFIXE + identifier);
         this.selectedAction = null;
@@ -32,8 +35,8 @@ export class PlayerEntity extends CharacterEntity {
         this.setOnLoad((entityData) => {
             this.name = entityData.name;
             this.hp = entityData.hp;
+            this.stamina = entityData.stamina;
             this.gold = entityData.gold;
-            this.dmg = entityData.dmg;
             this.selectedActionID = entityData.selectedActionID;
             this.skillsData = entityData.skillsData;
             this.dateCreated = entityData.dateCreated ?? Date.now();
@@ -43,8 +46,8 @@ export class PlayerEntity extends CharacterEntity {
             const resultSave = {
                 name: this.name,
                 hp: this.hp,
+                stamina: this.stamina,
                 gold: this.gold,
-                dmg: this.dmg,
                 selectedActionID: this.selectedActionID,
                 skillsData: this.saveSkills(),
                 dateCreated: this.dateCreated
@@ -74,7 +77,6 @@ export class PlayerEntity extends CharacterEntity {
     setSelectedAction = (action) => {
         this.selectedAction = action;
         this.selectedActionID = action?.getIdentifier();
-        // console.log(`player:Selected action ${this.selectedActionID}`);
     }
     getSelectedAction = () => {
         return this.selectedAction;

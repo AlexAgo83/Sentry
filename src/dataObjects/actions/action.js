@@ -6,11 +6,14 @@
 
 import { Entity } from "../entity.js";
 
+export const STATIC_DEFAULT_STAMINA_MODIFIER = 10;
+
 export class Action extends Entity {
 
     constructor(identifier, player) {
         super(identifier);
         this.player = player;
+        this.staminaModifier = STATIC_DEFAULT_STAMINA_MODIFIER;
         this.currentInterval = 0;
         this.progression = null;
         this.lastExecutionTime = null;
@@ -52,51 +55,54 @@ export class Action extends Entity {
     }
 
     doAction = (player, loopInterval) => {
-        if (this.getSkill().getSelectedRecipe()) {
-            let diffToReturn = 0;
-
-            // Each turn, add loop interval time to current action interval time
-            this.currentInterval += loopInterval;
-
-            const diffInterval = this.getSkill().baseInterval - this.currentInterval;
-            if (this.currentInterval >= this.getSkill().baseInterval) {
-                // If current interval is greater than base interval 
-                // Action is ready to go and now we need to keep extra time for next action...     
-                diffToReturn = -diffInterval;
-                this.lastExecutionTime = this.currentInterval;
-                this.currentInterval -= this.getSkill().baseInterval;
-                this.progression = 100;
-                // (VERBOSE) 
-                // console.log("doAction:Action ready to start, 
-                //      time used:" + this.lastExecutionTime + "ms, 
-                //      time left:" + diffToReturn + "ms");
-            } else {
-                // If current interval is less than base interval
-                // Action is not ready, so we need to :
-                // * Compute action progression : (currentInterval / baseInterval) * 100
-                // * Return diffInterval (negative value)
-                this.progression = (this.currentInterval / this.getSkill().baseInterval) * 100;
-                return diffInterval;
-            }
-            
-            /** Time to do action */
-            if (this.onDoAction()) {
-                const currSkill = this.getSkill();
-                const currRecipe = this.getSkill()?.getSelectedRecipe();
-                // Test if skill xp reach limit and need to call levelup
-                if (currSkill.xp >= currSkill.xpNext) {
-                    this.levelUpSkill(currSkill);
-                }
-                // Test if recipe xp reach limit and need to call levelup
-                if (currRecipe.xp >= currRecipe.xpNext) {
-                    this.levelUpRecipe(currRecipe);
-                }
-            } else console.log("doAction:Action failed."); 
-
-            return diffToReturn;
-        } else {
+        if (!this.getSkill()?.getSelectedRecipe()) {
             console.log("doAction:No recipe selected.");
+            return ;
         }
+
+        console.log("doAction:No recipe selected.");
+        let diffToReturn = 0;
+
+        // Each turn, add loop interval time to current action interval time
+        this.currentInterval += loopInterval;
+
+        const diffInterval = this.getSkill().baseInterval - this.currentInterval;
+        if (this.currentInterval >= this.getSkill().baseInterval) {
+            // If current interval is greater than base interval 
+            // Action is ready to go and now we need to keep extra time for next action...     
+            diffToReturn = -diffInterval;
+            this.lastExecutionTime = this.currentInterval;
+            this.currentInterval -= this.getSkill().baseInterval;
+            this.progression = 100;
+            // (VERBOSE) 
+            // console.log("doAction:Action ready to start, 
+            //      time used:" + this.lastExecutionTime + "ms, 
+            //      time left:" + diffToReturn + "ms");
+        } else {
+            // If current interval is less than base interval
+            // Action is not ready, so we need to :
+            // * Compute action progression : (currentInterval / baseInterval) * 100
+            // * Return diffInterval (negative value)
+            this.progression = (this.currentInterval / this.getSkill().baseInterval) * 100;
+            return diffInterval;
+        }
+        
+        /** Time to do action */
+        if (this.onDoAction()) {
+            const currSkill = this.getSkill();
+            const currRecipe = this.getSkill()?.getSelectedRecipe();
+            // Test if skill xp reach limit and need to call levelup
+            if (currSkill.xp >= currSkill.xpNext) {
+                this.levelUpSkill(currSkill);
+            }
+            // Test if recipe xp reach limit and need to call levelup
+            if (currRecipe.xp >= currRecipe.xpNext) {
+                this.levelUpRecipe(currRecipe);
+            }
+        } else console.log("doAction:Action failed."); 
+
+        return diffToReturn;
+    
     };
 
     levelUpSkill = (skillObject) => {
