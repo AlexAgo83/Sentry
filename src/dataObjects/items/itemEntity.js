@@ -2,15 +2,17 @@
 // This work is free. You can redistribute it and/or modify it
 
 // @ts-check
-// characterEntity.js
+// itemEntity.js
 
+import { STATIC_IC_ITEM } from "../../managers/assetManager.js";
 import { Entity } from "../entity.js";
 
-export class CharacterEntity extends Entity {
+export class ItemEntity extends Entity {
     
     constructor(identifier) {
         super(identifier);
-        this.name = "Entity_"+identifier;
+        this.name = "Item_"+identifier;
+        this.media = STATIC_IC_ITEM;
     }
 
     setName = (name) => {

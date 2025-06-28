@@ -6,6 +6,7 @@
 
 import { createSkillByID, STATIC_SKILLS_LIST } from "../../managers/skillManager.js";
 import { CharacterEntity } from "./characterEntity.js";
+import { StorageEntity } from "./storageEntity.js";
 
 export const STATIC_NAME_PREFIXE = "Player_";
 export const STATIC_DEFAULT_HP_MAX = 100;
@@ -21,9 +22,10 @@ export class PlayerEntity extends CharacterEntity {
 
         this.hp = STATIC_DEFAULT_HP;
         this.hpMax = STATIC_DEFAULT_HP_MAX;
-
         this.stamina = STATIC_DEFAULT_STAMINA;
         this.staminaMax = STATIC_DEFAULT_STAMINA_MAX;
+
+        this.storage = new StorageEntity(identifier);
 
         this.gold = STATIC_DEFAULT_GOLD;
 
@@ -44,6 +46,8 @@ export class PlayerEntity extends CharacterEntity {
             this.hpMax = entityData.hpMax ?? STATIC_DEFAULT_HP_MAX;
             this.stamina = entityData.stamina;
             this.staminaMax = entityData.staminaMax ?? STATIC_DEFAULT_STAMINA_MAX;
+            this.storage = new StorageEntity(identifier);
+            this.storage.load(entityData.storageData);
             this.gold = entityData.gold;
             this.selectedActionID = entityData.selectedActionID;
             this.skillsData = entityData.skillsData;
@@ -57,6 +61,7 @@ export class PlayerEntity extends CharacterEntity {
                 hpMax: this.hpMax,
                 stamina: this.stamina,
                 staminaMax: this.staminaMax,
+                storageData: this.saveStorage(),
                 gold: this.gold,
                 selectedActionID: this.selectedActionID,
                 skillsData: this.saveSkills(),
@@ -64,6 +69,10 @@ export class PlayerEntity extends CharacterEntity {
             };
             return resultSave
         });
+    }
+
+    saveStorage = () => {
+        return this.storage.save();
     }
 
     addSkill = (skill) => {

@@ -18,6 +18,7 @@ let parseAssetsPath = () => {
 }
 export const STATIC_ASSET_FOLDER = parseAssetsPath();
 
+export const STATIC_IC_ITEM = "ic_item.png";
 export const STATIC_IC_COMBAT = "ic_combat.png";
 export const STATIC_IC_COOKING = "ic_cooking.png";
 export const STATIC_IC_EXCAVATION = "ic_excavation.png";
