@@ -82,12 +82,11 @@ export class Action extends Entity {
      * @returns {number|null} The extra time to be used for the next action.
      */
     doAction = (player, loopInterval) => {
-        if (!this.getSkill()?.getSelectedRecipe()) {
+        if (this.getSkill()?.getSelectedRecipe() == null) {
             console.log("doAction:No recipe selected.");
             return null;
         }
-
-        console.log("doAction:No recipe selected.");
+        
         let diffToReturn = 0;
 
         // Each turn, add loop interval time to current action interval time
