@@ -12,7 +12,10 @@ export class DataManager extends CoreManager {
         super(instance);
     }
 
-    /* Game Data */
+    /**
+     * Save the game data
+     * @returns {object} The saved data object
+     */
     save = () => {
         // console.log("Game data to save", this.players);
 
@@ -27,8 +30,13 @@ export class DataManager extends CoreManager {
         localStorage.setItem(STATIC_SAVEGAME_TAG, JSON.stringify(savedData));
 
         // console.log("Game data saved", savedData);
+        return savedData;
     }
 
+    /**
+     * Load the game data
+     * @returns {object} The loaded data object
+     */
     load = () => {
         const savedDataString = localStorage.getItem(STATIC_SAVEGAME_TAG);
         const savedData = savedDataString ? JSON.parse(savedDataString) : {};

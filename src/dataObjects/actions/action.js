@@ -5,6 +5,8 @@
 // action.js
 
 import { Entity } from "../entity.js";
+import { RecipeEntity } from "../recipes/recipeEntity.js";
+import { SkillEntity } from "../skills/skillEntity.js";
 
 export const STATIC_DEFAULT_GOLD_MODIFIER = 1
 export const STATIC_DEFAULT_XP_SKILL_MODIFIER = 1;
@@ -46,10 +48,18 @@ export class Action extends Entity {
     getRecipe = () => {
         return this.getSkill()?.getSelectedRecipe();
     }
-
+    
+    /**
+     * @returns {number|null} The current progress (0-100) of the action
+     */
     getProgression = () => {
         return this.progression;
     }
+
+    /**
+     * Returns the time left until the action is finished.
+     * @returns {number} The time left in milliseconds
+     */
     getTimeLeft = () => {
         const diff = this.getSkill().baseInterval - this.currentInterval;
         return diff > 0 ? diff : 0;
@@ -65,10 +75,16 @@ export class Action extends Entity {
         return false;
     }
 
+    /**
+     * Executes the action for the given player.
+     * @param {Object} player - The player object performing the action.
+     * @param {number} loopInterval - The time interval for the game loop.
+     * @returns {number|null} The extra time to be used for the next action.
+     */
     doAction = (player, loopInterval) => {
         if (!this.getSkill()?.getSelectedRecipe()) {
             console.log("doAction:No recipe selected.");
-            return ;
+            return null;
         }
 
         console.log("doAction:No recipe selected.");
@@ -137,10 +153,23 @@ export class Action extends Entity {
     
     };
 
+    /**
+     * Compute the time the action will take in ms, 
+     * based on the player's stamina and the action's interval.
+     * If the player's stamina is 0, add the stun time to the action's interval.
+     * @param {*} player 
+     * @returns {number} The time the action will take in ms.
+     */
     actionInterval = (player) => {
         return this.getSkill().baseInterval + (player.stamina <= 0 ? this.stunTime:0)
     }
 
+    /**
+     * Level up the given skill object if possible.
+     * 
+     * @param {SkillEntity} skillObject - The skill object to level up.
+     * @returns {void}
+     */
     levelUpSkill = (skillObject) => {
         if (skillObject.level >= skillObject.maxLevel) return;
 
@@ -153,6 +182,12 @@ export class Action extends Entity {
         console.log(`(Level Up) PlayerID:${player.getIdentifier()}, SkillID:${skillObject.getIdentifier()}, newLevel:${skillObject.level}`);
     }
 
+    /**
+     * Level up the given recipe object if possible.
+     * 
+     * @param {RecipeEntity} recipeObject - The recipe object to level up.
+     * @returns {void}
+     */
     levelUpRecipe = (recipeObject) => {
         if (recipeObject.level >= recipeObject.maxLevel) return;
 

@@ -21,10 +21,16 @@ export class PlayerManager extends CoreManager {
         return this.players;
     }
 
+    /**
+     * Loads a player from the given data.
+     * @param {string} playerId - The ID of the player to create.
+     * @param {object} savedData - The data to use to load the player.
+     * @returns {PlayerEntity|null} - The created player.
+     */
     loadPlayer = (playerId, savedData) => {
         if (playerId === null || savedData === null) {
             console.log("(important) loadPlayer can't load:" + playerId + ", saveData:", savedData);
-            return;
+            return null;
         }
 
         console.log("(important) loadPlayer ID:" + playerId + ", saveData:", savedData);
@@ -33,8 +39,14 @@ export class PlayerManager extends CoreManager {
 
         this.instance.skillManager.loadSkills(savedData.skillsData, player);
         this.instance.actionManager.loadAction(savedData.selectedActionID, player);
+
+        return player;
     }
 
+    /**
+     * Loads players from the given data.
+     * @param {object} savedData - The data to use to load the players.
+     */
     loadPlayers = (savedData) => {
         if (savedData.players) {
             const savedPlayers = savedData.players;
@@ -45,6 +57,11 @@ export class PlayerManager extends CoreManager {
         }
     }
 
+    /**
+     * Saves the current state of all players.
+     * @param {object} savedPlayers - The object to store each player's data.
+     * @param {object} savedData - The overall data object to store additional game data.
+     */
     savePlayers = (savedPlayers, savedData) => {
         this.players.forEach((player) => {
             savedPlayers[player.getIdentifier()] = player.save();
@@ -52,6 +69,12 @@ export class PlayerManager extends CoreManager {
         savedData.players = savedPlayers;
     }
 
+    /**
+     * Creates a new player.
+     * @param {number} id - The ID of the new player.
+     * @param {boolean} withReset - If true, the game data will be reset.
+     * @returns {PlayerEntity} - The created player.
+     */
     createPlayer = (id, withReset=true) => {
         const newPlayer = new PlayerEntity(id);
         this.players.push(newPlayer);

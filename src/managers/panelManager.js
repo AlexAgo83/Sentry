@@ -19,6 +19,9 @@ export class PanelManager extends CoreManager {
         this.controlsPanel = new ToolsPanel(instance);
     }
 
+    /**
+     * Initialize all panels
+     */
     init = () => {
         this.infoPanel.init();
         this.playersPanel.init();
@@ -26,6 +29,9 @@ export class PanelManager extends CoreManager {
         // console.log("init:Panels setup");
     }
 
+    /**
+     * Remove all panels
+     */
     remove = () => {
         this.infoPanel.remove();
         this.playersPanel.remove();
@@ -33,6 +39,9 @@ export class PanelManager extends CoreManager {
         // console.log("remove:Panels removed");
     }
 
+    /**
+     * Refresh all panels
+     */
     refresh = () => {
         this.infoPanel?.refresh();
         this.playersPanel?.refresh();

@@ -11,6 +11,9 @@ import { CookingAction } from "../dataObjects/actions/cookingAction.js";
 import { ExcavationAction } from "../dataObjects/actions/excavationAction.js";
 import { MetalWorkAction } from "../dataObjects/actions/metalWorkAction.js";
 
+import { PlayerEntity } from "../dataObjects/entities/playerEntity.js";
+import { Action } from "../dataObjects/actions/action.js";
+
 /**
  * Creates an action based on the provided identifier.
  * 
@@ -42,6 +45,13 @@ export class ActionManager extends CoreManager {
         this.selectedRecipe = null;
     }
     
+    /**
+     * Loads an action based on the provided identifier and assigns it to the player.
+     * 
+     * @param {string} id - The identifier of the action to load.
+     * @param {PlayerEntity} player - The player to whom the action will be assigned.
+     * @returns {Action|null} - The loaded action instance or null if not found.
+     */
     loadAction = (id, player) => {
         if (!id) {
             console.log("loadAction:Action not found");
@@ -52,6 +62,5 @@ export class ActionManager extends CoreManager {
         player.setSelectedAction(actionResult);
         return actionResult;
     }
-
     
 }

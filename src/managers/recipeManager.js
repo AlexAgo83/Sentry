@@ -11,6 +11,7 @@ import { CookingRecipe } from "../dataObjects/recipes/cookingRecipe.js";
 import { ExcavationRecipe } from "../dataObjects/recipes/excavationRecipe.js";
 import { HuntingRecipe } from "../dataObjects/recipes/huntingRecipe.js";
 import { MetalWorkRecipe } from "../dataObjects/recipes/metalWorkRecipe.js";
+import { SkillEntity } from "../dataObjects/skills/skillEntity.js";
 
 export const STATIC_COMBAT_RECIPES_LIST = [
     "monster001", 
@@ -72,6 +73,12 @@ export class RecipeManager extends CoreManager {
         super(instance);
     }
 
+    /**
+     * Loads recipes from the recipes data.
+     * @param {Object} recipesData - The recipes data to load.
+     * @param {SkillEntity} skillObject - The skill object.
+     * @returns {Map<string, RecipeEntity>} - The loaded recipes.
+     */
     loadRecipes = (recipesData, skillObject) => {
         if (recipesData == null || recipesData == {}) {
             console.warn("(loadRecipes) recipesData not found.", recipesData);

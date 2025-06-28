@@ -75,6 +75,11 @@ export class PlayerEntity extends CharacterEntity {
     getSkillByID = (identifier) => {
         return this.skills.get(identifier);
     }
+
+    /**
+     * Saves the player's skills.
+     * @returns {Object} An object containing the saved skill data, keyed by skill identifier.
+     */
     saveSkills = () => {
         const result = {};
         for (const key of this.skills.keys()) {

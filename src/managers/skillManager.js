@@ -12,6 +12,9 @@ import { CookingSkill } from "../dataObjects/skills/cookingSkill.js";
 import { ExcavationSkill } from "../dataObjects/skills/excavationSkill.js";
 import { MetalWorkSkill } from "../dataObjects/skills/metalWorkSkill.js";
 
+import { PlayerEntity } from "../dataObjects/entities/playerEntity.js";
+import { SkillEntity } from "../dataObjects/skills/skillEntity.js";
+
 export const STATIC_SKILLS_LIST = ["Combat", "Hunting", "Cooking", "Excavation", "MetalWork"];
 
 export const createSkillByID = (identifier) => {
@@ -37,6 +40,12 @@ export class SkillManager extends CoreManager {
         super(instance);
     }
 
+    /**
+     * Loads skills from the skills data.
+     * @param {Object} skillsData - The skills data to load.
+     * @param {PlayerEntity} playerObject - The player object.
+     * @returns {Map<string, SkillEntity>} - The loaded skills.
+     */
     loadSkills = (skillsData, playerObject) => {
         if (skillsData == null || skillsData == {}) {
             console.warn("loadSkills:skillsData not found for player " + playerObject.getIdentifier(), skillsData);

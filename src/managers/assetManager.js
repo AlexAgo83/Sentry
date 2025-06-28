@@ -30,6 +30,11 @@ export class AssetManager extends CoreManager {
         super(instance);
     }
 
+    /**
+     * Loads a resource from the static asset folder.
+     * @param {string} staticRess - The name of the static resource.
+     * @returns {string} The full path to the static resource.
+     */
     loadRess = (staticRess) => {
         return STATIC_ASSET_FOLDER + staticRess;
     }

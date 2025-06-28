@@ -56,7 +56,10 @@ export class SkillEntity extends Entity {
     getRecipeByID = (identifier) => {
         return this.recipes.get(identifier);
     }
-
+    
+    /**
+     * @returns {object} The saved recipes object with the format {recipeId: recipeData, ...}
+     */
     saveRecipes = () => {
         const result = {};
         for (const key of this.recipes.keys()) {
