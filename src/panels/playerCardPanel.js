@@ -274,12 +274,12 @@ export class PlayerCardPanel extends CorePanel {
                 /* Recipe Progression */
                 const recipeProgressionElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS);
                 const progress = currAction?.getProgression();
-                const progressStr = progress ? String(Math.floor(progress)) + " %" : "N/A";
+                const progressStr = progress !== null && progress !== undefined ? String(Math.floor(progress)) + " %" : "N/A";
                 if (recipeProgressionElement) recipeProgressionElement.textContent = progressStr;  
                 const recipeProgressionViewElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS_VIEW);
                 if (recipeProgressionViewElement) {
                     /** @ts-ignore */ 
-                    recipeProgressionViewElement.value = progress;
+                    recipeProgressionViewElement.value = progress ?? 0;
                 }
             }
         })

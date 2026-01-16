@@ -167,18 +167,19 @@ export class Engine {
             console.log(`Offline for ${diff}ms, looping ${howMuchLoops} times, in progress...`);
             const garbageTime = new Map();
             let skippedLoop = 0;
-            for (let i = 1; i < howMuchLoops; i++) {
+            for (let i = 0; i < howMuchLoops; i++) {
                 this.playerManager.getPlayers().forEach((player) => {
                     if (player.getSelectedAction()) {
                         let gt = garbageTime.get(player.getIdentifier()) ?? 0;
                         const actionDiff = player.getSelectedAction().doAction(player, this.loopIntervalOffline);
-                        gt += actionDiff;
+                        const diffValue = typeof actionDiff === "number" ? actionDiff : 0;
+                        gt += diffValue;
                         if (gt >= this.loopIntervalOffline) {
                             howMuchLoops -= 1;
                             gt -= this.loopIntervalOffline;
                             skippedLoop++;
                         }
-                        garbageTime.set(player.getIdentifier(), 0);
+                        garbageTime.set(player.getIdentifier(), gt);
                     }
                 });
             }

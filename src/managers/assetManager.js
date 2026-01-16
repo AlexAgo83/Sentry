@@ -13,7 +13,7 @@ let parseAssetsPath = () => {
         return __ASSETS_PATH__;
     } catch (error) {
         /* Default debug value */
-        return "/public/img/";
+        return "/img/";
     }
 }
 export const STATIC_ASSET_FOLDER = parseAssetsPath();

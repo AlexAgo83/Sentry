@@ -12,7 +12,7 @@
  * @returns {readonly string[]} An array of locale strings, or an empty array.
  */
 export function getLocales() {
-    if (navigator && navigator.languages && navigator.languages.length > 0) {
+    if (typeof navigator !== "undefined" && navigator?.languages && navigator.languages.length > 0) {
         return navigator.languages;
     }
     return [];
@@ -25,7 +25,7 @@ export function getLocales() {
  * @returns {string|null|undefined} The user's locale, or null if it cannot be determined.
  */
 export function getLocale() {
-    if (navigator && navigator.languages && navigator.languages.length > 0) {
+    if (typeof navigator !== "undefined" && navigator?.languages && navigator.languages.length > 0) {
         return navigator.languages[0];
     }
     return null;
