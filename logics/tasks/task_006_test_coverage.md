@@ -2,7 +2,7 @@
 > From version: 0.4.0
 > Understanding: 90%
 > Confidence: 75%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 The app does not have comprehensive test coverage. We need full app coverage, including UI, store, core runtime, adapters, and data definitions.
@@ -11,16 +11,16 @@ The app does not have comprehensive test coverage. We need full app coverage, in
 Create and execute a test plan that covers the full application surface, with stable CI-friendly coverage runs.
 
 # Plan
-- [ ] 1. Audit current coverage and map gaps (UI, store, runtime, adapters, entry points).
-- [ ] 2. Add UI test tooling (jsdom + React Testing Library) and basic render tests.
-- [ ] 3. Expand core/runtime tests for offline, visibility, and action flows.
-- [ ] 4. Add store and adapter tests (gameStore, localStorageAdapter, persistence paths).
-- [ ] 5. Migrate legacy JS tests to TypeScript where practical.
-- [ ] 6. Add explicit tests for `localStorageAdapter.ts`.
-- [ ] 7. Extend service worker tests in `sw.js` for the remaining branches.
-- [ ] 8. Add UI interaction tests for loadout, inventory, and offline recap.
-- [ ] 9. Set coverage thresholds and update documentation.
-- [ ] FINAL: Run coverage and verify thresholds pass.
+- [x] 1. Audit current coverage and map gaps (UI, store, runtime, adapters, entry points).
+- [x] 2. Add UI test tooling (jsdom + React Testing Library) and basic render tests.
+- [x] 3. Expand core/runtime tests for offline, visibility, and action flows.
+- [x] 4. Add store and adapter tests (gameStore, localStorageAdapter, persistence paths).
+- [x] 5. Migrate legacy JS tests to TypeScript where practical.
+- [x] 6. Add explicit tests for `localStorageAdapter.ts`.
+- [x] 7. Extend service worker tests in `sw.js` for the remaining branches.
+- [x] 8. Add UI interaction tests for loadout, inventory, and offline recap.
+- [x] 9. Set coverage thresholds and update documentation.
+- [x] FINAL: Run coverage and verify thresholds pass.
 
 # Acceptance
 - Coverage runs cleanly with `npm run coverage`.

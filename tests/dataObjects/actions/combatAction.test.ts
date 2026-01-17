@@ -1,10 +1,10 @@
-import { suite, test, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { applyTick } from "../../../src/core/loop";
 import { gameReducer } from "../../../src/core/reducer";
 import { createInitialGameState } from "../../../src/core/state";
 
-suite("CombatAction", () => {
-    test("awards gold, xp, and drains stamina on completion", () => {
+describe("CombatAction", () => {
+    it("awards gold, xp, and drains stamina on completion", () => {
         const initial = createInitialGameState("0.4.0");
         const playerId = initial.activePlayerId ?? "1";
         initial.inventory.items.food = 1;

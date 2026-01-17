@@ -51,6 +51,10 @@ Codex should load project-specific instructions from `logics/instructions.md`.
 * `npm run tests`: Run the test suite with Vitest.
 * `npm run coverage`: Run coverage with Vitest.
 
+## Testing & Coverage
+
+Coverage thresholds are enforced via Vitest (statements/lines >= 90%, functions >= 90%, branches >= 75%). Run `npm run coverage` to verify.
+
 ## Troubleshooting
 
 If you encounter any issues, check the console logs for errors.

@@ -1,8 +1,9 @@
-import { suite, test, expect } from "vitest";
+// @vitest-environment node
+import { describe, expect, it } from "vitest";
 import { execSync } from "node:child_process";
 
-suite("Build", () => {
-    test(
+describe("Build", () => {
+    it(
         "builds with Vite",
         { timeout: 60000 },
         () => {

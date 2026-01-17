@@ -26,11 +26,17 @@ export default defineConfig({
         setupFiles: ["tests/setup.ts"],
         coverage: {
             include: ["src/**", "public/sw.js"],
-            exclude: ["**/*.d.ts"]
+            exclude: ["**/*.d.ts"],
+            thresholds: {
+                lines: 90,
+                branches: 75,
+                functions: 90,
+                statements: 90
+            }
         },
         exclude: [
             ...configDefaults.exclude,
-            "tests/build.test.js"
+            "tests/build.test.ts"
         ]
     }
 });

@@ -1,10 +1,10 @@
-import { suite, test, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { GameRuntime } from "../src/core/runtime";
 import { createInitialGameState } from "../src/core/state";
 import { createGameStore } from "../src/store/gameStore";
 
-suite("GameRuntime offline loop", () => {
-    test("stores offline processing summary", () => {
+describe("GameRuntime offline loop", () => {
+    it("stores offline processing summary", () => {
         const initial = createInitialGameState("0.4.0");
         const playerId = initial.activePlayerId ?? "1";
         initial.inventory.items.food = 3;

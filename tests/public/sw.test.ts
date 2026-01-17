@@ -100,6 +100,28 @@ describe("service worker", () => {
         expect(response).toBe("cached-page");
     });
 
+    it("caches navigation responses when online", async () => {
+        const { listeners, cache } = await setupServiceWorker();
+        const waitUntil = vi.fn();
+        const respondWith = vi.fn();
+        const request = {
+            method: "GET",
+            mode: "navigate",
+            url: "https://example.com/quests",
+            destination: ""
+        };
+
+        const response = { ok: true, clone: () => response };
+        const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+        fetchMock.mockResolvedValue(response);
+
+        listeners.fetch({ request, respondWith, waitUntil });
+
+        const resolved = await respondWith.mock.calls[0][0];
+        expect(resolved).toBe(response);
+        expect(cache.put).toHaveBeenCalledWith(request, response);
+    });
+
     it("serves cached assets and refreshes in background", async () => {
         const { listeners, cache } = await setupServiceWorker();
         const waitUntil = vi.fn();
@@ -121,6 +143,52 @@ describe("service worker", () => {
         const resolved = await respondWith.mock.calls[0][0];
         expect(resolved).toBe("cached-asset");
         expect(waitUntil).toHaveBeenCalled();
+    });
+
+    it("fetches and caches uncached static assets", async () => {
+        const { listeners, cache } = await setupServiceWorker();
+        const waitUntil = vi.fn();
+        const respondWith = vi.fn();
+        const request = {
+            method: "GET",
+            mode: "no-cors",
+            url: "https://example.com/app.js",
+            destination: "script"
+        };
+
+        cache.match.mockResolvedValueOnce(null);
+        const response = { ok: true, clone: () => response };
+        const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+        fetchMock.mockResolvedValue(response);
+
+        listeners.fetch({ request, respondWith, waitUntil });
+
+        const resolved = await respondWith.mock.calls[0][0];
+        expect(resolved).toBe(response);
+        expect(cache.put).toHaveBeenCalledWith(request, response);
+    });
+
+    it("falls back to the cached index when fetch fails", async () => {
+        const { listeners, cache } = await setupServiceWorker();
+        const waitUntil = vi.fn();
+        const respondWith = vi.fn();
+        const request = {
+            method: "GET",
+            mode: "no-cors",
+            url: "https://example.com/styles.css",
+            destination: "style"
+        };
+
+        cache.match.mockResolvedValueOnce(null).mockResolvedValueOnce(null).mockResolvedValueOnce("cached-index");
+        const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+        fetchMock.mockRejectedValue(new Error("network down"));
+
+        listeners.fetch({ request, respondWith, waitUntil });
+
+        const resolved = await respondWith.mock.calls[0][0];
+        expect(resolved).toBe("cached-index");
+        expect(cache.match).toHaveBeenCalledWith(request);
+        expect(cache.match).toHaveBeenCalledWith("/index.html");
     });
 
     it("ignores non-GET and cross-origin requests", async () => {
