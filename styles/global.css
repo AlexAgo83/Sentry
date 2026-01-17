@@ -147,6 +147,11 @@ body {
         padding: var(--m10);
     }
 
+    .app-title {
+        font-size: calc(var(--text-xl-size) + var(--m4));
+        letter-spacing: 0.04em;
+    }
+
     .app-layout {
         grid-template-columns: 1fr;
     }
