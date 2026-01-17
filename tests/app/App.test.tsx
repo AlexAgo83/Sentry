@@ -78,6 +78,23 @@ describe("App", () => {
         }
     });
 
+    it("shows focusable inventory controls and usage labels", async () => {
+        const { user } = renderApp();
+        const inventoryButton = screen.getByRole("button", { name: "Inventory" });
+        expect(inventoryButton.className).toContain("ts-focusable");
+
+        await user.click(inventoryButton);
+
+        const inventoryPanel = screen.getByRole("heading", { name: "Inventory" }).closest("section");
+        expect(inventoryPanel).toBeTruthy();
+        if (inventoryPanel) {
+            const goldSlot = within(inventoryPanel).getByRole("button", { name: "Gold x150" });
+            await user.click(goldSlot);
+            expect(within(inventoryPanel).getByText("Used by")).toBeTruthy();
+            expect(within(inventoryPanel).getByText("Obtained by")).toBeTruthy();
+        }
+    });
+
     it("shows loadout summary and missing item hint", async () => {
         const { user } = renderApp({ food: 0 });
         const actButtons = screen.getAllByRole("button", { name: /Manage actions/ });

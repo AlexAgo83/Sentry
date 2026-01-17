@@ -1,4 +1,4 @@
-import { CSSProperties, ChangeEvent, useEffect, useState } from "react";
+import { CSSProperties, ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
     ITEM_DEFINITIONS,
     SKILL_DEFINITIONS,
@@ -11,177 +11,14 @@ import {
 import { SkillId } from "../core/types";
 import { gameRuntime, gameStore } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
-import { getInventoryMeta } from "./inventoryMeta";
+import { ActionStatusPanel } from "./components/ActionStatusPanel";
+import { CharacterStatsPanel } from "./components/CharacterStatsPanel";
+import { InventoryPanel, type InventoryEntry, type InventorySort } from "./components/InventoryPanel";
+import { RosterPanel } from "./components/RosterPanel";
+import { getInventoryMeta } from "./ui/inventoryMeta";
+import { InventoryIconSprite } from "./ui/inventoryIcons";
+import { ITEM_USAGE_MAP } from "./ui/itemUsage";
 import "./styles/app.css";
-
-const skillIconStroke = {
-    stroke: "currentColor",
-    strokeWidth: 3,
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    fill: "none"
-} as const;
-
-const SKILL_ICON_SHAPES: Record<SkillId, JSX.Element> = {
-    Combat: (
-        <g {...skillIconStroke}>
-            <path d="M20 44l12-12" />
-            <path d="M44 44l-12-12" />
-            <path d="M18 46l6 6" />
-            <path d="M46 46l-6 6" />
-            <circle cx="20" cy="44" r="2" />
-            <circle cx="44" cy="44" r="2" />
-        </g>
-    ),
-    Hunting: (
-        <g {...skillIconStroke}>
-            <circle cx="40" cy="24" r="6" />
-            <circle cx="40" cy="24" r="2" />
-            <path d="M16 48l18-18" />
-            <path d="M34 30l10-4l-4 10" />
-        </g>
-    ),
-    Cooking: (
-        <g {...skillIconStroke}>
-            <rect x="18" y="30" width="28" height="14" rx="3" />
-            <path d="M22 26h20" />
-            <path d="M28 22h8" />
-            <path d="M24 16c-2 4 2 6 0 10" />
-            <path d="M32 14c-2 4 2 6 0 10" />
-            <path d="M40 16c-2 4 2 6 0 10" />
-        </g>
-    ),
-    Excavation: (
-        <g {...skillIconStroke}>
-            <path d="M22 42l20-20" />
-            <path d="M42 18c-8 0-16 6-20 12" />
-            <path d="M18 46l6 6" />
-        </g>
-    ),
-    MetalWork: (
-        <g {...skillIconStroke}>
-            <path d="M18 28h20l6 6h-32z" />
-            <path d="M18 34h28l-4 10H22z" />
-            <path d="M30 22h14" />
-        </g>
-    ),
-    Alchemy: (
-        <g {...skillIconStroke}>
-            <path d="M22 12h20" />
-            <path d="M26 12v8l-8 14c0 6 6 10 14 10s14-4 14-10l-8-14v-8" />
-            <path d="M24 30h16" />
-        </g>
-    ),
-    Herbalism: (
-        <g {...skillIconStroke}>
-            <path d="M18 40c12-16 28-16 28 0c-8 8-20 8-28 0z" />
-            <path d="M32 20v20" />
-        </g>
-    ),
-    Tailoring: (
-        <g {...skillIconStroke}>
-            <path d="M22 46l20-20" />
-            <circle cx="44" cy="22" r="3" />
-            <path d="M18 48c-6 4-4 10 4 10" />
-        </g>
-    ),
-    Fishing: (
-        <g {...skillIconStroke}>
-            <path d="M32 10v18" />
-            <path d="M32 28c0 8-10 8-10 2" />
-            <path d="M42 38c6-4 10-4 14 0c-4 4-8 4-14 0z" />
-        </g>
-    ),
-    Carpentry: (
-        <g {...skillIconStroke}>
-            <rect x="28" y="16" width="14" height="8" rx="2" />
-            <path d="M30 24l-12 18" />
-            <path d="M22 38l4 4" />
-        </g>
-    ),
-    Leatherworking: (
-        <g {...skillIconStroke}>
-            <path d="M20 14c-4 0-6 4-4 8l2 6l-2 8c-2 6 4 10 10 8l6-2l6 2c6 2 12-2 10-8l-2-8l2-6c2-4 0-8-4-8l-4 2l-6-2l-6 2z" />
-        </g>
-    )
-};
-
-const getSkillIconShape = (skillId: SkillId | ""): JSX.Element => {
-    if (!skillId) {
-        return (
-            <g {...skillIconStroke}>
-                <circle cx="32" cy="32" r="12" />
-                <path d="M32 20v24" />
-                <path d="M20 32h24" />
-            </g>
-        );
-    }
-    return SKILL_ICON_SHAPES[skillId];
-};
-
-type ItemUsage = {
-    usedBy: string[];
-    obtainedBy: string[];
-};
-
-const addUsageLabel = (target: string[], label: string) => {
-    if (!target.includes(label)) {
-        target.push(label);
-    }
-};
-
-const addItemUsage = (usageMap: Record<string, ItemUsage>, itemId: string, bucket: keyof ItemUsage, label: string) => {
-    const entry = usageMap[itemId];
-    if (!entry) {
-        return;
-    }
-    addUsageLabel(entry[bucket], label);
-};
-
-const buildItemUsageMap = (): Record<string, ItemUsage> => {
-    const usage = ITEM_DEFINITIONS.reduce<Record<string, ItemUsage>>((acc, item) => {
-        acc[item.id] = { usedBy: [], obtainedBy: [] };
-        return acc;
-    }, {});
-
-    SKILL_DEFINITIONS.forEach((skill) => {
-        const actionDef = getActionDefinition(skill.id);
-        if (actionDef?.itemCosts) {
-            Object.keys(actionDef.itemCosts).forEach((itemId) => {
-                addItemUsage(usage, itemId, "usedBy", `Action: ${skill.name}`);
-            });
-        }
-        if (actionDef?.itemRewards) {
-            Object.keys(actionDef.itemRewards).forEach((itemId) => {
-                addItemUsage(usage, itemId, "obtainedBy", `Action: ${skill.name}`);
-            });
-        }
-        if (actionDef?.goldReward) {
-            addItemUsage(usage, "gold", "obtainedBy", `Action: ${skill.name}`);
-        }
-
-        getRecipesForSkill(skill.id).forEach((recipe) => {
-            const label = `${skill.name} - ${recipe.name}`;
-            if (recipe.itemCosts) {
-                Object.keys(recipe.itemCosts).forEach((itemId) => {
-                    addItemUsage(usage, itemId, "usedBy", label);
-                });
-            }
-            if (recipe.itemRewards) {
-                Object.keys(recipe.itemRewards).forEach((itemId) => {
-                    addItemUsage(usage, itemId, "obtainedBy", label);
-                });
-            }
-            if (recipe.goldReward) {
-                addItemUsage(usage, "gold", "obtainedBy", label);
-            }
-        });
-    });
-
-    return usage;
-};
-
-const ITEM_USAGE_MAP = buildItemUsageMap();
 
 export const App = () => {
     useEffect(() => {
@@ -195,7 +32,10 @@ export const App = () => {
     const activeSkill = activeSkillId ? activePlayer?.skills[activeSkillId] : null;
     const activeRecipeId = activeSkill?.selectedRecipeId ?? "";
     const activeRecipe = activeRecipeId ? activeSkill?.recipes[activeRecipeId] : null;
-    const players = Object.values(state.players).slice().sort((a, b) => Number(a.id) - Number(b.id));
+    const players = useMemo(
+        () => Object.values(state.players).slice().sort((a, b) => Number(a.id) - Number(b.id)),
+        [state.players]
+    );
     const offlineSummary = state.offlineSummary;
     const perf = state.perf;
     const tickRate = (1000 / state.loop.loopInterval).toFixed(1);
@@ -216,26 +56,33 @@ export const App = () => {
     const [isStatsCollapsed, setStatsCollapsed] = useState(false);
     const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory">("status");
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
-    const skillNameById = SKILL_DEFINITIONS.reduce<Record<string, string>>((acc, skill) => {
+    const [inventorySort, setInventorySort] = useState<InventorySort>("Name");
+    const [inventorySearch, setInventorySearch] = useState("");
+    const [inventoryPage, setInventoryPage] = useState(1);
+    const skillNameById = useMemo(() => SKILL_DEFINITIONS.reduce<Record<string, string>>((acc, skill) => {
         acc[skill.id] = skill.name;
         return acc;
-    }, {});
-    const getSkillLabel = (skillId: SkillId | ""): string => {
+    }, {}), []);
+    const itemNameById = useMemo(() => ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, item) => {
+        acc[item.id] = item.name;
+        return acc;
+    }, {}), []);
+    const getSkillLabel = useCallback((skillId: SkillId | ""): string => {
         if (!skillId) {
             return "None";
         }
         return skillNameById[skillId] ?? skillId;
-    };
-    const getRecipeLabel = (skillId: SkillId, recipeId: string | null): string => {
+    }, [skillNameById]);
+    const getRecipeLabel = useCallback((skillId: SkillId, recipeId: string | null): string => {
         if (!recipeId) {
             return "none";
         }
         const recipeDef = getRecipeDefinition(skillId, recipeId);
         return recipeDef?.name ?? recipeId;
-    };
-    const getFirstUnlockedRecipeId = (skillId: SkillId, skillLevel: number): string => {
+    }, []);
+    const getFirstUnlockedRecipeId = useCallback((skillId: SkillId, skillLevel: number): string => {
         return getRecipesForSkill(skillId).find((recipe) => isRecipeUnlocked(recipe, skillLevel))?.id ?? "";
-    };
+    }, []);
 
     useEffect(() => {
         if (!activePlayer || !activeSkillId) {
@@ -254,7 +101,7 @@ export const App = () => {
                 recipeId: defaultRecipeId
             });
         }
-    }, [activePlayer?.id, activeSkillId]);
+    }, [activePlayer?.id, activeSkillId, getFirstUnlockedRecipeId]);
 
     useEffect(() => {
         if (!isLoadoutOpen) {
@@ -279,7 +126,7 @@ export const App = () => {
             : "";
         setPendingSkillId(skillId);
         setPendingRecipeId(recipeId);
-    }, [isLoadoutOpen, activePlayer?.id, activePlayer?.selectedActionId]);
+    }, [isLoadoutOpen, activePlayer?.id, activePlayer?.selectedActionId, getFirstUnlockedRecipeId]);
 
     useEffect(() => {
         if (!isLoadoutOpen && !isRecruitOpen && !isRenameOpen && !isSystemOpen && !offlineSummary) {
@@ -380,6 +227,15 @@ export const App = () => {
         setLoadoutOpen(false);
         setRenameOpen(false);
         setRecruitOpen(true);
+    };
+
+    const handleOpenInventory = () => {
+        setInventoryCollapsed(false);
+        setActiveSidePanel("inventory");
+    };
+
+    const handleOpenSystem = () => {
+        setSystemOpen(true);
     };
 
     const handleSetActivePlayer = (playerId: string) => {
@@ -487,20 +343,81 @@ export const App = () => {
         pendingRecipeDef && pendingSkill && isRecipeUnlocked(pendingRecipeDef, pendingSkill.level)
     );
     const inventoryItems = state.inventory.items;
-    const itemNameById = ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, item) => {
-        acc[item.id] = item.name;
-        return acc;
-    }, {});
-    const inventoryEntries = ITEM_DEFINITIONS.map((item) => ({
+    const inventoryEntries = useMemo<InventoryEntry[]>(() => ITEM_DEFINITIONS.map((item) => ({
         ...item,
         count: inventoryItems[item.id] ?? 0,
         ...getInventoryMeta(item.id),
         ...ITEM_USAGE_MAP[item.id]
-    }));
-    const inventoryGridEntries = inventoryEntries.filter((item) => item.count > 0);
+    })), [inventoryItems]);
+    const inventoryVisibleEntries = useMemo(
+        () => inventoryEntries.filter((item) => item.count > 0),
+        [inventoryEntries]
+    );
+    const normalizedInventorySearch = inventorySearch.trim().toLowerCase();
+    const inventoryFilteredEntries = useMemo(
+        () => inventoryVisibleEntries.filter((item) => (
+            normalizedInventorySearch.length === 0
+            || item.name.toLowerCase().includes(normalizedInventorySearch)
+        )),
+        [inventoryVisibleEntries, normalizedInventorySearch]
+    );
+    const inventorySortedEntries = useMemo(() => {
+        const sorted = [...inventoryFilteredEntries];
+        if (inventorySort === "Count") {
+            sorted.sort((a, b) => {
+                if (b.count !== a.count) {
+                    return b.count - a.count;
+                }
+                return a.name.localeCompare(b.name);
+            });
+            return sorted;
+        }
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        return sorted;
+    }, [inventoryFilteredEntries, inventorySort]);
+    const inventoryPageSize = 36;
+    const inventoryPageCount = Math.max(1, Math.ceil(inventorySortedEntries.length / inventoryPageSize));
+    const safeInventoryPage = Math.min(inventoryPage, inventoryPageCount);
+    const inventoryPageEntries = useMemo(
+        () => inventorySortedEntries.slice(
+            (safeInventoryPage - 1) * inventoryPageSize,
+            safeInventoryPage * inventoryPageSize
+        ),
+        [inventorySortedEntries, safeInventoryPage]
+    );
     const selectedInventoryItem = selectedInventoryItemId
         ? inventoryEntries.find((item) => item.id === selectedInventoryItemId) ?? null
         : null;
+    const selectedItemIndex = selectedInventoryItemId
+        ? inventorySortedEntries.findIndex((item) => item.id === selectedInventoryItemId)
+        : -1;
+    const selectedItemPage = selectedItemIndex >= 0
+        ? Math.floor(selectedItemIndex / inventoryPageSize) + 1
+        : null;
+    const selectionHint = selectedInventoryItem
+        ? selectedItemIndex < 0
+            ? normalizedInventorySearch.length > 0
+                ? "Selected item is hidden by your search."
+                : "Selected item is not visible in the current list."
+            : selectedItemPage !== safeInventoryPage
+                ? `Selected item is on page ${selectedItemPage}.`
+                : null
+        : null;
+    const inventoryEmptyState = inventoryVisibleEntries.length === 0
+        ? "No items collected yet. Start actions to gather resources."
+        : inventoryFilteredEntries.length === 0
+            ? "No items match your search."
+            : "No items on this page.";
+
+    useEffect(() => {
+        setInventoryPage(1);
+    }, [inventorySort, inventorySearch]);
+
+    useEffect(() => {
+        if (inventoryPage !== safeInventoryPage) {
+            setInventoryPage(safeInventoryPage);
+        }
+    }, [inventoryPage, safeInventoryPage]);
     const formatItemDeltas = (deltas: Record<string, number>): string => {
         const entries = ITEM_DEFINITIONS
             .map((item) => ({
@@ -530,7 +447,6 @@ export const App = () => {
         }
         return entries.map((entry) => `${entry.amount} ${entry.name}`).join(", ");
     };
-    const formatUsageList = (entries?: string[]) => (entries && entries.length > 0 ? entries.join(", ") : "None");
     const pendingActionDef = pendingSkillId ? getActionDefinition(pendingSkillId as SkillId) : null;
     const pendingItemCosts = pendingRecipeDef?.itemCosts ?? pendingActionDef?.itemCosts;
     const pendingItemRewards = pendingRecipeDef?.itemRewards ?? pendingActionDef?.itemRewards;
@@ -618,9 +534,14 @@ export const App = () => {
         Leatherworking: "#a26769"
     };
     const skillIconColor = activeSkillId ? skillIconMap[activeSkillId] ?? "#f2c14e" : "#5d6a82";
+    const activeSkillLevels = useMemo(() => SKILL_DEFINITIONS.reduce<Partial<Record<SkillId, number>>>((acc, skill) => {
+        acc[skill.id] = activePlayer?.skills[skill.id]?.level ?? 0;
+        return acc;
+    }, {}), [activePlayer]);
 
     return (
         <div className="app-shell">
+            <InventoryIconSprite />
             <header className="app-header">
                 <div className="app-title-block">
                     <p className="app-kicker">Rewrite Initiative</p>
@@ -630,294 +551,77 @@ export const App = () => {
                 <div className="app-version-tag">{state.version}</div>
             </header>
             <main className="app-layout generic-global ts-layout">
-                <section className="generic-panel ts-panel">
-                    <div className="ts-panel-header">
-                        <h2 className="ts-panel-title">Roster</h2>
-                        <span className="ts-panel-meta">{players.length} heroes</span>
-                        <button
-                            type="button"
-                            className="ts-collapse-button"
-                            onClick={() => setRosterCollapsed((value) => !value)}
-                        >
-                            {isRosterCollapsed ? "Expand" : "Collapse"}
-                        </button>
-                    </div>
-                    {!isRosterCollapsed ? (
-                        <>
-                            <div className="ts-player-list">
-                                {players.map((player) => {
-                                    const currentAction = player.selectedActionId;
-                                    const currentSkill = currentAction ? player.skills[currentAction] : null;
-                                    const currentRecipe = currentSkill?.selectedRecipeId ?? null;
-                                    const actionLabel = currentAction ? getSkillLabel(currentAction) : "";
-                                    const recipeLabel = currentAction && currentRecipe
-                                        ? getRecipeLabel(currentAction, currentRecipe)
-                                        : null;
-                                    const metaLabel = currentAction
-                                        ? `Action ${actionLabel}${recipeLabel ? ` - Recipe ${recipeLabel}` : " - Recipe none"}`
-                                        : "No action selected";
-
-                                    return (
-                                        <div
-                                            key={player.id}
-                                            className={`ts-player-card ${player.id === state.activePlayerId ? "is-active" : ""}`}
-                                            onClick={() => handleSetActivePlayer(player.id)}
-                                        >
-                                            <div className="ts-player-info">
-                                                <span className="ts-player-name">{player.name}</span>
-                                                <span className="ts-player-meta">{metaLabel}</span>
-                                            </div>
-                                            <div className="ts-player-actions">
-                                                <button
-                                                    type="button"
-                                                    className="ts-icon-button is-action"
-                                                    onClick={() => handleOpenLoadout(player.id)}
-                                                    aria-label={`Manage actions for ${player.name}`}
-                                                    title="Manage actions"
-                                                >
-                                                    Act
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="ts-icon-button"
-                                                    onClick={() => handleOpenRename(player.id)}
-                                                    aria-label={`Set name for ${player.name}`}
-                                                    title="Set name"
-                                                >
-                                                    Set
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <button type="button" className="generic-field button ts-add-player" onClick={handleAddPlayer}>
-                                Recruit new hero
-                            </button>
-                            <button
-                                type="button"
-                                className="generic-field button ts-add-player ts-inventory-toggle"
-                                onClick={() => {
-                                    setInventoryCollapsed(false);
-                                    setActiveSidePanel("inventory");
-                                }}
-                            >
-                                Inventory
-                            </button>
-                            <button
-                                type="button"
-                                className="generic-field button ts-add-player ts-system-toggle"
-                                onClick={() => setSystemOpen(true)}
-                            >
-                                System
-                            </button>
-                        </>
-                    ) : null}
-                </section>
+                <RosterPanel
+                    players={players}
+                    activePlayerId={state.activePlayerId}
+                    isCollapsed={isRosterCollapsed}
+                    onToggleCollapsed={() => setRosterCollapsed((value) => !value)}
+                    onSetActivePlayer={handleSetActivePlayer}
+                    onOpenLoadout={handleOpenLoadout}
+                    onOpenRename={handleOpenRename}
+                    onAddPlayer={handleAddPlayer}
+                    onOpenInventory={handleOpenInventory}
+                    onOpenSystem={handleOpenSystem}
+                    getSkillLabel={getSkillLabel}
+                    getRecipeLabel={getRecipeLabel}
+                />
                 {activeSidePanel === "status" ? (
                     <>
-                        <section className="generic-panel ts-panel">
-                        <div className="ts-panel-header">
-                            <h2 className="ts-panel-title">Action status</h2>
-                            <span className="ts-panel-meta">Live loop</span>
-                        </div>
-                        <div className="ts-skill-card">
-                                <div className="ts-skill-icon" style={{ borderColor: skillIconColor }} aria-hidden="true">
-                                <svg viewBox="0 0 64 64" role="img" aria-hidden="true" style={{ color: skillIconColor }}>
-                                    <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke={skillIconColor} strokeWidth="4" />
-                                    {getSkillIconShape(activeSkillId as SkillId | "")}
-                                </svg>
-                            </div>
-                            <div className="ts-skill-copy">
-                                <div className="ts-skill-label">Selected skill</div>
-                                <div className="ts-skill-name">{activeSkillName}</div>
-                            </div>
-                        </div>
-                        <div className="ts-resource-card">
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Recipe</span>
-                                <span className="ts-resource-value">{activeRecipeLabel}</span>
-                            </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Consumes</span>
-                                <span className="ts-resource-value">{activeConsumptionLabel}</span>
-                            </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Produces</span>
-                                <span className="ts-resource-value">{activeProductionLabel}</span>
-                            </div>
-                            {resourceHint ? (
-                                <div className="ts-resource-hint">{resourceHint}</div>
-                            ) : null}
-                        </div>
-                        <div
-                            className={`generic-field panel progress-row ts-progress-row ts-progress-action${isStunned ? " is-stunned" : ""}`}
-                            style={progressStyle}
-                        >
-                            <span className="ts-progress-label">
-                                Progress {progressPercent.toFixed(1)}%
-                            </span>
-                        </div>
-                        <progress
-                            className={`generic-field progress ts-progress-action${isStunned ? " is-stunned" : ""}`}
-                            max={100}
-                            value={progressPercent}
+                        <ActionStatusPanel
+                            activeSkillId={activeSkillId as SkillId | ""}
+                            activeSkillName={activeSkillName}
+                            activeRecipeLabel={activeRecipeLabel}
+                            activeConsumptionLabel={activeConsumptionLabel}
+                            activeProductionLabel={activeProductionLabel}
+                            resourceHint={resourceHint}
+                            progressPercent={progressPercent}
+                            progressStyle={progressStyle}
+                            staminaStyle={staminaStyle}
+                            skillStyle={skillStyle}
+                            recipeStyle={recipeStyle}
+                            staminaPercent={staminaPercent}
+                            skillPercent={skillPercent}
+                            recipePercent={recipePercent}
+                            staminaCurrent={activePlayer?.stamina ?? 0}
+                            staminaMax={activePlayer?.staminaMax ?? 0}
+                            activeSkillLevel={activeSkill?.level ?? 0}
+                            activeSkillXp={activeSkill?.xp ?? 0}
+                            activeSkillXpNext={activeSkill?.xpNext ?? 0}
+                            activeRecipeLevel={activeRecipe?.level ?? 0}
+                            activeRecipeXp={activeRecipe?.xp ?? 0}
+                            activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
+                            isStunned={isStunned}
+                            skillIconColor={skillIconColor}
                         />
-                        <div
-                            className="generic-field panel progress-row ts-progress-row ts-progress-stamina"
-                            style={staminaStyle}
-                        >
-                            <span className="ts-progress-label">
-                                Stamina {activePlayer?.stamina ?? 0}/{activePlayer?.staminaMax ?? 0}
-                            </span>
-                        </div>
-                        <progress
-                            className="generic-field progress ts-progress-stamina"
-                            max={100}
-                            value={staminaPercent}
+                        <CharacterStatsPanel
+                            skills={SKILL_DEFINITIONS}
+                            skillLevels={activeSkillLevels}
+                            isCollapsed={isStatsCollapsed}
+                            onToggleCollapsed={() => setStatsCollapsed((value) => !value)}
                         />
-                        <div
-                            className="generic-field panel progress-row ts-progress-row ts-progress-skill"
-                            style={skillStyle}
-                        >
-                            <span className="ts-progress-label">
-                                Skill Lv {activeSkill?.level ?? 0} - XP {activeSkill?.xp ?? 0}/{activeSkill?.xpNext ?? 0}
-                            </span>
-                        </div>
-                        <progress
-                            className="generic-field progress ts-progress-skill"
-                            max={100}
-                            value={skillPercent}
-                        />
-                        <div
-                            className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
-                            style={recipeStyle}
-                        >
-                            <span className="ts-progress-label">
-                                Recipe Lv {activeRecipe?.level ?? 0} - XP {activeRecipe?.xp ?? 0}/{activeRecipe?.xpNext ?? 0}
-                            </span>
-                        </div>
-                        <progress
-                            className="generic-field progress ts-progress-recipe"
-                            max={100}
-                            value={recipePercent}
-                        />
-                        </section>
-                        <section className="generic-panel ts-panel">
-                            <div className="ts-panel-header">
-                                <h2 className="ts-panel-title">Character stats</h2>
-                                <span className="ts-panel-meta">Focused hero</span>
-                                <button
-                                    type="button"
-                                    className="ts-collapse-button"
-                                    onClick={() => setStatsCollapsed((value) => !value)}
-                                >
-                                    {isStatsCollapsed ? "Expand" : "Collapse"}
-                                </button>
-                            </div>
-                            {!isStatsCollapsed ? (
-                                <>
-                                    <div className="ts-stat-grid">
-                                        {SKILL_DEFINITIONS.map((skill) => {
-                                            const level = activePlayer?.skills[skill.id]?.level ?? 0;
-                                            return (
-                                                <div key={skill.id} className="ts-stat">
-                                                    <div className="ts-stat-label">{skill.name}</div>
-                                                    <div className="ts-stat-value">Lv {level}</div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                    <div className="ts-stat-placeholder">Statistics overview coming soon.</div>
-                                </>
-                            ) : null}
-                        </section>
                     </>
                 ) : null}
                 {activeSidePanel === "inventory" ? (
-                    <section className="generic-panel ts-panel ts-inventory-panel">
-                        <div className="ts-panel-header">
-                            <h2 className="ts-panel-title">Inventory</h2>
-                            <span className="ts-panel-meta">Shared stash</span>
-                            <button
-                                type="button"
-                                className="ts-collapse-button"
-                                onClick={() => setInventoryCollapsed((value) => !value)}
-                            >
-                                {isInventoryCollapsed ? "Expand" : "Collapse"}
-                            </button>
-                        </div>
-                        {!isInventoryCollapsed ? (
-                            <div className="ts-inventory-layout">
-                                <div className="ts-inventory-grid">
-                                    {inventoryGridEntries.length > 0 ? (
-                                        inventoryGridEntries.map((item) => {
-                                            const isSelected = item.id === selectedInventoryItemId;
-                                            const slotClassName = isSelected
-                                                ? "ts-inventory-slot is-selected"
-                                                : "ts-inventory-slot";
-                                            return (
-                                                <button
-                                                    key={item.id}
-                                                    type="button"
-                                                    className={slotClassName}
-                                                    aria-pressed={isSelected}
-                                                    aria-label={`${item.name} x${item.count}`}
-                                                    title={`${item.name} x${item.count}`}
-                                                    onClick={() => handleToggleInventoryItem(item.id)}
-                                                >
-                                                    {item.icon}
-                                                    <span className="ts-inventory-count">{item.count}</span>
-                                                </button>
-                                            );
-                                        })
-                                    ) : (
-                                        <div className="ts-inventory-empty">No items yet.</div>
-                                    )}
-                                </div>
-                                <div className="ts-inventory-focus">
-                                    <div className="ts-inventory-focus-header">
-                                        <h3 className="ts-inventory-focus-title">
-                                            {selectedInventoryItem ? selectedInventoryItem.name : "No item selected"}
-                                        </h3>
-                                        {selectedInventoryItem ? (
-                                            <button
-                                                type="button"
-                                                className="generic-field button ts-inventory-clear"
-                                                onClick={handleClearInventorySelection}
-                                            >
-                                                Clear
-                                            </button>
-                                        ) : null}
-                                    </div>
-                                    <div className="ts-inventory-focus-count">
-                                        Count: {selectedInventoryItem ? selectedInventoryItem.count : "--"}
-                                    </div>
-                                    <div className="ts-inventory-focus-row">
-                                        <span className="ts-inventory-focus-label">Used by</span>
-                                        <span className="ts-inventory-focus-value">
-                                            {selectedInventoryItem
-                                                ? formatUsageList(selectedInventoryItem.usedBy)
-                                                : "--"}
-                                        </span>
-                                    </div>
-                                    <div className="ts-inventory-focus-row">
-                                        <span className="ts-inventory-focus-label">Obtained by</span>
-                                        <span className="ts-inventory-focus-value">
-                                            {selectedInventoryItem
-                                                ? formatUsageList(selectedInventoryItem.obtainedBy)
-                                                : "--"}
-                                        </span>
-                                    </div>
-                                    <p className="ts-inventory-focus-copy">
-                                        {selectedInventoryItem
-                                            ? selectedInventoryItem.description
-                                            : "Select an item to view details."}
-                                    </p>
-                                </div>
-                            </div>
-                        ) : null}
-                    </section>
+                    <InventoryPanel
+                        isCollapsed={isInventoryCollapsed}
+                        onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
+                        entries={inventoryVisibleEntries}
+                        gridEntries={inventoryPageEntries}
+                        selectedItem={selectedInventoryItem}
+                        selectedItemId={selectedInventoryItemId}
+                        onSelectItem={handleToggleInventoryItem}
+                        onClearSelection={handleClearInventorySelection}
+                        sort={inventorySort}
+                        onSortChange={setInventorySort}
+                        search={inventorySearch}
+                        onSearchChange={setInventorySearch}
+                        page={safeInventoryPage}
+                        pageCount={inventoryPageCount}
+                        onPageChange={setInventoryPage}
+                        totalItems={inventoryVisibleEntries.length}
+                        emptyState={inventoryEmptyState}
+                        selectionHint={selectionHint}
+                    />
                 ) : null}
             </main>
             {isLoadoutOpen && activePlayer ? (
@@ -928,7 +632,7 @@ export const App = () => {
                                 <p className="ts-modal-kicker">Loadout</p>
                                 <h2 className="ts-modal-title">{activePlayer.name}</h2>
                             </div>
-                            <button type="button" className="ts-modal-close" onClick={handleCloseLoadout}>
+                            <button type="button" className="ts-modal-close ts-focusable" onClick={handleCloseLoadout}>
                                 Close
                             </button>
                         </div>
@@ -936,7 +640,7 @@ export const App = () => {
                             <label className="ts-field-label" htmlFor="skill-select">Select skill</label>
                             <select
                                 id="skill-select"
-                                className="generic-field select"
+                                className="generic-field select ts-focusable"
                                 value={pendingSkillId}
                                 onChange={handleSkillChange}
                             >
@@ -950,7 +654,7 @@ export const App = () => {
                             <label className="ts-field-label" htmlFor="recipe-select">Select recipe</label>
                             <select
                                 id="recipe-select"
-                                className="generic-field select"
+                                className="generic-field select ts-focusable"
                                 value={pendingRecipeId}
                                 onChange={handleRecipeChange}
                                 disabled={!pendingSkill}
@@ -992,7 +696,7 @@ export const App = () => {
                             <div className="ts-action-row">
                                 <button
                                     type="button"
-                                    className="generic-field button"
+                                    className="generic-field button ts-focusable"
                                     onClick={handleStartAction}
                                     disabled={!canStartAction}
                                 >
@@ -1005,7 +709,7 @@ export const App = () => {
                             <div className="ts-action-row">
                                 <button
                                     type="button"
-                                    className="generic-field button ts-stop"
+                                    className="generic-field button ts-stop ts-focusable"
                                     onClick={handleStopAction}
                                     disabled={!activePlayer.selectedActionId}
                                 >
@@ -1024,7 +728,7 @@ export const App = () => {
                                 <p className="ts-modal-kicker">Recruit</p>
                                 <h2 className="ts-modal-title">New hero</h2>
                             </div>
-                            <button type="button" className="ts-modal-close" onClick={handleCloseRecruit}>
+                            <button type="button" className="ts-modal-close ts-focusable" onClick={handleCloseRecruit}>
                                 Close
                             </button>
                         </div>
@@ -1032,7 +736,7 @@ export const App = () => {
                             <label className="ts-field-label" htmlFor="hero-name">Hero name</label>
                             <input
                                 id="hero-name"
-                                className="generic-field input ts-input"
+                                className="generic-field input ts-input ts-focusable"
                                 value={newHeroName}
                                 onChange={(event) => setNewHeroName(event.target.value)}
                                 maxLength={20}
@@ -1041,7 +745,7 @@ export const App = () => {
                             <div className="ts-action-row">
                                 <button
                                     type="button"
-                                    className="generic-field button"
+                                    className="generic-field button ts-focusable"
                                     onClick={handleCreateHero}
                                     disabled={newHeroName.trim().length === 0}
                                 >
@@ -1060,7 +764,7 @@ export const App = () => {
                                 <p className="ts-modal-kicker">Set name</p>
                                 <h2 className="ts-modal-title">Rename hero</h2>
                             </div>
-                            <button type="button" className="ts-modal-close" onClick={handleCloseRename}>
+                            <button type="button" className="ts-modal-close ts-focusable" onClick={handleCloseRename}>
                                 Close
                             </button>
                         </div>
@@ -1068,7 +772,7 @@ export const App = () => {
                             <label className="ts-field-label" htmlFor="hero-rename">Hero name</label>
                             <input
                                 id="hero-rename"
-                                className="generic-field input ts-input"
+                                className="generic-field input ts-input ts-focusable"
                                 value={renameHeroName}
                                 onChange={(event) => setRenameHeroName(event.target.value)}
                                 maxLength={20}
@@ -1077,7 +781,7 @@ export const App = () => {
                             <div className="ts-action-row">
                                 <button
                                     type="button"
-                                    className="generic-field button"
+                                    className="generic-field button ts-focusable"
                                     onClick={handleRenameHero}
                                     disabled={renameHeroName.trim().length === 0}
                                 >
@@ -1096,7 +800,7 @@ export const App = () => {
                                 <p className="ts-modal-kicker">System</p>
                                 <h2 className="ts-modal-title">Telemetry</h2>
                             </div>
-                            <button type="button" className="ts-modal-close" onClick={handleCloseSystem}>
+                            <button type="button" className="ts-modal-close ts-focusable" onClick={handleCloseSystem}>
                                 Close
                             </button>
                         </div>
@@ -1118,7 +822,7 @@ export const App = () => {
                         <div className="ts-action-row ts-system-actions">
                             <button
                                 type="button"
-                                className="generic-field button ts-simulate"
+                                className="generic-field button ts-simulate ts-focusable"
                                 onClick={handleSimulateOffline}
                             >
                                 Simulate +30 min
@@ -1127,7 +831,7 @@ export const App = () => {
                         <div className="ts-action-row ts-system-actions">
                             <button
                                 type="button"
-                                className="generic-field button ts-reset"
+                                className="generic-field button ts-reset ts-focusable"
                                 onClick={handleResetSave}
                             >
                                 Reset save
@@ -1149,7 +853,7 @@ export const App = () => {
                                 <p className="ts-modal-kicker">Offline recap</p>
                                 <h2 className="ts-modal-title">Your party</h2>
                             </div>
-                            <button type="button" className="ts-modal-close" onClick={handleCloseOfflineSummary}>
+                            <button type="button" className="ts-modal-close ts-focusable" onClick={handleCloseOfflineSummary}>
                                 Close
                             </button>
                         </div>

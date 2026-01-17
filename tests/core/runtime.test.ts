@@ -104,4 +104,67 @@ describe("GameRuntime", () => {
         expect(store.getState().loop.lastTick).toBe(1000);
         expect(persistence.save).toHaveBeenCalled();
     });
+
+    it("uses real elapsed delta for regular ticks", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+
+        store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
+        vi.spyOn(Date, "now").mockReturnValue(1120);
+
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+
+        expect(store.getState().perf.lastDeltaMs).toBe(120);
+    });
+
+    it.each([1000, 5000, 20000])("processes delayed ticks (%ims) as offline catch-up", (delayMs) => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+
+        store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
+        vi.spyOn(Date, "now").mockReturnValue(1000 + delayMs);
+
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+
+        expect(store.getState().perf.lastDeltaMs).toBe(delayMs);
+        expect(store.getState().perf.lastOfflineTicks).toBeGreaterThan(0);
+    });
+
+    it("disables persistence after repeated failures", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        persistence.save.mockImplementation(() => {
+            throw new Error("Quota exceeded");
+        });
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+        store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
+
+        let nowValue = 3000;
+        vi.spyOn(Date, "now").mockImplementation(() => {
+            const next = nowValue;
+            nowValue += 2000;
+            return next;
+        });
+
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+
+        expect(persistence.save).toHaveBeenCalledTimes(3);
+        expect(consoleSpy).toHaveBeenCalledTimes(1);
+    });
 });

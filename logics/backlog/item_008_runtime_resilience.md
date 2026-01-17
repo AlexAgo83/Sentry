@@ -2,7 +2,7 @@
 > From version: 0.5.0
 > Understanding: 96%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 The runtime tick currently applies a fixed delta on normal frames and may lose real elapsed time under load. Persistence writes also do not guard against storage failures.
