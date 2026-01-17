@@ -1,68 +1,67 @@
 # Sentry
 
-Sentry is a JavaScript game engine with a focus on simplicity and ease of use.
+Sentry is a JavaScript idle game engine focused on simplicity and extensibility.
 
-# Features
+## Features
 
 * Player management
-* Skill system
-* Combat mechanics
-* Hunting mechanics
-* Cooking mechanics
-* Excavation mechanics
-* ... and more mechanics to be implemented in the future
+* Skill system with actions and progression
+* Combat, hunting, cooking, and excavation mechanics
 * Recipe system
 * Panel system for game UI
 * Core game logic and utilities
 
-# Technical Details
+## Tech Stack
 
-* Programming language: JavaScript
-* Build tool: Vite
-* Package manager: npm
+* JavaScript
+* Vite
+* npm
+* SweetAlert2
 
-# Project Structure
+## Project Structure
 
 The project is divided into several modules, including:
 
-* `src/dataObjects`: Contains data object definitions for the game.
-* `src/dataObjects/actions`: Contains action definitions for the game.
-* `src/dataObjects/entities`: Contains entity definitions for the game.
-* `src/dataObjects/recipes`: Contains recipe definitions for the game.
-* `src/dataObjects/skills`: Contains skill definitions for the game.
-* `src/managers`: Contains manager classes for handling game logic.
-* `src/panels`: Contains panel components for the game UI.
+* `src/dataObjects`: Data object definitions for the game.
+* `src/dataObjects/actions`: Action definitions.
+* `src/dataObjects/entities`: Entity definitions.
+* `src/dataObjects/recipes`: Recipe definitions.
+* `src/dataObjects/skills`: Skill definitions.
+* `src/managers`: Manager classes for handling game logic.
+* `src/panels`: Panel components for the game UI.
+* `logics`: Product workflow and planning artifacts.
+* `logics/request`: Incoming requests or ideas.
+* `logics/backlog`: Core product items.
+* `logics/tasks`: Execution plans derived from backlog items.
 
-# Setup and Installation
+## Codex Instructions
+
+Codex should load project-specific instructions from `logics/instructions.md`.
+
+## Setup
 
 1. Clone the repository: `git clone https://github.com/AlexAgo83/Sentry.git`
 2. Install dependencies: `npm install`
-3. Start the game: `npm run dev`
+3. Start the dev server: `npm run dev`
 
-# Running Locally
+## Scripts
 
-* Vite Live
+* `npm run dev`: Start the Vite dev server with debug logging.
+* `npm run live`: Start the Vite dev server.
+* `npm run build`: Build for production.
+* `npm run preview`: Preview the production build.
+* `npm run tests`: Run the test suite with Vitest.
+* `npm run coverage`: Run coverage with Vitest.
 
-1. Run vite build: `npm run live`
-2. Follow the link
-
-* Vite Preview
-
-1. Run vite build: `npm run build`
-2. Run vite preview: `npm run preview`
-3. Follow the link
-
-# Troubleshooting
+## Troubleshooting
 
 If you encounter any issues, check the console logs for errors.
 
-# Contributing
+## Contributing
 
-Contributions are welcome! Please submit a pull request with a clear description of the changes.
+Contributions are welcome. Please submit a pull request with a clear description of the changes and follow the project's coding conventions.
 
-Make sure to follow the project's coding style and conventions.
-
-# License
+## License
 
 This project is licensed under the MIT License.
 
