@@ -1,4 +1,4 @@
-import { ActionDefinition, RecipeDefinition, SkillDefinition, SkillId } from "../core/types";
+import { ActionDefinition, ItemId, RecipeDefinition, SkillDefinition, SkillId } from "../core/types";
 
 export const SKILL_DEFINITIONS: SkillDefinition[] = [
     { id: "Combat", name: "Combat", baseInterval: 1000 },
@@ -6,6 +6,12 @@ export const SKILL_DEFINITIONS: SkillDefinition[] = [
     { id: "Cooking", name: "Cooking", baseInterval: 1000 },
     { id: "Excavation", name: "Excavation", baseInterval: 1000 },
     { id: "MetalWork", name: "MetalWork", baseInterval: 1000 }
+];
+
+export const ITEM_DEFINITIONS: Array<{ id: ItemId; name: string }> = [
+    { id: "gold", name: "Gold" },
+    { id: "meat", name: "Meat" },
+    { id: "food", name: "Food" }
 ];
 
 const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
@@ -56,7 +62,8 @@ export const ACTION_DEFINITIONS: ActionDefinition[] = [
         goldReward: 1,
         xpSkill: 1,
         xpRecipe: 2,
-        stunTime: 5000
+        stunTime: 5000,
+        itemRewards: { meat: 1 }
     },
     {
         id: "Cooking",
@@ -65,7 +72,9 @@ export const ACTION_DEFINITIONS: ActionDefinition[] = [
         goldReward: 1,
         xpSkill: 1,
         xpRecipe: 2,
-        stunTime: 5000
+        stunTime: 5000,
+        itemCosts: { meat: 1 },
+        itemRewards: { food: 1 }
     },
     {
         id: "Excavation",

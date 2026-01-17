@@ -1,5 +1,5 @@
 import { CSSProperties, ChangeEvent, useEffect, useState } from "react";
-import { SKILL_DEFINITIONS } from "../data/definitions";
+import { ITEM_DEFINITIONS, SKILL_DEFINITIONS, getActionDefinition } from "../data/definitions";
 import { SkillId } from "../core/types";
 import { gameRuntime, gameStore } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
@@ -34,6 +34,8 @@ export const App = () => {
     const [pendingRecipeId, setPendingRecipeId] = useState("");
     const [isRosterCollapsed, setRosterCollapsed] = useState(false);
     const [isSystemCollapsed, setSystemCollapsed] = useState(true);
+    const [isInventoryCollapsed, setInventoryCollapsed] = useState(false);
+    const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory">("status");
 
     useEffect(() => {
         if (!activePlayer || !activeSkillId) {
@@ -133,6 +135,10 @@ export const App = () => {
         });
     };
 
+    const handleSimulateOffline = () => {
+        gameRuntime.simulateOffline(30 * 60 * 1000);
+    };
+
     const handleStartAction = () => {
         if (!activePlayer || !pendingSkillId || !pendingRecipeId) {
             return;
@@ -158,10 +164,12 @@ export const App = () => {
 
     const handleSetActivePlayer = (playerId: string) => {
         gameStore.dispatch({ type: "setActivePlayer", playerId });
+        setActiveSidePanel("status");
     };
 
     const handleOpenLoadout = (playerId: string) => {
         gameStore.dispatch({ type: "setActivePlayer", playerId });
+        setActiveSidePanel("status");
         setRecruitOpen(false);
         setRenameOpen(false);
         setLoadoutOpen(true);
@@ -236,10 +244,48 @@ export const App = () => {
     const pendingSkill = pendingSkillId && activePlayer
         ? activePlayer.skills[pendingSkillId as SkillId]
         : null;
+    const inventoryItems = state.inventory.items;
+    const itemNameById = ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, item) => {
+        acc[item.id] = item.name;
+        return acc;
+    }, {});
+    const inventoryEntries = ITEM_DEFINITIONS.map((item) => ({
+        ...item,
+        count: inventoryItems[item.id] ?? 0
+    }));
+    const formatItemDeltas = (deltas: Record<string, number>): string => {
+        const entries = ITEM_DEFINITIONS
+            .map((item) => ({
+                name: item.name,
+                amount: deltas[item.id] ?? 0
+            }))
+            .filter((entry) => entry.amount !== 0);
+        if (entries.length === 0) {
+            return "None";
+        }
+        return entries
+            .map((entry) => `${entry.amount > 0 ? "+" : ""}${entry.amount} ${entry.name}`)
+            .join(", ");
+    };
+    const pendingActionDef = pendingSkillId ? getActionDefinition(pendingSkillId as SkillId) : null;
+    const missingItems = pendingActionDef?.itemCosts
+        ? Object.entries(pendingActionDef.itemCosts)
+            .map(([itemId, amount]) => {
+                const available = inventoryItems[itemId] ?? 0;
+                const needed = amount - available;
+                return needed > 0 ? { itemId, needed } : null;
+            })
+            .filter((entry): entry is { itemId: string; needed: number } => entry !== null)
+        : [];
+    const missingItemsLabel = missingItems.length > 0
+        ? `Missing: ${missingItems.map((entry) => `${itemNameById[entry.itemId] ?? entry.itemId} x${entry.needed}`).join(", ")}`
+        : "";
     const isRunningSelection = Boolean(activePlayer?.selectedActionId)
         && pendingSkillId === activeSkillId
         && pendingRecipeId === activeRecipeId;
-    const canStartAction = Boolean(activePlayer && pendingSkillId && pendingRecipeId && !isRunningSelection);
+    const canStartAction = Boolean(
+        activePlayer && pendingSkillId && pendingRecipeId && !isRunningSelection && missingItems.length === 0
+    );
 
     const progressPercent = activePlayer?.actionProgress.progressPercent ?? 0;
     const progressStyle = { "--progress": `${progressPercent}%` } as CSSProperties;
@@ -339,96 +385,126 @@ export const App = () => {
                             <button type="button" className="generic-field button ts-add-player" onClick={handleAddPlayer}>
                                 Recruit new hero
                             </button>
+                            <button
+                                type="button"
+                                className="generic-field button ts-add-player ts-inventory-toggle"
+                                onClick={() => {
+                                    setInventoryCollapsed(false);
+                                    setActiveSidePanel("inventory");
+                                }}
+                            >
+                                Inventory
+                            </button>
                         </>
                     ) : null}
                 </section>
-                <section className="generic-panel ts-panel">
-                    <div className="ts-panel-header">
-                        <h2 className="ts-panel-title">Action status</h2>
-                        <span className="ts-panel-meta">Live loop</span>
-                    </div>
-                    <div className="ts-stat-grid">
-                        <div className="ts-stat">
-                            <div className="ts-stat-label">Gold</div>
-                            <div className="ts-stat-value">{activePlayer?.storage.gold ?? 0}</div>
+                {activeSidePanel === "status" ? (
+                    <section className="generic-panel ts-panel">
+                        <div className="ts-panel-header">
+                            <h2 className="ts-panel-title">Action status</h2>
+                            <span className="ts-panel-meta">Live loop</span>
                         </div>
-                    </div>
-                    <div className="ts-skill-card">
-                        <div className="ts-skill-icon" style={{ borderColor: skillIconColor }} aria-hidden="true">
-                            <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
-                                <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke={skillIconColor} strokeWidth="4" />
-                                <path d="M18 38 L32 14 L46 38 Z" fill={skillIconColor} opacity="0.5" />
-                                <circle cx="32" cy="38" r="10" fill={skillIconColor} opacity="0.85" />
-                                <text
-                                    x="32"
-                                    y="42"
-                                    textAnchor="middle"
-                                    fontSize="12"
-                                    fill="#0b0f1d"
-                                    fontFamily="var(--display-font)"
-                                >
-                                    {skillIconLabel}
-                                </text>
-                            </svg>
+                        <div className="ts-skill-card">
+                            <div className="ts-skill-icon" style={{ borderColor: skillIconColor }} aria-hidden="true">
+                                <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+                                    <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke={skillIconColor} strokeWidth="4" />
+                                    <path d="M18 38 L32 14 L46 38 Z" fill={skillIconColor} opacity="0.5" />
+                                    <circle cx="32" cy="38" r="10" fill={skillIconColor} opacity="0.85" />
+                                    <text
+                                        x="32"
+                                        y="42"
+                                        textAnchor="middle"
+                                        fontSize="12"
+                                        fill="#0b0f1d"
+                                        fontFamily="var(--display-font)"
+                                    >
+                                        {skillIconLabel}
+                                    </text>
+                                </svg>
+                            </div>
+                            <div className="ts-skill-copy">
+                                <div className="ts-skill-label">Selected skill</div>
+                                <div className="ts-skill-name">{activeSkillId || "None"}</div>
+                            </div>
                         </div>
-                        <div className="ts-skill-copy">
-                            <div className="ts-skill-label">Selected skill</div>
-                            <div className="ts-skill-name">{activeSkillId || "None"}</div>
+                        <div
+                            className={`generic-field panel progress-row ts-progress-row ts-progress-action${isStunned ? " is-stunned" : ""}`}
+                            style={progressStyle}
+                        >
+                            <span className="ts-progress-label">
+                                Progress {progressPercent.toFixed(1)}%
+                            </span>
                         </div>
-                    </div>
-                    <div
-                        className={`generic-field panel progress-row ts-progress-row ts-progress-action${isStunned ? " is-stunned" : ""}`}
-                        style={progressStyle}
-                    >
-                        <span className="ts-progress-label">
-                            Progress {progressPercent.toFixed(1)}%
-                        </span>
-                    </div>
-                    <progress
-                        className={`generic-field progress ts-progress-action${isStunned ? " is-stunned" : ""}`}
-                        max={100}
-                        value={progressPercent}
-                    />
-                    <div
-                        className="generic-field panel progress-row ts-progress-row ts-progress-stamina"
-                        style={staminaStyle}
-                    >
-                        <span className="ts-progress-label">
-                            Stamina {activePlayer?.stamina ?? 0}/{activePlayer?.staminaMax ?? 0}
-                        </span>
-                    </div>
-                    <progress
-                        className="generic-field progress ts-progress-stamina"
-                        max={100}
-                        value={staminaPercent}
-                    />
-                    <div
-                        className="generic-field panel progress-row ts-progress-row ts-progress-skill"
-                        style={skillStyle}
-                    >
-                        <span className="ts-progress-label">
-                            Skill Lv {activeSkill?.level ?? 0} - XP {activeSkill?.xp ?? 0}/{activeSkill?.xpNext ?? 0}
-                        </span>
-                    </div>
-                    <progress
-                        className="generic-field progress ts-progress-skill"
-                        max={100}
-                        value={skillPercent}
-                    />
-                    <div
-                        className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
-                        style={recipeStyle}
-                    >
-                        <span className="ts-progress-label">
-                            Recipe Lv {activeRecipe?.level ?? 0} - XP {activeRecipe?.xp ?? 0}/{activeRecipe?.xpNext ?? 0}
-                        </span>
-                    </div>
-                    <progress
-                        className="generic-field progress ts-progress-recipe"
-                        max={100}
-                        value={recipePercent}
-                    />
-                </section>
+                        <progress
+                            className={`generic-field progress ts-progress-action${isStunned ? " is-stunned" : ""}`}
+                            max={100}
+                            value={progressPercent}
+                        />
+                        <div
+                            className="generic-field panel progress-row ts-progress-row ts-progress-stamina"
+                            style={staminaStyle}
+                        >
+                            <span className="ts-progress-label">
+                                Stamina {activePlayer?.stamina ?? 0}/{activePlayer?.staminaMax ?? 0}
+                            </span>
+                        </div>
+                        <progress
+                            className="generic-field progress ts-progress-stamina"
+                            max={100}
+                            value={staminaPercent}
+                        />
+                        <div
+                            className="generic-field panel progress-row ts-progress-row ts-progress-skill"
+                            style={skillStyle}
+                        >
+                            <span className="ts-progress-label">
+                                Skill Lv {activeSkill?.level ?? 0} - XP {activeSkill?.xp ?? 0}/{activeSkill?.xpNext ?? 0}
+                            </span>
+                        </div>
+                        <progress
+                            className="generic-field progress ts-progress-skill"
+                            max={100}
+                            value={skillPercent}
+                        />
+                        <div
+                            className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
+                            style={recipeStyle}
+                        >
+                            <span className="ts-progress-label">
+                                Recipe Lv {activeRecipe?.level ?? 0} - XP {activeRecipe?.xp ?? 0}/{activeRecipe?.xpNext ?? 0}
+                            </span>
+                        </div>
+                        <progress
+                            className="generic-field progress ts-progress-recipe"
+                            max={100}
+                            value={recipePercent}
+                        />
+                    </section>
+                ) : null}
+                {activeSidePanel === "inventory" ? (
+                    <section className="generic-panel ts-panel">
+                        <div className="ts-panel-header">
+                            <h2 className="ts-panel-title">Inventory</h2>
+                            <span className="ts-panel-meta">Shared stash</span>
+                            <button
+                                type="button"
+                                className="ts-collapse-button"
+                                onClick={() => setInventoryCollapsed((value) => !value)}
+                            >
+                                {isInventoryCollapsed ? "Expand" : "Collapse"}
+                            </button>
+                        </div>
+                        {!isInventoryCollapsed ? (
+                            <ul className="ts-list ts-inventory-list">
+                                {inventoryEntries.map((item) => (
+                                    <li key={item.id}>
+                                        {item.name}: {item.count}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : null}
+                    </section>
+                ) : null}
                 <section className="generic-panel ts-panel">
                     <div className="ts-panel-header">
                         <h2 className="ts-panel-title">System</h2>
@@ -454,6 +530,15 @@ export const App = () => {
                                 <li>Offline interval: {state.loop.offlineInterval}ms</li>
                                 <li>Active action: {activePlayer?.selectedActionId ?? "none"}</li>
                             </ul>
+                            <div className="ts-action-row ts-system-actions">
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-simulate"
+                                    onClick={handleSimulateOffline}
+                                >
+                                    Simulate +30 min
+                                </button>
+                            </div>
                             <div className="ts-action-row ts-system-actions">
                                 <button
                                     type="button"
@@ -521,6 +606,9 @@ export const App = () => {
                                     Start action
                                 </button>
                             </div>
+                            {missingItemsLabel ? (
+                                <div className="ts-missing-hint">{missingItemsLabel}</div>
+                            ) : null}
                             <div className="ts-action-row">
                                 <button
                                     type="button"
@@ -628,6 +716,7 @@ export const App = () => {
                             <li>Time away: {offlineSeconds}s</li>
                             <li>Ticks processed: {offlineSummary.ticks}</li>
                             <li>Players summarized: {offlinePlayers.length}</li>
+                            <li>Inventory changes: {formatItemDeltas(offlineSummary.totalItemDeltas)}</li>
                         </ul>
                         <div className="ts-offline-players">
                             {offlinePlayers.map((player) => {
@@ -640,14 +729,17 @@ export const App = () => {
                                 const recipeLevelLabel = player.recipeLevelGained > 0
                                     ? ` - +${player.recipeLevelGained} Lv`
                                     : "";
+                                const itemLabel = formatItemDeltas(player.itemDeltas);
 
                                 return (
                                     <div key={player.playerId} className="ts-offline-player">
                                         <div className="ts-offline-name">{player.playerName}</div>
                                         <div className="ts-offline-meta">{actionLabel}</div>
                                         <div className="ts-offline-gains">
-                                            Gold +{player.goldGained} - Skill +{player.skillXpGained} XP{skillLevelLabel}
-                                            - Recipe +{player.recipeXpGained} XP{recipeLevelLabel}
+                                            Items: {itemLabel}
+                                        </div>
+                                        <div className="ts-offline-gains">
+                                            Skill +{player.skillXpGained} XP{skillLevelLabel} - Recipe +{player.recipeXpGained} XP{recipeLevelLabel}
                                         </div>
                                     </div>
                                 );

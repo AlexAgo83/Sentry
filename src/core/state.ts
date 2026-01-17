@@ -2,6 +2,7 @@ import {
     ActionProgressState,
     GameSave,
     GameState,
+    InventoryState,
     PlayerId,
     PlayerSaveState,
     PlayerState,
@@ -27,6 +28,12 @@ export const createActionProgress = (): ActionProgressState => ({
     currentInterval: 0,
     progressPercent: 0,
     lastExecutionTime: null
+});
+
+const createInventoryState = (gold: number): InventoryState => ({
+    items: {
+        gold
+    }
 });
 
 const createRecipeState = (id: string): RecipeState => ({
@@ -78,7 +85,6 @@ export const createPlayerState = (id: PlayerId, name?: string): PlayerState => {
         hpMax: DEFAULT_HP_MAX,
         stamina: DEFAULT_STAMINA_MAX,
         staminaMax: DEFAULT_STAMINA_MAX,
-        storage: { gold: DEFAULT_GOLD },
         skills,
         selectedActionId: null,
         actionProgress: createActionProgress(),
@@ -101,6 +107,7 @@ export const createInitialGameState = (version: string): GameState => {
         version,
         players: { [playerId]: player },
         activePlayerId: playerId,
+        inventory: createInventoryState(DEFAULT_GOLD),
         loop: {
             lastTick: null,
             lastHiddenAt: null,
@@ -114,14 +121,41 @@ export const createInitialGameState = (version: string): GameState => {
             lastOfflineTicks: 0,
             lastOfflineDurationMs: 0
         },
-        offlineSummary: null
+        offlineSummary: null,
+        lastTickSummary: null
     };
 };
 
-const hydratePlayerState = (player: PlayerSaveState): PlayerState => ({
-    ...player,
-    actionProgress: createActionProgress()
-});
+const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
+    const { actionProgress, storage, ...rest } = player as PlayerSaveState & { storage?: { gold?: number } };
+    return {
+        ...rest,
+        actionProgress: createActionProgress()
+    };
+};
+
+const resolveInventory = (
+    inventory: InventoryState | undefined,
+    players: Record<PlayerId, PlayerSaveState>
+): InventoryState => {
+    const legacyGold = Object.values(players).reduce((acc, player) => {
+        const candidate = (player as PlayerSaveState & { storage?: { gold?: number } }).storage?.gold ?? 0;
+        return acc + (Number.isFinite(candidate) ? candidate : 0);
+    }, 0);
+    const nextItems: Record<string, number> = {};
+    if (inventory?.items) {
+        Object.entries(inventory.items).forEach(([key, value]) => {
+            const numeric = Number(value);
+            if (Number.isFinite(numeric)) {
+                nextItems[key] = Math.max(0, Math.floor(numeric));
+            }
+        });
+    }
+    if (nextItems.gold === undefined) {
+        nextItems.gold = legacyGold;
+    }
+    return { items: nextItems };
+};
 
 export const hydrateGameState = (version: string, save?: GameSave | null): GameState => {
     const baseState = createInitialGameState(version);
@@ -144,15 +178,23 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
             ? playerIds[0]
             : baseState.activePlayerId;
 
+    const rawPlayers = save.players ?? {};
+    const inventory = save.inventory || Object.keys(rawPlayers).length > 0
+        ? resolveInventory(save.inventory, rawPlayers)
+        : baseState.inventory;
+
     return {
         ...baseState,
         version,
         players: Object.keys(players).length > 0 ? players : baseState.players,
         activePlayerId,
+        inventory,
         loop: {
             ...baseState.loop,
             lastTick: save.lastTick ?? baseState.loop.lastTick
-        }
+        },
+        offlineSummary: null,
+        lastTickSummary: null
     };
 };
 

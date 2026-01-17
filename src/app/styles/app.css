@@ -147,6 +147,16 @@
     margin-top: var(--m4);
 }
 
+.ts-inventory-toggle {
+    background: rgba(13, 19, 33, 0.9);
+    color: var(--color-text);
+}
+
+.ts-inventory-toggle:hover {
+    background: rgba(93, 217, 193, 0.2);
+    color: var(--color-text);
+}
+
 .ts-field-group {
     display: flex;
     flex-direction: column;
@@ -177,6 +187,16 @@
 }
 
 .ts-action-row .generic-field.button.ts-stop:hover {
+    background: rgba(93, 217, 193, 0.2);
+    color: var(--color-text);
+}
+
+.ts-action-row .generic-field.button.ts-simulate {
+    background: rgba(22, 30, 50, 0.9);
+    color: var(--color-text);
+}
+
+.ts-action-row .generic-field.button.ts-simulate:hover {
     background: rgba(93, 217, 193, 0.2);
     color: var(--color-text);
 }
@@ -289,6 +309,17 @@
 .ts-modal .generic-field.input {
     width: 100%;
     max-width: 100%;
+}
+
+.ts-missing-hint {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: rgba(242, 193, 78, 0.9);
+}
+
+.ts-inventory-list {
+    margin-top: var(--m2);
 }
 
 .generic-field.panel.progress-row.ts-progress-stamina::after {

@@ -4,6 +4,8 @@ export type {
     ActionProgressState,
     GameSave,
     GameState,
+    InventoryState,
+    ItemDelta,
     ItemId,
     LoopState,
     PlayerId,
@@ -12,11 +14,11 @@ export type {
     PerformanceState,
     OfflinePlayerSummary,
     OfflineSummaryState,
+    TickSummaryState,
     RecipeDefinition,
     RecipeId,
     RecipeState,
     SkillDefinition,
     SkillId,
-    SkillState,
-    StorageState
+    SkillState
 } from "./types";

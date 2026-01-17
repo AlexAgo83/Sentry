@@ -1,4 +1,4 @@
-import { GameState, OfflinePlayerSummary, OfflineSummaryState, PerformanceState } from "./types";
+import { GameState, ItemDelta, OfflinePlayerSummary, OfflineSummaryState, PerformanceState } from "./types";
 import { createInitialGameState } from "./state";
 import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
@@ -37,6 +37,35 @@ export class GameRuntime {
     stop = () => {
         this.pauseLoop();
         this.hasStarted = false;
+    };
+
+    simulateOffline = (durationMs: number) => {
+        if (!Number.isFinite(durationMs) || durationMs <= 0) {
+            return;
+        }
+        const now = Date.now();
+        const start = Math.max(0, now - durationMs);
+        const perfStart = this.getPerfTimestamp();
+        const beforeState = this.store.getState();
+        const result = this.runOfflineTicks(start, now, this.store.getState().loop.offlineInterval);
+        const afterState = this.store.getState();
+        const summary = this.buildOfflineSummary(
+            beforeState,
+            afterState,
+            durationMs,
+            result.ticks,
+            result.playerItemDeltas,
+            result.totalItemDeltas
+        );
+        if (summary) {
+            this.store.dispatch({ type: "setOfflineSummary", summary });
+        }
+        this.updatePerf(perfStart, {
+            lastDeltaMs: durationMs,
+            lastOfflineTicks: result.ticks,
+            lastOfflineDurationMs: durationMs
+        });
+        this.persist();
     };
 
     reset = () => {
@@ -103,26 +132,49 @@ export class GameRuntime {
         const diff = Math.max(0, now - lastTick);
         const totalTicks = Math.floor(diff / interval);
         let tickTime = lastTick;
+        const totalItemDeltas: ItemDelta = {};
+        const playerItemDeltas: Record<string, ItemDelta> = {};
 
         for (let i = 0; i < totalTicks; i += 1) {
             tickTime += interval;
             this.store.dispatch({ type: "tick", deltaMs: interval, timestamp: tickTime });
+            this.collectTickDeltas(totalItemDeltas, playerItemDeltas);
         }
 
         const remainder = diff - totalTicks * interval;
         if (remainder > 0) {
             tickTime += remainder;
             this.store.dispatch({ type: "tick", deltaMs: remainder, timestamp: tickTime });
+            this.collectTickDeltas(totalItemDeltas, playerItemDeltas);
         }
         return {
             ticks: totalTicks + (remainder > 0 ? 1 : 0),
-            diff
+            diff,
+            totalItemDeltas,
+            playerItemDeltas
         };
     };
 
     private persist = () => {
         const save = toGameSave(this.store.getState());
         this.persistence.save(save);
+    };
+
+    private collectTickDeltas = (total: ItemDelta, perPlayer: Record<string, ItemDelta>) => {
+        const summary = this.store.getState().lastTickSummary;
+        if (!summary) {
+            return;
+        }
+        Object.entries(summary.totalItemDeltas).forEach(([itemId, amount]) => {
+            total[itemId] = (total[itemId] ?? 0) + amount;
+        });
+        Object.entries(summary.playerItemDeltas).forEach(([playerId, deltas]) => {
+            const bucket = perPlayer[playerId] ?? {};
+            Object.entries(deltas).forEach(([itemId, amount]) => {
+                bucket[itemId] = (bucket[itemId] ?? 0) + amount;
+            });
+            perPlayer[playerId] = bucket;
+        });
     };
 
     private bindVisibility = () => {
@@ -146,7 +198,14 @@ export class GameRuntime {
                 const afterState = this.store.getState();
                 const durationMs = resumeAt - hiddenAt;
                 if (durationMs >= 5000) {
-                    const summary = this.buildOfflineSummary(beforeState, afterState, durationMs, result.ticks);
+                    const summary = this.buildOfflineSummary(
+                        beforeState,
+                        afterState,
+                        durationMs,
+                        result.ticks,
+                        result.playerItemDeltas,
+                        result.totalItemDeltas
+                    );
                     if (summary) {
                         this.store.dispatch({ type: "setOfflineSummary", summary });
                     }
@@ -193,7 +252,9 @@ export class GameRuntime {
         beforeState: GameState,
         afterState: GameState,
         durationMs: number,
-        ticks: number
+        ticks: number,
+        playerItemDeltas: Record<string, ItemDelta>,
+        totalItemDeltas: ItemDelta
     ): OfflineSummaryState | null => {
         const players = Object.keys(beforeState.players).reduce<OfflinePlayerSummary[]>((acc, playerId) => {
             const beforePlayer = beforeState.players[playerId];
@@ -213,11 +274,11 @@ export class GameRuntime {
                 playerName: beforePlayer.name,
                 actionId,
                 recipeId,
-                goldGained: afterPlayer.storage.gold - beforePlayer.storage.gold,
                 skillXpGained: beforeSkill && afterSkill ? afterSkill.xp - beforeSkill.xp : 0,
                 recipeXpGained: beforeRecipe && afterRecipe ? afterRecipe.xp - beforeRecipe.xp : 0,
                 skillLevelGained: beforeSkill && afterSkill ? afterSkill.level - beforeSkill.level : 0,
-                recipeLevelGained: beforeRecipe && afterRecipe ? afterRecipe.level - beforeRecipe.level : 0
+                recipeLevelGained: beforeRecipe && afterRecipe ? afterRecipe.level - beforeRecipe.level : 0,
+                itemDeltas: playerItemDeltas[playerId] ?? {}
             };
 
             acc.push(summary);
@@ -232,7 +293,8 @@ export class GameRuntime {
         return {
             durationMs,
             ticks,
-            players
+            players,
+            totalItemDeltas
         };
     };
 
@@ -254,7 +316,14 @@ export class GameRuntime {
         const result = this.runOfflineTicks(lastTick, now, state.loop.offlineInterval);
         const afterState = this.store.getState();
 
-        const summary = this.buildOfflineSummary(beforeState, afterState, diff, result.ticks);
+        const summary = this.buildOfflineSummary(
+            beforeState,
+            afterState,
+            diff,
+            result.ticks,
+            result.playerItemDeltas,
+            result.totalItemDeltas
+        );
         if (summary) {
             this.store.dispatch({ type: "setOfflineSummary", summary });
         }

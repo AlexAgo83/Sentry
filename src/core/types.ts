@@ -4,8 +4,12 @@ export type ActionId = SkillId;
 export type RecipeId = string;
 export type ItemId = string;
 
-export interface StorageState {
-    gold: number;
+export interface InventoryState {
+    items: Record<ItemId, number>;
+}
+
+export interface ItemDelta {
+    [key: ItemId]: number;
 }
 
 export interface RecipeState {
@@ -40,7 +44,6 @@ export interface PlayerState {
     hpMax: number;
     stamina: number;
     staminaMax: number;
-    storage: StorageState;
     skills: Record<SkillId, SkillState>;
     selectedActionId: ActionId | null;
     actionProgress: ActionProgressState;
@@ -59,9 +62,11 @@ export interface GameState {
     version: string;
     players: Record<PlayerId, PlayerState>;
     activePlayerId: PlayerId | null;
+    inventory: InventoryState;
     loop: LoopState;
     perf: PerformanceState;
     offlineSummary: OfflineSummaryState | null;
+    lastTickSummary: TickSummaryState | null;
 }
 
 export interface SkillDefinition {
@@ -86,6 +91,8 @@ export interface ActionDefinition {
     xpSkill: number;
     xpRecipe: number;
     stunTime: number;
+    itemCosts?: ItemDelta;
+    itemRewards?: ItemDelta;
 }
 
 export type PlayerSaveState = Omit<PlayerState, "actionProgress">;
@@ -102,17 +109,23 @@ export interface OfflinePlayerSummary {
     playerName: string;
     actionId: ActionId | null;
     recipeId: RecipeId | null;
-    goldGained: number;
     skillXpGained: number;
     recipeXpGained: number;
     skillLevelGained: number;
     recipeLevelGained: number;
+    itemDeltas: ItemDelta;
 }
 
 export interface OfflineSummaryState {
     durationMs: number;
     ticks: number;
     players: OfflinePlayerSummary[];
+    totalItemDeltas: ItemDelta;
+}
+
+export interface TickSummaryState {
+    totalItemDeltas: ItemDelta;
+    playerItemDeltas: Record<PlayerId, ItemDelta>;
 }
 
 export interface GameSave {
@@ -120,4 +133,5 @@ export interface GameSave {
     lastTick: number | null;
     activePlayerId?: PlayerId | null;
     players: Record<PlayerId, PlayerSaveState>;
+    inventory?: InventoryState;
 }
