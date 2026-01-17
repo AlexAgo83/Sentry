@@ -1,5 +1,11 @@
 import { applyTick } from "./loop";
-import { createActionProgress, createPlayerState, getNextPlayerId, hydrateGameState } from "./state";
+import {
+    createActionProgress,
+    createPlayerState,
+    getNextPlayerId,
+    hydrateGameState,
+    sanitizePlayerName
+} from "./state";
 import {
     ActionId,
     GameSave,
@@ -19,6 +25,7 @@ export type GameAction =
     | { type: "setOfflineSummary"; summary: OfflineSummaryState | null }
     | { type: "setActivePlayer"; playerId: PlayerId }
     | { type: "addPlayer"; name?: string }
+    | { type: "renamePlayer"; playerId: PlayerId; name: string }
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
     | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null };
 
@@ -67,6 +74,26 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     [nextId]: nextPlayer
                 },
                 activePlayerId: nextId
+            };
+        }
+        case "renamePlayer": {
+            const player = state.players[action.playerId];
+            if (!player) {
+                return state;
+            }
+            const sanitized = sanitizePlayerName(action.name);
+            if (!sanitized) {
+                return state;
+            }
+            return {
+                ...state,
+                players: {
+                    ...state.players,
+                    [action.playerId]: {
+                        ...player,
+                        name: sanitized
+                    }
+                }
             };
         }
         case "selectAction": {

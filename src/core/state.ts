@@ -55,7 +55,7 @@ const createSkillState = (id: SkillId): SkillState => {
     };
 };
 
-const sanitizePlayerName = (name?: string): string | null => {
+export const sanitizePlayerName = (name?: string): string | null => {
     const trimmed = name?.trim() ?? "";
     if (trimmed.length === 0) {
         return null;

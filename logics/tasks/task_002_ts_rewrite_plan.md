@@ -40,6 +40,10 @@ This task executes `item_003_ts_rewrite`.
 17. Added skill/recipe level indicators inside the XP progress labels in `src/app/App.tsx`.
 18. Added offline recap modal on return (>=5s) with gains summary in `src/core/runtime.ts` and `src/app/App.tsx`.
 19. Added reset save button to System panel in `src/app/App.tsx` and reset handler in `src/core/runtime.ts`.
+20. Expanded offline recap to multi-player summaries and added startup catch-up logic in `src/core/runtime.ts` and `src/app/App.tsx`.
+21. Added roster/system collapse toggles, rename modal (SET), clickable roster rows, themed progress overrides, and a skill icon card in `src/app/App.tsx` and `src/app/styles/app.css`.
+22. Refined progress theming (light-blue stamina, apple-green skill/recipe) and ensured offline recap always includes all players in `src/app/styles/app.css` and `src/core/runtime.ts`.
+23. Prevented the loop from running when the document is hidden on startup so offline recap can appear after prerender, in `src/core/runtime.ts`.
 
 ## Review (updated)
 High
@@ -50,7 +54,6 @@ Medium
 - Service worker uses a single static cache name and caches every GET request, which can serve stale assets after deploys and allow unbounded cache growth.
 
 Low
-- Offline recap currently summarizes only the active player; requirement updated to a multi-player recap.
 - No tests cover the offline recap or reset flow.
 
 Decisions / direction

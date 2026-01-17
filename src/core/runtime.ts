@@ -1,4 +1,4 @@
-import { GameState, OfflineSummaryState, PerformanceState } from "./types";
+import { GameState, OfflinePlayerSummary, OfflineSummaryState, PerformanceState } from "./types";
 import { createInitialGameState } from "./state";
 import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
@@ -22,8 +22,16 @@ export class GameRuntime {
         this.hasStarted = true;
         const save = this.persistence.load();
         this.store.dispatch({ type: "hydrate", save, version: this.version });
-        this.startLoop();
         this.bindVisibility();
+        if (!this.isDocumentVisible()) {
+            const lastTick = this.store.getState().loop.lastTick;
+            const hiddenAt = lastTick ?? Date.now();
+            this.hiddenAt = hiddenAt;
+            this.store.dispatch({ type: "setHiddenAt", hiddenAt });
+            return;
+        }
+        this.runStartupOfflineCatchUp();
+        this.startLoop();
     };
 
     stop = () => {
@@ -122,7 +130,7 @@ export class GameRuntime {
             return;
         }
         document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
+            if (!this.isDocumentVisible()) {
                 this.hiddenAt = Date.now();
                 this.store.dispatch({ type: "setHiddenAt", hiddenAt: this.hiddenAt });
                 this.pauseLoop();
@@ -163,6 +171,13 @@ export class GameRuntime {
         return Date.now();
     };
 
+    private isDocumentVisible = (): boolean => {
+        if (typeof document === "undefined") {
+            return true;
+        }
+        return document.visibilityState === "visible";
+    };
+
     private updatePerf = (start: number, perf: Partial<PerformanceState>) => {
         const duration = Math.max(0, this.getPerfTimestamp() - start);
         this.store.dispatch({
@@ -180,34 +195,75 @@ export class GameRuntime {
         durationMs: number,
         ticks: number
     ): OfflineSummaryState | null => {
-        const playerId = beforeState.activePlayerId;
-        if (!playerId) {
+        const players = Object.keys(beforeState.players).reduce<OfflinePlayerSummary[]>((acc, playerId) => {
+            const beforePlayer = beforeState.players[playerId];
+            const afterPlayer = afterState.players[playerId];
+            if (!beforePlayer || !afterPlayer) {
+                return acc;
+            }
+            const actionId = beforePlayer.selectedActionId;
+            const beforeSkill = actionId ? beforePlayer.skills[actionId] : null;
+            const afterSkill = actionId ? afterPlayer.skills[actionId] : null;
+            const recipeId = beforeSkill?.selectedRecipeId ?? null;
+            const beforeRecipe = recipeId && beforeSkill ? beforeSkill.recipes[recipeId] : null;
+            const afterRecipe = recipeId && afterSkill ? afterSkill.recipes[recipeId] : null;
+
+            const summary = {
+                playerId,
+                playerName: beforePlayer.name,
+                actionId,
+                recipeId,
+                goldGained: afterPlayer.storage.gold - beforePlayer.storage.gold,
+                skillXpGained: beforeSkill && afterSkill ? afterSkill.xp - beforeSkill.xp : 0,
+                recipeXpGained: beforeRecipe && afterRecipe ? afterRecipe.xp - beforeRecipe.xp : 0,
+                skillLevelGained: beforeSkill && afterSkill ? afterSkill.level - beforeSkill.level : 0,
+                recipeLevelGained: beforeRecipe && afterRecipe ? afterRecipe.level - beforeRecipe.level : 0
+            };
+
+            acc.push(summary);
+
+            return acc;
+        }, []);
+
+        if (players.length === 0) {
             return null;
         }
-        const beforePlayer = beforeState.players[playerId];
-        const afterPlayer = afterState.players[playerId];
-        if (!beforePlayer || !afterPlayer) {
-            return null;
-        }
-        const actionId = beforePlayer.selectedActionId;
-        const beforeSkill = actionId ? beforePlayer.skills[actionId] : null;
-        const afterSkill = actionId ? afterPlayer.skills[actionId] : null;
-        const recipeId = beforeSkill?.selectedRecipeId ?? null;
-        const beforeRecipe = recipeId && beforeSkill ? beforeSkill.recipes[recipeId] : null;
-        const afterRecipe = recipeId && afterSkill ? afterSkill.recipes[recipeId] : null;
 
         return {
-            playerId,
-            playerName: beforePlayer.name,
             durationMs,
             ticks,
-            actionId,
-            recipeId,
-            goldGained: afterPlayer.storage.gold - beforePlayer.storage.gold,
-            skillXpGained: beforeSkill && afterSkill ? afterSkill.xp - beforeSkill.xp : 0,
-            recipeXpGained: beforeRecipe && afterRecipe ? afterRecipe.xp - beforeRecipe.xp : 0,
-            skillLevelGained: beforeSkill && afterSkill ? afterSkill.level - beforeSkill.level : 0,
-            recipeLevelGained: beforeRecipe && afterRecipe ? afterRecipe.level - beforeRecipe.level : 0
+            players
         };
+    };
+
+    private runStartupOfflineCatchUp = () => {
+        const state = this.store.getState();
+        const lastTick = state.loop.lastTick;
+        if (!lastTick) {
+            return;
+        }
+
+        const now = Date.now();
+        const diff = now - lastTick;
+        if (diff < 5000) {
+            return;
+        }
+
+        const perfStart = this.getPerfTimestamp();
+        const beforeState = this.store.getState();
+        const result = this.runOfflineTicks(lastTick, now, state.loop.offlineInterval);
+        const afterState = this.store.getState();
+
+        const summary = this.buildOfflineSummary(beforeState, afterState, diff, result.ticks);
+        if (summary) {
+            this.store.dispatch({ type: "setOfflineSummary", summary });
+        }
+
+        this.updatePerf(perfStart, {
+            lastDeltaMs: diff,
+            lastOfflineTicks: result.ticks,
+            lastOfflineDurationMs: diff
+        });
+        this.persist();
     };
 }

@@ -50,6 +50,23 @@
     color: var(--color-text-fade);
 }
 
+.ts-collapse-button {
+    border: 1px solid rgba(93, 217, 193, 0.4);
+    background: rgba(13, 19, 33, 0.75);
+    color: var(--color-text-fade);
+    padding: var(--m2) var(--m5);
+    border-radius: 999px;
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.ts-collapse-button:hover {
+    border-color: rgba(242, 193, 78, 0.6);
+    color: var(--color-primary);
+}
+
 .ts-player-list {
     display: flex;
     flex-direction: column;
@@ -68,6 +85,7 @@
     color: var(--color-text);
     text-align: left;
     font-family: var(--default-font);
+    cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
@@ -203,6 +221,52 @@
     color: var(--color-primary);
 }
 
+.ts-skill-card {
+    display: flex;
+    align-items: center;
+    gap: var(--m5);
+    padding: var(--m4) var(--m5);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px solid rgba(93, 217, 193, 0.2);
+    background: rgba(12, 18, 32, 0.7);
+}
+
+.ts-skill-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    border: 2px solid rgba(93, 217, 193, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(12, 18, 32, 0.9);
+    flex-shrink: 0;
+}
+
+.ts-skill-icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.ts-skill-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m1);
+}
+
+.ts-skill-label {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-fade);
+}
+
+.ts-skill-name {
+    font-size: var(--text-l-size);
+    color: var(--color-primary);
+    font-family: var(--display-font);
+}
+
 .ts-progress-row {
     display: flex;
     align-items: center;
@@ -218,51 +282,63 @@
     width: 100%;
 }
 
-.ts-progress-row.ts-progress-stamina::after {
-    background: linear-gradient(90deg, rgba(93, 217, 193, 0.4), rgba(76, 175, 123, 0.5));
+.generic-field.panel.progress-row.ts-progress-stamina::after {
+    background: linear-gradient(90deg, rgba(125, 199, 255, 0.4), rgba(79, 168, 255, 0.55));
 }
 
-.ts-progress-row.ts-progress-skill::after {
-    background: linear-gradient(90deg, rgba(242, 193, 78, 0.45), rgba(198, 129, 48, 0.6));
+.generic-field.panel.progress-row.ts-progress-skill::after {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.4), rgba(91, 191, 62, 0.55));
 }
 
-.ts-progress-row.ts-progress-recipe::after {
-    background: linear-gradient(90deg, rgba(93, 217, 193, 0.45), rgba(45, 120, 124, 0.6));
+.generic-field.panel.progress-row.ts-progress-recipe::after {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.4), rgba(91, 191, 62, 0.55));
 }
 
-.ts-progress-action.is-stunned::after {
+.generic-field.panel.progress-row.ts-progress-action.is-stunned::after {
     background: linear-gradient(90deg, rgba(199, 74, 61, 0.6), rgba(118, 23, 31, 0.8));
 }
 
-progress.ts-progress-stamina::-webkit-progress-value {
-    background: linear-gradient(90deg, rgba(93, 217, 193, 0.95), rgba(76, 175, 123, 0.95));
+progress.generic-field.progress.ts-progress-stamina {
+    accent-color: #7dc7ff;
 }
 
-progress.ts-progress-stamina::-moz-progress-bar {
-    background: linear-gradient(90deg, rgba(93, 217, 193, 0.95), rgba(76, 175, 123, 0.95));
+progress.generic-field.progress.ts-progress-stamina::-webkit-progress-value {
+    background: linear-gradient(90deg, rgba(125, 199, 255, 0.95), rgba(79, 168, 255, 0.95));
 }
 
-progress.ts-progress-skill::-webkit-progress-value {
-    background: linear-gradient(90deg, rgba(242, 193, 78, 0.95), rgba(198, 129, 48, 0.95));
+progress.generic-field.progress.ts-progress-stamina::-moz-progress-bar {
+    background: linear-gradient(90deg, rgba(125, 199, 255, 0.95), rgba(79, 168, 255, 0.95));
 }
 
-progress.ts-progress-skill::-moz-progress-bar {
-    background: linear-gradient(90deg, rgba(242, 193, 78, 0.95), rgba(198, 129, 48, 0.95));
+progress.generic-field.progress.ts-progress-skill {
+    accent-color: #8fd14f;
 }
 
-progress.ts-progress-recipe::-webkit-progress-value {
-    background: linear-gradient(90deg, rgba(93, 217, 193, 0.95), rgba(45, 120, 124, 0.95));
+progress.generic-field.progress.ts-progress-skill::-webkit-progress-value {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.95), rgba(91, 191, 62, 0.95));
 }
 
-progress.ts-progress-recipe::-moz-progress-bar {
-    background: linear-gradient(90deg, rgba(93, 217, 193, 0.95), rgba(45, 120, 124, 0.95));
+progress.generic-field.progress.ts-progress-skill::-moz-progress-bar {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.95), rgba(91, 191, 62, 0.95));
 }
 
-progress.ts-progress-action.is-stunned::-webkit-progress-value {
+progress.generic-field.progress.ts-progress-recipe {
+    accent-color: #8fd14f;
+}
+
+progress.generic-field.progress.ts-progress-recipe::-webkit-progress-value {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.95), rgba(91, 191, 62, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-recipe::-moz-progress-bar {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.95), rgba(91, 191, 62, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-action.is-stunned::-webkit-progress-value {
     background: linear-gradient(90deg, rgba(199, 74, 61, 0.95), rgba(118, 23, 31, 0.95));
 }
 
-progress.ts-progress-action.is-stunned::-moz-progress-bar {
+progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar {
     background: linear-gradient(90deg, rgba(199, 74, 61, 0.95), rgba(118, 23, 31, 0.95));
 }
 
@@ -281,7 +357,7 @@ progress.ts-progress-action.is-stunned::-moz-progress-bar {
 }
 
 .ts-list li::before {
-    content: "•";
+    content: "-";
     position: absolute;
     left: 0;
     color: var(--color-secondary);
@@ -309,6 +385,37 @@ progress.ts-progress-action.is-stunned::-moz-progress-bar {
     display: flex;
     flex-direction: column;
     gap: var(--m7);
+}
+
+.ts-offline-players {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+}
+
+.ts-offline-player {
+    padding: var(--m4) var(--m5);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px solid rgba(242, 193, 78, 0.18);
+    background: rgba(12, 18, 32, 0.85);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+}
+
+.ts-offline-name {
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.ts-offline-meta {
+    font-size: var(--text-s-size);
+    color: var(--color-text-fade);
+}
+
+.ts-offline-gains {
+    font-size: var(--text-s-size);
+    color: var(--color-text);
 }
 
 .ts-modal-header {

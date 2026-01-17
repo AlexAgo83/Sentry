@@ -26,7 +26,12 @@ export const App = () => {
     const driftLabel = `${driftMs > 0 ? "+" : ""}${Math.round(driftMs)}`;
     const [isLoadoutOpen, setLoadoutOpen] = useState(false);
     const [isRecruitOpen, setRecruitOpen] = useState(false);
+    const [isRenameOpen, setRenameOpen] = useState(false);
+    const [renamePlayerId, setRenamePlayerId] = useState<string | null>(null);
     const [newHeroName, setNewHeroName] = useState("");
+    const [renameHeroName, setRenameHeroName] = useState("");
+    const [isRosterCollapsed, setRosterCollapsed] = useState(false);
+    const [isSystemCollapsed, setSystemCollapsed] = useState(true);
 
     useEffect(() => {
         if (!activePlayer || !activeSkillId) {
@@ -48,19 +53,20 @@ export const App = () => {
     }, [activePlayer?.id, activeSkillId]);
 
     useEffect(() => {
-        if (!isLoadoutOpen && !isRecruitOpen && !offlineSummary) {
+        if (!isLoadoutOpen && !isRecruitOpen && !isRenameOpen && !offlineSummary) {
             return;
         }
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 setLoadoutOpen(false);
                 setRecruitOpen(false);
+                setRenameOpen(false);
                 handleCloseOfflineSummary();
             }
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isLoadoutOpen, isRecruitOpen, offlineSummary]);
+    }, [isLoadoutOpen, isRecruitOpen, isRenameOpen, offlineSummary]);
 
     useEffect(() => {
         if (!offlineSummary) {
@@ -68,6 +74,7 @@ export const App = () => {
         }
         setLoadoutOpen(false);
         setRecruitOpen(false);
+        setRenameOpen(false);
     }, [offlineSummary]);
 
     const handleSkillChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -129,6 +136,7 @@ export const App = () => {
 
     const handleAddPlayer = () => {
         setLoadoutOpen(false);
+        setRenameOpen(false);
         setRecruitOpen(true);
     };
 
@@ -139,6 +147,7 @@ export const App = () => {
     const handleOpenLoadout = (playerId: string) => {
         gameStore.dispatch({ type: "setActivePlayer", playerId });
         setRecruitOpen(false);
+        setRenameOpen(false);
         setLoadoutOpen(true);
     };
 
@@ -151,6 +160,25 @@ export const App = () => {
         setNewHeroName("");
     };
 
+    const handleOpenRename = (playerId: string) => {
+        const player = state.players[playerId];
+        if (!player) {
+            return;
+        }
+        gameStore.dispatch({ type: "setActivePlayer", playerId });
+        setRenamePlayerId(playerId);
+        setRenameHeroName(player.name);
+        setLoadoutOpen(false);
+        setRecruitOpen(false);
+        setRenameOpen(true);
+    };
+
+    const handleCloseRename = () => {
+        setRenameOpen(false);
+        setRenamePlayerId(null);
+        setRenameHeroName("");
+    };
+
     const handleCreateHero = () => {
         const trimmed = newHeroName.trim().slice(0, 20);
         if (!trimmed) {
@@ -159,6 +187,18 @@ export const App = () => {
         gameStore.dispatch({ type: "addPlayer", name: trimmed });
         setRecruitOpen(false);
         setNewHeroName("");
+    };
+
+    const handleRenameHero = () => {
+        if (!renamePlayerId) {
+            return;
+        }
+        const trimmed = renameHeroName.trim().slice(0, 20);
+        if (!trimmed) {
+            return;
+        }
+        gameStore.dispatch({ type: "renamePlayer", playerId: renamePlayerId, name: trimmed });
+        handleCloseRename();
     };
 
     const handleCloseOfflineSummary = () => {
@@ -172,6 +212,7 @@ export const App = () => {
         }
         setLoadoutOpen(false);
         setRecruitOpen(false);
+        setRenameOpen(false);
         handleCloseOfflineSummary();
         gameRuntime.reset();
     };
@@ -192,6 +233,16 @@ export const App = () => {
     const recipeStyle = { "--progress": `${recipePercent}%` } as CSSProperties;
     const isStunned = Boolean(activePlayer?.selectedActionId) && (activePlayer?.stamina ?? 0) <= 0;
     const offlineSeconds = offlineSummary ? Math.round(offlineSummary.durationMs / 1000) : 0;
+    const offlinePlayers = offlineSummary?.players ?? [];
+    const skillIconLabel = activeSkillId ? activeSkillId.slice(0, 2).toUpperCase() : "--";
+    const skillIconMap: Record<string, string> = {
+        Combat: "#f2c14e",
+        Hunting: "#5dd9c1",
+        Cooking: "#f07f4f",
+        Excavation: "#9aa7c3",
+        MetalWork: "#c68130"
+    };
+    const skillIconColor = activeSkillId ? skillIconMap[activeSkillId] ?? "#f2c14e" : "#5d6a82";
 
     return (
         <div className="app-shell">
@@ -208,52 +259,64 @@ export const App = () => {
                     <div className="ts-panel-header">
                         <h2 className="ts-panel-title">Roster</h2>
                         <span className="ts-panel-meta">{players.length} heroes</span>
+                        <button
+                            type="button"
+                            className="ts-collapse-button"
+                            onClick={() => setRosterCollapsed((value) => !value)}
+                        >
+                            {isRosterCollapsed ? "Expand" : "Collapse"}
+                        </button>
                     </div>
-                    <div className="ts-player-list">
-                        {players.map((player) => {
-                            const currentAction = player.selectedActionId;
-                            const currentSkill = currentAction ? player.skills[currentAction] : null;
-                            const currentRecipe = currentSkill?.selectedRecipeId ?? null;
-                            const metaLabel = currentAction
-                                ? `Action ${currentAction}${currentRecipe ? ` · Recipe ${currentRecipe}` : " · Recipe none"}`
-                                : "No action selected";
+                    {!isRosterCollapsed ? (
+                        <>
+                            <div className="ts-player-list">
+                                {players.map((player) => {
+                                    const currentAction = player.selectedActionId;
+                                    const currentSkill = currentAction ? player.skills[currentAction] : null;
+                                    const currentRecipe = currentSkill?.selectedRecipeId ?? null;
+                                    const metaLabel = currentAction
+                                        ? `Action ${currentAction}${currentRecipe ? ` - Recipe ${currentRecipe}` : " - Recipe none"}`
+                                        : "No action selected";
 
-                            return (
-                                <div
-                                    key={player.id}
-                                    className={`ts-player-card ${player.id === state.activePlayerId ? "is-active" : ""}`}
-                                >
-                                    <div className="ts-player-info">
-                                        <span className="ts-player-name">{player.name}</span>
-                                        <span className="ts-player-meta">{metaLabel}</span>
-                                    </div>
-                                    <div className="ts-player-actions">
-                                        <button
-                                            type="button"
-                                            className="ts-icon-button is-action"
-                                            onClick={() => handleOpenLoadout(player.id)}
-                                            aria-label={`Manage actions for ${player.name}`}
-                                            title="Manage actions"
-                                        >
-                                            Act
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="ts-icon-button"
+                                    return (
+                                        <div
+                                            key={player.id}
+                                            className={`ts-player-card ${player.id === state.activePlayerId ? "is-active" : ""}`}
                                             onClick={() => handleSetActivePlayer(player.id)}
-                                            aria-label={`Select ${player.name}`}
-                                            title="Select player"
                                         >
-                                            Sel
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                    <button type="button" className="generic-field button ts-add-player" onClick={handleAddPlayer}>
-                        Recruit new hero
-                    </button>
+                                            <div className="ts-player-info">
+                                                <span className="ts-player-name">{player.name}</span>
+                                                <span className="ts-player-meta">{metaLabel}</span>
+                                            </div>
+                                            <div className="ts-player-actions">
+                                                <button
+                                                    type="button"
+                                                    className="ts-icon-button is-action"
+                                                    onClick={() => handleOpenLoadout(player.id)}
+                                                    aria-label={`Manage actions for ${player.name}`}
+                                                    title="Manage actions"
+                                                >
+                                                    Act
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="ts-icon-button"
+                                                    onClick={() => handleOpenRename(player.id)}
+                                                    aria-label={`Set name for ${player.name}`}
+                                                    title="Set name"
+                                                >
+                                                    Set
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <button type="button" className="generic-field button ts-add-player" onClick={handleAddPlayer}>
+                                Recruit new hero
+                            </button>
+                        </>
+                    ) : null}
                 </section>
                 <section className="generic-panel ts-panel">
                     <div className="ts-panel-header">
@@ -264,6 +327,29 @@ export const App = () => {
                         <div className="ts-stat">
                             <div className="ts-stat-label">Gold</div>
                             <div className="ts-stat-value">{activePlayer?.storage.gold ?? 0}</div>
+                        </div>
+                    </div>
+                    <div className="ts-skill-card">
+                        <div className="ts-skill-icon" style={{ borderColor: skillIconColor }} aria-hidden="true">
+                            <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+                                <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke={skillIconColor} strokeWidth="4" />
+                                <path d="M18 38 L32 14 L46 38 Z" fill={skillIconColor} opacity="0.5" />
+                                <circle cx="32" cy="38" r="10" fill={skillIconColor} opacity="0.85" />
+                                <text
+                                    x="32"
+                                    y="42"
+                                    textAnchor="middle"
+                                    fontSize="12"
+                                    fill="#0b0f1d"
+                                    fontFamily="var(--display-font)"
+                                >
+                                    {skillIconLabel}
+                                </text>
+                            </svg>
+                        </div>
+                        <div className="ts-skill-copy">
+                            <div className="ts-skill-label">Selected skill</div>
+                            <div className="ts-skill-name">{activeSkillId || "None"}</div>
                         </div>
                     </div>
                     <div
@@ -297,7 +383,7 @@ export const App = () => {
                         style={skillStyle}
                     >
                         <span className="ts-progress-label">
-                            Skill Lv {activeSkill?.level ?? 0} · XP {activeSkill?.xp ?? 0}/{activeSkill?.xpNext ?? 0}
+                            Skill Lv {activeSkill?.level ?? 0} - XP {activeSkill?.xp ?? 0}/{activeSkill?.xpNext ?? 0}
                         </span>
                     </div>
                     <progress
@@ -310,7 +396,7 @@ export const App = () => {
                         style={recipeStyle}
                     >
                         <span className="ts-progress-label">
-                            Recipe Lv {activeRecipe?.level ?? 0} · XP {activeRecipe?.xp ?? 0}/{activeRecipe?.xpNext ?? 0}
+                            Recipe Lv {activeRecipe?.level ?? 0} - XP {activeRecipe?.xp ?? 0}/{activeRecipe?.xpNext ?? 0}
                         </span>
                     </div>
                     <progress
@@ -323,27 +409,38 @@ export const App = () => {
                     <div className="ts-panel-header">
                         <h2 className="ts-panel-title">System</h2>
                         <span className="ts-panel-meta">Telemetry</span>
-                    </div>
-                    <ul className="ts-list">
-                        <li>Version: {state.version}</li>
-                        <li>Last tick: {state.loop.lastTick ?? "awaiting"}</li>
-                        <li>Tick duration: {perf.lastTickDurationMs.toFixed(2)}ms</li>
-                        <li>Last delta: {perf.lastDeltaMs}ms (drift {driftLabel}ms)</li>
-                        <li>Offline catch-up: {perf.lastOfflineTicks} ticks / {perf.lastOfflineDurationMs}ms</li>
-                        <li>Expected tick rate: {tickRate}/s</li>
-                        <li>Loop interval: {state.loop.loopInterval}ms</li>
-                        <li>Offline interval: {state.loop.offlineInterval}ms</li>
-                        <li>Active action: {activePlayer?.selectedActionId ?? "none"}</li>
-                    </ul>
-                    <div className="ts-action-row ts-system-actions">
                         <button
                             type="button"
-                            className="generic-field button ts-reset"
-                            onClick={handleResetSave}
+                            className="ts-collapse-button"
+                            onClick={() => setSystemCollapsed((value) => !value)}
                         >
-                            Reset save
+                            {isSystemCollapsed ? "Expand" : "Collapse"}
                         </button>
                     </div>
+                    {!isSystemCollapsed ? (
+                        <>
+                            <ul className="ts-list">
+                                <li>Version: {state.version}</li>
+                                <li>Last tick: {state.loop.lastTick ?? "awaiting"}</li>
+                                <li>Tick duration: {perf.lastTickDurationMs.toFixed(2)}ms</li>
+                                <li>Last delta: {perf.lastDeltaMs}ms (drift {driftLabel}ms)</li>
+                                <li>Offline catch-up: {perf.lastOfflineTicks} ticks / {perf.lastOfflineDurationMs}ms</li>
+                                <li>Expected tick rate: {tickRate}/s</li>
+                                <li>Loop interval: {state.loop.loopInterval}ms</li>
+                                <li>Offline interval: {state.loop.offlineInterval}ms</li>
+                                <li>Active action: {activePlayer?.selectedActionId ?? "none"}</li>
+                            </ul>
+                            <div className="ts-action-row ts-system-actions">
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-reset"
+                                    onClick={handleResetSave}
+                                >
+                                    Reset save
+                                </button>
+                            </div>
+                        </>
+                    ) : null}
                 </section>
             </main>
             {isLoadoutOpen && activePlayer ? (
@@ -385,7 +482,7 @@ export const App = () => {
                                 {activeSkill
                                     ? Object.values(activeSkill.recipes).map((recipe) => (
                                         <option key={recipe.id} value={recipe.id}>
-                                            {recipe.id} · Lv {recipe.level}
+                                            {recipe.id} - Lv {recipe.level}
                                         </option>
                                     ))
                                     : null}
@@ -440,6 +537,42 @@ export const App = () => {
                     </div>
                 </div>
             ) : null}
+            {isRenameOpen ? (
+                <div className="ts-modal-backdrop" role="dialog" aria-modal="true" onClick={handleCloseRename}>
+                    <div className="ts-modal" onClick={(event) => event.stopPropagation()}>
+                        <div className="ts-modal-header">
+                            <div>
+                                <p className="ts-modal-kicker">Set name</p>
+                                <h2 className="ts-modal-title">Rename hero</h2>
+                            </div>
+                            <button type="button" className="ts-modal-close" onClick={handleCloseRename}>
+                                Close
+                            </button>
+                        </div>
+                        <div className="ts-field-group">
+                            <label className="ts-field-label" htmlFor="hero-rename">Hero name</label>
+                            <input
+                                id="hero-rename"
+                                className="generic-field input ts-input"
+                                value={renameHeroName}
+                                onChange={(event) => setRenameHeroName(event.target.value)}
+                                maxLength={20}
+                                placeholder="Up to 20 characters"
+                            />
+                            <div className="ts-action-row">
+                                <button
+                                    type="button"
+                                    className="generic-field button"
+                                    onClick={handleRenameHero}
+                                    disabled={renameHeroName.trim().length === 0}
+                                >
+                                    Save name
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
             {offlineSummary ? (
                 <div
                     className="ts-modal-backdrop"
@@ -451,7 +584,7 @@ export const App = () => {
                         <div className="ts-modal-header">
                             <div>
                                 <p className="ts-modal-kicker">Offline recap</p>
-                                <h2 className="ts-modal-title">{offlineSummary.playerName}</h2>
+                                <h2 className="ts-modal-title">Your party</h2>
                             </div>
                             <button type="button" className="ts-modal-close" onClick={handleCloseOfflineSummary}>
                                 Close
@@ -460,28 +593,32 @@ export const App = () => {
                         <ul className="ts-list">
                             <li>Time away: {offlineSeconds}s</li>
                             <li>Ticks processed: {offlineSummary.ticks}</li>
-                            <li>Gold gained: {offlineSummary.goldGained}</li>
-                            {offlineSummary.actionId ? (
-                                <li>Action: {offlineSummary.actionId}</li>
-                            ) : (
-                                <li>No action was running.</li>
-                            )}
-                            {offlineSummary.recipeId ? (
-                                <li>Recipe: {offlineSummary.recipeId}</li>
-                            ) : null}
-                            <li>
-                                Skill gains: +{offlineSummary.skillXpGained} XP
-                                {offlineSummary.skillLevelGained > 0
-                                    ? ` · +${offlineSummary.skillLevelGained} Lv`
-                                    : ""}
-                            </li>
-                            <li>
-                                Recipe gains: +{offlineSummary.recipeXpGained} XP
-                                {offlineSummary.recipeLevelGained > 0
-                                    ? ` · +${offlineSummary.recipeLevelGained} Lv`
-                                    : ""}
-                            </li>
+                            <li>Players summarized: {offlinePlayers.length}</li>
                         </ul>
+                        <div className="ts-offline-players">
+                            {offlinePlayers.map((player) => {
+                                const actionLabel = player.actionId
+                                    ? `Action ${player.actionId}${player.recipeId ? ` - Recipe ${player.recipeId}` : ""}`
+                                    : "No action running";
+                                const skillLevelLabel = player.skillLevelGained > 0
+                                    ? ` - +${player.skillLevelGained} Lv`
+                                    : "";
+                                const recipeLevelLabel = player.recipeLevelGained > 0
+                                    ? ` - +${player.recipeLevelGained} Lv`
+                                    : "";
+
+                                return (
+                                    <div key={player.playerId} className="ts-offline-player">
+                                        <div className="ts-offline-name">{player.playerName}</div>
+                                        <div className="ts-offline-meta">{actionLabel}</div>
+                                        <div className="ts-offline-gains">
+                                            Gold +{player.goldGained} - Skill +{player.skillXpGained} XP{skillLevelLabel}
+                                            - Recipe +{player.recipeXpGained} XP{recipeLevelLabel}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             ) : null}

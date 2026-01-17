@@ -10,6 +10,7 @@ export type {
     PlayerSaveState,
     PlayerState,
     PerformanceState,
+    OfflinePlayerSummary,
     OfflineSummaryState,
     RecipeDefinition,
     RecipeId,

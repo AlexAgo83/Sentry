@@ -97,11 +97,9 @@ export interface PerformanceState {
     lastOfflineDurationMs: number;
 }
 
-export interface OfflineSummaryState {
+export interface OfflinePlayerSummary {
     playerId: PlayerId;
     playerName: string;
-    durationMs: number;
-    ticks: number;
     actionId: ActionId | null;
     recipeId: RecipeId | null;
     goldGained: number;
@@ -109,6 +107,12 @@ export interface OfflineSummaryState {
     recipeXpGained: number;
     skillLevelGained: number;
     recipeLevelGained: number;
+}
+
+export interface OfflineSummaryState {
+    durationMs: number;
+    ticks: number;
+    players: OfflinePlayerSummary[];
 }
 
 export interface GameSave {
