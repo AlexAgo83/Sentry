@@ -213,6 +213,7 @@ export const App = () => {
     const [isRosterCollapsed, setRosterCollapsed] = useState(false);
     const [isSystemOpen, setSystemOpen] = useState(false);
     const [isInventoryCollapsed, setInventoryCollapsed] = useState(false);
+    const [isStatsCollapsed, setStatsCollapsed] = useState(false);
     const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory">("status");
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
     const skillNameById = SKILL_DEFINITIONS.reduce<Record<string, string>>((acc, skill) => {
@@ -806,19 +807,30 @@ export const App = () => {
                             <div className="ts-panel-header">
                                 <h2 className="ts-panel-title">Character stats</h2>
                                 <span className="ts-panel-meta">Focused hero</span>
+                                <button
+                                    type="button"
+                                    className="ts-collapse-button"
+                                    onClick={() => setStatsCollapsed((value) => !value)}
+                                >
+                                    {isStatsCollapsed ? "Expand" : "Collapse"}
+                                </button>
                             </div>
-                            <div className="ts-stat-grid">
-                                {SKILL_DEFINITIONS.map((skill) => {
-                                    const level = activePlayer?.skills[skill.id]?.level ?? 0;
-                                    return (
-                                        <div key={skill.id} className="ts-stat">
-                                            <div className="ts-stat-label">{skill.name}</div>
-                                            <div className="ts-stat-value">Lv {level}</div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <div className="ts-stat-placeholder">Statistics overview coming soon.</div>
+                            {!isStatsCollapsed ? (
+                                <>
+                                    <div className="ts-stat-grid">
+                                        {SKILL_DEFINITIONS.map((skill) => {
+                                            const level = activePlayer?.skills[skill.id]?.level ?? 0;
+                                            return (
+                                                <div key={skill.id} className="ts-stat">
+                                                    <div className="ts-stat-label">{skill.name}</div>
+                                                    <div className="ts-stat-value">Lv {level}</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="ts-stat-placeholder">Statistics overview coming soon.</div>
+                                </>
+                            ) : null}
                         </section>
                     </>
                 ) : null}

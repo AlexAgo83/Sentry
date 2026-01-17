@@ -131,7 +131,10 @@
     border: 1px solid rgba(93, 217, 193, 0.4);
     background: rgba(13, 19, 33, 0.9);
     color: var(--color-text);
-    padding: var(--m2) var(--m5);
+    padding: var(--m3) var(--m6);
+    min-height: 30px;
+    min-width: 52px;
+    line-height: 1;
     border-radius: 999px;
     font-size: var(--text-xs-size);
     letter-spacing: 0.16em;
@@ -226,8 +229,8 @@
 
 .ts-stat-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--m4);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--m2);
 }
 
 .ts-stat {
@@ -235,22 +238,26 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--m3);
-    padding: var(--m4) var(--m5);
+    padding: var(--m2) var(--m4);
     border-radius: var(--border-radius-harmonized);
-    border: 1px solid rgba(242, 193, 78, 0.15);
-    background: rgba(16, 22, 36, 0.7);
+    border: 1px solid rgba(242, 193, 78, 0.12);
+    background: linear-gradient(180deg, rgba(12, 18, 32, 0.7), rgba(12, 18, 32, 0.5));
 }
 
 .ts-stat-label {
-    font-size: var(--text-s-size);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--color-text-fade);
 }
 
 .ts-stat-value {
-    font-size: var(--text-l-size);
+    font-size: var(--text-m-size);
     font-family: var(--display-font);
     color: var(--color-primary);
     text-align: right;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
 }
 
 .ts-stat-placeholder {
@@ -676,6 +683,25 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
     display: flex;
     flex-direction: column;
     gap: var(--m4);
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: var(--m2);
+}
+
+.ts-offline-players::-webkit-scrollbar {
+    width: var(--m2);
+}
+
+.ts-offline-players::-webkit-scrollbar-track {
+    background: rgba(21, 28, 46, 0.8);
+}
+
+.ts-offline-players::-webkit-scrollbar-thumb {
+    background: rgba(93, 217, 193, 0.6);
+}
+
+.ts-offline-players::-webkit-scrollbar-thumb:hover {
+    background: rgba(242, 193, 78, 0.8);
 }
 
 .ts-offline-player {

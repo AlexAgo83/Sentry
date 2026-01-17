@@ -63,7 +63,7 @@ body {
 .app-title {
     margin: 0;
     font-family: var(--display-font);
-    font-size: calc(var(--text-xl-size) + var(--m10));
+    font-size: calc((var(--text-xl-size) + var(--m10)) * 0.67);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-primary);
@@ -148,7 +148,7 @@ body {
     }
 
     .app-title {
-        font-size: calc(var(--text-xl-size) + var(--m4));
+        font-size: calc((var(--text-xl-size) + var(--m4)) * 0.67);
         letter-spacing: 0.04em;
     }
 
