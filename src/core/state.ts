@@ -22,7 +22,7 @@ import {
     RECIPE_MAX_LEVEL,
     SKILL_MAX_LEVEL
 } from "./constants";
-import { SKILL_DEFINITIONS, getRecipesForSkill } from "../data/definitions";
+import { SKILL_DEFINITIONS, getRecipesForSkill, resolveRecipeId } from "../data/definitions";
 
 export const createActionProgress = (): ActionProgressState => ({
     currentInterval: 0,
@@ -59,6 +59,36 @@ const createSkillState = (id: SkillId): SkillState => {
         baseInterval: SKILL_DEFINITIONS.find((skill) => skill.id === id)?.baseInterval ?? 1000,
         selectedRecipeId: null,
         recipes
+    };
+};
+
+const mergeRecipes = (skillId: SkillId, savedRecipes: Record<string, RecipeState> | undefined) => {
+    const normalizedSaved = Object.values(savedRecipes ?? {}).reduce<Record<string, RecipeState>>((acc, recipe) => {
+        const resolvedId = resolveRecipeId(skillId, recipe.id);
+        acc[resolvedId] = { ...recipe, id: resolvedId };
+        return acc;
+    }, {});
+    return getRecipesForSkill(skillId).reduce<Record<string, RecipeState>>((acc, recipe) => {
+        acc[recipe.id] = normalizedSaved[recipe.id] ?? createRecipeState(recipe.id);
+        return acc;
+    }, {});
+};
+
+const normalizeSkillState = (skillId: SkillId, savedSkill?: SkillState): SkillState => {
+    const fallback = createSkillState(skillId);
+    const baseSkill = savedSkill ?? fallback;
+    const mergedRecipes = mergeRecipes(skillId, savedSkill?.recipes);
+    const selectedRecipeId = savedSkill?.selectedRecipeId
+        ? resolveRecipeId(skillId, savedSkill.selectedRecipeId)
+        : null;
+    const resolvedSelected = selectedRecipeId && mergedRecipes[selectedRecipeId] ? selectedRecipeId : null;
+
+    return {
+        ...baseSkill,
+        id: skillId,
+        baseInterval: SKILL_DEFINITIONS.find((skill) => skill.id === skillId)?.baseInterval ?? 1000,
+        selectedRecipeId: resolvedSelected,
+        recipes: mergedRecipes
     };
 };
 
@@ -127,9 +157,17 @@ export const createInitialGameState = (version: string): GameState => {
 };
 
 const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
-    const { actionProgress, storage, ...rest } = player as PlayerSaveState & { storage?: { gold?: number } };
+    const { actionProgress, storage, skills, ...rest } = player as PlayerSaveState & {
+        storage?: { gold?: number };
+        skills?: Record<SkillId, SkillState>;
+    };
+    const normalizedSkills = SKILL_DEFINITIONS.reduce<Record<SkillId, SkillState>>((acc, skill) => {
+        acc[skill.id] = normalizeSkillState(skill.id, skills?.[skill.id]);
+        return acc;
+    }, {} as Record<SkillId, SkillState>);
     return {
         ...rest,
+        skills: normalizedSkills,
         actionProgress: createActionProgress()
     };
 };

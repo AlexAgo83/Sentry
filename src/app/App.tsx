@@ -1,5 +1,13 @@
 import { CSSProperties, ChangeEvent, useEffect, useState } from "react";
-import { ITEM_DEFINITIONS, SKILL_DEFINITIONS, getActionDefinition } from "../data/definitions";
+import {
+    ITEM_DEFINITIONS,
+    SKILL_DEFINITIONS,
+    getActionDefinition,
+    getRecipeDefinition,
+    getRecipeUnlockLevel,
+    getRecipesForSkill,
+    isRecipeUnlocked
+} from "../data/definitions";
 import { SkillId } from "../core/types";
 import { gameRuntime, gameStore } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
@@ -36,6 +44,26 @@ export const App = () => {
     const [isSystemCollapsed, setSystemCollapsed] = useState(true);
     const [isInventoryCollapsed, setInventoryCollapsed] = useState(false);
     const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory">("status");
+    const skillNameById = SKILL_DEFINITIONS.reduce<Record<string, string>>((acc, skill) => {
+        acc[skill.id] = skill.name;
+        return acc;
+    }, {});
+    const getSkillLabel = (skillId: SkillId | ""): string => {
+        if (!skillId) {
+            return "None";
+        }
+        return skillNameById[skillId] ?? skillId;
+    };
+    const getRecipeLabel = (skillId: SkillId, recipeId: string | null): string => {
+        if (!recipeId) {
+            return "none";
+        }
+        const recipeDef = getRecipeDefinition(skillId, recipeId);
+        return recipeDef?.name ?? recipeId;
+    };
+    const getFirstUnlockedRecipeId = (skillId: SkillId, skillLevel: number): string => {
+        return getRecipesForSkill(skillId).find((recipe) => isRecipeUnlocked(recipe, skillLevel))?.id ?? "";
+    };
 
     useEffect(() => {
         if (!activePlayer || !activeSkillId) {
@@ -45,13 +73,13 @@ export const App = () => {
         if (!skill || skill.selectedRecipeId) {
             return;
         }
-        const recipeIds = Object.keys(skill.recipes);
-        if (recipeIds.length > 0) {
+        const defaultRecipeId = getFirstUnlockedRecipeId(activeSkillId as SkillId, skill.level);
+        if (defaultRecipeId) {
             gameStore.dispatch({
                 type: "selectRecipe",
                 playerId: activePlayer.id,
                 skillId: activeSkillId,
-                recipeId: recipeIds[0]
+                recipeId: defaultRecipeId
             });
         }
     }, [activePlayer?.id, activeSkillId]);
@@ -67,7 +95,16 @@ export const App = () => {
         }
         const skillId = activePlayer.selectedActionId ?? "";
         const skill = skillId ? activePlayer.skills[skillId] : null;
-        const recipeId = skill?.selectedRecipeId ?? (skill ? Object.keys(skill.recipes)[0] ?? "" : "");
+        const selectedRecipeId = skill?.selectedRecipeId ?? "";
+        const selectedRecipeDef = selectedRecipeId && skillId
+            ? getRecipeDefinition(skillId as SkillId, selectedRecipeId)
+            : null;
+        const selectedRecipeUnlocked = Boolean(selectedRecipeDef && skill && isRecipeUnlocked(selectedRecipeDef, skill.level));
+        const recipeId = skill && skillId
+            ? selectedRecipeUnlocked && selectedRecipeId
+                ? selectedRecipeId
+                : getFirstUnlockedRecipeId(skillId as SkillId, skill.level)
+            : "";
         setPendingSkillId(skillId);
         setPendingRecipeId(recipeId);
     }, [isLoadoutOpen, activePlayer?.id, activePlayer?.selectedActionId]);
@@ -112,7 +149,16 @@ export const App = () => {
             setPendingRecipeId("");
             return;
         }
-        const nextRecipeId = nextSkill.selectedRecipeId ?? Object.keys(nextSkill.recipes)[0] ?? "";
+        const selectedRecipeId = nextSkill.selectedRecipeId ?? "";
+        const selectedRecipeDef = selectedRecipeId
+            ? getRecipeDefinition(nextSkillId as SkillId, selectedRecipeId)
+            : null;
+        const selectedRecipeUnlocked = Boolean(
+            selectedRecipeDef && isRecipeUnlocked(selectedRecipeDef, nextSkill.level)
+        );
+        const nextRecipeId = selectedRecipeUnlocked && selectedRecipeId
+            ? selectedRecipeId
+            : getFirstUnlockedRecipeId(nextSkillId as SkillId, nextSkill.level);
         setPendingRecipeId(nextRecipeId);
     };
 
@@ -244,6 +290,16 @@ export const App = () => {
     const pendingSkill = pendingSkillId && activePlayer
         ? activePlayer.skills[pendingSkillId as SkillId]
         : null;
+    const pendingSkillLabel = pendingSkillId ? getSkillLabel(pendingSkillId as SkillId) : "None";
+    const pendingRecipeLabel = pendingSkillId && pendingRecipeId
+        ? getRecipeDefinition(pendingSkillId as SkillId, pendingRecipeId)?.name ?? pendingRecipeId
+        : "None";
+    const pendingRecipeDef = pendingSkillId && pendingRecipeId
+        ? getRecipeDefinition(pendingSkillId as SkillId, pendingRecipeId)
+        : null;
+    const pendingRecipeUnlocked = Boolean(
+        pendingRecipeDef && pendingSkill && isRecipeUnlocked(pendingRecipeDef, pendingSkill.level)
+    );
     const inventoryItems = state.inventory.items;
     const itemNameById = ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, item) => {
         acc[item.id] = item.name;
@@ -267,9 +323,35 @@ export const App = () => {
             .map((entry) => `${entry.amount > 0 ? "+" : ""}${entry.amount} ${entry.name}`)
             .join(", ");
     };
+    const formatItemList = (items?: Record<string, number>): string => {
+        if (!items) {
+            return "None";
+        }
+        const entries = ITEM_DEFINITIONS
+            .map((item) => ({
+                name: item.name,
+                amount: items[item.id] ?? 0
+            }))
+            .filter((entry) => entry.amount > 0);
+        if (entries.length === 0) {
+            return "None";
+        }
+        return entries.map((entry) => `${entry.amount} ${entry.name}`).join(", ");
+    };
     const pendingActionDef = pendingSkillId ? getActionDefinition(pendingSkillId as SkillId) : null;
-    const missingItems = pendingActionDef?.itemCosts
-        ? Object.entries(pendingActionDef.itemCosts)
+    const pendingItemCosts = pendingRecipeDef?.itemCosts ?? pendingActionDef?.itemCosts;
+    const pendingItemRewards = pendingRecipeDef?.itemRewards ?? pendingActionDef?.itemRewards;
+    const pendingGoldReward = pendingRecipeDef?.goldReward ?? pendingActionDef?.goldReward ?? 0;
+    const pendingRewardsWithGold = pendingItemRewards
+        ? { ...pendingItemRewards, ...(pendingGoldReward ? { gold: pendingGoldReward } : {}) }
+        : pendingGoldReward
+            ? { gold: pendingGoldReward }
+            : undefined;
+    const hasPendingSelection = Boolean(pendingSkillId && pendingRecipeId);
+    const pendingConsumptionLabel = hasPendingSelection ? formatItemList(pendingItemCosts) : "None";
+    const pendingProductionLabel = hasPendingSelection ? formatItemList(pendingRewardsWithGold) : "None";
+    const missingItems = pendingItemCosts
+        ? Object.entries(pendingItemCosts)
             .map(([itemId, amount]) => {
                 const available = inventoryItems[itemId] ?? 0;
                 const needed = amount - available;
@@ -284,8 +366,29 @@ export const App = () => {
         && pendingSkillId === activeSkillId
         && pendingRecipeId === activeRecipeId;
     const canStartAction = Boolean(
-        activePlayer && pendingSkillId && pendingRecipeId && !isRunningSelection && missingItems.length === 0
+        activePlayer
+        && pendingSkillId
+        && pendingRecipeId
+        && pendingRecipeUnlocked
+        && !isRunningSelection
+        && missingItems.length === 0
     );
+    const activeActionDef = activeSkillId ? getActionDefinition(activeSkillId as SkillId) : null;
+    const activeRecipeDef = activeSkillId && activeRecipeId
+        ? getRecipeDefinition(activeSkillId as SkillId, activeRecipeId)
+        : null;
+    const activeCosts = activeRecipeDef?.itemCosts ?? activeActionDef?.itemCosts;
+    const activeRewards = activeRecipeDef?.itemRewards ?? activeActionDef?.itemRewards;
+    const activeGoldReward = activeRecipeDef?.goldReward ?? activeActionDef?.goldReward ?? 0;
+    const activeRewardsWithGold = activeRewards
+        ? { ...activeRewards, ...(activeGoldReward ? { gold: activeGoldReward } : {}) }
+        : activeGoldReward
+            ? { gold: activeGoldReward }
+            : undefined;
+    const hasActiveRecipeSelection = Boolean(activeSkillId && activeRecipeId);
+    const activeConsumptionLabel = hasActiveRecipeSelection ? formatItemList(activeCosts) : "None";
+    const activeProductionLabel = hasActiveRecipeSelection ? formatItemList(activeRewardsWithGold) : "None";
+    const resourceHint = hasActiveRecipeSelection ? null : "Select a recipe to see resource flow.";
 
     const progressPercent = activePlayer?.actionProgress.progressPercent ?? 0;
     const progressStyle = { "--progress": `${progressPercent}%` } as CSSProperties;
@@ -304,13 +407,20 @@ export const App = () => {
     const isStunned = Boolean(activePlayer?.selectedActionId) && (activePlayer?.stamina ?? 0) <= 0;
     const offlineSeconds = offlineSummary ? Math.round(offlineSummary.durationMs / 1000) : 0;
     const offlinePlayers = offlineSummary?.players ?? [];
-    const skillIconLabel = activeSkillId ? activeSkillId.slice(0, 2).toUpperCase() : "--";
+    const activeSkillName = activeSkillId ? getSkillLabel(activeSkillId as SkillId) : "None";
+    const skillIconLabel = activeSkillId ? activeSkillName.slice(0, 2).toUpperCase() : "--";
     const skillIconMap: Record<string, string> = {
         Combat: "#f2c14e",
         Hunting: "#5dd9c1",
         Cooking: "#f07f4f",
         Excavation: "#9aa7c3",
-        MetalWork: "#c68130"
+        MetalWork: "#c68130",
+        Alchemy: "#7fd1b9",
+        Herbalism: "#8ac926",
+        Tailoring: "#f4d35e",
+        Fishing: "#4cc9f0",
+        Carpentry: "#c97c5d",
+        Leatherworking: "#a26769"
     };
     const skillIconColor = activeSkillId ? skillIconMap[activeSkillId] ?? "#f2c14e" : "#5d6a82";
 
@@ -344,8 +454,12 @@ export const App = () => {
                                     const currentAction = player.selectedActionId;
                                     const currentSkill = currentAction ? player.skills[currentAction] : null;
                                     const currentRecipe = currentSkill?.selectedRecipeId ?? null;
+                                    const actionLabel = currentAction ? getSkillLabel(currentAction) : "";
+                                    const recipeLabel = currentAction && currentRecipe
+                                        ? getRecipeLabel(currentAction, currentRecipe)
+                                        : null;
                                     const metaLabel = currentAction
-                                        ? `Action ${currentAction}${currentRecipe ? ` - Recipe ${currentRecipe}` : " - Recipe none"}`
+                                        ? `Action ${actionLabel}${recipeLabel ? ` - Recipe ${recipeLabel}` : " - Recipe none"}`
                                         : "No action selected";
 
                                     return (
@@ -424,8 +538,21 @@ export const App = () => {
                             </div>
                             <div className="ts-skill-copy">
                                 <div className="ts-skill-label">Selected skill</div>
-                                <div className="ts-skill-name">{activeSkillId || "None"}</div>
+                                <div className="ts-skill-name">{activeSkillName}</div>
                             </div>
+                        </div>
+                        <div className="ts-resource-card">
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Consumes</span>
+                                <span className="ts-resource-value">{activeConsumptionLabel}</span>
+                            </div>
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Produces</span>
+                                <span className="ts-resource-value">{activeProductionLabel}</span>
+                            </div>
+                            {resourceHint ? (
+                                <div className="ts-resource-hint">{resourceHint}</div>
+                            ) : null}
                         </div>
                         <div
                             className={`generic-field panel progress-row ts-progress-row ts-progress-action${isStunned ? " is-stunned" : ""}`}
@@ -528,7 +655,11 @@ export const App = () => {
                                 <li>Expected tick rate: {tickRate}/s</li>
                                 <li>Loop interval: {state.loop.loopInterval}ms</li>
                                 <li>Offline interval: {state.loop.offlineInterval}ms</li>
-                                <li>Active action: {activePlayer?.selectedActionId ?? "none"}</li>
+                                <li>
+                                    Active action: {activePlayer?.selectedActionId
+                                        ? getSkillLabel(activePlayer.selectedActionId as SkillId)
+                                        : "none"}
+                                </li>
                             </ul>
                             <div className="ts-action-row ts-system-actions">
                                 <button
@@ -588,14 +719,39 @@ export const App = () => {
                                 disabled={!pendingSkill}
                             >
                                 <option value="">Choose a recipe</option>
-                                {pendingSkill
-                                    ? Object.values(pendingSkill.recipes).map((recipe) => (
-                                        <option key={recipe.id} value={recipe.id}>
-                                            {recipe.id} - Lv {recipe.level}
-                                        </option>
-                                    ))
+                                {pendingSkill && pendingSkillId
+                                    ? getRecipesForSkill(pendingSkillId as SkillId).map((recipeDef) => {
+                                        const recipeState = pendingSkill.recipes[recipeDef.id];
+                                        const recipeLevel = recipeState?.level ?? 0;
+                                        const unlocked = isRecipeUnlocked(recipeDef, pendingSkill.level);
+                                        const unlockLevel = getRecipeUnlockLevel(recipeDef);
+                                        const unlockLabel = unlocked ? "" : ` (Unlocks at Lv ${unlockLevel})`;
+                                        return (
+                                            <option key={recipeDef.id} value={recipeDef.id} disabled={!unlocked}>
+                                                {recipeDef.name} - Lv {recipeLevel}{unlockLabel}
+                                            </option>
+                                        );
+                                    })
                                     : null}
                             </select>
+                            <div className="ts-action-summary">
+                                <div className="ts-action-summary-row">
+                                    <span className="ts-action-summary-label">Action</span>
+                                    <span className="ts-action-summary-value">{pendingSkillLabel}</span>
+                                </div>
+                                <div className="ts-action-summary-row">
+                                    <span className="ts-action-summary-label">Recipe</span>
+                                    <span className="ts-action-summary-value">{pendingRecipeLabel}</span>
+                                </div>
+                                <div className="ts-action-summary-row">
+                                    <span className="ts-action-summary-label">Consumes</span>
+                                    <span className="ts-action-summary-value">{pendingConsumptionLabel}</span>
+                                </div>
+                                <div className="ts-action-summary-row">
+                                    <span className="ts-action-summary-label">Produces</span>
+                                    <span className="ts-action-summary-value">{pendingProductionLabel}</span>
+                                </div>
+                            </div>
                             <div className="ts-action-row">
                                 <button
                                     type="button"
@@ -721,7 +877,7 @@ export const App = () => {
                         <div className="ts-offline-players">
                             {offlinePlayers.map((player) => {
                                 const actionLabel = player.actionId
-                                    ? `Action ${player.actionId}${player.recipeId ? ` - Recipe ${player.recipeId}` : ""}`
+                                    ? `Action ${getSkillLabel(player.actionId as SkillId)}${player.recipeId ? ` - Recipe ${getRecipeLabel(player.actionId as SkillId, player.recipeId)}` : ""}`
                                     : "No action running";
                                 const skillLevelLabel = player.skillLevelGained > 0
                                     ? ` - +${player.skillLevelGained} Lv`

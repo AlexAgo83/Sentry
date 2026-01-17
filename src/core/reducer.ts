@@ -16,6 +16,7 @@ import {
     RecipeId,
     SkillId
 } from "./types";
+import { getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
 
 export type GameAction =
     | { type: "hydrate"; save: GameSave | null; version: string }
@@ -121,6 +122,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             const skill = player.skills[action.skillId];
             if (!skill) {
                 return state;
+            }
+            if (action.recipeId) {
+                const recipeDef = getRecipeDefinition(action.skillId, action.recipeId);
+                if (!recipeDef || !isRecipeUnlocked(recipeDef, skill.level)) {
+                    return state;
+                }
             }
             return {
                 ...state,

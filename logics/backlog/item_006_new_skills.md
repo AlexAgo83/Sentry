@@ -2,7 +2,7 @@
 > From version: 0.4.0
 > Understanding: 96%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Introduce three new skills to expand the roster.

@@ -1,5 +1,16 @@
 export type PlayerId = string;
-export type SkillId = "Combat" | "Hunting" | "Cooking" | "Excavation" | "MetalWork";
+export type SkillId =
+    | "Combat"
+    | "Hunting"
+    | "Cooking"
+    | "Excavation"
+    | "MetalWork"
+    | "Alchemy"
+    | "Herbalism"
+    | "Tailoring"
+    | "Fishing"
+    | "Carpentry"
+    | "Leatherworking";
 export type ActionId = SkillId;
 export type RecipeId = string;
 export type ItemId = string;
@@ -81,6 +92,10 @@ export interface RecipeDefinition {
     skillId: SkillId;
     name: string;
     media?: string;
+    unlockLevel?: number;
+    goldReward?: number;
+    itemCosts?: ItemDelta;
+    itemRewards?: ItemDelta;
 }
 
 export interface ActionDefinition {

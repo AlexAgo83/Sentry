@@ -1,4 +1,4 @@
-import { getActionDefinition } from "../data/definitions";
+import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
 import { createActionProgress } from "./state";
 import { XP_NEXT_MULTIPLIER } from "./constants";
 import {
@@ -108,6 +108,10 @@ const applyActionTick = (
     if (!recipe) {
         return { player, inventory, itemDeltas: {} };
     }
+    const recipeDef = getRecipeDefinition(actionDef.skillId, selectedRecipeId);
+    if (recipeDef && !isRecipeUnlocked(recipeDef, skill.level)) {
+        return { player, inventory, itemDeltas: {} };
+    }
 
     const actionInterval = skill.baseInterval + (player.stamina <= 0 ? actionDef.stunTime : 0);
     if (actionInterval <= 0) {
@@ -134,15 +138,18 @@ const applyActionTick = (
             if (stamina <= 0) {
                 stamina = nextPlayer.staminaMax;
             }
-            if (!canAffordCosts(nextInventory, actionDef.itemCosts)) {
+            const itemCosts = recipeDef?.itemCosts ?? actionDef.itemCosts;
+            const itemRewards = recipeDef?.itemRewards ?? actionDef.itemRewards;
+            const goldReward = recipeDef?.goldReward ?? actionDef.goldReward;
+            if (!canAffordCosts(nextInventory, itemCosts)) {
                 shouldStop = true;
                 break;
             }
-            nextInventory = applyItemDelta(nextInventory, actionDef.itemCosts, -1, itemDeltas);
-            if (actionDef.goldReward) {
-                nextInventory = applyItemDelta(nextInventory, { gold: actionDef.goldReward }, 1, itemDeltas);
+            nextInventory = applyItemDelta(nextInventory, itemCosts, -1, itemDeltas);
+            if (goldReward) {
+                nextInventory = applyItemDelta(nextInventory, { gold: goldReward }, 1, itemDeltas);
             }
-            nextInventory = applyItemDelta(nextInventory, actionDef.itemRewards, 1, itemDeltas);
+            nextInventory = applyItemDelta(nextInventory, itemRewards, 1, itemDeltas);
             stamina -= actionDef.staminaCost;
             nextSkill = { ...nextSkill, xp: nextSkill.xp + actionDef.xpSkill };
             nextRecipe = { ...nextRecipe, xp: nextRecipe.xp + actionDef.xpRecipe };
