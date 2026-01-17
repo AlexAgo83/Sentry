@@ -1,34 +1,32 @@
 # Sentry
 
-Sentry is a JavaScript idle game engine focused on simplicity and extensibility.
+Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fantasy UI.
 
 ## Features
 
-* Player management
-* Skill system with actions and progression
-* Combat, hunting, cooking, and excavation mechanics
-* Recipe system
-* Panel system for game UI
-* Core game logic and utilities
+* Multi-player roster with skills, recipes, and actions.
+* Offline catch-up and recap summary on return.
+* Local persistence via localStorage adapter.
+* PWA support (manifest + service worker).
+* Modern fantasy UI shell with performance telemetry.
 
 ## Tech Stack
 
-* JavaScript
+* TypeScript
+* React
 * Vite
-* npm
+* Vitest
 * SweetAlert2
 
 ## Project Structure
 
-The project is divided into several modules, including:
-
-* `src/dataObjects`: Data object definitions for the game.
-* `src/dataObjects/actions`: Action definitions.
-* `src/dataObjects/entities`: Entity definitions.
-* `src/dataObjects/recipes`: Recipe definitions.
-* `src/dataObjects/skills`: Skill definitions.
-* `src/managers`: Manager classes for handling game logic.
-* `src/panels`: Panel components for the game UI.
+* `src/app`: React UI (components, hooks, styles).
+* `src/core`: Game loop, state, runtime, serialization, types.
+* `src/data`: Definitions for skills, recipes, and actions.
+* `src/store`: Lightweight store for the game state.
+* `src/adapters`: Persistence adapters (localStorage).
+* `styles`: Global styles shared by the UI.
+* `public`: PWA assets (manifest, service worker, icons).
 * `logics`: Product workflow and planning artifacts.
 * `logics/request`: Incoming requests or ideas.
 * `logics/backlog`: Core product items.
