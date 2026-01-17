@@ -4,32 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sentry Idle</title>
+  <meta name="theme-color" content="#0b0f1d">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/global.css">
-  <link rel="shortcut icon" href="#" />
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="shortcut icon" href="/icon.svg" />
 </head>
 <body>
-  <div class="app-shell">
-    <header class="app-header">
-      <div class="app-title-block">
-        <h1 class="app-title">Sentry Idle</h1>
-        <p class="app-subtitle">Forge, hunt, and master your path.</p>
-      </div>
-    </header>
-    <div id="game" class="generic-global app-layout">
-      <aside class="sidebar">
-        <div id="info-panel" class="generic-panel"></div>
-        <div id="tools-panel" class="generic-panel"></div>
-      </aside>
-      <main class="main-area">
-        <div id="player-list-overflow" class="panel-overflow">
-          <div id="player-list-panel" class="generic-panel"></div>
-        </div>
-      </main>
-    </div>
-  </div>
-  <script type="module" src="./src/main.js"></script>
+  <div id="root"></div>
+  <script type="module" src="./src/main.tsx"></script>
 </body>
 </html>

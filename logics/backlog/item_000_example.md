@@ -1,5 +1,5 @@
 ## item_000_example - Example title
-> Targeted version: 0.2.0
+> From version: X.X.X
 > Understanding: ??%
 > Confidence: ??%
 

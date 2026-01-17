@@ -1,8 +1,8 @@
 ## item_001_project_review - Full project review
-> Targeted version: 0.2.0
+> From version: 0.2.0
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 90%
+> Progress: 100%
 
 # Context
 This item formalizes the full project review requested in `req_001_project_review`.

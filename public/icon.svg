@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="sentry-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2c14e" />
+      <stop offset="100%" stop-color="#c68130" />
+    </linearGradient>
+    <linearGradient id="sentry-teal" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5dd9c1" />
+      <stop offset="100%" stop-color="#1f6e72" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="#0b0f1d" />
+  <path d="M52 192 L128 40 L204 192 Z" fill="url(#sentry-gold)" />
+  <path d="M128 76 L168 172 L88 172 Z" fill="url(#sentry-teal)" opacity="0.9" />
+  <circle cx="128" cy="140" r="18" fill="#0b0f1d" />
+  <circle cx="128" cy="140" r="10" fill="#f4f1e9" />
+</svg>

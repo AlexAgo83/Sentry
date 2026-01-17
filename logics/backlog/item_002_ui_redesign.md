@@ -1,8 +1,8 @@
 ## item_002_ui_redesign - Modern fantasy UI redesign
-> Targeted version: 0.2.0
+> From version: 0.2.0
 > Understanding: 92%
 > Confidence: 90%
-> Progress: 75%
+> Progress: 100%
 
 # Context
 The UI should be redesigned with a modern fantasy direction, more graphical styling, and full layout freedom.

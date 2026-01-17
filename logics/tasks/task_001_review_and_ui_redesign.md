@@ -1,8 +1,8 @@
 ## task_001_review_and_ui_redesign - Execute backlog items 001-002
-> Targeted version: 0.2.0
+> From version: 0.2.0
 > Understanding: 92%
 > Confidence: 90%
-> Progress: 88%
+> Progress: 100%
 
 # Context
 This task executes `item_001_project_review` and `item_002_ui_redesign`.
@@ -15,7 +15,7 @@ This task executes `item_001_project_review` and `item_002_ui_redesign`.
 - [x] 5. Fix high-severity issues found in the review.
 - [x] 6. Define a modern fantasy visual system (palette, typography, layout rules).
 - [x] 7. Implement the new left-sidebar layout with responsive mobile stacking.
-- [ ] 8. Validate desktop/mobile UI and core gameplay flows.
+- [x] 8. Validate desktop/mobile UI and core gameplay flows.
 
 # Report
 1. Completed repo scan: entry points in `src/main.js` and `src/engine.js`, UI panels in `src/panels`, styles in `styles`, tests in `tests`.

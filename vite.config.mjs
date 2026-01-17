@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { readFileSync } from "node:fs";
+import react from "@vitejs/plugin-react-swc";
 
 /// <reference types="vitest/config" />
 const pkg = JSON.parse(
@@ -11,7 +12,7 @@ export default defineConfig({
         __APP_VERSION__: JSON.stringify(pkg.version),
         __ASSETS_PATH__: JSON.stringify("/img/")
     },
-    plugins: [],
+    plugins: [react()],
     build: {
         outDir: 'dist',
         rollupOptions: {

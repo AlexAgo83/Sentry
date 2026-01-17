@@ -1,5 +1,5 @@
 ## item_003_ts_rewrite - TypeScript + React remake (PWA-first)
-> Targeted version: 1.0.0
+> From version: 0.2.0
 > Understanding: 94%
 > Confidence: 90%
 > Progress: 0%

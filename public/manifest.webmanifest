@@ -1,0 +1,16 @@
+{
+  "name": "Sentry Idle",
+  "short_name": "Sentry",
+  "description": "Forge, hunt, and master your path.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f1d",
+  "theme_color": "#f2c14e",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
