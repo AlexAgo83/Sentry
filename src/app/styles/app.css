@@ -241,6 +241,16 @@
     color: var(--color-primary);
 }
 
+.ts-stat-placeholder {
+    padding: var(--m4) var(--m5);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px dashed rgba(93, 217, 193, 0.35);
+    color: var(--color-text-fade);
+    font-size: var(--text-s-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
 .ts-skill-card {
     display: flex;
     align-items: center;
@@ -470,6 +480,10 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
     position: absolute;
     left: 0;
     color: var(--color-secondary);
+}
+
+.ts-inventory-list li.is-empty {
+    opacity: 0.45;
 }
 
 .ts-modal-backdrop {

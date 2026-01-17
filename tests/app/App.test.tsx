@@ -165,20 +165,18 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Close" }));
         expect(testStore.getState().offlineSummary).toBeNull();
 
-        const systemPanel = screen.getByText("System").closest("section");
-        expect(systemPanel).toBeTruthy();
-        if (systemPanel) {
-            await user.click(within(systemPanel).getByRole("button", { name: "Expand" }));
-            await user.click(within(systemPanel).getByRole("button", { name: "Simulate +30 min" }));
-            expect(testRuntime.simulateOffline).toHaveBeenCalledWith(30 * 60 * 1000);
+        await user.click(screen.getByRole("button", { name: "System" }));
+        const systemDialog = await screen.findByRole("dialog");
 
-            const confirmSpy = vi.spyOn(window, "confirm");
-            confirmSpy.mockReturnValueOnce(false).mockReturnValueOnce(true);
+        await user.click(within(systemDialog).getByRole("button", { name: "Simulate +30 min" }));
+        expect(testRuntime.simulateOffline).toHaveBeenCalledWith(30 * 60 * 1000);
 
-            await user.click(within(systemPanel).getByRole("button", { name: "Reset save" }));
-            expect(testRuntime.reset).not.toHaveBeenCalled();
-            await user.click(within(systemPanel).getByRole("button", { name: "Reset save" }));
-            expect(testRuntime.reset).toHaveBeenCalled();
-        }
+        const confirmSpy = vi.spyOn(window, "confirm");
+        confirmSpy.mockReturnValueOnce(false).mockReturnValueOnce(true);
+
+        await user.click(within(systemDialog).getByRole("button", { name: "Reset save" }));
+        expect(testRuntime.reset).not.toHaveBeenCalled();
+        await user.click(within(systemDialog).getByRole("button", { name: "Reset save" }));
+        expect(testRuntime.reset).toHaveBeenCalled();
     });
 });

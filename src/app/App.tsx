@@ -41,7 +41,7 @@ export const App = () => {
     const [pendingSkillId, setPendingSkillId] = useState("");
     const [pendingRecipeId, setPendingRecipeId] = useState("");
     const [isRosterCollapsed, setRosterCollapsed] = useState(false);
-    const [isSystemCollapsed, setSystemCollapsed] = useState(true);
+    const [isSystemOpen, setSystemOpen] = useState(false);
     const [isInventoryCollapsed, setInventoryCollapsed] = useState(false);
     const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory">("status");
     const skillNameById = SKILL_DEFINITIONS.reduce<Record<string, string>>((acc, skill) => {
@@ -110,7 +110,7 @@ export const App = () => {
     }, [isLoadoutOpen, activePlayer?.id, activePlayer?.selectedActionId]);
 
     useEffect(() => {
-        if (!isLoadoutOpen && !isRecruitOpen && !isRenameOpen && !offlineSummary) {
+        if (!isLoadoutOpen && !isRecruitOpen && !isRenameOpen && !isSystemOpen && !offlineSummary) {
             return;
         }
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -118,12 +118,13 @@ export const App = () => {
                 setLoadoutOpen(false);
                 setRecruitOpen(false);
                 setRenameOpen(false);
+                setSystemOpen(false);
                 handleCloseOfflineSummary();
             }
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isLoadoutOpen, isRecruitOpen, isRenameOpen, offlineSummary]);
+    }, [isLoadoutOpen, isRecruitOpen, isRenameOpen, isSystemOpen, offlineSummary]);
 
     useEffect(() => {
         if (!offlineSummary) {
@@ -132,6 +133,7 @@ export const App = () => {
         setLoadoutOpen(false);
         setRecruitOpen(false);
         setRenameOpen(false);
+        setSystemOpen(false);
     }, [offlineSummary]);
 
     const handleSkillChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -223,6 +225,10 @@ export const App = () => {
 
     const handleCloseLoadout = () => {
         setLoadoutOpen(false);
+    };
+
+    const handleCloseSystem = () => {
+        setSystemOpen(false);
     };
 
     const handleCloseRecruit = () => {
@@ -512,11 +518,19 @@ export const App = () => {
                             >
                                 Inventory
                             </button>
+                            <button
+                                type="button"
+                                className="generic-field button ts-add-player ts-system-toggle"
+                                onClick={() => setSystemOpen(true)}
+                            >
+                                System
+                            </button>
                         </>
                     ) : null}
                 </section>
                 {activeSidePanel === "status" ? (
-                    <section className="generic-panel ts-panel">
+                    <>
+                        <section className="generic-panel ts-panel">
                         <div className="ts-panel-header">
                             <h2 className="ts-panel-title">Action status</h2>
                             <span className="ts-panel-meta">Live loop</span>
@@ -613,7 +627,26 @@ export const App = () => {
                             max={100}
                             value={recipePercent}
                         />
-                    </section>
+                        </section>
+                        <section className="generic-panel ts-panel">
+                            <div className="ts-panel-header">
+                                <h2 className="ts-panel-title">Character stats</h2>
+                                <span className="ts-panel-meta">Focused hero</span>
+                            </div>
+                            <div className="ts-stat-grid">
+                                {SKILL_DEFINITIONS.map((skill) => {
+                                    const level = activePlayer?.skills[skill.id]?.level ?? 0;
+                                    return (
+                                        <div key={skill.id} className="ts-stat">
+                                            <div className="ts-stat-label">{skill.name}</div>
+                                            <div className="ts-stat-value">Lv {level}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="ts-stat-placeholder">Statistics overview coming soon.</div>
+                        </section>
+                    </>
                 ) : null}
                 {activeSidePanel === "inventory" ? (
                     <section className="generic-panel ts-panel">
@@ -631,7 +664,7 @@ export const App = () => {
                         {!isInventoryCollapsed ? (
                             <ul className="ts-list ts-inventory-list">
                                 {inventoryEntries.map((item) => (
-                                    <li key={item.id}>
+                                    <li key={item.id} className={item.count === 0 ? "is-empty" : undefined}>
                                         {item.name}: {item.count}
                                     </li>
                                 ))}
@@ -639,56 +672,6 @@ export const App = () => {
                         ) : null}
                     </section>
                 ) : null}
-                <section className="generic-panel ts-panel">
-                    <div className="ts-panel-header">
-                        <h2 className="ts-panel-title">System</h2>
-                        <span className="ts-panel-meta">Telemetry</span>
-                        <button
-                            type="button"
-                            className="ts-collapse-button"
-                            onClick={() => setSystemCollapsed((value) => !value)}
-                        >
-                            {isSystemCollapsed ? "Expand" : "Collapse"}
-                        </button>
-                    </div>
-                    {!isSystemCollapsed ? (
-                        <>
-                            <ul className="ts-list">
-                                <li>Version: {state.version}</li>
-                                <li>Last tick: {state.loop.lastTick ?? "awaiting"}</li>
-                                <li>Tick duration: {perf.lastTickDurationMs.toFixed(2)}ms</li>
-                                <li>Last delta: {perf.lastDeltaMs}ms (drift {driftLabel}ms)</li>
-                                <li>Offline catch-up: {perf.lastOfflineTicks} ticks / {perf.lastOfflineDurationMs}ms</li>
-                                <li>Expected tick rate: {tickRate}/s</li>
-                                <li>Loop interval: {state.loop.loopInterval}ms</li>
-                                <li>Offline interval: {state.loop.offlineInterval}ms</li>
-                                <li>
-                                    Active action: {activePlayer?.selectedActionId
-                                        ? getSkillLabel(activePlayer.selectedActionId as SkillId)
-                                        : "none"}
-                                </li>
-                            </ul>
-                            <div className="ts-action-row ts-system-actions">
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-simulate"
-                                    onClick={handleSimulateOffline}
-                                >
-                                    Simulate +30 min
-                                </button>
-                            </div>
-                            <div className="ts-action-row ts-system-actions">
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-reset"
-                                    onClick={handleResetSave}
-                                >
-                                    Reset save
-                                </button>
-                            </div>
-                        </>
-                    ) : null}
-                </section>
             </main>
             {isLoadoutOpen && activePlayer ? (
                 <div className="ts-modal-backdrop" role="dialog" aria-modal="true" onClick={handleCloseLoadout}>
@@ -854,6 +837,54 @@ export const App = () => {
                                     Save name
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
+            {isSystemOpen ? (
+                <div className="ts-modal-backdrop" role="dialog" aria-modal="true" onClick={handleCloseSystem}>
+                    <div className="ts-modal" onClick={(event) => event.stopPropagation()}>
+                        <div className="ts-modal-header">
+                            <div>
+                                <p className="ts-modal-kicker">System</p>
+                                <h2 className="ts-modal-title">Telemetry</h2>
+                            </div>
+                            <button type="button" className="ts-modal-close" onClick={handleCloseSystem}>
+                                Close
+                            </button>
+                        </div>
+                        <ul className="ts-list">
+                            <li>Version: {state.version}</li>
+                            <li>Last tick: {state.loop.lastTick ?? "awaiting"}</li>
+                            <li>Tick duration: {perf.lastTickDurationMs.toFixed(2)}ms</li>
+                            <li>Last delta: {perf.lastDeltaMs}ms (drift {driftLabel}ms)</li>
+                            <li>Offline catch-up: {perf.lastOfflineTicks} ticks / {perf.lastOfflineDurationMs}ms</li>
+                            <li>Expected tick rate: {tickRate}/s</li>
+                            <li>Loop interval: {state.loop.loopInterval}ms</li>
+                            <li>Offline interval: {state.loop.offlineInterval}ms</li>
+                            <li>
+                                Active action: {activePlayer?.selectedActionId
+                                    ? getSkillLabel(activePlayer.selectedActionId as SkillId)
+                                    : "none"}
+                            </li>
+                        </ul>
+                        <div className="ts-action-row ts-system-actions">
+                            <button
+                                type="button"
+                                className="generic-field button ts-simulate"
+                                onClick={handleSimulateOffline}
+                            >
+                                Simulate +30 min
+                            </button>
+                        </div>
+                        <div className="ts-action-row ts-system-actions">
+                            <button
+                                type="button"
+                                className="generic-field button ts-reset"
+                                onClick={handleResetSave}
+                            >
+                                Reset save
+                            </button>
                         </div>
                     </div>
                 </div>

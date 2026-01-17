@@ -25,7 +25,19 @@ export const ITEM_DEFINITIONS: Array<{ id: ItemId; name: string }> = [
     { id: "fish", name: "Fish" },
     { id: "cloth", name: "Cloth" },
     { id: "leather", name: "Leather" },
-    { id: "wood", name: "Wood" }
+    { id: "wood", name: "Wood" },
+    { id: "stone", name: "Stone" },
+    { id: "ore", name: "Ore" },
+    { id: "crystal", name: "Crystal" },
+    { id: "ingot", name: "Ingot" },
+    { id: "tools", name: "Tools" },
+    { id: "artifact", name: "Artifact" },
+    { id: "garment", name: "Garment" },
+    { id: "armor", name: "Armor" },
+    { id: "furniture", name: "Furniture" },
+    { id: "tonic", name: "Tonic" },
+    { id: "elixir", name: "Elixir" },
+    { id: "potion", name: "Potion" }
 ];
 
 const withRewards = (deltas: ItemDelta): ItemDelta => deltas;
@@ -153,18 +165,83 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
         }
     ],
     Excavation: [
-        { id: "excavate_shallow_vein", skillId: "Excavation", name: "Shallow Vein", unlockLevel: unlockTier(1) },
-        { id: "excavate_deep_shaft", skillId: "Excavation", name: "Deep Shaft", unlockLevel: unlockTier(1) },
-        { id: "excavate_ruins", skillId: "Excavation", name: "Forgotten Ruins", unlockLevel: unlockTier(10) },
-        { id: "excavate_crystal_cavern", skillId: "Excavation", name: "Crystal Cavern", unlockLevel: unlockTier(20) },
-        { id: "excavate_heroic_descent", skillId: "Excavation", name: "Heroic Descent", unlockLevel: unlockTier(30) }
+        {
+            id: "excavate_shallow_vein",
+            skillId: "Excavation",
+            name: "Shallow Vein",
+            unlockLevel: unlockTier(1),
+            itemRewards: withRewards({ stone: 1 })
+        },
+        {
+            id: "excavate_deep_shaft",
+            skillId: "Excavation",
+            name: "Deep Shaft",
+            unlockLevel: unlockTier(1),
+            itemRewards: withRewards({ ore: 1 })
+        },
+        {
+            id: "excavate_ruins",
+            skillId: "Excavation",
+            name: "Forgotten Ruins",
+            unlockLevel: unlockTier(10),
+            itemRewards: withRewards({ stone: 2, ore: 1 })
+        },
+        {
+            id: "excavate_crystal_cavern",
+            skillId: "Excavation",
+            name: "Crystal Cavern",
+            unlockLevel: unlockTier(20),
+            itemRewards: withRewards({ crystal: 1, ore: 1 })
+        },
+        {
+            id: "excavate_heroic_descent",
+            skillId: "Excavation",
+            name: "Heroic Descent",
+            unlockLevel: unlockTier(30),
+            itemRewards: withRewards({ crystal: 2, ore: 2 })
+        }
     ],
     MetalWork: [
-        { id: "metalwork_ingot", skillId: "MetalWork", name: "Ingot Run", unlockLevel: unlockTier(1) },
-        { id: "metalwork_blade", skillId: "MetalWork", name: "Blade Casting", unlockLevel: unlockTier(1) },
-        { id: "metalwork_armor", skillId: "MetalWork", name: "Armor Forge", unlockLevel: unlockTier(10) },
-        { id: "metalwork_forged_tools", skillId: "MetalWork", name: "Forged Tools", unlockLevel: unlockTier(20) },
-        { id: "metalwork_heroic_artifact", skillId: "MetalWork", name: "Heroic Artifact", unlockLevel: unlockTier(30) }
+        {
+            id: "metalwork_ingot",
+            skillId: "MetalWork",
+            name: "Ingot Run",
+            unlockLevel: unlockTier(1),
+            itemCosts: { ore: 2 },
+            itemRewards: withRewards({ ingot: 1 })
+        },
+        {
+            id: "metalwork_blade",
+            skillId: "MetalWork",
+            name: "Blade Casting",
+            unlockLevel: unlockTier(1),
+            itemCosts: { ore: 3 },
+            itemRewards: withRewards({ ingot: 2 })
+        },
+        {
+            id: "metalwork_armor",
+            skillId: "MetalWork",
+            name: "Armor Forge",
+            unlockLevel: unlockTier(10),
+            itemCosts: { ore: 4 },
+            itemRewards: withRewards({ tools: 1 })
+        },
+        {
+            id: "metalwork_forged_tools",
+            skillId: "MetalWork",
+            name: "Forged Tools",
+            unlockLevel: unlockTier(20),
+            itemCosts: { ore: 5 },
+            itemRewards: withRewards({ tools: 2 })
+        },
+        {
+            id: "metalwork_heroic_artifact",
+            skillId: "MetalWork",
+            name: "Heroic Artifact",
+            unlockLevel: unlockTier(30),
+            itemCosts: { ore: 6, crystal: 1 },
+            itemRewards: withRewards({ artifact: 1 })
+        }
     ],
     Alchemy: [
         {
@@ -179,28 +256,32 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             skillId: "Alchemy",
             name: "Minor Tonic",
             unlockLevel: unlockTier(1),
-            itemCosts: { herbs: 2 }
+            itemCosts: { herbs: 2 },
+            itemRewards: withRewards({ tonic: 1 })
         },
         {
             id: "alchemy_distill_essence",
             skillId: "Alchemy",
             name: "Distill Essence",
             unlockLevel: unlockTier(10),
-            itemCosts: { herbs: 3 }
+            itemCosts: { herbs: 3 },
+            itemRewards: withRewards({ elixir: 1 })
         },
         {
             id: "alchemy_muted_vial",
             skillId: "Alchemy",
             name: "Muted Vial",
             unlockLevel: unlockTier(20),
-            itemCosts: { herbs: 2, fish: 1 }
+            itemCosts: { herbs: 2, fish: 1 },
+            itemRewards: withRewards({ elixir: 2 })
         },
         {
             id: "alchemy_heroic_phial",
             skillId: "Alchemy",
             name: "Heroic Phial",
             unlockLevel: unlockTier(30),
-            itemCosts: { herbs: 4, food: 1 }
+            itemCosts: { herbs: 4, food: 1 },
+            itemRewards: withRewards({ potion: 1 })
         }
     ],
     Herbalism: [
@@ -257,28 +338,32 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             skillId: "Tailoring",
             name: "Basic Garment",
             unlockLevel: unlockTier(1),
-            itemCosts: { cloth: 2 }
+            itemCosts: { cloth: 2 },
+            itemRewards: withRewards({ garment: 1 })
         },
         {
             id: "tailoring_sturdy_weave",
             skillId: "Tailoring",
             name: "Sturdy Weave",
             unlockLevel: unlockTier(10),
-            itemCosts: { cloth: 3 }
+            itemCosts: { cloth: 3 },
+            itemRewards: withRewards({ garment: 2 })
         },
         {
             id: "tailoring_leather_trim",
             skillId: "Tailoring",
             name: "Leather Trim",
             unlockLevel: unlockTier(20),
-            itemCosts: { cloth: 2, leather: 1 }
+            itemCosts: { cloth: 2, leather: 1 },
+            itemRewards: withRewards({ garment: 3 })
         },
         {
             id: "tailoring_heroic_raiment",
             skillId: "Tailoring",
             name: "Heroic Raiment",
             unlockLevel: unlockTier(30),
-            itemCosts: { cloth: 4, leather: 2 }
+            itemCosts: { cloth: 4, leather: 2 },
+            itemRewards: withRewards({ garment: 4 })
         }
     ],
     Fishing: [
@@ -335,28 +420,32 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             skillId: "Carpentry",
             name: "Simple Furniture",
             unlockLevel: unlockTier(1),
-            itemCosts: { wood: 2 }
+            itemCosts: { wood: 2 },
+            itemRewards: withRewards({ furniture: 1 })
         },
         {
             id: "carpentry_fitted_planks",
             skillId: "Carpentry",
             name: "Fitted Planks",
             unlockLevel: unlockTier(10),
-            itemCosts: { wood: 3 }
+            itemCosts: { wood: 3 },
+            itemRewards: withRewards({ furniture: 2 })
         },
         {
             id: "carpentry_reinforced_frames",
             skillId: "Carpentry",
             name: "Reinforced Frames",
             unlockLevel: unlockTier(20),
-            itemCosts: { wood: 3, leather: 1 }
+            itemCosts: { wood: 3, leather: 1 },
+            itemRewards: withRewards({ furniture: 3 })
         },
         {
             id: "carpentry_heroic_siegeworks",
             skillId: "Carpentry",
             name: "Heroic Siegeworks",
             unlockLevel: unlockTier(30),
-            itemCosts: { wood: 5, cloth: 2 }
+            itemCosts: { wood: 5, cloth: 2 },
+            itemRewards: withRewards({ furniture: 4 })
         }
     ],
     Leatherworking: [
@@ -372,28 +461,32 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             skillId: "Leatherworking",
             name: "Basic Armor",
             unlockLevel: unlockTier(1),
-            itemCosts: { leather: 2 }
+            itemCosts: { leather: 2 },
+            itemRewards: withRewards({ armor: 1 })
         },
         {
             id: "leatherworking_sturdy_buckle",
             skillId: "Leatherworking",
             name: "Sturdy Buckle",
             unlockLevel: unlockTier(10),
-            itemCosts: { leather: 3 }
+            itemCosts: { leather: 3 },
+            itemRewards: withRewards({ armor: 2 })
         },
         {
             id: "leatherworking_travel_gear",
             skillId: "Leatherworking",
             name: "Travel Gear",
             unlockLevel: unlockTier(20),
-            itemCosts: { leather: 3, cloth: 1 }
+            itemCosts: { leather: 3, cloth: 1 },
+            itemRewards: withRewards({ armor: 3 })
         },
         {
             id: "leatherworking_heroic_plate",
             skillId: "Leatherworking",
             name: "Heroic Plate",
             unlockLevel: unlockTier(30),
-            itemCosts: { leather: 5, cloth: 2 }
+            itemCosts: { leather: 5, cloth: 2 },
+            itemRewards: withRewards({ armor: 4 })
         }
     ]
 };
