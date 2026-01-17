@@ -16,7 +16,7 @@ Keep inventory performant and readable as item counts and types grow.
 - Keep the focus panel accurate and responsive.
 - Provide an empty-state and a "no results" state if filtered.
 
-# Defaults (proposal)
+# Decisions
 - Use simple pagination (page size 36) before virtualization.
 - Persist the current page in memory only (no save).
 - Sort/filter before pagination.
