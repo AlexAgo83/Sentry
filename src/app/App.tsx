@@ -11,6 +11,7 @@ import {
 import { SkillId } from "../core/types";
 import { gameRuntime, gameStore } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
+import { getInventoryMeta } from "./inventoryMeta";
 import "./styles/app.css";
 
 export const App = () => {
@@ -44,6 +45,7 @@ export const App = () => {
     const [isSystemOpen, setSystemOpen] = useState(false);
     const [isInventoryCollapsed, setInventoryCollapsed] = useState(false);
     const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory">("status");
+    const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
     const skillNameById = SKILL_DEFINITIONS.reduce<Record<string, string>>((acc, skill) => {
         acc[skill.id] = skill.name;
         return acc;
@@ -231,6 +233,14 @@ export const App = () => {
         setSystemOpen(false);
     };
 
+    const handleToggleInventoryItem = (itemId: string) => {
+        setSelectedInventoryItemId((current) => (current === itemId ? null : itemId));
+    };
+
+    const handleClearInventorySelection = () => {
+        setSelectedInventoryItemId(null);
+    };
+
     const handleCloseRecruit = () => {
         setRecruitOpen(false);
         setNewHeroName("");
@@ -313,8 +323,13 @@ export const App = () => {
     }, {});
     const inventoryEntries = ITEM_DEFINITIONS.map((item) => ({
         ...item,
-        count: inventoryItems[item.id] ?? 0
+        count: inventoryItems[item.id] ?? 0,
+        ...getInventoryMeta(item.id)
     }));
+    const inventoryGridEntries = inventoryEntries.filter((item) => item.count > 0);
+    const selectedInventoryItem = selectedInventoryItemId
+        ? inventoryEntries.find((item) => item.id === selectedInventoryItemId) ?? null
+        : null;
     const formatItemDeltas = (deltas: Record<string, number>): string => {
         const entries = ITEM_DEFINITIONS
             .map((item) => ({
@@ -649,7 +664,7 @@ export const App = () => {
                     </>
                 ) : null}
                 {activeSidePanel === "inventory" ? (
-                    <section className="generic-panel ts-panel">
+                    <section className="generic-panel ts-panel ts-inventory-panel">
                         <div className="ts-panel-header">
                             <h2 className="ts-panel-title">Inventory</h2>
                             <span className="ts-panel-meta">Shared stash</span>
@@ -662,13 +677,58 @@ export const App = () => {
                             </button>
                         </div>
                         {!isInventoryCollapsed ? (
-                            <ul className="ts-list ts-inventory-list">
-                                {inventoryEntries.map((item) => (
-                                    <li key={item.id} className={item.count === 0 ? "is-empty" : undefined}>
-                                        {item.name}: {item.count}
-                                    </li>
-                                ))}
-                            </ul>
+                            <div className="ts-inventory-layout">
+                                <div className="ts-inventory-grid">
+                                    {inventoryGridEntries.length > 0 ? (
+                                        inventoryGridEntries.map((item) => {
+                                            const isSelected = item.id === selectedInventoryItemId;
+                                            const slotClassName = isSelected
+                                                ? "ts-inventory-slot is-selected"
+                                                : "ts-inventory-slot";
+                                            return (
+                                                <button
+                                                    key={item.id}
+                                                    type="button"
+                                                    className={slotClassName}
+                                                    aria-pressed={isSelected}
+                                                    aria-label={`${item.name} x${item.count}`}
+                                                    title={`${item.name} x${item.count}`}
+                                                    onClick={() => handleToggleInventoryItem(item.id)}
+                                                >
+                                                    {item.icon}
+                                                    <span className="ts-inventory-count">{item.count}</span>
+                                                </button>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="ts-inventory-empty">No items yet.</div>
+                                    )}
+                                </div>
+                                <div className="ts-inventory-focus">
+                                    <div className="ts-inventory-focus-header">
+                                        <h3 className="ts-inventory-focus-title">
+                                            {selectedInventoryItem ? selectedInventoryItem.name : "No item selected"}
+                                        </h3>
+                                        {selectedInventoryItem ? (
+                                            <button
+                                                type="button"
+                                                className="generic-field button ts-inventory-clear"
+                                                onClick={handleClearInventorySelection}
+                                            >
+                                                Clear
+                                            </button>
+                                        ) : null}
+                                    </div>
+                                    <div className="ts-inventory-focus-count">
+                                        Count: {selectedInventoryItem ? selectedInventoryItem.count : "--"}
+                                    </div>
+                                    <p className="ts-inventory-focus-copy">
+                                        {selectedInventoryItem
+                                            ? selectedInventoryItem.description
+                                            : "Select an item to view details."}
+                                    </p>
+                                </div>
+                            </div>
                         ) : null}
                     </section>
                 ) : null}

@@ -28,6 +28,10 @@
     gap: var(--m5);
 }
 
+.ts-inventory-panel {
+    grid-column: span 2;
+}
+
 .ts-panel-header {
     display: flex;
     align-items: center;
@@ -224,6 +228,10 @@
 }
 
 .ts-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m3);
     padding: var(--m4) var(--m5);
     border-radius: var(--border-radius-harmonized);
     border: 1px solid rgba(242, 193, 78, 0.15);
@@ -239,6 +247,7 @@
     font-size: var(--text-l-size);
     font-family: var(--display-font);
     color: var(--color-primary);
+    text-align: right;
 }
 
 .ts-stat-placeholder {
@@ -397,8 +406,140 @@
     color: rgba(242, 193, 78, 0.9);
 }
 
-.ts-inventory-list {
-    margin-top: var(--m2);
+.ts-inventory-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
+    gap: var(--m5);
+}
+
+.ts-inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 64px);
+    gap: 8px;
+    align-content: start;
+    justify-content: start;
+    min-height: 64px;
+}
+
+.ts-inventory-slot {
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    border: 1px solid rgba(242, 193, 78, 0.2);
+    background: rgba(12, 18, 32, 0.8);
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--display-font);
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ts-inventory-slot:hover {
+    border-color: rgba(242, 193, 78, 0.5);
+    transform: translateY(-1px);
+}
+
+.ts-inventory-slot.is-selected {
+    border-color: rgba(93, 217, 193, 0.8);
+    box-shadow: 0 0 0 2px rgba(93, 217, 193, 0.65);
+}
+
+.ts-inventory-icon {
+    display: block;
+    width: 32px;
+    height: 32px;
+    color: var(--color-primary);
+}
+
+.ts-inventory-count {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 0 6px;
+    border-radius: 999px;
+    border: 1px solid rgba(242, 193, 78, 0.35);
+    background: rgba(10, 15, 26, 0.9);
+    font-size: var(--text-xs-size);
+    color: var(--color-text);
+}
+
+.ts-inventory-empty {
+    padding: var(--m4) var(--m5);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px dashed rgba(93, 217, 193, 0.35);
+    color: var(--color-text-fade);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.ts-inventory-focus {
+    padding: var(--m4) var(--m5);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px solid rgba(93, 217, 193, 0.25);
+    background: rgba(12, 18, 32, 0.8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m3);
+}
+
+.ts-inventory-focus-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m3);
+}
+
+.ts-inventory-focus-title {
+    margin: 0;
+    font-size: var(--text-l-size);
+    font-family: var(--display-font);
+    color: var(--color-primary);
+}
+
+.ts-inventory-focus-count {
+    font-size: var(--text-s-size);
+    color: var(--color-text);
+}
+
+.ts-inventory-focus-copy {
+    margin: 0;
+    font-size: var(--text-s-size);
+    color: var(--color-text-fade);
+}
+
+.generic-field.button.ts-inventory-clear {
+    width: auto;
+    padding: var(--m2) var(--m5);
+    border: 1px solid rgba(93, 217, 193, 0.4);
+    background: rgba(22, 30, 50, 0.9);
+    color: var(--color-text);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.generic-field.button.ts-inventory-clear:hover {
+    border-color: rgba(242, 193, 78, 0.6);
+    color: var(--color-primary);
+}
+
+@media (max-width: 900px) {
+    .ts-inventory-panel {
+        grid-column: auto;
+    }
+
+    .ts-inventory-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
+
+    .ts-inventory-focus {
+        margin-top: 12px;
+    }
 }
 
 .generic-field.panel.progress-row.ts-progress-stamina::after {
@@ -482,9 +623,6 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
     color: var(--color-secondary);
 }
 
-.ts-inventory-list li.is-empty {
-    opacity: 0.45;
-}
 
 .ts-modal-backdrop {
     position: fixed;

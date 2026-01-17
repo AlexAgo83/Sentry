@@ -60,9 +60,15 @@ describe("App", () => {
         const inventoryPanel = screen.getByRole("heading", { name: "Inventory" }).closest("section");
         expect(inventoryPanel).toBeTruthy();
         if (inventoryPanel) {
-            expect(within(inventoryPanel).getByText("Gold: 150")).toBeTruthy();
+            expect(within(inventoryPanel).getByRole("heading", { name: "No item selected" })).toBeTruthy();
+            const goldSlot = within(inventoryPanel).getByRole("button", { name: "Gold x150" });
+            await user.click(goldSlot);
+            expect(within(inventoryPanel).getByRole("heading", { name: "Gold" })).toBeTruthy();
+            expect(within(inventoryPanel).getByText("Count: 150")).toBeTruthy();
+            await user.click(within(inventoryPanel).getByRole("button", { name: "Clear" }));
+            expect(within(inventoryPanel).getByRole("heading", { name: "No item selected" })).toBeTruthy();
             await user.click(within(inventoryPanel).getByRole("button", { name: "Collapse" }));
-            expect(within(inventoryPanel).queryByText("Gold: 150")).toBeNull();
+            expect(within(inventoryPanel).queryByRole("button", { name: "Gold x150" })).toBeNull();
         }
 
         const rosterPanel = screen.getByText("Roster").closest("section");
