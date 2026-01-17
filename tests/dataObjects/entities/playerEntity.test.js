@@ -1,15 +1,18 @@
 import { suite, test, expect } from "vitest";
-import { PlayerEntity } from "../../../src/dataObjects/entities/playerEntity.js";
+import { createPlayerState } from "../../../src/core/state";
 
-suite("PlayerEntity", () => {
-    test("Should create an instance", () => {
-        expect(new PlayerEntity(1)).toBeTruthy();
+suite("PlayerState", () => {
+    test("creates a new player with skills", () => {
+        const player = createPlayerState("1");
+        expect(player).toBeTruthy();
+        expect(player.name).toBe("Player_1");
+        expect(Object.keys(player.skills).length).toBeGreaterThan(0);
     });
 });
 
-suite("PlayerEntity", () => {
-    test("Should create an instance", () => {
-        const entity = new PlayerEntity(1)
-        expect(entity.saveSkills()).toBeTruthy();
+suite("PlayerState", () => {
+    test("creates a named player", () => {
+        const player = createPlayerState("2", "Hero");
+        expect(player.name).toBe("Hero");
     });
 });

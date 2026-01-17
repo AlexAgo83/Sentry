@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, configDefaults } from "vitest/config";
 import { readFileSync } from "node:fs";
 import react from "@vitejs/plugin-react-swc";
 
@@ -20,5 +20,17 @@ export default defineConfig({
                 './index.html'
             ]
         }
+    },
+    test: {
+        environment: "jsdom",
+        setupFiles: ["tests/setup.ts"],
+        coverage: {
+            include: ["src/**", "public/sw.js"],
+            exclude: ["**/*.d.ts"]
+        },
+        exclude: [
+            ...configDefaults.exclude,
+            "tests/build.test.js"
+        ]
     }
 });

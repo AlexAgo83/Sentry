@@ -1,8 +1,10 @@
 import { suite, test, expect } from "vitest";
-import { Engine } from "../../src/engine.js";
+import { createLocalStorageAdapter } from "../../src/adapters/persistence/localStorageAdapter";
+import { toGameSave } from "../../src/core/serialization";
+import { createInitialGameState } from "../../src/core/state";
 
-suite("DataManager", () => {
-    test("saves and loads player data", () => {
+suite("LocalStorageAdapter", () => {
+    test("saves and loads game data", () => {
         const storage = new Map();
         const localStorageMock = {
             getItem: (key) => (storage.has(key) ? storage.get(key) : null),
@@ -19,24 +21,18 @@ suite("DataManager", () => {
         const localStorageBackup = globalThis.localStorage;
         globalThis.localStorage = localStorageMock;
 
-        const engine = new Engine();
-        engine.lastIntervalTime = 1234;
-        const player = engine.playerManager.createPlayer(1, false);
-        player.setName("Hero");
-        const combatSkill = player.getSkillByID("Combat");
-        combatSkill.xp = 42;
+        const adapter = createLocalStorageAdapter("sentry-test-save");
+        const state = createInitialGameState("0.4.0");
+        state.players[state.activePlayerId ?? "1"].name = "Hero";
+        state.players[state.activePlayerId ?? "1"].skills.Combat.xp = 42;
+        const save = toGameSave(state);
 
-        engine.dataManager.save();
+        adapter.save(save);
+        const loaded = adapter.load();
 
-        const engineReloaded = new Engine();
-        engineReloaded.dataManager.load();
-        const loadedPlayer = engineReloaded.playerManager
-            .getPlayers()
-            .find((entry) => entry.getIdentifier() === 1);
-
-        expect(engineReloaded.lastIntervalTime).toBe(1234);
-        expect(loadedPlayer?.getName()).toBe("Hero");
-        expect(loadedPlayer?.getSkillByID("Combat")?.xp).toBe(42);
+        expect(loaded?.lastTick).toBe(save.lastTick);
+        expect(loaded?.players?.[state.activePlayerId ?? "1"]?.name).toBe("Hero");
+        expect(loaded?.players?.[state.activePlayerId ?? "1"]?.skills?.Combat?.xp).toBe(42);
 
         localStorageMock.clear();
         globalThis.localStorage = localStorageBackup;
