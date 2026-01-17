@@ -14,6 +14,175 @@ import { useGameStore } from "./hooks/useGameStore";
 import { getInventoryMeta } from "./inventoryMeta";
 import "./styles/app.css";
 
+const skillIconStroke = {
+    stroke: "currentColor",
+    strokeWidth: 3,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    fill: "none"
+} as const;
+
+const SKILL_ICON_SHAPES: Record<SkillId, JSX.Element> = {
+    Combat: (
+        <g {...skillIconStroke}>
+            <path d="M20 44l12-12" />
+            <path d="M44 44l-12-12" />
+            <path d="M18 46l6 6" />
+            <path d="M46 46l-6 6" />
+            <circle cx="20" cy="44" r="2" />
+            <circle cx="44" cy="44" r="2" />
+        </g>
+    ),
+    Hunting: (
+        <g {...skillIconStroke}>
+            <circle cx="40" cy="24" r="6" />
+            <circle cx="40" cy="24" r="2" />
+            <path d="M16 48l18-18" />
+            <path d="M34 30l10-4l-4 10" />
+        </g>
+    ),
+    Cooking: (
+        <g {...skillIconStroke}>
+            <rect x="18" y="30" width="28" height="14" rx="3" />
+            <path d="M22 26h20" />
+            <path d="M28 22h8" />
+            <path d="M24 16c-2 4 2 6 0 10" />
+            <path d="M32 14c-2 4 2 6 0 10" />
+            <path d="M40 16c-2 4 2 6 0 10" />
+        </g>
+    ),
+    Excavation: (
+        <g {...skillIconStroke}>
+            <path d="M22 42l20-20" />
+            <path d="M42 18c-8 0-16 6-20 12" />
+            <path d="M18 46l6 6" />
+        </g>
+    ),
+    MetalWork: (
+        <g {...skillIconStroke}>
+            <path d="M18 28h20l6 6h-32z" />
+            <path d="M18 34h28l-4 10H22z" />
+            <path d="M30 22h14" />
+        </g>
+    ),
+    Alchemy: (
+        <g {...skillIconStroke}>
+            <path d="M22 12h20" />
+            <path d="M26 12v8l-8 14c0 6 6 10 14 10s14-4 14-10l-8-14v-8" />
+            <path d="M24 30h16" />
+        </g>
+    ),
+    Herbalism: (
+        <g {...skillIconStroke}>
+            <path d="M18 40c12-16 28-16 28 0c-8 8-20 8-28 0z" />
+            <path d="M32 20v20" />
+        </g>
+    ),
+    Tailoring: (
+        <g {...skillIconStroke}>
+            <path d="M22 46l20-20" />
+            <circle cx="44" cy="22" r="3" />
+            <path d="M18 48c-6 4-4 10 4 10" />
+        </g>
+    ),
+    Fishing: (
+        <g {...skillIconStroke}>
+            <path d="M32 10v18" />
+            <path d="M32 28c0 8-10 8-10 2" />
+            <path d="M42 38c6-4 10-4 14 0c-4 4-8 4-14 0z" />
+        </g>
+    ),
+    Carpentry: (
+        <g {...skillIconStroke}>
+            <rect x="28" y="16" width="14" height="8" rx="2" />
+            <path d="M30 24l-12 18" />
+            <path d="M22 38l4 4" />
+        </g>
+    ),
+    Leatherworking: (
+        <g {...skillIconStroke}>
+            <path d="M20 14c-4 0-6 4-4 8l2 6l-2 8c-2 6 4 10 10 8l6-2l6 2c6 2 12-2 10-8l-2-8l2-6c2-4 0-8-4-8l-4 2l-6-2l-6 2z" />
+        </g>
+    )
+};
+
+const getSkillIconShape = (skillId: SkillId | ""): JSX.Element => {
+    if (!skillId) {
+        return (
+            <g {...skillIconStroke}>
+                <circle cx="32" cy="32" r="12" />
+                <path d="M32 20v24" />
+                <path d="M20 32h24" />
+            </g>
+        );
+    }
+    return SKILL_ICON_SHAPES[skillId];
+};
+
+type ItemUsage = {
+    usedBy: string[];
+    obtainedBy: string[];
+};
+
+const addUsageLabel = (target: string[], label: string) => {
+    if (!target.includes(label)) {
+        target.push(label);
+    }
+};
+
+const addItemUsage = (usageMap: Record<string, ItemUsage>, itemId: string, bucket: keyof ItemUsage, label: string) => {
+    const entry = usageMap[itemId];
+    if (!entry) {
+        return;
+    }
+    addUsageLabel(entry[bucket], label);
+};
+
+const buildItemUsageMap = (): Record<string, ItemUsage> => {
+    const usage = ITEM_DEFINITIONS.reduce<Record<string, ItemUsage>>((acc, item) => {
+        acc[item.id] = { usedBy: [], obtainedBy: [] };
+        return acc;
+    }, {});
+
+    SKILL_DEFINITIONS.forEach((skill) => {
+        const actionDef = getActionDefinition(skill.id);
+        if (actionDef?.itemCosts) {
+            Object.keys(actionDef.itemCosts).forEach((itemId) => {
+                addItemUsage(usage, itemId, "usedBy", `Action: ${skill.name}`);
+            });
+        }
+        if (actionDef?.itemRewards) {
+            Object.keys(actionDef.itemRewards).forEach((itemId) => {
+                addItemUsage(usage, itemId, "obtainedBy", `Action: ${skill.name}`);
+            });
+        }
+        if (actionDef?.goldReward) {
+            addItemUsage(usage, "gold", "obtainedBy", `Action: ${skill.name}`);
+        }
+
+        getRecipesForSkill(skill.id).forEach((recipe) => {
+            const label = `${skill.name} - ${recipe.name}`;
+            if (recipe.itemCosts) {
+                Object.keys(recipe.itemCosts).forEach((itemId) => {
+                    addItemUsage(usage, itemId, "usedBy", label);
+                });
+            }
+            if (recipe.itemRewards) {
+                Object.keys(recipe.itemRewards).forEach((itemId) => {
+                    addItemUsage(usage, itemId, "obtainedBy", label);
+                });
+            }
+            if (recipe.goldReward) {
+                addItemUsage(usage, "gold", "obtainedBy", label);
+            }
+        });
+    });
+
+    return usage;
+};
+
+const ITEM_USAGE_MAP = buildItemUsageMap();
+
 export const App = () => {
     useEffect(() => {
         gameRuntime.start();
@@ -324,7 +493,8 @@ export const App = () => {
     const inventoryEntries = ITEM_DEFINITIONS.map((item) => ({
         ...item,
         count: inventoryItems[item.id] ?? 0,
-        ...getInventoryMeta(item.id)
+        ...getInventoryMeta(item.id),
+        ...ITEM_USAGE_MAP[item.id]
     }));
     const inventoryGridEntries = inventoryEntries.filter((item) => item.count > 0);
     const selectedInventoryItem = selectedInventoryItemId
@@ -359,6 +529,7 @@ export const App = () => {
         }
         return entries.map((entry) => `${entry.amount} ${entry.name}`).join(", ");
     };
+    const formatUsageList = (entries?: string[]) => (entries && entries.length > 0 ? entries.join(", ") : "None");
     const pendingActionDef = pendingSkillId ? getActionDefinition(pendingSkillId as SkillId) : null;
     const pendingItemCosts = pendingRecipeDef?.itemCosts ?? pendingActionDef?.itemCosts;
     const pendingItemRewards = pendingRecipeDef?.itemRewards ?? pendingActionDef?.itemRewards;
@@ -432,7 +603,6 @@ export const App = () => {
     const offlineSeconds = offlineSummary ? Math.round(offlineSummary.durationMs / 1000) : 0;
     const offlinePlayers = offlineSummary?.players ?? [];
     const activeSkillName = activeSkillId ? getSkillLabel(activeSkillId as SkillId) : "None";
-    const skillIconLabel = activeSkillId ? activeSkillName.slice(0, 2).toUpperCase() : "--";
     const skillIconMap: Record<string, string> = {
         Combat: "#f2c14e",
         Hunting: "#5dd9c1",
@@ -551,21 +721,10 @@ export const App = () => {
                             <span className="ts-panel-meta">Live loop</span>
                         </div>
                         <div className="ts-skill-card">
-                            <div className="ts-skill-icon" style={{ borderColor: skillIconColor }} aria-hidden="true">
-                                <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+                                <div className="ts-skill-icon" style={{ borderColor: skillIconColor }} aria-hidden="true">
+                                <svg viewBox="0 0 64 64" role="img" aria-hidden="true" style={{ color: skillIconColor }}>
                                     <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke={skillIconColor} strokeWidth="4" />
-                                    <path d="M18 38 L32 14 L46 38 Z" fill={skillIconColor} opacity="0.5" />
-                                    <circle cx="32" cy="38" r="10" fill={skillIconColor} opacity="0.85" />
-                                    <text
-                                        x="32"
-                                        y="42"
-                                        textAnchor="middle"
-                                        fontSize="12"
-                                        fill="#0b0f1d"
-                                        fontFamily="var(--display-font)"
-                                    >
-                                        {skillIconLabel}
-                                    </text>
+                                    {getSkillIconShape(activeSkillId as SkillId | "")}
                                 </svg>
                             </div>
                             <div className="ts-skill-copy">
@@ -721,6 +880,22 @@ export const App = () => {
                                     </div>
                                     <div className="ts-inventory-focus-count">
                                         Count: {selectedInventoryItem ? selectedInventoryItem.count : "--"}
+                                    </div>
+                                    <div className="ts-inventory-focus-row">
+                                        <span className="ts-inventory-focus-label">Used by</span>
+                                        <span className="ts-inventory-focus-value">
+                                            {selectedInventoryItem
+                                                ? formatUsageList(selectedInventoryItem.usedBy)
+                                                : "--"}
+                                        </span>
+                                    </div>
+                                    <div className="ts-inventory-focus-row">
+                                        <span className="ts-inventory-focus-label">Obtained by</span>
+                                        <span className="ts-inventory-focus-value">
+                                            {selectedInventoryItem
+                                                ? formatUsageList(selectedInventoryItem.obtainedBy)
+                                                : "--"}
+                                        </span>
                                     </div>
                                     <p className="ts-inventory-focus-copy">
                                         {selectedInventoryItem

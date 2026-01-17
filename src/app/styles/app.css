@@ -20,6 +20,8 @@
 
 .ts-layout {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-auto-rows: min-content;
+    align-items: start;
 }
 
 .ts-panel {
@@ -30,6 +32,7 @@
 
 .ts-inventory-panel {
     grid-column: span 2;
+    height: max-content;
 }
 
 .ts-panel-header {
@@ -408,8 +411,8 @@
 
 .ts-inventory-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
     gap: var(--m5);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .ts-inventory-grid {
@@ -503,6 +506,27 @@
 .ts-inventory-focus-count {
     font-size: var(--text-s-size);
     color: var(--color-text);
+}
+
+.ts-inventory-focus-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--m4);
+}
+
+.ts-inventory-focus-label {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-text-fade);
+}
+
+.ts-inventory-focus-value {
+    flex: 1;
+    font-size: var(--text-s-size);
+    color: var(--color-text);
+    text-align: right;
 }
 
 .ts-inventory-focus-copy {
