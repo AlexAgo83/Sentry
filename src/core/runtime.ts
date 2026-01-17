@@ -1,4 +1,4 @@
-import { GameState, ItemDelta, OfflinePlayerSummary, OfflineSummaryState, PerformanceState } from "./types";
+import { GameSave, GameState, ItemDelta, OfflinePlayerSummary, OfflineSummaryState, PerformanceState } from "./types";
 import { createInitialGameState } from "./state";
 import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
@@ -8,6 +8,12 @@ export class GameRuntime {
     private intervalId: number | null = null;
     private hiddenAt: number | null = null;
     private hasStarted = false;
+    private lastPersistAt: number | null = null;
+    private persistenceFailureCount = 0;
+    private persistenceDisabled = false;
+    private hasLoggedPersistenceError = false;
+    private static readonly MAX_CATCH_UP_MS = 500;
+    private static readonly PERSIST_INTERVAL_MS = 1500;
 
     constructor(
         private readonly store: GameStore,
@@ -65,13 +71,13 @@ export class GameRuntime {
             lastOfflineTicks: result.ticks,
             lastOfflineDurationMs: durationMs
         });
-        this.persist();
+        this.persist({ force: true });
     };
 
     reset = () => {
         const initialState = createInitialGameState(this.version);
         const save = toGameSave(initialState);
-        this.persistence.save(save);
+        this.persist({ force: true, save });
         this.store.dispatch({ type: "hydrate", save, version: this.version });
     };
 
@@ -107,7 +113,8 @@ export class GameRuntime {
             return;
         }
 
-        const diff = now - lastTick;
+        const rawDiff = now - lastTick;
+        const diff = Number.isFinite(rawDiff) ? Math.max(0, rawDiff) : 0;
         const threshold = state.loop.loopInterval * state.loop.offlineThreshold;
 
         if (diff > threshold) {
@@ -118,9 +125,10 @@ export class GameRuntime {
                 lastOfflineDurationMs: diff
             });
         } else {
-            this.store.dispatch({ type: "tick", deltaMs: state.loop.loopInterval, timestamp: now });
+            const deltaMs = Math.min(diff, threshold, GameRuntime.MAX_CATCH_UP_MS);
+            this.store.dispatch({ type: "tick", deltaMs, timestamp: now });
             this.updatePerf(perfStart, {
-                lastDeltaMs: state.loop.loopInterval,
+                lastDeltaMs: deltaMs,
                 lastOfflineTicks: 0,
                 lastOfflineDurationMs: 0
             });
@@ -155,9 +163,30 @@ export class GameRuntime {
         };
     };
 
-    private persist = () => {
-        const save = toGameSave(this.store.getState());
-        this.persistence.save(save);
+    private persist = (options?: { force?: boolean; save?: GameSave }) => {
+        if (this.persistenceDisabled) {
+            return;
+        }
+        const now = Date.now();
+        if (!options?.force && this.lastPersistAt && now - this.lastPersistAt < GameRuntime.PERSIST_INTERVAL_MS) {
+            return;
+        }
+        const save = options?.save ?? toGameSave(this.store.getState());
+        try {
+            this.persistence.save(save);
+            this.lastPersistAt = now;
+            this.persistenceFailureCount = 0;
+            this.hasLoggedPersistenceError = false;
+        } catch (error) {
+            this.persistenceFailureCount += 1;
+            if (!this.hasLoggedPersistenceError) {
+                console.error("Failed to persist save data", error);
+                this.hasLoggedPersistenceError = true;
+            }
+            if (this.persistenceFailureCount >= 3) {
+                this.persistenceDisabled = true;
+            }
+        }
     };
 
     private collectTickDeltas = (total: ItemDelta, perPlayer: Record<string, ItemDelta>) => {
@@ -216,7 +245,7 @@ export class GameRuntime {
                     lastOfflineTicks: result.ticks,
                     lastOfflineDurationMs: durationMs
                 });
-                this.persist();
+                this.persist({ force: true });
             }
             this.hiddenAt = null;
             this.startLoop();
@@ -333,6 +362,6 @@ export class GameRuntime {
             lastOfflineTicks: result.ticks,
             lastOfflineDurationMs: diff
         });
-        this.persist();
+        this.persist({ force: true });
     };
 }
