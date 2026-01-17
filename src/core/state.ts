@@ -55,15 +55,25 @@ const createSkillState = (id: SkillId): SkillState => {
     };
 };
 
-export const createPlayerState = (id: PlayerId): PlayerState => {
+const sanitizePlayerName = (name?: string): string | null => {
+    const trimmed = name?.trim() ?? "";
+    if (trimmed.length === 0) {
+        return null;
+    }
+    return trimmed.slice(0, 20);
+};
+
+export const createPlayerState = (id: PlayerId, name?: string): PlayerState => {
     const skills = SKILL_DEFINITIONS.reduce<Record<SkillId, SkillState>>((acc, skill) => {
         acc[skill.id] = createSkillState(skill.id);
         return acc;
     }, {} as Record<SkillId, SkillState>);
 
+    const resolvedName = sanitizePlayerName(name);
+
     return {
         id,
-        name: `Player_${id}`,
+        name: resolvedName ?? `Player_${id}`,
         hp: DEFAULT_HP_MAX,
         hpMax: DEFAULT_HP_MAX,
         stamina: DEFAULT_STAMINA_MAX,
@@ -97,7 +107,14 @@ export const createInitialGameState = (version: string): GameState => {
             loopInterval: LOOP_INTERVAL,
             offlineInterval: OFFLINE_INTERVAL,
             offlineThreshold: OFFLINE_THRESHOLD
-        }
+        },
+        perf: {
+            lastTickDurationMs: 0,
+            lastDeltaMs: 0,
+            lastOfflineTicks: 0,
+            lastOfflineDurationMs: 0
+        },
+        offlineSummary: null
     };
 };
 

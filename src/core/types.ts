@@ -60,6 +60,8 @@ export interface GameState {
     players: Record<PlayerId, PlayerState>;
     activePlayerId: PlayerId | null;
     loop: LoopState;
+    perf: PerformanceState;
+    offlineSummary: OfflineSummaryState | null;
 }
 
 export interface SkillDefinition {
@@ -87,6 +89,27 @@ export interface ActionDefinition {
 }
 
 export type PlayerSaveState = Omit<PlayerState, "actionProgress">;
+
+export interface PerformanceState {
+    lastTickDurationMs: number;
+    lastDeltaMs: number;
+    lastOfflineTicks: number;
+    lastOfflineDurationMs: number;
+}
+
+export interface OfflineSummaryState {
+    playerId: PlayerId;
+    playerName: string;
+    durationMs: number;
+    ticks: number;
+    actionId: ActionId | null;
+    recipeId: RecipeId | null;
+    goldGained: number;
+    skillXpGained: number;
+    recipeXpGained: number;
+    skillLevelGained: number;
+    recipeLevelGained: number;
+}
 
 export interface GameSave {
     version: string;

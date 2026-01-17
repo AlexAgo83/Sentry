@@ -4,6 +4,8 @@ import {
     ActionId,
     GameSave,
     GameState,
+    OfflineSummaryState,
+    PerformanceState,
     PlayerId,
     RecipeId,
     SkillId
@@ -13,8 +15,10 @@ export type GameAction =
     | { type: "hydrate"; save: GameSave | null; version: string }
     | { type: "tick"; deltaMs: number; timestamp: number }
     | { type: "setHiddenAt"; hiddenAt: number | null }
+    | { type: "setPerf"; perf: Partial<PerformanceState> }
+    | { type: "setOfflineSummary"; summary: OfflineSummaryState | null }
     | { type: "setActivePlayer"; playerId: PlayerId }
-    | { type: "addPlayer" }
+    | { type: "addPlayer"; name?: string }
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
     | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null };
 
@@ -32,6 +36,19 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     lastHiddenAt: action.hiddenAt
                 }
             };
+        case "setPerf":
+            return {
+                ...state,
+                perf: {
+                    ...state.perf,
+                    ...action.perf
+                }
+            };
+        case "setOfflineSummary":
+            return {
+                ...state,
+                offlineSummary: action.summary
+            };
         case "setActivePlayer":
             if (!state.players[action.playerId]) {
                 return state;
@@ -42,7 +59,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             };
         case "addPlayer": {
             const nextId = getNextPlayerId(state.players);
-            const nextPlayer = createPlayerState(nextId);
+            const nextPlayer = createPlayerState(nextId, action.name);
             return {
                 ...state,
                 players: {

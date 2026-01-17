@@ -1,3 +1,5 @@
+import { GameState, OfflineSummaryState, PerformanceState } from "./types";
+import { createInitialGameState } from "./state";
 import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
 import { PersistenceAdapter } from "../adapters/persistence/types";
@@ -29,6 +31,13 @@ export class GameRuntime {
         this.hasStarted = false;
     };
 
+    reset = () => {
+        const initialState = createInitialGameState(this.version);
+        const save = toGameSave(initialState);
+        this.persistence.save(save);
+        this.store.dispatch({ type: "hydrate", save, version: this.version });
+    };
+
     private startLoop = () => {
         if (this.intervalId) {
             window.clearInterval(this.intervalId);
@@ -45,12 +54,18 @@ export class GameRuntime {
     };
 
     private tick = () => {
+        const perfStart = this.getPerfTimestamp();
         const state = this.store.getState();
         const now = Date.now();
         const lastTick = state.loop.lastTick;
 
         if (!lastTick) {
             this.store.dispatch({ type: "tick", deltaMs: 0, timestamp: now });
+            this.updatePerf(perfStart, {
+                lastDeltaMs: 0,
+                lastOfflineTicks: 0,
+                lastOfflineDurationMs: 0
+            });
             this.persist();
             return;
         }
@@ -59,9 +74,19 @@ export class GameRuntime {
         const threshold = state.loop.loopInterval * state.loop.offlineThreshold;
 
         if (diff > threshold) {
-            this.runOfflineTicks(lastTick, now, state.loop.offlineInterval);
+            const result = this.runOfflineTicks(lastTick, now, state.loop.offlineInterval);
+            this.updatePerf(perfStart, {
+                lastDeltaMs: diff,
+                lastOfflineTicks: result.ticks,
+                lastOfflineDurationMs: diff
+            });
         } else {
             this.store.dispatch({ type: "tick", deltaMs: state.loop.loopInterval, timestamp: now });
+            this.updatePerf(perfStart, {
+                lastDeltaMs: state.loop.loopInterval,
+                lastOfflineTicks: 0,
+                lastOfflineDurationMs: 0
+            });
         }
         this.persist();
     };
@@ -81,6 +106,10 @@ export class GameRuntime {
             tickTime += remainder;
             this.store.dispatch({ type: "tick", deltaMs: remainder, timestamp: tickTime });
         }
+        return {
+            ticks: totalTicks + (remainder > 0 ? 1 : 0),
+            diff
+        };
     };
 
     private persist = () => {
@@ -103,12 +132,82 @@ export class GameRuntime {
             const resumeAt = Date.now();
             const hiddenAt = this.hiddenAt ?? this.store.getState().loop.lastHiddenAt;
             if (hiddenAt) {
-                this.runOfflineTicks(hiddenAt, resumeAt, this.store.getState().loop.offlineInterval);
+                const perfStart = this.getPerfTimestamp();
+                const beforeState = this.store.getState();
+                const result = this.runOfflineTicks(hiddenAt, resumeAt, this.store.getState().loop.offlineInterval);
+                const afterState = this.store.getState();
+                const durationMs = resumeAt - hiddenAt;
+                if (durationMs >= 5000) {
+                    const summary = this.buildOfflineSummary(beforeState, afterState, durationMs, result.ticks);
+                    if (summary) {
+                        this.store.dispatch({ type: "setOfflineSummary", summary });
+                    }
+                }
                 this.store.dispatch({ type: "setHiddenAt", hiddenAt: null });
+                this.updatePerf(perfStart, {
+                    lastDeltaMs: durationMs,
+                    lastOfflineTicks: result.ticks,
+                    lastOfflineDurationMs: durationMs
+                });
                 this.persist();
             }
             this.hiddenAt = null;
             this.startLoop();
         });
+    };
+
+    private getPerfTimestamp = (): number => {
+        if (typeof performance !== "undefined" && typeof performance.now === "function") {
+            return performance.now();
+        }
+        return Date.now();
+    };
+
+    private updatePerf = (start: number, perf: Partial<PerformanceState>) => {
+        const duration = Math.max(0, this.getPerfTimestamp() - start);
+        this.store.dispatch({
+            type: "setPerf",
+            perf: {
+                lastTickDurationMs: duration,
+                ...perf
+            }
+        });
+    };
+
+    private buildOfflineSummary = (
+        beforeState: GameState,
+        afterState: GameState,
+        durationMs: number,
+        ticks: number
+    ): OfflineSummaryState | null => {
+        const playerId = beforeState.activePlayerId;
+        if (!playerId) {
+            return null;
+        }
+        const beforePlayer = beforeState.players[playerId];
+        const afterPlayer = afterState.players[playerId];
+        if (!beforePlayer || !afterPlayer) {
+            return null;
+        }
+        const actionId = beforePlayer.selectedActionId;
+        const beforeSkill = actionId ? beforePlayer.skills[actionId] : null;
+        const afterSkill = actionId ? afterPlayer.skills[actionId] : null;
+        const recipeId = beforeSkill?.selectedRecipeId ?? null;
+        const beforeRecipe = recipeId && beforeSkill ? beforeSkill.recipes[recipeId] : null;
+        const afterRecipe = recipeId && afterSkill ? afterSkill.recipes[recipeId] : null;
+
+        return {
+            playerId,
+            playerName: beforePlayer.name,
+            durationMs,
+            ticks,
+            actionId,
+            recipeId,
+            goldGained: afterPlayer.storage.gold - beforePlayer.storage.gold,
+            skillXpGained: beforeSkill && afterSkill ? afterSkill.xp - beforeSkill.xp : 0,
+            recipeXpGained: beforeRecipe && afterRecipe ? afterRecipe.xp - beforeRecipe.xp : 0,
+            skillLevelGained: beforeSkill && afterSkill ? afterSkill.level - beforeSkill.level : 0,
+            recipeLevelGained: beforeRecipe && afterRecipe ? afterRecipe.level - beforeRecipe.level : 0
+        };
     };
 }

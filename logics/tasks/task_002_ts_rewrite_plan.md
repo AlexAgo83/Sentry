@@ -31,9 +31,28 @@ This task executes `item_003_ts_rewrite`.
 8. Wired skill/recipe/action selection to the core loop with multi-player support in `src/core/reducer.ts` and `src/core/state.ts`.
 9. Added core loop and serialization tests in `tests/core/loop.test.ts` and `tests/core/serialization.test.ts`.
 10. Added PWA manifest + service worker in `public/manifest.webmanifest` and `public/sw.js`, with registration in `src/main.tsx`.
-5. Pending.
-6. Pending.
-7. Pending.
-8. Pending.
-9. Pending.
-10. Pending.
+11. Added runtime performance indicators to the System panel in `src/app/App.tsx`.
+12. Moved Loadout into a modal opened from the roster in `src/app/App.tsx`.
+13. Updated roster rows with compact action/select buttons and removed HP/stamina display in `src/app/App.tsx`.
+14. Added recruit modal, stun progress styling, and stamina progress bar in `src/app/App.tsx` and `src/app/styles/app.css`.
+15. Added skill and recipe XP progress bars in `src/app/App.tsx` and `src/app/styles/app.css`.
+16. Removed textual skill/recipe XP stats in favor of progress-only display in `src/app/App.tsx`.
+17. Added skill/recipe level indicators inside the XP progress labels in `src/app/App.tsx`.
+18. Added offline recap modal on return (>=5s) with gains summary in `src/core/runtime.ts` and `src/app/App.tsx`.
+19. Added reset save button to System panel in `src/app/App.tsx` and reset handler in `src/core/runtime.ts`.
+
+## Review (updated)
+High
+- None.
+
+Medium
+- ESM import in `src/dataObjects/items/itemStack.js` omits the `.js` extension; native ESM can fail to resolve it.
+- Service worker uses a single static cache name and caches every GET request, which can serve stale assets after deploys and allow unbounded cache growth.
+
+Low
+- Offline recap currently summarizes only the active player; requirement updated to a multi-player recap.
+- No tests cover the offline recap or reset flow.
+
+Decisions / direction
+- Offline recap: change to multi-player summary (aggregate per player, or summary + per-player rows).
+- Service worker: prefer versioned caches (include app version in cache name), cache only core assets + built JS/CSS, and clear old caches on activate. Optionally implement stale-while-revalidate for navigation and asset requests.

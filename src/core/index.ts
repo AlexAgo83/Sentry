@@ -9,6 +9,8 @@ export type {
     PlayerId,
     PlayerSaveState,
     PlayerState,
+    PerformanceState,
+    OfflineSummaryState,
     RecipeDefinition,
     RecipeId,
     RecipeState,
