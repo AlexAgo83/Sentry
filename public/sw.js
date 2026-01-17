@@ -1,5 +1,11 @@
-const CACHE_NAME = "sentry-runtime-v1";
+const CACHE_VERSION = new URL(self.location.href).searchParams.get("v") || "dev";
+const CACHE_PREFIX = "sentry-runtime-";
+const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const CORE_ASSETS = ["/", "/index.html", "/manifest.webmanifest", "/icon.svg"];
+
+const isSameOrigin = (request) => request.url.startsWith(self.location.origin);
+const isNavigation = (request) => request.mode === "navigate";
+const isStaticAsset = (request) => ["script", "style", "image", "font", "manifest"].includes(request.destination);
 
 self.addEventListener("install", (event) => {
     event.waitUntil(
@@ -13,7 +19,7 @@ self.addEventListener("activate", (event) => {
         caches.keys().then((keys) =>
             Promise.all(
                 keys
-                    .filter((key) => key !== CACHE_NAME)
+                    .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
                     .map((key) => caches.delete(key))
             )
         )
@@ -23,20 +29,49 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
     const { request } = event;
-    if (request.method !== "GET") {
+    if (request.method !== "GET" || !isSameOrigin(request)) {
         return;
     }
-    event.respondWith(
-        fetch(request)
-            .then((response) => {
-                const responseClone = response.clone();
-                if (response.ok && request.url.startsWith(self.location.origin)) {
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(request, responseClone);
-                    });
+
+    event.respondWith((async () => {
+        const cache = await caches.open(CACHE_NAME);
+
+        if (isNavigation(request)) {
+            try {
+                const response = await fetch(request);
+                if (response.ok) {
+                    cache.put(request, response.clone());
                 }
                 return response;
-            })
-            .catch(() => caches.match(request).then((cached) => cached || caches.match("/index.html")))
-    );
+            } catch (error) {
+                const cached = await cache.match(request);
+                return cached || cache.match("/index.html");
+            }
+        }
+
+        if (isStaticAsset(request)) {
+            const cached = await cache.match(request);
+            if (cached) {
+                event.waitUntil(
+                    fetch(request).then((response) => {
+                        if (response.ok) {
+                            cache.put(request, response.clone());
+                        }
+                    })
+                );
+                return cached;
+            }
+        }
+
+        try {
+            const response = await fetch(request);
+            if (response.ok && isStaticAsset(request)) {
+                cache.put(request, response.clone());
+            }
+            return response;
+        } catch (error) {
+            const cached = await cache.match(request);
+            return cached || cache.match("/index.html");
+        }
+    })());
 });

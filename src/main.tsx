@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import "../styles/global.css";
 import { App } from "./app/App";
 
+declare const __APP_VERSION__: string;
+
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
@@ -17,7 +19,8 @@ createRoot(rootElement).render(
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js").catch((error) => {
+        const version = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "dev";
+        navigator.serviceWorker.register(`/sw.js?v=${version}`).catch((error) => {
             console.error("Service worker registration failed", error);
         });
     });
