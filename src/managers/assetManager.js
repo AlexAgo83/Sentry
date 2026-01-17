@@ -5,7 +5,7 @@
 // @ts-check
 // assetManager.js
 
-import { CoreManager } from "./coreManager"
+import { CoreManager } from "./coreManager.js";
 
 let parseAssetsPath = () => { 
     try {

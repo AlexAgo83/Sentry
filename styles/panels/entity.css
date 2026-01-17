@@ -4,11 +4,23 @@
     flex-direction: column;
 }
 
+#player-list-panel-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--m10);
+    width: 100%;
+}
+
 .player-card-panel {
     margin: 0px;
 }
 
 .player-card-content {
     min-width: var(--min-card-size);
-    width: var(--min-card-size);
+    width: 100%;
+    padding: var(--m7);
+    border-radius: calc(var(--border-radius-harmonized) + var(--m1));
+    border: 1px solid rgba(93, 217, 193, 0.25);
+    background: linear-gradient(160deg, rgba(20, 28, 45, 0.95), rgba(10, 15, 26, 0.95));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }

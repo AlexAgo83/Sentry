@@ -2,6 +2,7 @@
 .generic-text {
     font-size: var(--text-m-size);
     font-family: var(--default-font);
+    line-height: 1.5;
 }
 
 .generic-text.no-bg {

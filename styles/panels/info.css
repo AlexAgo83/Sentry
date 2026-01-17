@@ -1,4 +1,7 @@
 .info-panel-content {
     min-width: var(--min-info-size);
     width: var(--min-info-size);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
 }

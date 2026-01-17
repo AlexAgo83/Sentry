@@ -15,7 +15,35 @@
     min-width: fit-content;
     margin-left: var(--m2);
     margin-right: var(--m2);
+    gap: var(--m2);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px solid rgba(242, 193, 78, 0.15);
     background-color: var(--color-text-background-alt);
+}
+
+.generic-field.panel.progress-row {
+    padding: var(--m2) var(--m5);
+    background-color: rgba(16, 22, 36, 0.9);
+    border: 1px solid rgba(93, 217, 193, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.generic-field.panel.progress-row::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--progress, 0%);
+    background: linear-gradient(90deg, rgba(93, 217, 193, 0.35), rgba(242, 193, 78, 0.4));
+    opacity: 0.6;
+    transition: width 0.2s ease;
+}
+
+.generic-field.panel.progress-row > * {
+    position: relative;
+    z-index: 1;
 }
 
 /** Space Buffer */
@@ -34,61 +62,71 @@
 .generic-field.value {
     color: var(--color-text);
     margin-right: var(--m2);
+    font-weight: 600;
 }
 
 .generic-field.button {
-  border: var(--m1) solid var(--color-tertiary);
-  background-color: var(--color-secondary);
-  border-radius: var(--border-radius-harmonized);
-  color: #ffffff;
-  width: 100%;
-  padding: var(--m5) var(--m10);
+    border: 1px solid rgba(242, 193, 78, 0.35);
+    background: linear-gradient(140deg, rgba(93, 217, 193, 0.9), rgba(32, 89, 109, 0.95));
+    border-radius: var(--border-radius-harmonized);
+    color: #0b111c;
+    width: 100%;
+    padding: var(--m5) var(--m10);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .generic-field.button:hover {
-  border: var(--m1) solid var(--color-tertiary);
-  background-color: var(--color-primary);
-  color: #ffffff;
-  padding: var(--m5) var(--m10);
+    border: 1px solid rgba(242, 193, 78, 0.6);
+    background: linear-gradient(140deg, rgba(242, 193, 78, 0.95), rgba(198, 129, 48, 0.9));
+    color: #1b1405;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px -12px rgba(242, 193, 78, 0.7);
 }
 
 .generic-field.button:disabled,
 .generic-field.button[disabled]{
-  border: var(--m1) solid var(--color-secondary);
-  background-color: var(--color-tertiary);
-  opacity: 1;
-  color: var(--color-text-background-fade);
+    border: 1px solid rgba(93, 217, 193, 0.2);
+    background: rgba(43, 57, 82, 0.7);
+    opacity: 1;
+    color: rgba(243, 239, 228, 0.4);
+    transform: none;
+    box-shadow: none;
 }
 
 /** PROGRESS */
 .generic-field.progress {
+    display: block;
     width: 100%;
     accent-color:var(--color-primary);
     background-color:transparent;
     -webkit-appearence:none;
+    height: var(--m4);
 }
 
 /** Progress bar color */
 .generic-field.progress::-webkit-progress-bar {
-    background-color:var(--color-tertiary);
+    background-color: rgba(43, 57, 82, 0.8);
     border-radius: var(--border-radius-harmonized);
 }
 
 /** Progress value color */
 .generic-field.progress::-webkit-progress-value {
-    background-color:var(--color-secondary);
+    background: linear-gradient(90deg, rgba(93, 217, 193, 0.9), rgba(242, 193, 78, 0.9));
     border-radius: var(--border-radius-harmonized);
 }
 
 /** Progress value color - alternative */
 .generic-field.progress::-moz-progress-bar {
-    background-color:var(--color-secondary);
+    background: linear-gradient(90deg, rgba(93, 217, 193, 0.9), rgba(242, 193, 78, 0.9));
 }
 
 /** Inputfield */
 .generic-field.input {
-    background-color: var(--color-text-background);
-    border: var(--m1) solid var(--color-text-background-fade);
+    background-color: rgba(12, 18, 32, 0.8);
+    border: 1px solid rgba(242, 193, 78, 0.2);
     border-radius: var(--border-radius-harmonized);
     padding-left: var(--m5);
     padding-right: var(--m5);
@@ -101,7 +139,7 @@
 
 .generic-field.input:disabled {
     background-color: transparent;
-    border: transparent;
+    border: 1px solid transparent;
     border-radius: inherit;
     padding-left: var(--m0);
     padding-right: var(--m0);
@@ -115,8 +153,8 @@
 
 /** Select */
 .generic-field.select {
-    background-color: var(--color-text-background);
-    border: var(--m1) solid var(--color-text-background-fade);
+    background-color: rgba(12, 18, 32, 0.85);
+    border: 1px solid rgba(242, 193, 78, 0.2);
     border-radius: var(--border-radius-harmonized);
     padding-left: var(--m5);
     padding-right: var(--m5);
@@ -129,7 +167,7 @@
 
 .generic-field.select:disabled {
     background-color: transparent;
-    border: transparent;
+    border: 1px solid transparent;
     border-radius: inherit;
     padding-left: var(--m5);
     padding-right: var(--m5);

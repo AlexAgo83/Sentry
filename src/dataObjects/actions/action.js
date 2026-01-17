@@ -30,7 +30,7 @@ export class Action extends Entity {
         this.stunTime = STATIC_DEFAULT_STUN_TIME;
 
         this.currentInterval = 0;
-        this.progression = null;
+        this.progression = 0;
         this.lastExecutionTime = null;
         this.setOnLoad((actionData) => {});
         this.setOnSave(() => {
@@ -67,7 +67,18 @@ export class Action extends Entity {
      * @returns {number|null} The current progress (0-100) of the action
      */
     getProgression = () => {
-        return this.progression;
+        return Number.isFinite(this.progression) ? this.progression : 0;
+    }
+
+    /**
+     * Returns the current progress percentage based on the internal timer.
+     * @returns {number} Progress from 0 to 100.
+     */
+    getProgressPercent = () => {
+        const actionInterval = this.actionInterval(this.player);
+        if (actionInterval <= 0) return 0;
+        const ratio = (this.currentInterval / actionInterval) * 100;
+        return Math.max(0, Math.min(100, ratio));
     }
 
     /**

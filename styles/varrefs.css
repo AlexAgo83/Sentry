@@ -1,16 +1,16 @@
 :root {
-    
-    --m0:   0px;
-    --m1:   2px;
-    --m2:   4px;
-    --m4:   8px;
-    --m5:   10px;
-    --m7:   14px;
-    --m8:   16px;
-    --m10:  20px;
-    --m12:  24px;
-    --m14:  28px;
-    --m22:  44px;
+    --m0: 0px;
+    --m1: 2px;
+    --m2: 4px;
+    --m4: 8px;
+    --m5: 10px;
+    --m7: 14px;
+    --m8: 16px;
+    --m10: 20px;
+    --m12: 24px;
+    --m14: 28px;
+    --m22: 44px;
+    --m28: 56px;
 
     --text-xs-size: var(--m5);
     --text-s-size: var(--m7);
@@ -18,21 +18,22 @@
     --text-l-size: var(--m12);
     --text-xl-size: var(--m14);
 
-    --default-font: 'Fira Mono', 'Consolas', monospace;
-    --color-text: #000000;
-    --color-text-fade: #454545;
-    --color-text-background: #ffffff;
-    --color-text-background-fade: #d9d9d9a3;
-    --color-text-background-alt: #7493a915;
-    --color-primary: #3ea7f3;
-    --color-secondary: #506574;
-    --color-tertiary: #7493a9;
-    --border-radius-harmonized: var(--m4);
+    --default-font: "Source Sans 3", "Segoe UI", sans-serif;
+    --display-font: "Cinzel", "Times New Roman", serif;
+    --color-text: #f4f1e9;
+    --color-text-fade: #a3adbd;
+    --color-text-background: #151c2e;
+    --color-text-background-fade: rgba(242, 193, 78, 0.2);
+    --color-text-background-alt: rgba(45, 56, 79, 0.6);
+    --color-primary: #f2c14e;
+    --color-secondary: #5dd9c1;
+    --color-tertiary: #2b3952;
+    --border-radius-harmonized: var(--m7);
 
     --min-screen-size: 330px;
-    --min-panel-size: 300px;
+    --min-panel-size: 260px;
 
-    --min-card-size: 330px;
-    --min-info-size: 330px;
-    --min-tools-size: 330px;
+    --min-card-size: 280px;
+    --min-info-size: 260px;
+    --min-tools-size: 260px;
 }

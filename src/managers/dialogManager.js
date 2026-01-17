@@ -5,7 +5,7 @@
 // dialogManager.js
 
 import Swal from 'sweetalert2';
-import { CoreManager } from './coreManager';
+import { CoreManager } from "./coreManager.js";
 
 export class DialogManager extends CoreManager {
     

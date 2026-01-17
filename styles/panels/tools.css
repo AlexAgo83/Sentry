@@ -1,8 +1,10 @@
 .tools-panel-content {
     min-width: var(--min-tools-size);
     width: var(--min-tools-size);
-    margin: auto;
+    margin: 0;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    gap: var(--m5);
+    justify-content: flex-start;
+    align-items: stretch;
 }

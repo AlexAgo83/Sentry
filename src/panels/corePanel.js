@@ -139,7 +139,7 @@ export class CorePanel {
         if (valueSize != null) {
             newSpanValue.classList.add("generic-text", valueSize);
         }
-        newSpanValue.textContent = defaultValue ? defaultValue : "N/A";
+        newSpanValue.textContent = defaultValue ?? "N/A";
         newPanel.appendChild(newSpanValue);
         // @ts-ignore
         newPanel.targetId = this.genId(id);
@@ -223,6 +223,7 @@ export class CorePanel {
     createProgress = (id, label=null, onChangeInterval) => {
         const newPanel = document.createElement("p");
         newPanel.classList.add("generic-field", "panel");
+        newPanel.classList.add("progress-row");
         newPanel.style.margin = "2px";
         newPanel.style.padding = "0px";
 
@@ -257,22 +258,23 @@ export class CorePanel {
             let lastNewValue = 0;
             const intervalId = setInterval(() => {
                 const rawInterval = onChangeInterval(); /* Ex: 2500 ms */
-                const oldValue = newProgress.value;
-                if (rawInterval.progression !== lastNewValue) {
-                    newProgress.value = rawInterval.progression;
-                    lastNewValue = rawInterval.progression;
-                    lastInterval = rawInterval.interval;
+                const safeInterval = Number.isFinite(rawInterval?.interval) ? rawInterval.interval : 0;
+                const safeProgression = Number.isFinite(rawInterval?.progression) ? rawInterval.progression : 0;
+                if (safeProgression !== lastNewValue) {
+                    newProgress.value = safeProgression;
+                    lastNewValue = safeProgression;
+                    lastInterval = safeInterval;
                 }
-                if (rawInterval.interval > 0 && rawInterval.interval === lastInterval) {
-                    const progressIncr = 100 / (rawInterval.interval / loopTime);
+                if (safeInterval > 0 && safeInterval === lastInterval) {
+                    const progressIncr = 100 / (safeInterval / loopTime);
                     // @ts-ignore
                     newProgress.value += progressIncr;
                     if (newProgress.value >= 100) {
                         newProgress.value = 0;
                     }
                 } else {
-                    newProgress.value = rawInterval.progression;
-                    lastInterval = rawInterval.interval;
+                    newProgress.value = safeProgression;
+                    lastInterval = safeInterval;
                 }
                 if (!document.getElementById(newProgress.id)) {
                     clearInterval(intervalId);

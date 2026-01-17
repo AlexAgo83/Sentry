@@ -5,7 +5,93 @@
 @import 'panels/entity.css';
 @import 'panels/tools.css';
 
-/** Global definitions */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at top, rgba(32, 43, 66, 0.9), transparent 55%),
+        linear-gradient(140deg, #0b0f1d 0%, #11182b 55%, #1b2238 100%);
+    color: var(--color-text);
+}
+
+.app-shell {
+    min-height: 100vh;
+    padding: var(--m14);
+    position: relative;
+    overflow: hidden;
+}
+
+.app-shell::before,
+.app-shell::after {
+    content: "";
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(242, 193, 78, 0.18), transparent 65%);
+    z-index: 0;
+}
+
+.app-shell::before {
+    top: -140px;
+    left: -120px;
+}
+
+.app-shell::after {
+    bottom: -180px;
+    right: -100px;
+    background: radial-gradient(circle, rgba(93, 217, 193, 0.18), transparent 70%);
+}
+
+.app-header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--m10);
+    margin-bottom: var(--m12);
+}
+
+.app-title {
+    margin: 0;
+    font-family: var(--display-font);
+    font-size: calc(var(--text-xl-size) + var(--m10));
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+
+.app-subtitle {
+    margin: var(--m2) 0 0;
+    color: var(--color-text-fade);
+    font-size: var(--text-m-size);
+}
+
+.app-layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+    gap: var(--m12);
+    align-items: start;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m10);
+}
+
+.main-area {
+    min-width: 0;
+}
+
 .generic-global {
     font-size: var(--text-m-size);
     font-family: var(--default-font);
@@ -13,23 +99,17 @@
 
 /** PANELS */
 .generic-panel {
-    margin-top: var(--m5);
-    margin-bottom: var(--m5);
-    margin-left: var(--m10);
-    margin-right: var(--m10);
-    padding-top: var(--m2);
-    padding-bottom: var(--m1);
+    padding: var(--m7);
     display: flex;
-    flex-wrap: wrap !important;
-    min-width: fit-content !important;
-    border: var(--m1) solid var(--color-text-background-fade);
-    background-color: var(--color-text-background);
+    flex-wrap: wrap;
+    min-width: var(--min-panel-size);
+    border: 1px solid rgba(242, 193, 78, 0.2);
+    background: linear-gradient(160deg, rgba(22, 30, 50, 0.9), rgba(13, 18, 31, 0.95));
     border-radius: var(--border-radius-harmonized);
-    width: fit-content;
-    box-shadow: 
-        0px 2px 4px -1px rgba(0,0,0,0.2), 
-        0px 4px 5px 0px rgba(0,0,0,0.14), 
-        0px 1px 0px 0px rgba(0,0,0,0.12);
+    width: 100%;
+    box-shadow:
+        0 12px 24px -20px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .generic-core-panel {
@@ -40,17 +120,36 @@
 }
 
 .panel-overflow {
-    overflow-x: auto;
+    overflow: auto;
+    padding-right: var(--m2);
 }
+
 .panel-overflow::-webkit-scrollbar {
     width: var(--m2);
 }
+
 .panel-overflow::-webkit-scrollbar-track {
-    background: var(--color-tertiary);
+    background: rgba(21, 28, 46, 0.8);
 }
+
 .panel-overflow::-webkit-scrollbar-thumb {
-    background: var(--color-secondary);
+    background: rgba(93, 217, 193, 0.6);
 }
+
 .panel-overflow::-webkit-scrollbar-thumb:hover {
-    background: var(--color-primary);
+    background: rgba(242, 193, 78, 0.8);
+}
+
+@media (max-width: 900px) {
+    .app-shell {
+        padding: var(--m10);
+    }
+
+    .app-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        order: 2;
+    }
 }

@@ -31,9 +31,9 @@ export class PlayerControlsPanel extends CorePanel {
         this.player = player;
 
         this.optionSkills = [];
-        this.optionSkills.push(new Option(REF_SELECT_DEFAULT_SKILL_LABEL, ""));
+        this.optionSkills.push({ label: REF_SELECT_DEFAULT_SKILL_LABEL, value: "" });
         STATIC_SKILLS_LIST.forEach((identifier) => {
-            this.optionSkills.push(new Option(identifier, identifier));
+            this.optionSkills.push({ label: identifier, value: identifier });
         })
 
         this.optionRecipes = null;

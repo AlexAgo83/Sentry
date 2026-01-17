@@ -8,9 +8,12 @@
 Example contexte
 
 # PLAN
-- [x] Sub-task example 1
-- [ ] Sub-task example 2
-- [ ] Sub-task example 3
+- [x] 1. Sub-task example
+- [ ] 2. Sub-task example
+- [ ] 3. Sub-task example
+- [ ] FINAL: Final task example (eg. Update backlog/item & *.md)
 
 # Report
-Example report
+1. Example report
+2. Example report
+3. Example report

@@ -4,7 +4,7 @@
 // @ts-check
 // storageEntity.js
 
-import { Entity } from "../entity";
+import { Entity } from "../entity.js";
 
 export const STATIC_DEFAULT_GOLD = 150;
 

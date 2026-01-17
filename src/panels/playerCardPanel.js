@@ -152,25 +152,10 @@ export class PlayerCardPanel extends CorePanel {
                 newCardDiv,
                 this.createLabelValue(REF_PLAYER_RECIPE_PROGRESS, "Action"));
 
-            /** Progression - Custom animation */
-            const onProgressChangeInterval = () => {
-                const selectedAction = player.getSelectedAction();
-                const currentSkill = selectedAction?.getSkill();
-                const progress = selectedAction?.getProgression();
-                if (currentSkill) {
-                    return {
-                        interval: selectedAction.actionInterval(player),
-                        progression: progress
-                    };
-                }
-                return {
-                    interval: 0, 
-                    progression: 0
-                };
-            }
+            /** Action progression */
             this.registerComponent(
                 newCardDiv,
-                this.createProgress(REF_PLAYER_RECIPE_PROGRESS_VIEW, null, onProgressChangeInterval));
+                this.createProgress(REF_PLAYER_RECIPE_PROGRESS_VIEW, null, null));
 
             /** RECIPE PROGRESSION */
             this.registerComponent(
@@ -217,13 +202,15 @@ export class PlayerCardPanel extends CorePanel {
             const nameElement = this.getComponentContent(REF_PLAYER_NAME_INPUT);
             /* Stamina */
             const staminaElement = this.getComponentContent(REF_PLAYER_STAMINA);
-            const staminaProgress = Math.floor(player.stamina / player.staminaMax * 100);
+            const staminaPercent = player.staminaMax > 0 ? (player.stamina / player.staminaMax) * 100 : 0;
+            const staminaProgress = Math.max(0, Math.min(100, Math.floor(staminaPercent)));
             const staminaStr = staminaProgress > 0 ? String(staminaProgress) + " %" : "Stunned!";
             if (staminaElement) staminaElement.textContent = staminaStr;  
             const staminaViewElement = this.getComponentContent(REF_PLAYER_STAMINA_VIEW);
             if (staminaViewElement) {
                 /** @ts-ignore */ 
                 staminaViewElement.value = staminaProgress;
+                staminaViewElement.parentElement?.style.setProperty("--progress", `${staminaProgress}%`);
             }
 
             /** SPECIFIC IDLING */
@@ -273,13 +260,16 @@ export class PlayerCardPanel extends CorePanel {
 
                 /* Recipe Progression */
                 const recipeProgressionElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS);
-                const progress = currAction?.getProgression();
-                const progressStr = progress !== null && progress !== undefined ? String(Math.floor(progress)) + " %" : "N/A";
+                const progressValue = currAction ? currAction.getProgressPercent() : 0;
+                const progressStr = currAction ? String(Math.floor(progressValue)) + " %" : "N/A";
                 if (recipeProgressionElement) recipeProgressionElement.textContent = progressStr;  
-                const recipeProgressionViewElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS_VIEW);
+                const recipeProgressionViewElement = this.getComponentContent(REF_PLAYER_RECIPE_PROGRESS_VIEW)
+                    ?? cardElement.querySelector(`#${this.genId(REF_PLAYER_RECIPE_PROGRESS_VIEW)}`)
+                    ?? contentPanel.querySelector(`#${this.genId(REF_PLAYER_RECIPE_PROGRESS_VIEW)}`);
                 if (recipeProgressionViewElement) {
                     /** @ts-ignore */ 
-                    recipeProgressionViewElement.value = progress ?? 0;
+                    recipeProgressionViewElement.value = currAction ? progressValue : 0;
+                    recipeProgressionViewElement.parentElement?.style.setProperty("--progress", `${progressValue}%`);
                 }
             }
         })

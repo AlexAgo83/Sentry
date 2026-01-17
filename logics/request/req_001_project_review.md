@@ -1,7 +1,7 @@
 ## req_001_project_review - Review project
 > Targeted version: 0.2.0
-> Understanding: 85%
-> Confidence: 70%
+> Understanding: 95%
+> Confidence: 90%
 
 # Needs
 Review the project and provide a structured assessment.
@@ -28,7 +28,9 @@ This is a JavaScript idle game engine using Vite and npm. The goal is to assess 
 
 # Current Status
 - Repository scan completed to map architecture, entry points, and UI structure.
-- Review phase in progress (findings + test gaps).
+- Review completed with prioritized findings.
+- Test gaps defined and tests added (unit, build, offline simulation).
+- Key fixes applied from review findings.
 - UI redesign planned with a modern fantasy direction, more graphical UI, full layout freedom.
 
 # Coverage So Far
@@ -39,7 +41,13 @@ This is a JavaScript idle game engine using Vite and npm. The goal is to assess 
 - Styles and layout: `index.html`, `styles/*`.
 - Existing tests: `tests/*`.
 
+# Key Findings (Initial)
+- Extensionless imports that may break in strict ESM contexts.
+- Stamina progress can go negative; progress values should be clamped.
+- `createLabelValue` hides valid `0` values by showing `N/A`.
+- `createSelect` expects `{value,label}` but uses `new Option(...)`.
+- Hidden non-ASCII NBSP in `corePanel.js`.
+- Offline loop test is a duplicate smoke test; no real offline simulation.
+
 # Next Steps
-- Produce the full review with prioritized findings and risks.
-- Propose and implement targeted code fixes with tests.
 - Redesign the UI (visual direction + implementation).
