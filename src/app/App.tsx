@@ -490,7 +490,7 @@ export const App = () => {
                                 <option value="">Choose a path</option>
                                 {SKILL_DEFINITIONS.map((skill) => (
                                     <option key={skill.id} value={skill.id}>
-                                        {skill.name}
+                                        {skill.name} - Lv {activePlayer?.skills[skill.id]?.level ?? 0}
                                     </option>
                                 ))}
                             </select>
