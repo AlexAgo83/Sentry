@@ -38,6 +38,7 @@ export class Engine {
 
     constructor() {
         this.lastIntervalTime = null;
+        this.lastHiddenTime = null;
         
         this.loopInterval = STATIC_DEFAULT_LOOP_INTERVAL;
         this.loopIntervalOffline = STATIC_DEFAULT_LOOP_OFFLINE;
@@ -195,7 +196,33 @@ export class Engine {
         console.log("Startup ...");
         this.dataManager.load();
         this.initUI();
+        this.initVisibilityHandlers();
         this.runAction();
         console.log("Engine start !");
+    }
+
+    /**
+     * Pause the loop when the tab is hidden and run offline processing on return.
+     */
+    initVisibilityHandlers = () => {
+        if (typeof document === "undefined") return;
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                this.lastHiddenTime = Date.now();
+                this.stopLoop();
+                return;
+            }
+            if (!this.lastHiddenTime) {
+                this.runAction();
+                return;
+            }
+            const diff = Date.now() - this.lastHiddenTime;
+            this.offlineLoop(diff);
+            this.lastIntervalTime = Date.now();
+            this.dataManager.save();
+            this.updateUI();
+            this.runAction();
+            this.lastHiddenTime = null;
+        });
     }
 }
