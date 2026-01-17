@@ -282,6 +282,15 @@
     width: 100%;
 }
 
+.ts-input.generic-field.input {
+    width: 100%;
+}
+
+.ts-modal .generic-field.input {
+    width: 100%;
+    max-width: 100%;
+}
+
 .generic-field.panel.progress-row.ts-progress-stamina::after {
     background: linear-gradient(90deg, rgba(125, 199, 255, 0.4), rgba(79, 168, 255, 0.55));
 }

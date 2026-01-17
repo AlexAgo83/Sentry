@@ -30,6 +30,8 @@ export const App = () => {
     const [renamePlayerId, setRenamePlayerId] = useState<string | null>(null);
     const [newHeroName, setNewHeroName] = useState("");
     const [renameHeroName, setRenameHeroName] = useState("");
+    const [pendingSkillId, setPendingSkillId] = useState("");
+    const [pendingRecipeId, setPendingRecipeId] = useState("");
     const [isRosterCollapsed, setRosterCollapsed] = useState(false);
     const [isSystemCollapsed, setSystemCollapsed] = useState(true);
 
@@ -51,6 +53,22 @@ export const App = () => {
             });
         }
     }, [activePlayer?.id, activeSkillId]);
+
+    useEffect(() => {
+        if (!isLoadoutOpen) {
+            return;
+        }
+        if (!activePlayer) {
+            setPendingSkillId("");
+            setPendingRecipeId("");
+            return;
+        }
+        const skillId = activePlayer.selectedActionId ?? "";
+        const skill = skillId ? activePlayer.skills[skillId] : null;
+        const recipeId = skill?.selectedRecipeId ?? (skill ? Object.keys(skill.recipes)[0] ?? "" : "");
+        setPendingSkillId(skillId);
+        setPendingRecipeId(recipeId);
+    }, [isLoadoutOpen, activePlayer?.id, activePlayer?.selectedActionId]);
 
     useEffect(() => {
         if (!isLoadoutOpen && !isRecruitOpen && !isRenameOpen && !offlineSummary) {
@@ -81,46 +99,27 @@ export const App = () => {
         if (!activePlayer) {
             return;
         }
-        const nextSkillId = event.target.value as SkillId;
+        const nextSkillId = event.target.value as SkillId | "";
+        setPendingSkillId(nextSkillId);
         if (!nextSkillId) {
-            gameStore.dispatch({
-                type: "selectAction",
-                playerId: activePlayer.id,
-                actionId: null
-            });
+            setPendingRecipeId("");
             return;
         }
-        gameStore.dispatch({
-            type: "selectAction",
-            playerId: activePlayer.id,
-            actionId: nextSkillId
-        });
         const nextSkill = activePlayer.skills[nextSkillId];
         if (!nextSkill) {
+            setPendingRecipeId("");
             return;
         }
-        const nextRecipeId = nextSkill.selectedRecipeId ?? Object.keys(nextSkill.recipes)[0];
-        if (nextRecipeId) {
-            gameStore.dispatch({
-                type: "selectRecipe",
-                playerId: activePlayer.id,
-                skillId: nextSkillId,
-                recipeId: nextRecipeId
-            });
-        }
+        const nextRecipeId = nextSkill.selectedRecipeId ?? Object.keys(nextSkill.recipes)[0] ?? "";
+        setPendingRecipeId(nextRecipeId);
     };
 
     const handleRecipeChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        if (!activePlayer || !activeSkill) {
+        if (!activePlayer) {
             return;
         }
-        const nextRecipeId = event.target.value || null;
-        gameStore.dispatch({
-            type: "selectRecipe",
-            playerId: activePlayer.id,
-            skillId: activeSkill.id,
-            recipeId: nextRecipeId
-        });
+        const nextRecipeId = event.target.value ?? "";
+        setPendingRecipeId(nextRecipeId);
     };
 
     const handleStopAction = () => {
@@ -131,6 +130,23 @@ export const App = () => {
             type: "selectAction",
             playerId: activePlayer.id,
             actionId: null
+        });
+    };
+
+    const handleStartAction = () => {
+        if (!activePlayer || !pendingSkillId || !pendingRecipeId) {
+            return;
+        }
+        gameStore.dispatch({
+            type: "selectAction",
+            playerId: activePlayer.id,
+            actionId: pendingSkillId as SkillId
+        });
+        gameStore.dispatch({
+            type: "selectRecipe",
+            playerId: activePlayer.id,
+            skillId: pendingSkillId as SkillId,
+            recipeId: pendingRecipeId
         });
     };
 
@@ -216,6 +232,14 @@ export const App = () => {
         handleCloseOfflineSummary();
         gameRuntime.reset();
     };
+
+    const pendingSkill = pendingSkillId && activePlayer
+        ? activePlayer.skills[pendingSkillId as SkillId]
+        : null;
+    const isRunningSelection = Boolean(activePlayer?.selectedActionId)
+        && pendingSkillId === activeSkillId
+        && pendingRecipeId === activeRecipeId;
+    const canStartAction = Boolean(activePlayer && pendingSkillId && pendingRecipeId && !isRunningSelection);
 
     const progressPercent = activePlayer?.actionProgress.progressPercent ?? 0;
     const progressStyle = { "--progress": `${progressPercent}%` } as CSSProperties;
@@ -460,7 +484,7 @@ export const App = () => {
                             <select
                                 id="skill-select"
                                 className="generic-field select"
-                                value={activeSkillId}
+                                value={pendingSkillId}
                                 onChange={handleSkillChange}
                             >
                                 <option value="">Choose a path</option>
@@ -474,19 +498,29 @@ export const App = () => {
                             <select
                                 id="recipe-select"
                                 className="generic-field select"
-                                value={activeRecipeId}
+                                value={pendingRecipeId}
                                 onChange={handleRecipeChange}
-                                disabled={!activeSkill}
+                                disabled={!pendingSkill}
                             >
                                 <option value="">Choose a recipe</option>
-                                {activeSkill
-                                    ? Object.values(activeSkill.recipes).map((recipe) => (
+                                {pendingSkill
+                                    ? Object.values(pendingSkill.recipes).map((recipe) => (
                                         <option key={recipe.id} value={recipe.id}>
                                             {recipe.id} - Lv {recipe.level}
                                         </option>
                                     ))
                                     : null}
                             </select>
+                            <div className="ts-action-row">
+                                <button
+                                    type="button"
+                                    className="generic-field button"
+                                    onClick={handleStartAction}
+                                    disabled={!canStartAction}
+                                >
+                                    Start action
+                                </button>
+                            </div>
                             <div className="ts-action-row">
                                 <button
                                     type="button"
