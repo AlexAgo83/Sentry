@@ -15,8 +15,11 @@ Create and execute a test plan that covers the full application surface, with st
 - [ ] 2. Add UI test tooling (jsdom + React Testing Library) and basic render tests.
 - [ ] 3. Expand core/runtime tests for offline, visibility, and action flows.
 - [ ] 4. Add store and adapter tests (gameStore, localStorageAdapter, persistence paths).
-- [ ] 5. Add UI interaction tests for loadout, inventory, and offline recap.
-- [ ] 6. Set coverage thresholds and update documentation.
+- [ ] 5. Migrate legacy JS tests to TypeScript where practical.
+- [ ] 6. Add explicit tests for `localStorageAdapter.ts`.
+- [ ] 7. Extend service worker tests in `sw.js` for the remaining branches.
+- [ ] 8. Add UI interaction tests for loadout, inventory, and offline recap.
+- [ ] 9. Set coverage thresholds and update documentation.
 - [ ] FINAL: Run coverage and verify thresholds pass.
 
 # Acceptance

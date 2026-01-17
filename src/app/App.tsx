@@ -386,6 +386,9 @@ export const App = () => {
             ? { gold: activeGoldReward }
             : undefined;
     const hasActiveRecipeSelection = Boolean(activeSkillId && activeRecipeId);
+    const activeRecipeLabel = hasActiveRecipeSelection && activeSkillId
+        ? getRecipeLabel(activeSkillId as SkillId, activeRecipeId)
+        : "None";
     const activeConsumptionLabel = hasActiveRecipeSelection ? formatItemList(activeCosts) : "None";
     const activeProductionLabel = hasActiveRecipeSelection ? formatItemList(activeRewardsWithGold) : "None";
     const resourceHint = hasActiveRecipeSelection ? null : "Select a recipe to see resource flow.";
@@ -542,6 +545,10 @@ export const App = () => {
                             </div>
                         </div>
                         <div className="ts-resource-card">
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Recipe</span>
+                                <span className="ts-resource-value">{activeRecipeLabel}</span>
+                            </div>
                             <div className="ts-resource-row">
                                 <span className="ts-resource-label">Consumes</span>
                                 <span className="ts-resource-value">{activeConsumptionLabel}</span>
