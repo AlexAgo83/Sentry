@@ -10,6 +10,7 @@ App.tsx remains large despite extracted panels. Inventory controls and panel swi
 # Goal
 Simplify the app architecture for readability/tests, fix npm vulnerabilities, and clearly document the CI/local workflow (with a status badge).
 
+"""
 # Plan
 - [x] 1. App architecture (item_010): large refactor allowed. Extract dedicated subcomponents (InventoryControls, SidePanelSwitcher, modals/loadout/offline recap where relevant), share persistence hooks, shrink App.tsx without changing behavior. Add RTL tests for panel switching and filter persistence.
 - [x] 2. Dependency security: run `npm audit fix` or targeted updates to resolve vulnerabilities (low/moderate/high) while staying compatible; add a CI audit job/step that fails at moderate+ and warns on low.
@@ -18,8 +19,8 @@ Simplify the app architecture for readability/tests, fix npm vulnerabilities, an
 - [x] 5. Perf/UI: profile Inventory/Stats render counts and add targeted memo/React.memo for large lists (200+ items).
 - [x] 6. Accessibility: run axe/jest-axe on Roster/Inventory/Stats, fix contrast/focus issues.
 - [x] 7. Persistence hooks: extract into a dedicated module with unit tests (reset, storage errors, defaults).
-- [ ] 8. CI quality: add a “preview build + smoke” job (vite build + preview + RTL smoke) on each PR/push to catch bundling errors before merge.
-- [ ] FINAL: Validate acceptance, update docs/backlog/task status, and verify performance.
+- [x] 8. CI quality: add a “preview build + smoke” job (vite build + preview + RTL smoke) on each PR/push to catch bundling errors before merge.
+- [x] FINAL: Validate acceptance, update docs/backlog/task status, and verify performance.
 
 # Acceptance
 - App.tsx slimmed down: inventory controls and panel switch extracted, persistence hooks reusable, existing tests green.
