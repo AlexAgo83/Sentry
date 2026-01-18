@@ -1,7 +1,7 @@
 ## item_015_player_equipment_inventory - Add per-player equipment inventory with fixed slots
 > From version: 0.8.0
-> Understanding: 92%
-> Confidence: 84%
+> Understanding: 94%
+> Confidence: 87%
 > Progress: 0%
 
 # Context
@@ -27,6 +27,15 @@ Introduce a per-player equipment system with fixed slots, supporting armor and w
 - Ensure shared inventory can supply items to equip (no duplication).
 - Provide an explicit unequip action (return item to shared inventory).
 - Define starter gear + recipes for each slot (basic tier) and three basic weapon types.
+- Suggested starter gear + recipes (v1):
+  - Head: Cloth Cap (Tailoring) -> costs: cloth x2, leather x1; stats: Intellect +1.
+  - Torso: Linen Tunic (Tailoring) -> costs: cloth x4, leather x1; stats: Endurance +2.
+  - Legs: Worn Trousers (Tailoring) -> costs: cloth x3; stats: Agility +1.
+  - Hands: Leather Gloves (Leatherworking) -> costs: leather x3; stats: Strength +1.
+  - Feet: Simple Boots (Leatherworking) -> costs: leather x3, cloth x1; stats: Agility +1.
+  - Weapon (Melee): Rusty Blade (MetalWork) -> costs: ingot x2, wood x1; stats: Strength +2.
+  - Weapon (Ranged): Simple Bow (Carpentry) -> costs: wood x3, leather x1; stats: Agility +2.
+  - Weapon (Magic): Apprentice Staff (Carpentry) -> costs: wood x2, crystal x1; stats: Intellect +2.
 
 # Decisions
 - Fixed slots only in v1; no rings/trinkets or off-hand yet.
@@ -68,4 +77,4 @@ Introduce a per-player equipment system with fixed slots, supporting armor and w
 # Open questions
 - Exact slot list for v1 (confirm feet vs boots naming).
 - How to represent empty slots in UI.
-- Finalize starter gear list and recipe costs.
+- Confirm starter gear list and recipe costs.
