@@ -30,6 +30,8 @@ type ActionStatusPanelProps = {
     skillIconColor: string;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
+    onChangeAction: () => void;
+    canChangeAction: boolean;
 };
 
 export const ActionStatusPanel = memo(({
@@ -58,23 +60,37 @@ export const ActionStatusPanel = memo(({
     isStunned,
     skillIconColor,
     isCollapsed,
-    onToggleCollapsed
+    onToggleCollapsed,
+    onChangeAction,
+    canChangeAction
 }: ActionStatusPanelProps) => (
     <section className="generic-panel ts-panel">
         <div className="ts-panel-header">
-            <h2 className="ts-panel-title">Action</h2>
-            <span className="ts-panel-meta">Live loop</span>
-            <button
-                type="button"
-                className="ts-collapse-button ts-focusable"
-                onClick={onToggleCollapsed}
-                data-mobile-label={isCollapsed ? "+" : "-"}
-                aria-label={isCollapsed ? "Expand" : "Collapse"}
-            >
-                <span className="ts-collapse-label">
-                    {isCollapsed ? "Expand" : "Collapse"}
-                </span>
-            </button>
+            <div className="ts-panel-heading">
+                <h2 className="ts-panel-title">Action</h2>
+            </div>
+            <div className="ts-panel-actions ts-panel-actions-inline">
+                <button
+                    type="button"
+                    className="ts-icon-button is-action ts-panel-action-button ts-focusable"
+                    onClick={onChangeAction}
+                    disabled={!canChangeAction}
+                    aria-label="Change"
+                >
+                    Change
+                </button>
+                <button
+                    type="button"
+                    className="ts-collapse-button ts-focusable"
+                    onClick={onToggleCollapsed}
+                    data-mobile-label={isCollapsed ? "+" : "-"}
+                    aria-label={isCollapsed ? "Expand" : "Collapse"}
+                >
+                    <span className="ts-collapse-label">
+                        {isCollapsed ? "Expand" : "Collapse"}
+                    </span>
+                </button>
+            </div>
         </div>
         {!isCollapsed ? (
             <>

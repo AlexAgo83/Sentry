@@ -53,7 +53,12 @@ describe("App", () => {
     it("renders roster and toggles inventory panel", async () => {
         const { user } = renderApp();
         expect(screen.getByText("Roster")).toBeTruthy();
-        expect(screen.getByText("2 heroes")).toBeTruthy();
+        const rosterPanel = screen.getByText("Roster").closest("section");
+        expect(rosterPanel).toBeTruthy();
+        if (rosterPanel) {
+            expect(within(rosterPanel).getByText("Player_1")).toBeTruthy();
+            expect(within(rosterPanel).getByText("Mara")).toBeTruthy();
+        }
 
         await user.click(screen.getByRole("tab", { name: "Inventory" }));
 
@@ -71,10 +76,9 @@ describe("App", () => {
             expect(within(inventoryPanel).queryByRole("button", { name: "Gold x150" })).toBeNull();
         }
 
-        const rosterPanel = screen.getByText("Roster").closest("section");
         if (rosterPanel) {
             await user.click(within(rosterPanel).getByRole("button", { name: "Collapse" }));
-            expect(screen.queryByText("Recruit new hero")).toBeNull();
+            expect(within(rosterPanel).getByRole("button", { name: "NEW" })).toBeTruthy();
         }
 
         // Switch back to action/stats
@@ -84,10 +88,10 @@ describe("App", () => {
 
     it("shows focusable inventory controls and usage labels", async () => {
         const { user } = renderApp();
-        const inventoryButton = screen.getByRole("button", { name: "Inventory" });
-        expect(inventoryButton.className).toContain("ts-focusable");
+        const inventoryTab = screen.getByRole("tab", { name: "Inventory" });
+        expect(inventoryTab.className).toContain("ts-focusable");
 
-        await user.click(inventoryButton);
+        await user.click(inventoryTab);
 
         const inventoryPanel = screen.getByRole("heading", { name: "Inventory" }).closest("section");
         expect(inventoryPanel).toBeTruthy();
@@ -101,8 +105,7 @@ describe("App", () => {
 
     it("shows loadout summary and missing item hint", async () => {
         const { user } = renderApp({ food: 0 });
-        const actButtons = screen.getAllByRole("button", { name: /Manage actions/ });
-        await user.click(actButtons[0]);
+        await user.click(screen.getByRole("button", { name: "Change" }));
 
         const skillSelect = screen.getByLabelText("Select skill");
         await user.selectOptions(skillSelect, ["Combat"]);
@@ -124,8 +127,7 @@ describe("App", () => {
 
     it("starts and pauses an action", async () => {
         const { user } = renderApp({ food: 2 });
-        const actButtons = screen.getAllByRole("button", { name: /Manage actions/ });
-        await user.click(actButtons[0]);
+        await user.click(screen.getByRole("button", { name: "Change" }));
 
         const skillSelect = screen.getByLabelText("Select skill");
         await user.selectOptions(skillSelect, ["Combat"]);
@@ -140,7 +142,7 @@ describe("App", () => {
     it("recruits and renames heroes, escape closes modal", async () => {
         const { user } = renderApp();
 
-        await user.click(screen.getByRole("button", { name: "Recruit new hero" }));
+        await user.click(screen.getByRole("button", { name: "NEW" }));
         const nameInput = screen.getByLabelText("Hero name") as HTMLInputElement;
         await user.type(nameInput, "Nova");
         await user.click(screen.getByRole("button", { name: "Create hero" }));
@@ -149,16 +151,18 @@ describe("App", () => {
             Object.values(testStore.getState().players).some((player) => player.name === "Nova")
         ).toBe(true);
 
-        const setButtons = screen.getAllByRole("button", { name: /Set name/ });
-        await user.click(setButtons[0]);
+        await user.click(screen.getByRole("button", { name: "Rename" }));
         const renameInput = screen.getByLabelText("Hero name") as HTMLInputElement;
         await user.clear(renameInput);
         await user.type(renameInput, "Alpha");
         await user.click(screen.getByRole("button", { name: "Save name" }));
-        expect(testStore.getState().players["1"].name).toBe("Alpha");
+        const activePlayerId = testStore.getState().activePlayerId;
+        expect(activePlayerId).toBeTruthy();
+        if (activePlayerId) {
+            expect(testStore.getState().players[activePlayerId].name).toBe("Alpha");
+        }
 
-        const actButtons = screen.getAllByRole("button", { name: /Manage actions/ });
-        await user.click(actButtons[0]);
+        await user.click(screen.getByRole("button", { name: "Change" }));
         fireEvent.keyDown(window, { key: "Escape" });
         expect(screen.queryByText("Loadout")).toBeNull();
     });
@@ -192,7 +196,7 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Close" }));
         expect(testStore.getState().offlineSummary).toBeNull();
 
-        await user.click(screen.getByRole("button", { name: "System" }));
+        await user.click(screen.getByRole("button", { name: "Open system telemetry" }));
         const systemDialog = await screen.findByRole("dialog");
 
         await user.click(within(systemDialog).getByRole("button", { name: "Simulate +30 min" }));

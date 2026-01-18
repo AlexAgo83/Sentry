@@ -17,7 +17,6 @@ import { getInventoryMeta } from "./ui/inventoryMeta";
 import { InventoryIconSprite } from "./ui/inventoryIcons";
 import { ITEM_USAGE_MAP } from "./ui/itemUsage";
 import "./styles/app.css";
-import { InventoryControls } from "./components/InventoryControls";
 import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
 import { usePersistedCollapse } from "./hooks/usePersistedCollapse";
 import { usePersistedInventoryFilters } from "./hooks/usePersistedInventoryFilters";
@@ -263,11 +262,6 @@ export const App = () => {
         setRecruitOpen(true);
     };
 
-    const handleOpenInventory = () => {
-        setInventoryCollapsed(false);
-        setActiveSidePanel("inventory");
-    };
-
     const handleOpenSystem = () => {
         setSystemOpen(true);
     };
@@ -283,6 +277,13 @@ export const App = () => {
         setRecruitOpen(false);
         setRenameOpen(false);
         setLoadoutOpen(true);
+    };
+
+    const handleOpenActiveLoadout = () => {
+        if (!activePlayer) {
+            return;
+        }
+        handleOpenLoadout(activePlayer.id);
     };
 
     const handleCloseLoadout = () => {
@@ -317,6 +318,13 @@ export const App = () => {
         setLoadoutOpen(false);
         setRecruitOpen(false);
         setRenameOpen(true);
+    };
+
+    const handleOpenActiveRename = () => {
+        if (!activePlayer) {
+            return;
+        }
+        handleOpenRename(activePlayer.id);
     };
 
     const handleCloseRename = () => {
@@ -459,11 +467,27 @@ export const App = () => {
             <InventoryIconSprite />
             <header className="app-header">
                 <div className="app-title-block">
-                    <p className="app-kicker">Rewrite Initiative</p>
                     <h1 className="app-title">Sentry Idle</h1>
                     <p className="app-subtitle">Forge, hunt, and master your path.</p>
                 </div>
-                <div className="app-version-tag">{state.version}</div>
+                <button
+                    type="button"
+                    className="app-version-tag app-version-button ts-focusable"
+                    onClick={handleOpenSystem}
+                    aria-label="Open system telemetry"
+                >
+                    <span className="app-version-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M11.983 3.5l1.2 1.7a6.9 6.9 0 0 1 2.16.9l1.96-.64 1.5 2.6-1.4 1.46c.2.7.3 1.4.3 2.18s-.1 1.48-.3 2.18l1.4 1.46-1.5 2.6-1.96-.64a6.9 6.9 0 0 1-2.16.9l-1.2 1.7h-3l-1.2-1.7a6.9 6.9 0 0 1-2.16-.9l-1.96.64-1.5-2.6 1.4-1.46a7.6 7.6 0 0 1-.3-2.18c0-.78.1-1.48.3-2.18l-1.4-1.46 1.5-2.6 1.96.64a6.9 6.9 0 0 1 2.16-.9l1.2-1.7h3z"
+                            />
+                            <circle cx="12" cy="12" r="3.3" />
+                        </svg>
+                    </span>
+                    <span>{state.version}</span>
+                </button>
             </header>
             <main className="app-layout generic-global ts-layout">
                 <RosterPanel
@@ -472,11 +496,7 @@ export const App = () => {
                     isCollapsed={isRosterCollapsed}
                     onToggleCollapsed={() => setRosterCollapsed((value) => !value)}
                     onSetActivePlayer={handleSetActivePlayer}
-                    onOpenLoadout={handleOpenLoadout}
-                    onOpenRename={handleOpenRename}
                     onAddPlayer={handleAddPlayer}
-                    onOpenInventory={handleOpenInventory}
-                    onOpenSystem={handleOpenSystem}
                     getSkillLabel={getSkillLabel}
                     getRecipeLabel={getRecipeLabel}
                 />
@@ -515,24 +535,21 @@ export const App = () => {
                                 skillIconColor={skillIconColor}
                                 isCollapsed={isActionCollapsed}
                                 onToggleCollapsed={() => setActionCollapsed((value) => !value)}
+                                onChangeAction={handleOpenActiveLoadout}
+                                canChangeAction={Boolean(activePlayer)}
                             />
                             <CharacterStatsPanel
                                 skills={SKILL_DEFINITIONS}
                                 skillLevels={activeSkillLevels}
                                 isCollapsed={isStatsCollapsed}
-                                activePlayerName={activePlayer?.name ?? "No hero"}
                                 onToggleCollapsed={() => setStatsCollapsed((value) => !value)}
+                                onRenameHero={handleOpenActiveRename}
+                                canRenameHero={Boolean(activePlayer)}
                             />
                         </>
                     ) : null}
                     {activeSidePanel === "inventory" ? (
                         <>
-                            <InventoryControls
-                                sort={inventorySort}
-                                onSortChange={handleSetInventorySort}
-                                search={inventorySearch}
-                                onSearchChange={handleSetInventorySearch}
-                            />
                             <InventoryPanel
                                 isCollapsed={isInventoryCollapsed}
                                 onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
@@ -593,7 +610,7 @@ export const App = () => {
             {isRenameOpen ? (
                 <HeroNameModal
                     kicker="Set name"
-                    title="Rename hero"
+                    title="Rename"
                     name={renameHeroName}
                     submitLabel="Save name"
                     isSubmitDisabled={renameHeroName.trim().length === 0}

@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { InventoryControls } from "./InventoryControls";
 import { InventoryIcon, type InventoryIconId } from "../ui/inventoryIcons";
 
 export type InventorySort = "Name" | "Count";
@@ -81,7 +82,6 @@ export const InventoryPanel = memo(({
         <section className="generic-panel ts-panel ts-inventory-panel">
             <div className="ts-panel-header">
                 <h2 className="ts-panel-title">Inventory</h2>
-                <span className="ts-panel-meta">Shared stash</span>
                 <button
                     type="button"
                     className="ts-collapse-button ts-focusable"
@@ -97,6 +97,12 @@ export const InventoryPanel = memo(({
             {!isCollapsed ? (
                 <div className="ts-inventory-layout">
                     <div className="ts-inventory-column">
+                        <InventoryControls
+                            sort={sort}
+                            onSortChange={onSortChange}
+                            search={search}
+                            onSearchChange={onSearchChange}
+                        />
                         <div className="ts-inventory-grid">
                             {gridEntries.length > 0 ? (
                                 gridEntries.map((item) => {
@@ -114,7 +120,8 @@ export const InventoryPanel = memo(({
                                 <div className="ts-inventory-empty">{emptyState}</div>
                             )}
                         </div>
-                        <div className="ts-inventory-pagination">
+                        {pageCount > 1 ? (
+                            <div className="ts-inventory-pagination">
                             <button
                                 type="button"
                                 className="ts-pagination-button"
@@ -134,7 +141,8 @@ export const InventoryPanel = memo(({
                             >
                                 Next →
                             </button>
-                        </div>
+                            </div>
+                        ) : null}
                     </div>
                     <div className="ts-inventory-focus">
                         <div className="ts-inventory-focus-header">

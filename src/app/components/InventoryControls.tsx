@@ -11,6 +11,16 @@ type InventoryControlsProps = {
 export const InventoryControls = memo(({ sort, onSortChange, search, onSearchChange }: InventoryControlsProps) => (
     <div className="ts-inventory-controls">
         <div className="ts-filter-row">
+            <label className="ts-filter-label" htmlFor="inventory-search">Search</label>
+            <input
+                id="inventory-search"
+                className="generic-field input ts-inventory-search"
+                placeholder="Filter by name"
+                value={search}
+                onChange={(event) => onSearchChange(event.target.value)}
+            />
+        </div>
+        <div className="ts-filter-row">
             <span className="ts-filter-label">Sort</span>
             <div className="ts-filter-tabs" role="tablist" aria-label="Sort inventory">
                 <button
@@ -32,16 +42,6 @@ export const InventoryControls = memo(({ sort, onSortChange, search, onSearchCha
                     Count
                 </button>
             </div>
-        </div>
-        <div className="ts-filter-row">
-            <label className="ts-filter-label" htmlFor="inventory-search">Search</label>
-            <input
-                id="inventory-search"
-                className="generic-field input"
-                placeholder="Filter by name"
-                value={search}
-                onChange={(event) => onSearchChange(event.target.value)}
-            />
         </div>
     </div>
 ));

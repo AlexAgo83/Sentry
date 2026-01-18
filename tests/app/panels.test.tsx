@@ -15,9 +15,9 @@ const buildRosterPlayers = () => {
 };
 
 describe("panel components", () => {
-    it("RosterPanel opens the loadout action", async () => {
+    it("RosterPanel selects a player on click", async () => {
         const user = userEvent.setup();
-        const onOpenLoadout = vi.fn();
+        const onSetActivePlayer = vi.fn();
 
         render(
             <RosterPanel
@@ -25,22 +25,25 @@ describe("panel components", () => {
                 activePlayerId="1"
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
-                onSetActivePlayer={vi.fn()}
-                onOpenLoadout={onOpenLoadout}
-                onOpenRename={vi.fn()}
+                onSetActivePlayer={onSetActivePlayer}
                 onAddPlayer={vi.fn()}
-                onOpenInventory={vi.fn()}
-                onOpenSystem={vi.fn()}
                 getSkillLabel={() => "Combat"}
                 getRecipeLabel={() => "Border Skirmish"}
             />
         );
 
-        await user.click(screen.getAllByRole("button", { name: /Manage actions/ })[0]);
-        expect(onOpenLoadout).toHaveBeenCalledWith("1");
+        const playerCard = screen.getByText("Player_1").closest(".ts-player-card");
+        expect(playerCard).toBeTruthy();
+        if (playerCard) {
+            await user.click(playerCard);
+        }
+        expect(onSetActivePlayer).toHaveBeenCalledWith("1");
     });
 
-    it("ActionStatusPanel renders current action details", () => {
+    it("ActionStatusPanel renders current action details", async () => {
+        const user = userEvent.setup();
+        const onChangeAction = vi.fn();
+
         render(
             <ActionStatusPanel
                 activeSkillId={"Combat" as SkillId}
@@ -67,11 +70,18 @@ describe("panel components", () => {
                 activeRecipeXpNext={20}
                 isStunned={false}
                 skillIconColor="#f2c14e"
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                onChangeAction={onChangeAction}
+                canChangeAction={true}
             />
         );
 
         expect(screen.getByText("Selected skill")).toBeTruthy();
         expect(screen.getByText("Border Skirmish")).toBeTruthy();
+
+        await user.click(screen.getByRole("button", { name: "Change" }));
+        expect(onChangeAction).toHaveBeenCalled();
     });
 
     it("CharacterStatsPanel toggles collapse", async () => {
@@ -84,6 +94,8 @@ describe("panel components", () => {
                 skillLevels={{}}
                 isCollapsed={false}
                 onToggleCollapsed={onToggleCollapsed}
+                onRenameHero={vi.fn()}
+                canRenameHero={true}
             />
         );
 
@@ -172,5 +184,6 @@ describe("panel components", () => {
 
         expect(screen.getByText("No items available")).toBeTruthy();
         expect(screen.getByText("Off-page selection")).toBeTruthy();
+        expect(screen.queryByText(/Page 1 of 1/)).toBeNull();
     });
 });

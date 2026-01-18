@@ -21,6 +21,20 @@ export const OfflineSummaryModal = memo(({
     getSkillLabel,
     getRecipeLabel
 }: OfflineSummaryModalProps) => {
+    const formatTimeAway = (seconds: number): string => {
+        const safeSeconds = Math.max(0, Math.floor(seconds));
+        if (safeSeconds < 60) {
+            return `${safeSeconds}s`;
+        }
+        if (safeSeconds < 3600) {
+            const minutes = Math.floor(safeSeconds / 60);
+            const remainderSeconds = safeSeconds % 60;
+            return `${minutes}m ${remainderSeconds}s`;
+        }
+        const hours = Math.floor(safeSeconds / 3600);
+        const minutes = Math.floor((safeSeconds % 3600) / 60);
+        return `${hours}h ${minutes}m`;
+    };
     const summaryEntries = getItemDeltaEntries(ITEM_DEFINITIONS, summary.totalItemDeltas);
     const summaryLabel = summaryEntries.length > 0
         ? formatItemDeltaEntries(summaryEntries)
@@ -29,7 +43,7 @@ export const OfflineSummaryModal = memo(({
     return (
         <ModalShell kicker="Offline recap" title="Your party" onClose={onClose}>
             <ul className="ts-list">
-                <li>Time away: {offlineSeconds}s</li>
+                <li>Time away: {formatTimeAway(offlineSeconds)}</li>
                 <li>Ticks processed: {summary.ticks}</li>
                 <li>Players summarized: {players.length}</li>
                 <li>Inventory changes: {summaryLabel}</li>

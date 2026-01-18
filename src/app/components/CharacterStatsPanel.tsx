@@ -25,7 +25,8 @@ type CharacterStatsPanelProps = {
     skillLevels: Partial<Record<SkillId, number>>;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
-    activePlayerName: string;
+    onRenameHero: () => void;
+    canRenameHero: boolean;
 };
 
 type StatRowProps = {
@@ -51,23 +52,36 @@ export const CharacterStatsPanel = memo(({
     skillLevels,
     isCollapsed,
     onToggleCollapsed,
-    activePlayerName
+    onRenameHero,
+    canRenameHero
 }: CharacterStatsPanelProps) => (
     <section className="generic-panel ts-panel">
         <div className="ts-panel-header">
-            <h2 className="ts-panel-title">Stats</h2>
-            <span className="ts-panel-meta">{activePlayerName}</span>
-            <button
-                type="button"
-                className="ts-collapse-button ts-focusable"
-                onClick={onToggleCollapsed}
-                data-mobile-label={isCollapsed ? "+" : "-"}
-                aria-label={isCollapsed ? "Expand" : "Collapse"}
-            >
-                <span className="ts-collapse-label">
-                    {isCollapsed ? "Expand" : "Collapse"}
-                </span>
-            </button>
+            <div className="ts-panel-heading">
+                <h2 className="ts-panel-title">Stats</h2>
+            </div>
+            <div className="ts-panel-actions ts-panel-actions-inline">
+                <button
+                    type="button"
+                    className="ts-icon-button ts-panel-action-button ts-focusable"
+                    onClick={onRenameHero}
+                    disabled={!canRenameHero}
+                    aria-label="Rename"
+                >
+                    Rename
+                </button>
+                <button
+                    type="button"
+                    className="ts-collapse-button ts-focusable"
+                    onClick={onToggleCollapsed}
+                    data-mobile-label={isCollapsed ? "+" : "-"}
+                    aria-label={isCollapsed ? "Expand" : "Collapse"}
+                >
+                    <span className="ts-collapse-label">
+                        {isCollapsed ? "Expand" : "Collapse"}
+                    </span>
+                </button>
+            </div>
         </div>
         {!isCollapsed ? (
             <>
@@ -78,7 +92,6 @@ export const CharacterStatsPanel = memo(({
                         return <StatRow key={skill.id} skill={skill} level={level} color={color} />;
                     })}
                 </div>
-                <div className="ts-stat-placeholder">Statistics overview coming soon.</div>
             </>
         ) : null}
     </section>

@@ -12,7 +12,7 @@ export const SidePanelSwitcher = memo(({ active, onShowStatus, onShowInventory }
             type="button"
             role="tab"
             aria-selected={active === "status"}
-            className={`ts-chip${active === "status" ? " is-active" : ""}`}
+            className={`ts-chip ts-focusable${active === "status" ? " is-active" : ""}`}
             onClick={onShowStatus}
         >
             Action/Stats
@@ -21,7 +21,7 @@ export const SidePanelSwitcher = memo(({ active, onShowStatus, onShowInventory }
             type="button"
             role="tab"
             aria-selected={active === "inventory"}
-            className={`ts-chip${active === "inventory" ? " is-active" : ""}`}
+            className={`ts-chip ts-focusable${active === "inventory" ? " is-active" : ""}`}
             onClick={onShowInventory}
         >
             Inventory
