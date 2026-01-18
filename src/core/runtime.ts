@@ -14,6 +14,8 @@ export class GameRuntime {
     private hasLoggedPersistenceError = false;
     private static readonly MAX_CATCH_UP_MS = 500;
     private static readonly PERSIST_INTERVAL_MS = 1500;
+    private visibilityHandler?: () => void;
+    private unloadHandler?: () => void;
 
     constructor(
         private readonly store: GameStore,
@@ -44,6 +46,8 @@ export class GameRuntime {
     stop = () => {
         this.pauseLoop();
         this.hasStarted = false;
+        this.unbindVisibility();
+        this.unbindUnload();
     };
 
     simulateOffline = (durationMs: number) => {
@@ -211,7 +215,10 @@ export class GameRuntime {
         if (typeof document === "undefined") {
             return;
         }
-        document.addEventListener("visibilitychange", () => {
+        if (this.visibilityHandler) {
+            return;
+        }
+        this.visibilityHandler = () => {
             if (!this.isDocumentVisible()) {
                 this.persist({ force: true });
                 this.hiddenAt = Date.now();
@@ -251,16 +258,37 @@ export class GameRuntime {
             }
             this.hiddenAt = null;
             this.startLoop();
-        });
+        };
+        document.addEventListener("visibilitychange", this.visibilityHandler);
+    };
+
+    private unbindVisibility = () => {
+        if (typeof document === "undefined" || !this.visibilityHandler) {
+            return;
+        }
+        document.removeEventListener("visibilitychange", this.visibilityHandler);
+        this.visibilityHandler = undefined;
     };
 
     private bindUnload = () => {
         if (typeof window === "undefined" || typeof window.addEventListener !== "function") {
             return;
         }
-        window.addEventListener("beforeunload", () => {
+        if (this.unloadHandler) {
+            return;
+        }
+        this.unloadHandler = () => {
             this.persist({ force: true });
-        });
+        };
+        window.addEventListener("beforeunload", this.unloadHandler);
+    };
+
+    private unbindUnload = () => {
+        if (typeof window === "undefined" || !this.unloadHandler || typeof window.removeEventListener !== "function") {
+            return;
+        }
+        window.removeEventListener("beforeunload", this.unloadHandler);
+        this.unloadHandler = undefined;
     };
 
     private getPerfTimestamp = (): number => {

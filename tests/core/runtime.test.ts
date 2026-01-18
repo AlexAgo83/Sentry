@@ -17,10 +17,13 @@ describe("GameRuntime", () => {
         documentListeners.visibilitychange = [];
         const documentStub = {
             visibilityState: "visible",
-            addEventListener: (type: string, handler: (event?: { type: string }) => void) => {
+            addEventListener: vi.fn((type: string, handler: (event?: { type: string }) => void) => {
                 documentListeners[type] = documentListeners[type] ?? [];
                 documentListeners[type].push(handler);
-            },
+            }),
+            removeEventListener: vi.fn((type: string, handler: (event?: { type: string }) => void) => {
+                documentListeners[type] = (documentListeners[type] ?? []).filter((fn) => fn !== handler);
+            }),
             dispatchEvent: (event: { type: string }) => {
                 (documentListeners[event.type] ?? []).forEach((handler) => handler(event));
                 return true;
@@ -28,7 +31,9 @@ describe("GameRuntime", () => {
         };
         const windowStub = {
             setInterval: vi.fn(() => 0),
-            clearInterval: vi.fn()
+            clearInterval: vi.fn(),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn()
         };
 
         (globalThis as { document?: typeof documentStub }).document = documentStub;
@@ -80,6 +85,43 @@ describe("GameRuntime", () => {
         expect(store.getState().offlineSummary).not.toBeNull();
         runtime.stop();
         console.info("[runtime.test] startup offline catch-up - end");
+    });
+
+    it("skips startup recap when away duration is too short", () => {
+        const initial = createInitialGameState("0.4.0");
+        const save = toGameSave(initial);
+        save.lastTick = 9500; // only 500ms away
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(save);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+        vi.spyOn(Date, "now").mockReturnValue(10000);
+
+        runtime.start();
+
+        expect(store.getState().offlineSummary).toBeNull();
+        runtime.stop();
+    });
+
+    it("cleans up listeners on stop and rebinds once on restart", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        runtime.start();
+        expect(document.addEventListener).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+        expect(window.addEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+
+        runtime.stop();
+        expect(document.removeEventListener).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+        expect(window.removeEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+
+        runtime.start();
+        // Should rebind only once more after restart
+        expect((document.addEventListener as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
+        expect((window.addEventListener as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
     });
 
     it("creates offline summary on visibility resume", () => {

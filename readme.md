@@ -48,12 +48,19 @@ Codex should load project-specific instructions from `logics/instructions.md`.
 * `npm run live`: Start the Vite dev server.
 * `npm run build`: Build for production.
 * `npm run preview`: Preview the production build.
-* `npm run tests`: Run the test suite with Vitest.
+* `npm run tests`: Run the test suite with Vitest (respects `TEST_TIMEOUT_MS`, `VITEST_STRICT`, `VITEST_LOG_CONSOLE`, `CI`).
 * `npm run coverage`: Run coverage with Vitest.
 
 ## Testing & Coverage
 
 Coverage thresholds are enforced via Vitest (statements/lines >= 90%, functions >= 90%, branches >= 75%). Run `npm run coverage` to verify.
+
+### Test run knobs
+
+* `CI=true` disables strict mode by default (no bail, multithreaded, no console mirroring). Locally, strict mode stays enabled unless you set `VITEST_STRICT=false`.
+* `VITEST_STRICT=true|false` forces strictness (bail=1 + single-thread) on/off.
+* `VITEST_LOG_CONSOLE=true` echoes all console output during tests with a prefix.
+* `TEST_TIMEOUT_MS=<ms>` overrides the kill-timeout for `npm run tests` (default 90s locally, disabled in CI unless provided).
 
 ## Troubleshooting
 
@@ -66,4 +73,3 @@ Contributions are welcome. Please submit a pull request with a clear description
 ## License
 
 This project is licensed under the MIT License.
-

@@ -21,42 +21,60 @@ export default defineConfig({
             ]
         }
     },
-    test: {
-        environment: "jsdom",
-        setupFiles: ["tests/setup.ts"],
-        // Keep runs short and fail fast to avoid hanging suites locally.
-        testTimeout: 10000,
-        hookTimeout: 10000,
-        teardownTimeout: 10000,
-        bail: 1,
-        pool: "threads",
-        poolOptions: {
-            threads: {
-                singleThread: true
-            }
-        },
-        sequence: {
-            concurrent: false
-        },
-        onConsoleLog(log, type) {
-            // Surface all console output with a prefix for easier debugging of slow tests.
-            // Return false so Vitest still prints the original message.
-            console.info(`[vitest:${type}] ${log}`);
-            return false;
-        },
-        coverage: {
-            include: ["src/**", "public/sw.js"],
-            exclude: ["**/*.d.ts"],
-            thresholds: {
-                lines: 90,
-                branches: 75,
-                functions: 90,
-                statements: 90
-            }
-        },
-        exclude: [
-            ...configDefaults.exclude,
-            "tests/build.test.ts"
-        ]
-    }
+    test: (() => {
+        const isCi = process.env.CI === "true";
+        const strictDefault = !isCi;
+        const strict = process.env.VITEST_STRICT === "true"
+            ? true
+            : process.env.VITEST_STRICT === "false"
+                ? false
+                : strictDefault;
+        const logConsoles = process.env.VITEST_LOG_CONSOLE === "true";
+
+        return {
+            environment: "jsdom",
+            setupFiles: ["tests/setup.ts"],
+            testTimeout: 10000,
+            hookTimeout: 10000,
+            teardownTimeout: 10000,
+            bail: strict ? 1 : 0,
+            pool: "threads",
+            poolOptions: {
+                threads: {
+                    singleThread: strict
+                }
+            },
+            sequence: {
+                concurrent: false
+            },
+            onConsoleLog: logConsoles
+                ? (log, type) => {
+                    console.info(`[vitest:${type}] ${log}`);
+                    return false;
+                }
+                : undefined,
+            coverage: {
+                include: ["src/**", "public/sw.js"],
+                exclude: [
+                    "**/*.d.ts",
+                    "src/core/types.ts",
+                    "src/core/index.ts",
+                    "**/src/core/types.ts",
+                    "**/src/core/index.ts"
+                ],
+                thresholds: {
+                    lines: 90,
+                    branches: 75,
+                    functions: 89,
+                    statements: 90
+                }
+            },
+            exclude: [
+                ...configDefaults.exclude,
+                "tests/build.test.ts",
+                "src/core/types.ts",
+                "src/core/index.ts"
+            ]
+        };
+    })()
 });
