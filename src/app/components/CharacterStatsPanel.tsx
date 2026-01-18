@@ -28,6 +28,24 @@ type CharacterStatsPanelProps = {
     activePlayerName: string;
 };
 
+type StatRowProps = {
+    skill: SkillDefinition;
+    level: number;
+    color: string;
+};
+
+const StatRow = memo(({ skill, level, color }: StatRowProps) => (
+    <div className="ts-stat">
+        <div className="ts-stat-left">
+            <div className="ts-stat-icon" style={{ borderColor: color, color }}>
+                <SkillIcon skillId={skill.id} color={color} />
+            </div>
+            <div className="ts-stat-label">{skill.name}</div>
+        </div>
+        <div className="ts-stat-value">Lv {level}</div>
+    </div>
+));
+
 export const CharacterStatsPanel = memo(({
     skills,
     skillLevels,
@@ -57,17 +75,7 @@ export const CharacterStatsPanel = memo(({
                     {skills.map((skill) => {
                         const level = resolveSkillLevel(skillLevels, skill.id);
                         const color = SKILL_COLORS[skill.id];
-                        return (
-                            <div key={skill.id} className="ts-stat">
-                                <div className="ts-stat-left">
-                                    <div className="ts-stat-icon" style={{ borderColor: color, color }}>
-                                        <SkillIcon skillId={skill.id} color={color} />
-                                    </div>
-                                    <div className="ts-stat-label">{skill.name}</div>
-                                </div>
-                                <div className="ts-stat-value">Lv {level}</div>
-                            </div>
-                        );
+                        return <StatRow key={skill.id} skill={skill} level={level} color={color} />;
                     })}
                 </div>
                 <div className="ts-stat-placeholder">Statistics overview coming soon.</div>
@@ -77,3 +85,4 @@ export const CharacterStatsPanel = memo(({
 ));
 
 CharacterStatsPanel.displayName = "CharacterStatsPanel";
+StatRow.displayName = "StatRow";

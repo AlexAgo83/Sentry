@@ -34,6 +34,29 @@ type InventoryPanelProps = {
     selectionHint: string | null;
 };
 
+type InventorySlotProps = {
+    item: InventoryEntry;
+    isSelected: boolean;
+    onSelect: () => void;
+};
+
+const InventorySlot = memo(({ item, isSelected, onSelect }: InventorySlotProps) => {
+    const slotClassName = isSelected ? "ts-inventory-slot is-selected ts-focusable" : "ts-inventory-slot ts-focusable";
+    return (
+        <button
+            type="button"
+            className={slotClassName}
+            aria-pressed={isSelected}
+            aria-label={`${item.name} x${item.count}`}
+            title={`${item.name} x${item.count}`}
+            onClick={onSelect}
+        >
+            <InventoryIcon iconId={item.iconId} />
+            <span className="ts-inventory-count">{item.count}</span>
+        </button>
+    );
+});
+
 export const InventoryPanel = memo(({
     isCollapsed,
     onToggleCollapsed,
@@ -78,22 +101,13 @@ export const InventoryPanel = memo(({
                             {gridEntries.length > 0 ? (
                                 gridEntries.map((item) => {
                                     const isSelected = item.id === selectedItemId;
-                                    const slotClassName = isSelected
-                                        ? "ts-inventory-slot is-selected ts-focusable"
-                                        : "ts-inventory-slot ts-focusable";
                                     return (
-                                        <button
+                                        <InventorySlot
                                             key={item.id}
-                                            type="button"
-                                            className={slotClassName}
-                                            aria-pressed={isSelected}
-                                            aria-label={`${item.name} x${item.count}`}
-                                            title={`${item.name} x${item.count}`}
-                                            onClick={() => onSelectItem(item.id)}
-                                        >
-                                            <InventoryIcon iconId={item.iconId} />
-                                            <span className="ts-inventory-count">{item.count}</span>
-                                        </button>
+                                            item={item}
+                                            isSelected={isSelected}
+                                            onSelect={() => onSelectItem(item.id)}
+                                        />
                                     );
                                 })
                             ) : (
@@ -172,3 +186,4 @@ export const InventoryPanel = memo(({
 });
 
 InventoryPanel.displayName = "InventoryPanel";
+InventorySlot.displayName = "InventorySlot";
