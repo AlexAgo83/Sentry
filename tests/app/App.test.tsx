@@ -55,7 +55,7 @@ describe("App", () => {
         expect(screen.getByText("Roster")).toBeTruthy();
         expect(screen.getByText("2 heroes")).toBeTruthy();
 
-        await user.click(screen.getByRole("button", { name: "Inventory" }));
+        await user.click(screen.getByRole("tab", { name: "Inventory" }));
 
         const inventoryPanel = screen.getByRole("heading", { name: "Inventory" }).closest("section");
         expect(inventoryPanel).toBeTruthy();
@@ -76,6 +76,10 @@ describe("App", () => {
             await user.click(within(rosterPanel).getByRole("button", { name: "Collapse" }));
             expect(screen.queryByText("Recruit new hero")).toBeNull();
         }
+
+        // Switch back to action/stats
+        await user.click(screen.getByRole("tab", { name: "Action/Stats" }));
+        expect(screen.getByText("Action")).toBeTruthy();
     });
 
     it("shows focusable inventory controls and usage labels", async () => {

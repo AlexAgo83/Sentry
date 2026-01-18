@@ -2,6 +2,8 @@
 
 Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fantasy UI.
 
+[![CI](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml)
+
 ## Features
 
 * Multi-player roster with skills, recipes, and actions.
@@ -53,6 +55,7 @@ Codex should load project-specific instructions from `logics/instructions.md`.
 * `npm run coverage`: Run coverage with local config.
 * `npm run coverage:ci`: Run coverage with CI config (strict thresholds).
 * `npm run lint`: Run ESLint on `src` and `tests`.
+* `npm audit --audit-level=moderate`: Check for vulnerabilities (CI fails on moderate+).
 
 ## Testing & Coverage
 

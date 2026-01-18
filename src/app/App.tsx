@@ -19,101 +19,11 @@ import { getInventoryMeta } from "./ui/inventoryMeta";
 import { InventoryIconSprite } from "./ui/inventoryIcons";
 import { ITEM_USAGE_MAP } from "./ui/itemUsage";
 import "./styles/app.css";
-
-// Vitest exposes a global `vi`; use it to detect test mode for hooks that should avoid persistence.
-declare const vi: any;
-const isTestEnv = typeof vi !== "undefined" ||
-    (typeof import.meta !== "undefined" && Boolean((import.meta as any).vitest)) ||
-    (typeof process !== "undefined" && process.env.NODE_ENV === "test");
-
-const PANEL_STORAGE_KEY = "sentry.panelCollapsed";
-const INVENTORY_FILTERS_STORAGE_KEY = "sentry.inventoryFilters";
-
-const usePersistedCollapse = (panelKey: string, defaultValue = false) => {
-    if (isTestEnv) {
-        return useState<boolean>(defaultValue) as const;
-    }
-    const [value, setValue] = useState<boolean>(() => {
-        if (typeof window === "undefined") {
-            return defaultValue;
-        }
-        try {
-            const raw = window.localStorage.getItem(PANEL_STORAGE_KEY);
-            if (!raw) {
-                return defaultValue;
-            }
-            const parsed = JSON.parse(raw);
-            return typeof parsed?.[panelKey] === "boolean" ? parsed[panelKey] : defaultValue;
-        } catch {
-            return defaultValue;
-        }
-    });
-
-    useEffect(() => {
-        if (isTestEnv) {
-            return;
-        }
-        if (typeof window === "undefined") {
-            return;
-        }
-        try {
-            const raw = window.localStorage.getItem(PANEL_STORAGE_KEY);
-            const parsed = raw ? JSON.parse(raw) : {};
-            parsed[panelKey] = value;
-            window.localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify(parsed));
-        } catch {
-            // ignore storage failures
-        }
-    }, [panelKey, value]);
-
-    return [value, setValue] as const;
-};
-
-type InventoryFilters = {
-    sort: InventorySort;
-    search: string;
-    page: number;
-};
-
-const usePersistedInventoryFilters = (defaultValue: InventoryFilters) => {
-    if (isTestEnv) {
-        return useState<InventoryFilters>(defaultValue) as const;
-    }
-    const [value, setValue] = useState<InventoryFilters>(() => {
-        if (typeof window === "undefined") {
-            return defaultValue;
-        }
-        try {
-            const raw = window.localStorage.getItem(INVENTORY_FILTERS_STORAGE_KEY);
-            if (!raw) {
-                return defaultValue;
-            }
-            const parsed = JSON.parse(raw);
-            const sort = parsed?.sort === "Name" || parsed?.sort === "Count" ? parsed.sort : defaultValue.sort;
-            const search = typeof parsed?.search === "string" ? parsed.search : defaultValue.search;
-            const page = typeof parsed?.page === "number" && parsed.page > 0 ? parsed.page : defaultValue.page;
-            return { sort, search, page };
-        } catch {
-            return defaultValue;
-        }
-    });
-
-    useEffect(() => {
-        if (isTestEnv) {
-            return;
-        }
-        if (typeof window === "undefined") {
-            return;
-        }
-        try {
-            window.localStorage.setItem(INVENTORY_FILTERS_STORAGE_KEY, JSON.stringify(value));
-        } catch {
-            // ignore storage failures
-        }
-    }, [value]);
-
-    return [value, setValue] as const;
-};
+import { InventoryControls } from "./components/InventoryControls";
+import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
+import { usePersistedCollapse } from "./hooks/usePersistedCollapse";
+import { usePersistedInventoryFilters } from "./hooks/usePersistedInventoryFilters";
+import type { InventoryFilters } from "./hooks/usePersistedInventoryFilters";
 
 export const App = () => {
     useEffect(() => {
@@ -683,6 +593,11 @@ export const App = () => {
                     getRecipeLabel={getRecipeLabel}
                 />
                 <div className="ts-main-stack">
+                    <SidePanelSwitcher
+                        active={activeSidePanel}
+                        onShowStatus={() => setActiveSidePanel("status")}
+                        onShowInventory={() => setActiveSidePanel("inventory")}
+                    />
                     {activeSidePanel === "status" ? (
                         <>
                             <ActionStatusPanel
@@ -723,26 +638,34 @@ export const App = () => {
                         </>
                     ) : null}
                     {activeSidePanel === "inventory" ? (
-                        <InventoryPanel
-                            isCollapsed={isInventoryCollapsed}
-                            onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
-                            entries={inventoryVisibleEntries}
-                            gridEntries={inventoryPageEntries}
-                            selectedItem={selectedInventoryItem}
-                            selectedItemId={selectedInventoryItemId}
-                            onSelectItem={handleToggleInventoryItem}
-                            onClearSelection={handleClearInventorySelection}
-                            sort={inventorySort}
-                            onSortChange={handleSetInventorySort}
-                            search={inventorySearch}
-                            onSearchChange={handleSetInventorySearch}
-                            page={safeInventoryPage}
-                            pageCount={inventoryPageCount}
-                            onPageChange={handleSetInventoryPage}
-                            totalItems={inventoryVisibleEntries.length}
-                            emptyState={inventoryEmptyState}
-                            selectionHint={selectionHint}
-                        />
+                        <>
+                            <InventoryControls
+                                sort={inventorySort}
+                                onSortChange={handleSetInventorySort}
+                                search={inventorySearch}
+                                onSearchChange={handleSetInventorySearch}
+                            />
+                            <InventoryPanel
+                                isCollapsed={isInventoryCollapsed}
+                                onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
+                                entries={inventoryVisibleEntries}
+                                gridEntries={inventoryPageEntries}
+                                selectedItem={selectedInventoryItem}
+                                selectedItemId={selectedInventoryItemId}
+                                onSelectItem={handleToggleInventoryItem}
+                                onClearSelection={handleClearInventorySelection}
+                                sort={inventorySort}
+                                onSortChange={handleSetInventorySort}
+                                search={inventorySearch}
+                                onSearchChange={handleSetInventorySearch}
+                                page={safeInventoryPage}
+                                pageCount={inventoryPageCount}
+                                onPageChange={handleSetInventoryPage}
+                                totalItems={inventoryVisibleEntries.length}
+                                emptyState={inventoryEmptyState}
+                                selectionHint={selectionHint}
+                            />
+                        </>
                     ) : null}
                 </div>
             </main>

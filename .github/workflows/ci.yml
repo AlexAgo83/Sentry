@@ -24,3 +24,10 @@ jobs:
         run: npm run test:ci
       - name: Coverage (CI config)
         run: npm run coverage:ci
+      - name: Audit (fail on moderate+)
+        run: |
+          npm audit --audit-level=moderate
+      - name: Preview build
+        run: npm run build
+      - name: Smoke (RTL) on preview
+        run: npm run test:ci -- --runTestsByPath tests/app/offlineRecapModal.test.tsx
