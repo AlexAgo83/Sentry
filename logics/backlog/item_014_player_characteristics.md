@@ -83,7 +83,7 @@ Add a player characteristics model (base + mods) with clear stacking rules and i
 - Wire into action loop for stamina cost, action interval, and XP reward.
 - Add Luck effect only to item reward roll (small % bonus).
 - Ensure stats are used by equippable items (equipment modifiers apply to effective stats).
-- Minimal UI: show current effective stats in the Stats panel.
+- Minimal UI: show current effective stats in the Stats panel, split into two columns (levels left, stats right) with hover breakdown.
 - No equipment system yet; modifiers can come from actions/events.
 
 # Acceptance

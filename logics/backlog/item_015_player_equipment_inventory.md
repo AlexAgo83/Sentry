@@ -23,7 +23,7 @@ Introduce a per-player equipment system with fixed slots, supporting armor and w
 - Equipped items modify player stats when equipped.
 - Equip/unequip actions with validation (slot compatibility, one item per slot).
 - Persist equipped items in save state.
-- UI: show equipped items in a player view (Stats panel or dedicated equipment panel).
+- UI: show equipped items in a dedicated Equipment panel (new tab next to Inventory).
 - Ensure shared inventory can supply items to equip (no duplication).
 - Provide an explicit unequip action (return item to shared inventory).
 - Define starter gear + recipes for each slot (basic tier) and three basic weapon types.
