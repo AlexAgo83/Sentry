@@ -124,6 +124,20 @@ describe("GameRuntime", () => {
         expect((window.addEventListener as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
     });
 
+    it("starts without document present (SSR-safe)", () => {
+        delete (globalThis as { document?: unknown }).document;
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        runtime.start();
+
+        expect(window.addEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+        runtime.stop();
+    });
+
     it("creates offline summary on visibility resume", () => {
         console.info("[runtime.test] visibility resume - start");
         const initial = createInitialGameState("0.4.0");
@@ -143,6 +157,26 @@ describe("GameRuntime", () => {
         expect(persistence.save).toHaveBeenCalled();
         runtime.stop();
         console.info("[runtime.test] visibility resume - end");
+    });
+
+    it("skips recap when no players exist", () => {
+        const base = createInitialGameState("0.4.0");
+        const emptyState = { ...base, players: {}, activePlayerId: null };
+        const store = createGameStore(emptyState);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        const now = 10000;
+        const stateRef = store.getState();
+        stateRef.loop.lastTick = now - 7000;
+        stateRef.loop.lastHiddenAt = now - 7000;
+        vi.spyOn(Date, "now").mockReturnValue(now);
+
+        // @ts-expect-error accessing private helper for coverage
+        runtime.runStartupOfflineCatchUp();
+
+        expect(store.getState().offlineSummary).toBeNull();
     });
 
     it("persists on the first tick and updates perf", () => {
