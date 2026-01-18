@@ -1068,7 +1068,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--m4);
-    padding: var(--m3) var(--m4);
+    padding: var(--m4) var(--m5);
     border-radius: var(--border-radius-harmonized);
     border: 1px solid rgba(93, 217, 193, 0.18);
     background: rgba(12, 18, 32, 0.82);
@@ -1095,6 +1095,7 @@
     background: rgba(12, 18, 32, 0.9);
     color: var(--color-primary);
     flex-shrink: 0;
+    margin-right: var(--m2);
 }
 
 .ts-equipment-slot-icon .ts-inventory-icon {
@@ -1133,23 +1134,25 @@
 }
 
 .ts-equipment-slot-actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     align-items: center;
     justify-content: flex-end;
     gap: var(--m3);
-    flex-wrap: wrap;
+    width: auto;
 }
 
 .generic-field.input.ts-equipment-select {
-    min-width: 170px;
-    height: 36px;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
     font-size: var(--text-xs-size);
     text-transform: uppercase;
     letter-spacing: 0.12em;
 }
 
 .generic-field.button.ts-equipment-unequip {
-    padding: var(--m2) var(--m5);
+    padding: var(--m1) var(--m4);
     border: 1px solid rgba(93, 217, 193, 0.4);
     background: rgba(22, 30, 50, 0.9);
     color: var(--color-text);
@@ -1300,8 +1303,12 @@
     }
 
     .ts-equipment-slot-actions {
-        width: 100%;
+        width: auto;
         justify-content: flex-start;
+    }
+
+    .generic-field.input.ts-equipment-select {
+        width: auto;
     }
 
     .ts-stats-layout {

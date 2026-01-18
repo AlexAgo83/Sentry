@@ -220,7 +220,10 @@ describe("panel components", () => {
         );
         expect(onEquipItem).toHaveBeenCalledWith("simple_bow");
 
-        await user.click(screen.getByRole("button", { name: "Unequip Weapon" }));
+        await user.selectOptions(
+            screen.getByRole("combobox", { name: "Equip Weapon" }),
+            "Unequip"
+        );
         expect(onUnequipSlot).toHaveBeenCalledWith("Weapon");
     });
 });

@@ -14,6 +14,8 @@ type EquipmentPanelProps = {
     onUnequipSlot: (slot: EquipmentSlotId) => void;
 };
 
+const UNEQUIP_VALUE = "__unequip__";
+
 const SLOT_ICON_IDS: Record<EquipmentSlotId, InventoryIconId> = {
     Head: "garment",
     Torso: "garment",
@@ -132,14 +134,22 @@ export const EquipmentPanel = memo(({
                                             if (!itemId) {
                                                 return;
                                             }
+                                            if (itemId === UNEQUIP_VALUE) {
+                                                onUnequipSlot(slot);
+                                                event.target.value = "";
+                                                return;
+                                            }
                                             onEquipItem(itemId);
                                             event.target.value = "";
                                         }}
-                                        disabled={options.length === 0}
+                                        disabled={options.length === 0 && !equippedDef}
                                     >
                                         <option value="">
-                                            {options.length > 0 ? "Equip item" : "No items"}
+                                            {options.length > 0 || equippedDef ? "Equip item" : "No items"}
                                         </option>
+                                        {equippedDef ? (
+                                            <option value={UNEQUIP_VALUE}>Unequip</option>
+                                        ) : null}
                                         {options.map((item) => {
                                             const count = inventoryItems[item.id] ?? 0;
                                             return (
@@ -149,16 +159,6 @@ export const EquipmentPanel = memo(({
                                             );
                                         })}
                                     </select>
-                                    {equippedDef ? (
-                                        <button
-                                            type="button"
-                                            className="generic-field button ts-equipment-unequip ts-focusable"
-                                            onClick={() => onUnequipSlot(slot)}
-                                            aria-label={`Unequip ${slotLabel}`}
-                                        >
-                                            Unequip
-                                        </button>
-                                    ) : null}
                                 </div>
                             </div>
                         );
