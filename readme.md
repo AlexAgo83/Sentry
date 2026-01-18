@@ -51,15 +51,15 @@ Codex should load project-specific instructions from `logics/instructions.md`.
 * `npm run build`: Build for production.
 * `npm run preview`: Preview the production build.
 * `npm run tests`: Run the test suite with Vitest (respects `TEST_TIMEOUT_MS`, `VITEST_STRICT`, `VITEST_LOG_CONSOLE`, `CI`).
-* `npm run test:ci`: Run tests with strict CI config (`vitest.ci.mjs`, bail=1, funcs>=90%).
+* `npm run test:ci`: Run tests with strict CI config (`vitest.ci.mjs`, bail=1, coverage thresholds enforced).
 * `npm run coverage`: Run coverage with local config.
-* `npm run coverage:ci`: Run coverage with CI config (strict thresholds).
+* `npm run coverage:ci`: Run coverage with CI config (same thresholds as tests).
 * `npm run lint`: Run ESLint on `src` and `tests`.
 * `npm audit --audit-level=moderate`: Check for vulnerabilities (CI fails on moderate+).
 
 ## Testing & Coverage
 
-Coverage thresholds are enforced via Vitest (statements/lines >= 90%, functions >= 90%, branches >= 75%). Run `npm run coverage` to verify.
+Coverage thresholds are enforced via Vitest (statements/lines/functions/branches >= 75%). Run `npm run coverage` to verify.
 
 ### Test run knobs
 

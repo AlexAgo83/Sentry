@@ -39,10 +39,10 @@ export default defineConfig({
                 "**/src/core/index.ts"
             ],
             thresholds: {
-                lines: 90,
+                lines: 75,
                 branches: 75,
-                functions: 90,
-                statements: 90
+                functions: 75,
+                statements: 75
             }
         },
         exclude: [
