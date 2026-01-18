@@ -1,8 +1,8 @@
 ## item_015_player_equipment_inventory - Add per-player equipment inventory with fixed slots
 > From version: 0.8.0
-> Understanding: 94%
-> Confidence: 87%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 100%
 
 # Context
 Inventory is currently shared and not tied to individual players. We want character-specific equipment with fixed slots (head, torso, legs, hands, etc.) plus weapon slots for melee, ranged, and magic.
@@ -74,7 +74,6 @@ Introduce a per-player equipment system with fixed slots, supporting armor and w
 - Equipping consumes 1 stack count and unequipping restores 1.
 - Weapon slot accepts melee/ranged/magic types, but only one equipped at a time.
 
-# Open questions
-- Exact slot list for v1 (confirm feet vs boots naming).
-- How to represent empty slots in UI.
-- Confirm starter gear list and recipe costs.
+# Status
+- Delivered v1 equipment data model, recipes, UI, and tests.
+- Empty slots render with icon + label; Feet slot used for boots.

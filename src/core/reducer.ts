@@ -8,8 +8,10 @@ import {
 } from "./state";
 import {
     ActionId,
+    EquipmentSlotId,
     GameSave,
     GameState,
+    ItemId,
     OfflineSummaryState,
     PerformanceState,
     PlayerId,
@@ -17,6 +19,7 @@ import {
     SkillId
 } from "./types";
 import { getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
+import { getEquipmentDefinition } from "../data/equipment";
 
 export type GameAction =
     | { type: "hydrate"; save: GameSave | null; version: string }
@@ -28,7 +31,9 @@ export type GameAction =
     | { type: "addPlayer"; name?: string }
     | { type: "renamePlayer"; playerId: PlayerId; name: string }
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
-    | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null };
+    | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null }
+    | { type: "equipItem"; playerId: PlayerId; itemId: ItemId }
+    | { type: "unequipItem"; playerId: PlayerId; slot: EquipmentSlotId };
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
     switch (action.type) {
@@ -143,6 +148,82 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             }
                         },
                         actionProgress: createActionProgress()
+                    }
+                }
+            };
+        }
+        case "equipItem": {
+            const player = state.players[action.playerId];
+            if (!player) {
+                return state;
+            }
+            const definition = getEquipmentDefinition(action.itemId);
+            if (!definition) {
+                return state;
+            }
+            const available = state.inventory.items[action.itemId] ?? 0;
+            if (available <= 0) {
+                return state;
+            }
+            const slot = definition.slot;
+            const currentItemId = player.equipment.slots[slot];
+            if (currentItemId === action.itemId) {
+                return state;
+            }
+            const nextItems = { ...state.inventory.items };
+            nextItems[action.itemId] = Math.max(0, available - 1);
+            if (currentItemId) {
+                nextItems[currentItemId] = (nextItems[currentItemId] ?? 0) + 1;
+            }
+            return {
+                ...state,
+                inventory: {
+                    ...state.inventory,
+                    items: nextItems
+                },
+                players: {
+                    ...state.players,
+                    [action.playerId]: {
+                        ...player,
+                        equipment: {
+                            ...player.equipment,
+                            slots: {
+                                ...player.equipment.slots,
+                                [slot]: action.itemId
+                            }
+                        }
+                    }
+                }
+            };
+        }
+        case "unequipItem": {
+            const player = state.players[action.playerId];
+            if (!player) {
+                return state;
+            }
+            const currentItemId = player.equipment.slots[action.slot];
+            if (!currentItemId) {
+                return state;
+            }
+            const nextItems = { ...state.inventory.items };
+            nextItems[currentItemId] = (nextItems[currentItemId] ?? 0) + 1;
+            return {
+                ...state,
+                inventory: {
+                    ...state.inventory,
+                    items: nextItems
+                },
+                players: {
+                    ...state.players,
+                    [action.playerId]: {
+                        ...player,
+                        equipment: {
+                            ...player.equipment,
+                            slots: {
+                                ...player.equipment.slots,
+                                [action.slot]: null
+                            }
+                        }
                     }
                 }
             };

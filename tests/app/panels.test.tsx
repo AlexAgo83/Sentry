@@ -5,8 +5,12 @@ import { RosterPanel } from "../../src/app/components/RosterPanel";
 import { ActionStatusPanel } from "../../src/app/components/ActionStatusPanel";
 import { CharacterStatsPanel } from "../../src/app/components/CharacterStatsPanel";
 import { InventoryPanel } from "../../src/app/components/InventoryPanel";
+import { EquipmentPanel } from "../../src/app/components/EquipmentPanel";
 import { createPlayerState } from "../../src/core/state";
+import { computeEffectiveStats, createPlayerStatsState } from "../../src/core/stats";
+import { createPlayerEquipmentState } from "../../src/core/equipment";
 import { SKILL_DEFINITIONS } from "../../src/data/definitions";
+import { EQUIPMENT_DEFINITIONS } from "../../src/data/equipment";
 import type { SkillId } from "../../src/core/types";
 import type { CSSProperties } from "react";
 
@@ -92,6 +96,10 @@ describe("panel components", () => {
             <CharacterStatsPanel
                 skills={SKILL_DEFINITIONS}
                 skillLevels={{}}
+                stats={createPlayerStatsState()}
+                effectiveStats={computeEffectiveStats(createPlayerStatsState())}
+                equipmentMods={[]}
+                now={0}
                 isCollapsed={false}
                 onToggleCollapsed={onToggleCollapsed}
                 onRenameHero={vi.fn()}
@@ -185,5 +193,34 @@ describe("panel components", () => {
         expect(screen.getByText("No items available")).toBeTruthy();
         expect(screen.getByText("Off-page selection")).toBeTruthy();
         expect(screen.queryByText(/Page 1 of 1/)).toBeNull();
+    });
+
+    it("EquipmentPanel triggers equip and unequip actions", async () => {
+        const user = userEvent.setup();
+        const onEquipItem = vi.fn();
+        const onUnequipSlot = vi.fn();
+        const equipment = createPlayerEquipmentState();
+        equipment.slots.Weapon = "rusty_blade";
+
+        render(
+            <EquipmentPanel
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                equipment={equipment}
+                inventoryItems={{ simple_bow: 1 }}
+                definitions={EQUIPMENT_DEFINITIONS}
+                onEquipItem={onEquipItem}
+                onUnequipSlot={onUnequipSlot}
+            />
+        );
+
+        await user.selectOptions(
+            screen.getByRole("combobox", { name: "Equip Weapon" }),
+            "simple_bow"
+        );
+        expect(onEquipItem).toHaveBeenCalledWith("simple_bow");
+
+        await user.click(screen.getByRole("button", { name: "Unequip Weapon" }));
+        expect(onUnequipSlot).toHaveBeenCalledWith("Weapon");
     });
 });

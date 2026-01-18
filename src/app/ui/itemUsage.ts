@@ -42,6 +42,11 @@ const buildItemUsageMap = (): Record<string, ItemUsage> => {
                 addItemUsage(usage, itemId, "obtainedBy", `Action: ${skill.name}`);
             });
         }
+        if (actionDef?.rareRewards) {
+            Object.keys(actionDef.rareRewards).forEach((itemId) => {
+                addItemUsage(usage, itemId, "obtainedBy", `Action: ${skill.name} (rare)`);
+            });
+        }
         if (actionDef?.goldReward) {
             addItemUsage(usage, "gold", "obtainedBy", `Action: ${skill.name}`);
         }
@@ -56,6 +61,11 @@ const buildItemUsageMap = (): Record<string, ItemUsage> => {
             if (recipe.itemRewards) {
                 Object.keys(recipe.itemRewards).forEach((itemId) => {
                     addItemUsage(usage, itemId, "obtainedBy", label);
+                });
+            }
+            if (recipe.rareRewards) {
+                Object.keys(recipe.rareRewards).forEach((itemId) => {
+                    addItemUsage(usage, itemId, "obtainedBy", `${label} (rare)`);
                 });
             }
             if (recipe.goldReward) {

@@ -1,8 +1,8 @@
 ## item_014_player_characteristics - Introduce player characteristics + modifiers
 > From version: 0.8.0
-> Understanding: 94%
-> Confidence: 88%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 100%
 
 # Context
 Players currently have no explicit characteristics. We want a stat system that supports base values plus permanent and temporary modifiers, and can drive action pacing, stamina, XP, and loot.
@@ -94,7 +94,6 @@ Add a player characteristics model (base + mods) with clear stacking rules and i
 - Basic UI displays effective stats in the Stats panel.
 - Tests cover stat calculation + one effect per stat.
 
-# Open questions
-- Exact base values and scaling per stat (numbers TBD).
-- Max cap values per stat.
-- Which actions/events grant temporary modifiers first.
+# Status
+- Delivered v1 stat system with defaults, UI, and tests.
+- Temporary modifier sources are still TBD (no gameplay sources yet).

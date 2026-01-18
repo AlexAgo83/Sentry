@@ -6,12 +6,15 @@ import {
     getRecipesForSkill,
     isRecipeUnlocked
 } from "../data/definitions";
-import { SkillId } from "../core/types";
+import { EquipmentSlotId, SkillId } from "../core/types";
+import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../core/stats";
+import { createPlayerEquipmentState } from "../core/equipment";
 import { gameRuntime, gameStore } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
 import { ActionStatusPanel } from "./components/ActionStatusPanel";
 import { CharacterStatsPanel } from "./components/CharacterStatsPanel";
 import { InventoryPanel, type InventorySort } from "./components/InventoryPanel";
+import { EquipmentPanel } from "./components/EquipmentPanel";
 import { RosterPanel } from "./components/RosterPanel";
 import { getInventoryMeta } from "./ui/inventoryMeta";
 import { InventoryIconSprite } from "./ui/inventoryIcons";
@@ -29,6 +32,7 @@ import { usePendingActionSelection } from "./hooks/usePendingActionSelection";
 import { useActionStatus } from "./hooks/useActionStatus";
 import { formatItemListEntries, getItemListEntries } from "./ui/itemFormatters";
 import { getSkillIconColor } from "./ui/skillColors";
+import { EQUIPMENT_DEFINITIONS, getEquipmentModifiers } from "../data/equipment";
 
 export const App = () => {
     useEffect(() => {
@@ -38,6 +42,16 @@ export const App = () => {
 
     const state = useGameStore((gameState) => gameState);
     const activePlayer = state.activePlayerId ? state.players[state.activePlayerId] : null;
+    const statsNowTime = Date.now();
+    const equipmentModifiers = useMemo(
+        () => (activePlayer ? getEquipmentModifiers(activePlayer.equipment) : []),
+        [activePlayer?.equipment]
+    );
+    const statsSnapshot = activePlayer
+        ? resolveEffectiveStats(activePlayer.stats, statsNowTime, equipmentModifiers)
+        : null;
+    const statsState = statsSnapshot?.stats ?? createPlayerStatsState();
+    const effectiveStats = statsSnapshot?.effective ?? computeEffectiveStats(statsState, equipmentModifiers);
     const {
         activeSkillId,
         activeSkill,
@@ -77,6 +91,7 @@ export const App = () => {
     const [isRosterCollapsed, setRosterCollapsed] = usePersistedCollapse("roster", false);
     const [isSystemOpen, setSystemOpen] = useState(false);
     const [isInventoryCollapsed, setInventoryCollapsed] = usePersistedCollapse("inventory", false);
+    const [isEquipmentCollapsed, setEquipmentCollapsed] = usePersistedCollapse("equipment", false);
     const [isStatsCollapsed, setStatsCollapsed] = usePersistedCollapse("stats", false);
     const [isActionCollapsed, setActionCollapsed] = usePersistedCollapse("actionStatus", false);
     const [inventoryFilters, setInventoryFilters] = usePersistedInventoryFilters({
@@ -104,7 +119,7 @@ export const App = () => {
             page
         }));
     }, [setInventoryFilters]);
-    const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory">("status");
+    const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory" | "equipment">("status");
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
     const inventorySort = inventoryFilters.sort;
     const inventorySearch = inventoryFilters.search;
@@ -301,6 +316,28 @@ export const App = () => {
     const handleClearInventorySelection = () => {
         setSelectedInventoryItemId(null);
     };
+
+    const handleEquipItem = useCallback((itemId: string) => {
+        if (!activePlayer) {
+            return;
+        }
+        gameStore.dispatch({
+            type: "equipItem",
+            playerId: activePlayer.id,
+            itemId
+        });
+    }, [activePlayer]);
+
+    const handleUnequipSlot = useCallback((slot: EquipmentSlotId) => {
+        if (!activePlayer) {
+            return;
+        }
+        gameStore.dispatch({
+            type: "unequipItem",
+            playerId: activePlayer.id,
+            slot
+        });
+    }, [activePlayer]);
 
     const handleCloseRecruit = () => {
         setRecruitOpen(false);
@@ -505,6 +542,7 @@ export const App = () => {
                         active={activeSidePanel}
                         onShowStatus={() => setActiveSidePanel("status")}
                         onShowInventory={() => setActiveSidePanel("inventory")}
+                        onShowEquipment={() => setActiveSidePanel("equipment")}
                     />
                     {activeSidePanel === "status" ? (
                         <>
@@ -541,6 +579,10 @@ export const App = () => {
                             <CharacterStatsPanel
                                 skills={SKILL_DEFINITIONS}
                                 skillLevels={activeSkillLevels}
+                                stats={statsState}
+                                effectiveStats={effectiveStats}
+                                equipmentMods={equipmentModifiers}
+                                now={statsNowTime}
                                 isCollapsed={isStatsCollapsed}
                                 onToggleCollapsed={() => setStatsCollapsed((value) => !value)}
                                 onRenameHero={handleOpenActiveRename}
@@ -571,6 +613,17 @@ export const App = () => {
                                 selectionHint={selectionHint}
                             />
                         </>
+                    ) : null}
+                    {activeSidePanel === "equipment" ? (
+                        <EquipmentPanel
+                            isCollapsed={isEquipmentCollapsed}
+                            onToggleCollapsed={() => setEquipmentCollapsed((value) => !value)}
+                            equipment={activePlayer?.equipment ?? createPlayerEquipmentState()}
+                            inventoryItems={inventoryItems}
+                            definitions={EQUIPMENT_DEFINITIONS}
+                            onEquipItem={handleEquipItem}
+                            onUnequipSlot={handleUnequipSlot}
+                        />
                     ) : null}
                 </div>
             </main>

@@ -1,12 +1,18 @@
 import { memo } from "react";
 
 type SidePanelSwitcherProps = {
-    active: "status" | "inventory";
+    active: "status" | "inventory" | "equipment";
     onShowStatus: () => void;
     onShowInventory: () => void;
+    onShowEquipment: () => void;
 };
 
-export const SidePanelSwitcher = memo(({ active, onShowStatus, onShowInventory }: SidePanelSwitcherProps) => (
+export const SidePanelSwitcher = memo(({
+    active,
+    onShowStatus,
+    onShowInventory,
+    onShowEquipment
+}: SidePanelSwitcherProps) => (
     <div className="ts-panel-switcher" role="tablist" aria-label="Main panels">
         <button
             type="button"
@@ -25,6 +31,15 @@ export const SidePanelSwitcher = memo(({ active, onShowStatus, onShowInventory }
             onClick={onShowInventory}
         >
             Inventory
+        </button>
+        <button
+            type="button"
+            role="tab"
+            aria-selected={active === "equipment"}
+            className={`ts-chip ts-focusable${active === "equipment" ? " is-active" : ""}`}
+            onClick={onShowEquipment}
+        >
+            Equipment
         </button>
     </div>
 ));

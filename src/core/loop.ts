@@ -1,6 +1,15 @@
 import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
+import { getEquipmentModifiers } from "../data/equipment";
 import { createActionProgress } from "./state";
-import { XP_NEXT_MULTIPLIER } from "./constants";
+import {
+    DEFAULT_STAMINA_MAX,
+    DEFAULT_STAMINA_REGEN,
+    MIN_ACTION_INTERVAL_MS,
+    MIN_STAMINA_COST,
+    STAT_PERCENT_PER_POINT,
+    XP_NEXT_MULTIPLIER
+} from "./constants";
+import { resolveEffectiveStats } from "./stats";
 import {
     GameState,
     InventoryState,
@@ -9,6 +18,7 @@ import {
     PlayerState,
     RecipeState,
     SkillState,
+    SkillId,
     TickSummaryState
 } from "./types";
 
@@ -46,6 +56,10 @@ const addItemDelta = (target: ItemDelta, itemId: string, amount: number) => {
     }
     target[itemId] = (target[itemId] ?? 0) + amount;
 };
+
+const STRENGTH_SKILLS = new Set<SkillId>(["Combat", "Hunting", "Excavation", "MetalWork"]);
+const INTELLECT_SKILLS = new Set<SkillId>(["Cooking", "Alchemy", "Herbalism", "Tailoring", "Carpentry"]);
+const LUCK_SKILLS = new Set<SkillId>(["Fishing"]);
 
 const canAffordCosts = (inventory: InventoryState, costs?: ItemDelta): boolean => {
     if (!costs) {
@@ -85,44 +99,69 @@ const applyActionTick = (
     deltaMs: number,
     timestamp: number
 ): { player: PlayerState; inventory: InventoryState; itemDeltas: ItemDelta } => {
+    const equipmentModifiers = getEquipmentModifiers(player.equipment);
+    const { stats: cleanedStats, effective } = resolveEffectiveStats(player.stats, timestamp, equipmentModifiers);
+    const staminaMax = Math.ceil(DEFAULT_STAMINA_MAX * (1 + effective.Endurance * STAT_PERCENT_PER_POINT));
+    const regenRate = DEFAULT_STAMINA_REGEN * (1 + effective.Endurance * STAT_PERCENT_PER_POINT);
+    const regenAmount = Math.floor((deltaMs / 1000) * regenRate);
+    let stamina = Math.min(staminaMax, Math.max(0, player.stamina + regenAmount));
+    let nextPlayer: PlayerState = {
+        ...player,
+        stats: cleanedStats,
+        staminaMax,
+        stamina
+    };
+
     if (!player.selectedActionId) {
-        return { player, inventory, itemDeltas: {} };
+        return { player: nextPlayer, inventory, itemDeltas: {} };
     }
 
     const actionDef = getActionDefinition(player.selectedActionId);
     if (!actionDef) {
-        return { player, inventory, itemDeltas: {} };
+        return { player: nextPlayer, inventory, itemDeltas: {} };
     }
 
     const skill = player.skills[actionDef.skillId];
     if (!skill) {
-        return { player, inventory, itemDeltas: {} };
+        return { player: nextPlayer, inventory, itemDeltas: {} };
     }
 
     const selectedRecipeId = skill.selectedRecipeId;
     if (!selectedRecipeId) {
-        return { player, inventory, itemDeltas: {} };
+        return { player: nextPlayer, inventory, itemDeltas: {} };
     }
 
     const recipe = skill.recipes[selectedRecipeId];
     if (!recipe) {
-        return { player, inventory, itemDeltas: {} };
+        return { player: nextPlayer, inventory, itemDeltas: {} };
     }
     const recipeDef = getRecipeDefinition(actionDef.skillId, selectedRecipeId);
     if (recipeDef && !isRecipeUnlocked(recipeDef, skill.level)) {
-        return { player, inventory, itemDeltas: {} };
+        return { player: nextPlayer, inventory, itemDeltas: {} };
     }
 
-    const actionInterval = skill.baseInterval + (player.stamina <= 0 ? actionDef.stunTime : 0);
+    const intervalMultiplier = 1 - effective.Agility * STAT_PERCENT_PER_POINT;
+    const baseInterval = Math.ceil(skill.baseInterval * intervalMultiplier);
+    const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval)
+        + (stamina <= 0 ? actionDef.stunTime : 0);
     if (actionInterval <= 0) {
-        return { player, inventory, itemDeltas: {} };
+        return { player: nextPlayer, inventory, itemDeltas: {} };
     }
 
     let currentInterval = player.actionProgress.currentInterval + deltaMs;
     const completedActions = Math.floor(currentInterval / actionInterval);
     currentInterval %= actionInterval;
 
-    let nextPlayer = { ...player };
+    const staminaCostMultiplier = STRENGTH_SKILLS.has(actionDef.skillId)
+        ? 1 - effective.Strength * STAT_PERCENT_PER_POINT
+        : 1;
+    const staminaCost = Math.max(MIN_STAMINA_COST, Math.ceil(actionDef.staminaCost * staminaCostMultiplier));
+    const xpMultiplier = INTELLECT_SKILLS.has(actionDef.skillId)
+        ? 1 + effective.Intellect * STAT_PERCENT_PER_POINT
+        : 1;
+    const luckChance = LUCK_SKILLS.has(actionDef.skillId)
+        ? Math.min(0.25, effective.Luck * 0.005)
+        : 0;
     let nextSkill: SkillState = { ...skill };
     let nextRecipe: RecipeState = { ...recipe };
 
@@ -132,14 +171,13 @@ const applyActionTick = (
     let shouldStop = false;
 
     if (completedActions > 0) {
-        let stamina = nextPlayer.stamina;
-
         for (let i = 0; i < completedActions; i += 1) {
             if (stamina <= 0) {
                 stamina = nextPlayer.staminaMax;
             }
             const itemCosts = recipeDef?.itemCosts ?? actionDef.itemCosts;
             const itemRewards = recipeDef?.itemRewards ?? actionDef.itemRewards;
+            const rareRewards = recipeDef?.rareRewards ?? actionDef.rareRewards;
             const goldReward = recipeDef?.goldReward ?? actionDef.goldReward;
             if (!canAffordCosts(nextInventory, itemCosts)) {
                 shouldStop = true;
@@ -150,9 +188,12 @@ const applyActionTick = (
                 nextInventory = applyItemDelta(nextInventory, { gold: goldReward }, 1, itemDeltas);
             }
             nextInventory = applyItemDelta(nextInventory, itemRewards, 1, itemDeltas);
-            stamina -= actionDef.staminaCost;
-            nextSkill = { ...nextSkill, xp: nextSkill.xp + actionDef.xpSkill };
-            nextRecipe = { ...nextRecipe, xp: nextRecipe.xp + actionDef.xpRecipe };
+            if (rareRewards && luckChance > 0 && Math.random() < luckChance) {
+                nextInventory = applyItemDelta(nextInventory, rareRewards, 1, itemDeltas);
+            }
+            stamina -= staminaCost;
+            nextSkill = { ...nextSkill, xp: nextSkill.xp + actionDef.xpSkill * xpMultiplier };
+            nextRecipe = { ...nextRecipe, xp: nextRecipe.xp + actionDef.xpRecipe * xpMultiplier };
             nextSkill = applyLevelUps(nextSkill);
             nextRecipe = applyLevelUps(nextRecipe);
             completedCount += 1;

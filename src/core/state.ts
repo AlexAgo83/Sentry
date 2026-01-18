@@ -23,6 +23,8 @@ import {
     SKILL_MAX_LEVEL
 } from "./constants";
 import { SKILL_DEFINITIONS, getRecipesForSkill, resolveRecipeId } from "../data/definitions";
+import { createPlayerStatsState, normalizePlayerStats } from "./stats";
+import { createPlayerEquipmentState, normalizePlayerEquipment } from "./equipment";
 
 export const createActionProgress = (): ActionProgressState => ({
     currentInterval: 0,
@@ -115,6 +117,8 @@ export const createPlayerState = (id: PlayerId, name?: string): PlayerState => {
         hpMax: DEFAULT_HP_MAX,
         stamina: DEFAULT_STAMINA_MAX,
         staminaMax: DEFAULT_STAMINA_MAX,
+        stats: createPlayerStatsState(),
+        equipment: createPlayerEquipmentState(),
         skills,
         selectedActionId: null,
         actionProgress: createActionProgress(),
@@ -167,6 +171,8 @@ const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
     }, {} as Record<SkillId, SkillState>);
     return {
         ...rest,
+        stats: normalizePlayerStats(player.stats),
+        equipment: normalizePlayerEquipment(player.equipment),
         skills: normalizedSkills,
         actionProgress: createActionProgress()
     };

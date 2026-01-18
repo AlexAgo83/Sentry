@@ -359,6 +359,72 @@
     padding: var(--m1);
 }
 
+.ts-stats-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 220px);
+    gap: var(--m4);
+}
+
+.ts-stats-column {
+    min-width: 0;
+}
+
+.ts-stats-attributes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+}
+
+.ts-attribute-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+    padding: var(--m1);
+}
+
+.ts-attribute-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m2);
+    padding: var(--m1) var(--m2);
+    min-height: 40px;
+    border-radius: calc(var(--border-radius-harmonized) - 2px);
+    border: 1px solid rgba(93, 217, 193, 0.16);
+    background: rgba(12, 18, 32, 0.82);
+}
+
+.ts-attribute-label {
+    font-size: var(--text-s-size);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-fade);
+}
+
+.ts-attribute-value {
+    font-size: var(--text-s-size);
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.ts-attribute-buffs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--m2);
+    padding: 0 var(--m1);
+}
+
+.ts-attribute-buff {
+    border: 1px solid rgba(242, 193, 78, 0.35);
+    background: rgba(12, 18, 32, 0.7);
+    border-radius: 999px;
+    padding: var(--m1) var(--m3);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+
 .ts-stat {
     display: flex;
     align-items: center;
@@ -986,6 +1052,116 @@
     color: var(--color-text-fade);
 }
 
+.ts-equipment-panel {
+    grid-column: 2;
+}
+
+.ts-equipment-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+}
+
+.ts-equipment-slot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m4);
+    padding: var(--m3) var(--m4);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px solid rgba(93, 217, 193, 0.18);
+    background: rgba(12, 18, 32, 0.82);
+}
+
+.ts-equipment-slot.is-empty {
+    border-style: dashed;
+}
+
+.ts-equipment-slot-info {
+    display: flex;
+    align-items: center;
+    gap: var(--m3);
+    min-width: 0;
+}
+
+.ts-equipment-slot-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 1px solid rgba(242, 193, 78, 0.35);
+    display: grid;
+    place-items: center;
+    background: rgba(12, 18, 32, 0.9);
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.ts-equipment-slot-icon .ts-inventory-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.ts-equipment-slot-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m1);
+    min-width: 0;
+}
+
+.ts-equipment-slot-label {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
+}
+
+.ts-equipment-slot-name {
+    font-size: var(--text-s-size);
+    color: var(--color-text);
+}
+
+.ts-equipment-slot.is-empty .ts-equipment-slot-name {
+    color: var(--color-text-fade);
+}
+
+.ts-equipment-slot-mods {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(242, 193, 78, 0.9);
+}
+
+.ts-equipment-slot-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--m3);
+    flex-wrap: wrap;
+}
+
+.generic-field.input.ts-equipment-select {
+    min-width: 170px;
+    height: 36px;
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.generic-field.button.ts-equipment-unequip {
+    padding: var(--m2) var(--m5);
+    border: 1px solid rgba(93, 217, 193, 0.4);
+    background: rgba(22, 30, 50, 0.9);
+    color: var(--color-text);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.generic-field.button.ts-equipment-unequip:hover {
+    border-color: rgba(242, 193, 78, 0.6);
+    color: var(--color-primary);
+}
+
 .ts-inventory-sprite {
     position: absolute;
     width: 0;
@@ -1017,6 +1193,10 @@
     }
 
     .ts-inventory-panel {
+        grid-column: auto;
+    }
+
+    .ts-equipment-panel {
         grid-column: auto;
     }
 
@@ -1107,6 +1287,20 @@
         flex-wrap: wrap;
         align-items: center;
         gap: var(--m2);
+    }
+
+    .ts-equipment-slot {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ts-equipment-slot-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .ts-stats-layout {
+        grid-template-columns: 1fr;
     }
 
     .ts-panel-meta {

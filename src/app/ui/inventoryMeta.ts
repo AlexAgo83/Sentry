@@ -84,6 +84,38 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
         description: "Protective gear for hardened fighters.",
         iconId: "armor"
     },
+    cloth_cap: {
+        description: "A simple cloth cap to ward off the chill.",
+        iconId: "garment"
+    },
+    linen_tunic: {
+        description: "A light tunic stitched from linen.",
+        iconId: "garment"
+    },
+    worn_trousers: {
+        description: "Well-worn trousers made for travel.",
+        iconId: "garment"
+    },
+    leather_gloves: {
+        description: "Sturdy gloves that improve grip.",
+        iconId: "armor"
+    },
+    simple_boots: {
+        description: "Basic boots for steady footing.",
+        iconId: "armor"
+    },
+    rusty_blade: {
+        description: "A basic blade with a weathered edge.",
+        iconId: "tools"
+    },
+    simple_bow: {
+        description: "A light bow for ranged strikes.",
+        iconId: "wood"
+    },
+    apprentice_staff: {
+        description: "A staff tuned for beginner magic.",
+        iconId: "crystal"
+    },
     furniture: {
         description: "Crafted furnishings for camp upgrades.",
         iconId: "furniture"

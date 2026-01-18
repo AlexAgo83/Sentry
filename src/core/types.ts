@@ -14,6 +14,43 @@ export type SkillId =
 export type ActionId = SkillId;
 export type RecipeId = string;
 export type ItemId = string;
+export type StatId = "Strength" | "Agility" | "Endurance" | "Intellect" | "Luck";
+export type EquipmentSlotId = "Head" | "Torso" | "Legs" | "Hands" | "Feet" | "Weapon";
+export type WeaponType = "Melee" | "Ranged" | "Magic";
+
+export interface StatModifier {
+    id: string;
+    stat: StatId;
+    kind: "flat" | "mult";
+    value: number;
+    source: string;
+    expiresAt?: number | null;
+    stackKey?: string;
+}
+
+export interface EquipmentStatModifier {
+    stat: StatId;
+    kind: "flat" | "mult";
+    value: number;
+}
+
+export interface EquipmentItemDefinition {
+    id: ItemId;
+    name: string;
+    slot: EquipmentSlotId;
+    weaponType?: WeaponType;
+    modifiers: EquipmentStatModifier[];
+}
+
+export interface PlayerEquipmentState {
+    slots: Record<EquipmentSlotId, ItemId | null>;
+}
+
+export interface PlayerStatsState {
+    base: Record<StatId, number>;
+    permanentMods: StatModifier[];
+    temporaryMods: StatModifier[];
+}
 
 export interface InventoryState {
     items: Record<ItemId, number>;
@@ -55,6 +92,8 @@ export interface PlayerState {
     hpMax: number;
     stamina: number;
     staminaMax: number;
+    stats: PlayerStatsState;
+    equipment: PlayerEquipmentState;
     skills: Record<SkillId, SkillState>;
     selectedActionId: ActionId | null;
     actionProgress: ActionProgressState;
@@ -96,6 +135,7 @@ export interface RecipeDefinition {
     goldReward?: number;
     itemCosts?: ItemDelta;
     itemRewards?: ItemDelta;
+    rareRewards?: ItemDelta;
 }
 
 export interface ActionDefinition {
@@ -108,6 +148,7 @@ export interface ActionDefinition {
     stunTime: number;
     itemCosts?: ItemDelta;
     itemRewards?: ItemDelta;
+    rareRewards?: ItemDelta;
 }
 
 export type PlayerSaveState = Omit<PlayerState, "actionProgress">;
