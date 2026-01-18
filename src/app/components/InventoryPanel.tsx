@@ -63,43 +63,52 @@ export const InventoryPanel = memo(({
                     type="button"
                     className="ts-collapse-button ts-focusable"
                     onClick={onToggleCollapsed}
+                    data-mobile-label={isCollapsed ? "+" : "-"}
+                    aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
                 >
-                    {isCollapsed ? "Expand" : "Collapse"}
+                    <span className="ts-collapse-label">
+                        {isCollapsed ? "Expand" : "Collapse"}
+                    </span>
                 </button>
             </div>
             {!isCollapsed ? (
                 <div className="ts-inventory-layout">
                     <div className="ts-inventory-column">
-                        <div className="ts-inventory-controls">
-                            <div className="ts-inventory-control">
-                                <label className="ts-field-label" htmlFor="inventory-sort">
-                                    Sort by
-                                </label>
-                                <select
-                                    id="inventory-sort"
-                                    className="generic-field select ts-focusable"
-                                    value={sort}
-                                    onChange={(event) => onSortChange(event.target.value as InventorySort)}
+                        <div className="ts-inventory-toolbar">
+                            <div className="ts-inventory-filters">
+                                <div
+                                    className="ts-inventory-chip-row"
+                                    role="group"
+                                    aria-label="Sort inventory"
                                 >
-                                    <option value="Name">Name</option>
-                                    <option value="Count">Count</option>
-                                </select>
-                            </div>
-                            <div className="ts-inventory-control">
-                                <label className="ts-field-label" htmlFor="inventory-search">
-                                    Search items
-                                </label>
-                                <input
-                                    id="inventory-search"
-                                    className="generic-field input ts-input ts-focusable"
-                                    value={search}
-                                    onChange={(event) => onSearchChange(event.target.value)}
-                                    placeholder="Filter by name"
-                                />
-                            </div>
-                            <div className="ts-inventory-meta">
-                                <span>{totalItems} item types</span>
-                                <span>Page {page}/{pageCount}</span>
+                                    <span className="ts-chip-label">Sort</span>
+                                    {(["Name", "Count"] as InventorySort[]).map((option) => {
+                                        const isActive = option === sort;
+                                        const className = isActive
+                                            ? "ts-inventory-chip is-active"
+                                            : "ts-inventory-chip";
+                                        return (
+                                            <button
+                                                key={option}
+                                                type="button"
+                                                className={className}
+                                                onClick={() => onSortChange(option)}
+                                                aria-pressed={isActive}
+                                            >
+                                                {option}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <div className="ts-inventory-search">
+                                    <label htmlFor="inventory-search">Search</label>
+                                    <input
+                                        id="inventory-search"
+                                        value={search}
+                                        onChange={(event) => onSearchChange(event.target.value)}
+                                        placeholder="Filter by name"
+                                    />
+                                </div>
                             </div>
                         </div>
                         <div className="ts-inventory-grid">
@@ -135,20 +144,20 @@ export const InventoryPanel = memo(({
                         <div className="ts-inventory-pagination">
                             <button
                                 type="button"
-                                className="generic-field button ts-focusable"
+                                className="ts-pagination-button"
                                 onClick={() => onPageChange(Math.max(1, page - 1))}
                                 disabled={page <= 1}
                             >
-                                Previous
+                                ← Prev
                             </button>
                             <div className="ts-inventory-pagination-label">Page {page} of {pageCount}</div>
                             <button
                                 type="button"
-                                className="generic-field button ts-focusable"
+                                className="ts-pagination-button"
                                 onClick={() => onPageChange(Math.min(pageCount, page + 1))}
                                 disabled={page >= pageCount}
                             >
-                                Next
+                                Next →
                             </button>
                         </div>
                     </div>

@@ -20,6 +20,83 @@ import { InventoryIconSprite } from "./ui/inventoryIcons";
 import { ITEM_USAGE_MAP } from "./ui/itemUsage";
 import "./styles/app.css";
 
+const PANEL_STORAGE_KEY = "sentry.panelCollapsed";
+const INVENTORY_FILTERS_STORAGE_KEY = "sentry.inventoryFilters";
+
+const usePersistedCollapse = (panelKey: string, defaultValue = false) => {
+    const [value, setValue] = useState<boolean>(() => {
+        if (typeof window === "undefined") {
+            return defaultValue;
+        }
+        try {
+            const raw = window.localStorage.getItem(PANEL_STORAGE_KEY);
+            if (!raw) {
+                return defaultValue;
+            }
+            const parsed = JSON.parse(raw);
+            return typeof parsed?.[panelKey] === "boolean" ? parsed[panelKey] : defaultValue;
+        } catch {
+            return defaultValue;
+        }
+    });
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+        try {
+            const raw = window.localStorage.getItem(PANEL_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            parsed[panelKey] = value;
+            window.localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify(parsed));
+        } catch {
+            // ignore storage failures
+        }
+    }, [panelKey, value]);
+
+    return [value, setValue] as const;
+};
+
+type InventoryFilters = {
+    sort: InventorySort;
+    search: string;
+    page: number;
+};
+
+const usePersistedInventoryFilters = (defaultValue: InventoryFilters) => {
+    const [value, setValue] = useState<InventoryFilters>(() => {
+        if (typeof window === "undefined") {
+            return defaultValue;
+        }
+        try {
+            const raw = window.localStorage.getItem(INVENTORY_FILTERS_STORAGE_KEY);
+            if (!raw) {
+                return defaultValue;
+            }
+            const parsed = JSON.parse(raw);
+            const sort = parsed?.sort === "Name" || parsed?.sort === "Count" ? parsed.sort : defaultValue.sort;
+            const search = typeof parsed?.search === "string" ? parsed.search : defaultValue.search;
+            const page = typeof parsed?.page === "number" && parsed.page > 0 ? parsed.page : defaultValue.page;
+            return { sort, search, page };
+        } catch {
+            return defaultValue;
+        }
+    });
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+        try {
+            window.localStorage.setItem(INVENTORY_FILTERS_STORAGE_KEY, JSON.stringify(value));
+        } catch {
+            // ignore storage failures
+        }
+    }, [value]);
+
+    return [value, setValue] as const;
+};
+
 export const App = () => {
     useEffect(() => {
         gameRuntime.start();
@@ -50,15 +127,41 @@ export const App = () => {
     const [renameHeroName, setRenameHeroName] = useState("");
     const [pendingSkillId, setPendingSkillId] = useState("");
     const [pendingRecipeId, setPendingRecipeId] = useState("");
-    const [isRosterCollapsed, setRosterCollapsed] = useState(false);
+    const [isRosterCollapsed, setRosterCollapsed] = usePersistedCollapse("roster", false);
     const [isSystemOpen, setSystemOpen] = useState(false);
-    const [isInventoryCollapsed, setInventoryCollapsed] = useState(false);
-    const [isStatsCollapsed, setStatsCollapsed] = useState(false);
+    const [isInventoryCollapsed, setInventoryCollapsed] = usePersistedCollapse("inventory", false);
+    const [isStatsCollapsed, setStatsCollapsed] = usePersistedCollapse("stats", false);
+    const [isActionCollapsed, setActionCollapsed] = usePersistedCollapse("actionStatus", false);
+    const [inventoryFilters, setInventoryFilters] = usePersistedInventoryFilters({
+        sort: "Name",
+        search: "",
+        page: 1
+    });
+    const handleSetInventorySort = useCallback((value: InventorySort) => {
+        setInventoryFilters((prev) => ({
+            ...prev,
+            sort: value,
+            page: 1
+        }));
+    }, [setInventoryFilters]);
+    const handleSetInventorySearch = useCallback((value: string) => {
+        setInventoryFilters((prev) => ({
+            ...prev,
+            search: value,
+            page: 1
+        }));
+    }, [setInventoryFilters]);
+    const handleSetInventoryPage = useCallback((page: number) => {
+        setInventoryFilters((prev) => ({
+            ...prev,
+            page
+        }));
+    }, [setInventoryFilters]);
     const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory">("status");
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
-    const [inventorySort, setInventorySort] = useState<InventorySort>("Name");
-    const [inventorySearch, setInventorySearch] = useState("");
-    const [inventoryPage, setInventoryPage] = useState(1);
+    const inventorySort = inventoryFilters.sort;
+    const inventorySearch = inventoryFilters.search;
+    const inventoryPage = inventoryFilters.page;
     const skillNameById = useMemo(() => SKILL_DEFINITIONS.reduce<Record<string, string>>((acc, skill) => {
         acc[skill.id] = skill.name;
         return acc;
@@ -410,14 +513,10 @@ export const App = () => {
             : "No items on this page.";
 
     useEffect(() => {
-        setInventoryPage(1);
-    }, [inventorySort, inventorySearch]);
-
-    useEffect(() => {
         if (inventoryPage !== safeInventoryPage) {
-            setInventoryPage(safeInventoryPage);
+            handleSetInventoryPage(safeInventoryPage);
         }
-    }, [inventoryPage, safeInventoryPage]);
+    }, [handleSetInventoryPage, inventoryPage, safeInventoryPage]);
     const formatItemDeltas = (deltas: Record<string, number>): string => {
         const entries = ITEM_DEFINITIONS
             .map((item) => ({
@@ -565,64 +664,69 @@ export const App = () => {
                     getSkillLabel={getSkillLabel}
                     getRecipeLabel={getRecipeLabel}
                 />
-                {activeSidePanel === "status" ? (
-                    <>
-                        <ActionStatusPanel
-                            activeSkillId={activeSkillId as SkillId | ""}
-                            activeSkillName={activeSkillName}
-                            activeRecipeLabel={activeRecipeLabel}
-                            activeConsumptionLabel={activeConsumptionLabel}
-                            activeProductionLabel={activeProductionLabel}
-                            resourceHint={resourceHint}
-                            progressPercent={progressPercent}
-                            progressStyle={progressStyle}
-                            staminaStyle={staminaStyle}
-                            skillStyle={skillStyle}
-                            recipeStyle={recipeStyle}
-                            staminaPercent={staminaPercent}
-                            skillPercent={skillPercent}
-                            recipePercent={recipePercent}
-                            staminaCurrent={activePlayer?.stamina ?? 0}
-                            staminaMax={activePlayer?.staminaMax ?? 0}
-                            activeSkillLevel={activeSkill?.level ?? 0}
-                            activeSkillXp={activeSkill?.xp ?? 0}
-                            activeSkillXpNext={activeSkill?.xpNext ?? 0}
-                            activeRecipeLevel={activeRecipe?.level ?? 0}
-                            activeRecipeXp={activeRecipe?.xp ?? 0}
-                            activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
-                            isStunned={isStunned}
-                            skillIconColor={skillIconColor}
+                <div className="ts-main-stack">
+                    {activeSidePanel === "status" ? (
+                        <>
+                            <ActionStatusPanel
+                                activeSkillId={activeSkillId as SkillId | ""}
+                                activeSkillName={activeSkillName}
+                                activeRecipeLabel={activeRecipeLabel}
+                                activeConsumptionLabel={activeConsumptionLabel}
+                                activeProductionLabel={activeProductionLabel}
+                                resourceHint={resourceHint}
+                                progressPercent={progressPercent}
+                                progressStyle={progressStyle}
+                                staminaStyle={staminaStyle}
+                                skillStyle={skillStyle}
+                                recipeStyle={recipeStyle}
+                                staminaPercent={staminaPercent}
+                                skillPercent={skillPercent}
+                                recipePercent={recipePercent}
+                                staminaCurrent={activePlayer?.stamina ?? 0}
+                                staminaMax={activePlayer?.staminaMax ?? 0}
+                                activeSkillLevel={activeSkill?.level ?? 0}
+                                activeSkillXp={activeSkill?.xp ?? 0}
+                                activeSkillXpNext={activeSkill?.xpNext ?? 0}
+                                activeRecipeLevel={activeRecipe?.level ?? 0}
+                                activeRecipeXp={activeRecipe?.xp ?? 0}
+                                activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
+                                isStunned={isStunned}
+                                skillIconColor={skillIconColor}
+                                isCollapsed={isActionCollapsed}
+                                onToggleCollapsed={() => setActionCollapsed((value) => !value)}
+                            />
+                            <CharacterStatsPanel
+                                skills={SKILL_DEFINITIONS}
+                                skillLevels={activeSkillLevels}
+                                isCollapsed={isStatsCollapsed}
+                                activePlayerName={activePlayer?.name ?? "No hero"}
+                                onToggleCollapsed={() => setStatsCollapsed((value) => !value)}
+                            />
+                        </>
+                    ) : null}
+                    {activeSidePanel === "inventory" ? (
+                        <InventoryPanel
+                            isCollapsed={isInventoryCollapsed}
+                            onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
+                            entries={inventoryVisibleEntries}
+                            gridEntries={inventoryPageEntries}
+                            selectedItem={selectedInventoryItem}
+                            selectedItemId={selectedInventoryItemId}
+                            onSelectItem={handleToggleInventoryItem}
+                            onClearSelection={handleClearInventorySelection}
+                            sort={inventorySort}
+                            onSortChange={handleSetInventorySort}
+                            search={inventorySearch}
+                            onSearchChange={handleSetInventorySearch}
+                            page={safeInventoryPage}
+                            pageCount={inventoryPageCount}
+                            onPageChange={handleSetInventoryPage}
+                            totalItems={inventoryVisibleEntries.length}
+                            emptyState={inventoryEmptyState}
+                            selectionHint={selectionHint}
                         />
-                        <CharacterStatsPanel
-                            skills={SKILL_DEFINITIONS}
-                            skillLevels={activeSkillLevels}
-                            isCollapsed={isStatsCollapsed}
-                            onToggleCollapsed={() => setStatsCollapsed((value) => !value)}
-                        />
-                    </>
-                ) : null}
-                {activeSidePanel === "inventory" ? (
-                    <InventoryPanel
-                        isCollapsed={isInventoryCollapsed}
-                        onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
-                        entries={inventoryVisibleEntries}
-                        gridEntries={inventoryPageEntries}
-                        selectedItem={selectedInventoryItem}
-                        selectedItemId={selectedInventoryItemId}
-                        onSelectItem={handleToggleInventoryItem}
-                        onClearSelection={handleClearInventorySelection}
-                        sort={inventorySort}
-                        onSortChange={setInventorySort}
-                        search={inventorySearch}
-                        onSearchChange={setInventorySearch}
-                        page={safeInventoryPage}
-                        pageCount={inventoryPageCount}
-                        onPageChange={setInventoryPage}
-                        totalItems={inventoryVisibleEntries.length}
-                        emptyState={inventoryEmptyState}
-                        selectionHint={selectionHint}
-                    />
-                ) : null}
+                    ) : null}
+                </div>
             </main>
             {isLoadoutOpen && activePlayer ? (
                 <div className="ts-modal-backdrop" role="dialog" aria-modal="true" onClick={handleCloseLoadout}>

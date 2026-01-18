@@ -10,24 +10,30 @@ type CharacterStatsPanelProps = {
     skillLevels: Partial<Record<SkillId, number>>;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
+    activePlayerName: string;
 };
 
 export const CharacterStatsPanel = memo(({
     skills,
     skillLevels,
     isCollapsed,
-    onToggleCollapsed
+    onToggleCollapsed,
+    activePlayerName
 }: CharacterStatsPanelProps) => (
     <section className="generic-panel ts-panel">
         <div className="ts-panel-header">
-            <h2 className="ts-panel-title">Character stats</h2>
-            <span className="ts-panel-meta">Focused hero</span>
+            <h2 className="ts-panel-title">Stats</h2>
+            <span className="ts-panel-meta">{activePlayerName}</span>
             <button
                 type="button"
                 className="ts-collapse-button ts-focusable"
                 onClick={onToggleCollapsed}
+                data-mobile-label={isCollapsed ? "+" : "-"}
+                aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
             >
-                {isCollapsed ? "Expand" : "Collapse"}
+                <span className="ts-collapse-label">
+                    {isCollapsed ? "Expand" : "Collapse"}
+                </span>
             </button>
         </div>
         {!isCollapsed ? (
