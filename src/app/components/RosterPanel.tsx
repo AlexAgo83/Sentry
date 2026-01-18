@@ -62,6 +62,7 @@ export const RosterPanel = memo(({
                                 : null;
                             const metaLabel = recipeLabel ?? "No recipe";
                             const skillColor = getSkillIconColor(currentAction);
+                            const skillLevel = currentAction ? currentSkill?.level ?? 0 : 0;
 
                             return (
                                 <div
@@ -78,7 +79,10 @@ export const RosterPanel = memo(({
                                             <span className="ts-player-skill-icon" aria-hidden="true">
                                                 <SkillIcon skillId={currentAction ?? ""} color={skillColor} />
                                             </span>
-                                            <span className="ts-player-skill-label">{actionLabel}</span>
+                                            <span className="ts-player-skill-label">
+                                                {actionLabel}
+                                                <span className="ts-player-skill-badge">{skillLevel}</span>
+                                            </span>
                                         </div>
                                     ) : null}
                                 </div>

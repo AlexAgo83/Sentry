@@ -216,6 +216,19 @@
     font-size: var(--text-xs-size);
 }
 
+.ts-player-skill-badge {
+    display: inline-block;
+    margin-left: var(--m2);
+    padding: var(--m1) var(--m4);
+    border-radius: 999px;
+    border: 1px solid rgba(242, 193, 78, 0.45);
+    background: rgba(12, 18, 32, 0.7);
+    font-size: calc(var(--text-xs-size) - 1px);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+
 .ts-player-actions {
     display: flex;
     align-items: center;
