@@ -2,7 +2,7 @@
 > From version: 0.7.1
 > Understanding: 97%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 90%
 
 # Context
 `App.tsx` still owns modal markup, derived view logic (inventory filtering/pagination), and formatting helpers. This keeps the file large and makes changes noisy.
@@ -27,7 +27,7 @@ Reduce `App.tsx` complexity by extracting modal components, focused hooks, and U
 - Keep `HeroNameModal` validation minimal to match current behavior (no new messages).
 - Have `ModalShell` handle backdrop clicks + Escape by default, with optional overrides.
 - Keep hooks data-only; labels like "None" or "Missing: ..." stay in `App.tsx` or components for future i18n.
-- Keep inventory selection state in `App.tsx` and pass it down to `InventorySection`.
+- Keep inventory selection state in `App.tsx` and pass it down to inventory components.
 - `useInventoryView` accepts inputs (definitions/meta/usage) as params to improve testability.
 - Avoid a separate selectors module; keep derived maps in hooks.
 - Keep hooks in `src/app/hooks/` and helpers in `src/app/ui/`.
