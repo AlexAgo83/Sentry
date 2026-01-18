@@ -388,7 +388,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--m2);
-    padding: var(--m1) var(--m2);
+    padding: var(--m2) var(--m4);
     min-height: 40px;
     border-radius: calc(var(--border-radius-harmonized) - 2px);
     border: 1px solid rgba(93, 217, 193, 0.16);
@@ -1303,12 +1303,13 @@
     }
 
     .ts-equipment-slot-actions {
-        width: auto;
-        justify-content: flex-start;
+        width: 100%;
+        justify-content: stretch;
+        grid-template-columns: 1fr;
     }
 
     .generic-field.input.ts-equipment-select {
-        width: auto;
+        width: 100%;
     }
 
     .ts-stats-layout {
