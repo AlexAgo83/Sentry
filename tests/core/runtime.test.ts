@@ -267,4 +267,31 @@ describe("GameRuntime", () => {
         expect(consoleSpy).toHaveBeenCalledTimes(1);
         console.info("[runtime.test] persistence failures - end");
     });
+
+    it("handles first tick when lastTick is null", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+        vi.spyOn(Date, "now").mockReturnValue(4242);
+
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+
+        expect(store.getState().loop.lastTick).toBe(4242);
+        expect(persistence.save).toHaveBeenCalledTimes(1);
+    });
+
+    it("detects document visibility hidden", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+        document.visibilityState = "hidden";
+
+        // @ts-expect-error - private access for coverage
+        expect(runtime.isDocumentVisible()).toBe(false);
+    });
 });
