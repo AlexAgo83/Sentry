@@ -16,11 +16,11 @@ describe("GameRuntime offline loop", () => {
         const recipeId = Object.keys(store.getState().players[playerId].skills.Combat.recipes)[0];
         store.dispatch({ type: "selectRecipe", playerId, skillId: "Combat", recipeId });
 
-        runtime.simulateOffline(1500);
+        runtime.simulateOffline(5000);
 
         const summary = store.getState().offlineSummary;
         expect(summary).not.toBeNull();
-        expect(summary?.ticks).toBe(3);
+        expect(summary?.ticks).toBe(10);
         expect(summary?.totalItemDeltas.gold).toBe(1);
         expect(summary?.totalItemDeltas.bones).toBe(1);
         expect(summary?.totalItemDeltas.food).toBe(-1);

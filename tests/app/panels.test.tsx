@@ -56,6 +56,7 @@ describe("panel components", () => {
                 activeConsumptionLabel="1 Food"
                 activeProductionLabel="1 Gold"
                 actionDurationLabel="1.0s"
+                actionXpLabel="Skill +1 / Recipe +2"
                 resourceHint={null}
                 progressPercent={45}
                 progressStyle={{ "--progress": "45%" } as CSSProperties}

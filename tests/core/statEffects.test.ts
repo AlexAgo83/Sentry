@@ -55,10 +55,14 @@ describe("stat effects", () => {
         };
 
         const before = state.players[playerId];
-        const next = applyTick(state, 1000, Date.now());
+        const baseInterval = Math.ceil(
+            before.skills.Combat.baseInterval * (1 - 0 * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval, Date.now());
         const after = next.players[playerId];
         const regenRate = DEFAULT_STAMINA_REGEN;
-        const regenAmount = Math.floor((1000 / 1000) * regenRate);
+        const regenAmount = Math.floor((actionInterval / 1000) * regenRate);
         const staminaCost = Math.ceil(10 * (1 - 20 * STAT_PERCENT_PER_POINT));
         const expectedStamina = Math.min(DEFAULT_STAMINA_MAX, before.stamina + regenAmount) - staminaCost;
         expect(after.stamina).toBe(expectedStamina);
@@ -94,7 +98,9 @@ describe("stat effects", () => {
         };
 
         const next = applyTick(state, 200, Date.now());
-        const baseInterval = Math.ceil(1000 * (1 - 20 * STAT_PERCENT_PER_POINT));
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Hunting.baseInterval * (1 - 20 * STAT_PERCENT_PER_POINT)
+        );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const expectedProgress = (200 / actionInterval) * 100;
         expect(next.players[playerId].actionProgress.progressPercent).toBeCloseTo(expectedProgress, 2);
@@ -159,7 +165,11 @@ describe("stat effects", () => {
         };
 
         const before = state.players[playerId];
-        const next = applyTick(state, 1000, Date.now());
+        const baseInterval = Math.ceil(
+            before.skills.Cooking.baseInterval * (1 - 0 * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval, Date.now());
         const after = next.players[playerId];
         expect(after.skills.Cooking.xp).toBeCloseTo(before.skills.Cooking.xp + 1.2, 2);
         expect(after.skills.Cooking.recipes[recipeId].xp).toBeCloseTo(
@@ -197,8 +207,12 @@ describe("stat effects", () => {
             }
         };
 
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Fishing.baseInterval * (1 - 0 * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
-        const next = applyTick(state, 1000, Date.now());
+        const next = applyTick(state, actionInterval, Date.now());
         randomSpy.mockRestore();
 
         expect(next.inventory.items.crystal).toBe(1);

@@ -14,6 +14,8 @@ type LoadoutModalProps = {
     pendingRecipeLabel: string;
     pendingConsumptionLabel: string;
     pendingProductionLabel: string;
+    pendingActionDurationLabel: string;
+    pendingActionXpLabel: string;
     missingItemsLabel: string;
     canStartAction: boolean;
     canStopAction: boolean;
@@ -34,6 +36,8 @@ export const LoadoutModal = memo(({
     pendingRecipeLabel,
     pendingConsumptionLabel,
     pendingProductionLabel,
+    pendingActionDurationLabel,
+    pendingActionXpLabel,
     missingItemsLabel,
     canStartAction,
     canStopAction,
@@ -91,6 +95,14 @@ export const LoadoutModal = memo(({
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">Recipe</span>
                     <span className="ts-action-summary-value">{pendingRecipeLabel}</span>
+                </div>
+                <div className="ts-action-summary-row">
+                    <span className="ts-action-summary-label">Action time</span>
+                    <span className="ts-action-summary-value">{pendingActionDurationLabel}</span>
+                </div>
+                <div className="ts-action-summary-row">
+                    <span className="ts-action-summary-label">XP per action</span>
+                    <span className="ts-action-summary-value">{pendingActionXpLabel}</span>
                 </div>
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">Consumes</span>

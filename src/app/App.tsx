@@ -8,6 +8,7 @@ import {
     isRecipeUnlocked
 } from "../data/definitions";
 import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../core/constants";
+import type { ActionDefinition, SkillState } from "../core/types";
 import { EquipmentSlotId, SkillId } from "../core/types";
 import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../core/stats";
 import { createPlayerEquipmentState } from "../core/equipment";
@@ -35,6 +36,14 @@ import { useActionStatus } from "./hooks/useActionStatus";
 import { formatItemListEntries, getItemListEntries } from "./ui/itemFormatters";
 import { getSkillIconColor } from "./ui/skillColors";
 import { EQUIPMENT_DEFINITIONS, getEquipmentModifiers } from "../data/equipment";
+
+const INTELLECT_SKILLS = new Set<SkillId>([
+    "Cooking",
+    "Alchemy",
+    "Herbalism",
+    "Tailoring",
+    "Carpentry"
+]);
 
 export const App = () => {
     useEffect(() => {
@@ -153,6 +162,39 @@ export const App = () => {
         }
         return `${(durationMs / 1000).toFixed(1)}s`;
     }, []);
+    const formatXpGain = useCallback((value: number): string => {
+        if (!Number.isFinite(value)) {
+            return "0";
+        }
+        return Number.isInteger(value) ? String(value) : value.toFixed(1);
+    }, []);
+    const getActionIntervalLabel = useCallback((
+        skill: SkillState | null,
+        actionDef: ActionDefinition | null,
+        includeStun: boolean
+    ): string => {
+        if (!skill || !actionDef) {
+            return "None";
+        }
+        const agility = effectiveStats.Agility ?? 0;
+        const intervalMultiplier = 1 - agility * STAT_PERCENT_PER_POINT;
+        const baseInterval = Math.ceil(skill.baseInterval * intervalMultiplier);
+        const stunDelay = includeStun && isStunned ? actionDef.stunTime : 0;
+        const interval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval) + stunDelay;
+        return formatActionDuration(interval);
+    }, [effectiveStats.Agility, formatActionDuration, isStunned]);
+    const getActionXpLabel = useCallback((actionDef: ActionDefinition | null): string => {
+        if (!actionDef) {
+            return "None";
+        }
+        const intellect = effectiveStats.Intellect ?? 0;
+        const xpMultiplier = INTELLECT_SKILLS.has(actionDef.skillId)
+            ? 1 + intellect * STAT_PERCENT_PER_POINT
+            : 1;
+        const skillXp = actionDef.xpSkill * xpMultiplier;
+        const recipeXp = actionDef.xpRecipe * xpMultiplier;
+        return `Skill +${formatXpGain(skillXp)} / Recipe +${formatXpGain(recipeXp)}`;
+    }, [effectiveStats.Intellect, formatXpGain]);
     const getFirstUnlockedRecipeId = useCallback((skillId: SkillId, skillLevel: number): string => {
         return getRecipesForSkill(skillId).find((recipe) => isRecipeUnlocked(recipe, skillLevel))?.id ?? "";
     }, []);
@@ -441,6 +483,9 @@ export const App = () => {
     const pendingProductionLabel = hasPendingSelection
         ? (pendingProductionEntries.length > 0 ? formatItemListEntries(pendingProductionEntries) : "None")
         : "None";
+    const pendingActionDef = pendingSkillId ? getActionDefinition(pendingSkillId as SkillId) : null;
+    const pendingActionDurationLabel = getActionIntervalLabel(pendingSkill, pendingActionDef, false);
+    const pendingActionXpLabel = pendingSkillId ? getActionXpLabel(pendingActionDef) : "None";
     const missingItemsLabel = missingItems.length > 0
         ? `Missing: ${missingItems.map((entry) => `${itemNameById[entry.itemId] ?? entry.itemId} x${entry.needed}`).join(", ")}`
         : "";
@@ -497,16 +542,8 @@ export const App = () => {
         : "None";
     const resourceHint = hasActiveRecipeSelection ? null : "Select a recipe to see resource flow.";
     const activeActionDef = activeSkillId ? getActionDefinition(activeSkillId as SkillId) : null;
-    const actionIntervalLabel = activeSkill && activeActionDef
-        ? (() => {
-            const agility = effectiveStats.Agility ?? 0;
-            const intervalMultiplier = 1 - agility * STAT_PERCENT_PER_POINT;
-            const baseInterval = Math.ceil(activeSkill.baseInterval * intervalMultiplier);
-            const stunDelay = isStunned ? activeActionDef.stunTime : 0;
-            const interval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval) + stunDelay;
-            return formatActionDuration(interval);
-        })()
-        : "None";
+    const actionIntervalLabel = getActionIntervalLabel(activeSkill, activeActionDef, true);
+    const actionXpLabel = hasActiveRecipeSelection ? getActionXpLabel(activeActionDef) : "None";
 
     const offlineSeconds = offlineSummary ? Math.round(offlineSummary.durationMs / 1000) : 0;
     const offlinePlayers = offlineSummary?.players ?? [];
@@ -571,6 +608,7 @@ export const App = () => {
                                 activeConsumptionLabel={activeConsumptionLabel}
                                 activeProductionLabel={activeProductionLabel}
                                 actionDurationLabel={actionIntervalLabel}
+                                actionXpLabel={actionXpLabel}
                                 resourceHint={resourceHint}
                                 progressPercent={progressPercent}
                             progressStyle={progressStyle}
@@ -658,6 +696,8 @@ export const App = () => {
                     pendingRecipeLabel={pendingRecipeLabel}
                     pendingConsumptionLabel={pendingConsumptionLabel}
                     pendingProductionLabel={pendingProductionLabel}
+                    pendingActionDurationLabel={pendingActionDurationLabel}
+                    pendingActionXpLabel={pendingActionXpLabel}
                     missingItemsLabel={missingItemsLabel}
                     canStartAction={canStartAction}
                     canStopAction={Boolean(activePlayer.selectedActionId)}

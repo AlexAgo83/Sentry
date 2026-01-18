@@ -83,7 +83,7 @@ describe("App", () => {
 
         // Switch back to action
         await user.click(screen.getByRole("tab", { name: "Action" }));
-        expect(screen.getByText("Action")).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Action" })).toBeTruthy();
     });
 
     it("shows focusable inventory controls and usage labels", async () => {
@@ -151,6 +151,7 @@ describe("App", () => {
             Object.values(testStore.getState().players).some((player) => player.name === "Nova")
         ).toBe(true);
 
+        await user.click(screen.getByRole("tab", { name: "Stats" }));
         await user.click(screen.getByRole("button", { name: "Rename" }));
         const renameInput = screen.getByLabelText("Hero name") as HTMLInputElement;
         await user.clear(renameInput);
@@ -162,6 +163,7 @@ describe("App", () => {
             expect(testStore.getState().players[activePlayerId].name).toBe("Alpha");
         }
 
+        await user.click(screen.getByRole("tab", { name: "Action" }));
         await user.click(screen.getByRole("button", { name: "Change" }));
         fireEvent.keyDown(window, { key: "Escape" });
         expect(screen.queryByText("Loadout")).toBeNull();

@@ -35,6 +35,12 @@ export const OfflineSummaryModal = memo(({
         const minutes = Math.floor((safeSeconds % 3600) / 60);
         return `${hours}h ${minutes}m`;
     };
+    const formatXp = (value: number): string => {
+        if (!Number.isFinite(value)) {
+            return "0";
+        }
+        return String(Math.round(value));
+    };
     const summaryEntries = getItemDeltaEntries(ITEM_DEFINITIONS, summary.totalItemDeltas);
     const summaryLabel = summaryEntries.length > 0
         ? formatItemDeltaEntries(summaryEntries)
@@ -72,7 +78,7 @@ export const OfflineSummaryModal = memo(({
                                 Items: {itemLabel}
                             </div>
                             <div className="ts-offline-gains">
-                                Skill +{player.skillXpGained} XP{skillLevelLabel} - Recipe +{player.recipeXpGained} XP{recipeLevelLabel}
+                                Skill +{formatXp(player.skillXpGained)} XP{skillLevelLabel} - Recipe +{formatXp(player.recipeXpGained)} XP{recipeLevelLabel}
                             </div>
                         </div>
                     );

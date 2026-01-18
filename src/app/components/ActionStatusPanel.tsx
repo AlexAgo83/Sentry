@@ -11,6 +11,7 @@ type ActionStatusPanelProps = {
     activeConsumptionLabel: string;
     activeProductionLabel: string;
     actionDurationLabel: string;
+    actionXpLabel: string;
     resourceHint: string | null;
     progressPercent: number;
     progressStyle: CSSProperties;
@@ -43,6 +44,7 @@ export const ActionStatusPanel = memo(({
     activeConsumptionLabel,
     activeProductionLabel,
     actionDurationLabel,
+    actionXpLabel,
     resourceHint,
     progressPercent,
     progressStyle,
@@ -121,6 +123,10 @@ export const ActionStatusPanel = memo(({
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Action time</span>
                         <span className="ts-resource-value">{actionDurationLabel}</span>
+                    </div>
+                    <div className="ts-resource-row">
+                        <span className="ts-resource-label">XP per action</span>
+                        <span className="ts-resource-value">{actionXpLabel}</span>
                     </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Consumes</span>

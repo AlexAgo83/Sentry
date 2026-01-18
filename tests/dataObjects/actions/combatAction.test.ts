@@ -6,6 +6,7 @@ import {
     DEFAULT_STAT_BASE,
     DEFAULT_STAMINA_MAX,
     DEFAULT_STAMINA_REGEN,
+    MIN_ACTION_INTERVAL_MS,
     STAT_PERCENT_PER_POINT
 } from "../../../src/core/constants";
 
@@ -28,14 +29,18 @@ describe("CombatAction", () => {
         });
 
         const before = state.players[playerId];
-        const next = applyTick(state, 1000, Date.now());
+        const baseInterval = Math.ceil(
+            before.skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval, Date.now());
         const after = next.players[playerId];
 
         expect(next.inventory.items.gold).toBe(initial.inventory.items.gold + 1);
         expect(next.inventory.items.bones).toBe(1);
         expect(next.inventory.items.food).toBe(0);
         const regenRate = DEFAULT_STAMINA_REGEN * (1 + DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT);
-        const regenAmount = Math.floor((1000 / 1000) * regenRate);
+        const regenAmount = Math.floor((actionInterval / 1000) * regenRate);
         const staminaMax = Math.ceil(DEFAULT_STAMINA_MAX * (1 + DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT));
         const staminaCost = Math.ceil(10 * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT));
         const expectedStamina = Math.min(staminaMax, before.stamina + regenAmount) - staminaCost;

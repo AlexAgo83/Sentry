@@ -39,12 +39,16 @@ describe("core loop", () => {
         };
 
         const before = state.players[playerId];
-        const next = applyTick(state, 1000, Date.now());
+        const baseInterval = Math.ceil(
+            before.skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval, Date.now());
         const after = next.players[playerId];
 
         expect(next.inventory.items.gold).toBe(initial.inventory.items.gold + 1);
         const regenRate = DEFAULT_STAMINA_REGEN * (1 + DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT);
-        const regenAmount = Math.floor((1000 / 1000) * regenRate);
+        const regenAmount = Math.floor((actionInterval / 1000) * regenRate);
         const staminaMax = Math.ceil(DEFAULT_STAMINA_MAX * (1 + DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT));
         const staminaCost = Math.ceil(10 * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT));
         const expectedStamina = Math.min(staminaMax, before.stamina + regenAmount) - staminaCost;
@@ -72,7 +76,9 @@ describe("core loop", () => {
         });
 
         const next = applyTick(state, 250, Date.now());
-        const baseInterval = Math.ceil(1000 * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT));
+        const baseInterval = Math.ceil(
+            next.players[playerId].skills.Hunting.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const expectedProgress = (250 / actionInterval) * 100;
         expect(next.players[playerId].actionProgress.progressPercent).toBeCloseTo(expectedProgress, 2);
@@ -94,7 +100,11 @@ describe("core loop", () => {
             recipeId
         });
 
-        const next = applyTick(state, 1000, Date.now());
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Hunting.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval, Date.now());
         expect(next.inventory.items.meat).toBe(1);
         expect(next.inventory.items.bones).toBe(1);
         expect(next.inventory.items.gold).toBe(initial.inventory.items.gold);
@@ -116,7 +126,11 @@ describe("core loop", () => {
             recipeId
         });
 
-        const next = applyTick(state, 1000, Date.now());
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Cooking.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval, Date.now());
         expect(next.players[playerId].selectedActionId).toBe(null);
         expect(next.inventory.items.meat ?? 0).toBe(0);
         expect(next.inventory.items.food ?? 0).toBe(0);
@@ -138,7 +152,11 @@ describe("core loop", () => {
             recipeId
         });
 
-        const next = applyTick(state, 1000, Date.now());
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Herbalism.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval, Date.now());
         expect(next.inventory.items.herbs).toBe(1);
     });
 });
