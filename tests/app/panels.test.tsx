@@ -145,4 +145,32 @@ describe("panel components", () => {
         await user.click(screen.getByRole("button", { name: "Next" }));
         expect(onPageChange).toHaveBeenCalledWith(2);
     });
+
+    it("InventoryPanel shows empty state and hint", () => {
+        render(
+            <InventoryPanel
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                entries={[]}
+                gridEntries={[]}
+                selectedItem={null}
+                selectedItemId={null}
+                onSelectItem={vi.fn()}
+                onClearSelection={vi.fn()}
+                sort="Name"
+                onSortChange={vi.fn()}
+                search=""
+                onSearchChange={vi.fn()}
+                page={1}
+                pageCount={1}
+                onPageChange={vi.fn()}
+                totalItems={0}
+                emptyState="No items available"
+                selectionHint="Off-page selection"
+            />
+        );
+
+        expect(screen.getByText("No items available")).toBeTruthy();
+        expect(screen.getByText("Off-page selection")).toBeTruthy();
+    });
 });

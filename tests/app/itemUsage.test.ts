@@ -19,4 +19,9 @@ describe("item usage map", () => {
                 || goldUsage.obtainedBy.some((label) => label.toLowerCase().includes("recipe"))
         ).toBe(true);
     });
+
+    it("has at least one item with both inputs and outputs mapped", () => {
+        const hasBoth = Object.values(ITEM_USAGE_MAP).some((usage) => usage.usedBy.length > 0 && usage.obtainedBy.length > 0);
+        expect(hasBoth).toBe(true);
+    });
 });
