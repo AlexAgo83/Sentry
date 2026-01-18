@@ -1,5 +1,7 @@
 import { memo } from "react";
 import type { PlayerState } from "../../core/types";
+import { getSkillIconColor } from "../ui/skillColors";
+import { SkillIcon } from "../ui/skillIcons";
 
 type RosterPanelProps = {
     players: PlayerState[];
@@ -58,9 +60,8 @@ export const RosterPanel = memo(({
                             const recipeLabel = currentAction && currentRecipe
                                 ? getRecipeLabel(currentAction, currentRecipe)
                                 : null;
-                            const metaLabel = currentAction
-                                ? `Action ${actionLabel}${recipeLabel ? ` - Recipe ${recipeLabel}` : " - Recipe none"}`
-                                : "No action selected";
+                            const metaLabel = recipeLabel ?? "No recipe";
+                            const skillColor = getSkillIconColor(currentAction);
 
                             return (
                                 <div
@@ -72,6 +73,14 @@ export const RosterPanel = memo(({
                                         <span className="ts-player-name">{player.name}</span>
                                         <span className="ts-player-meta">{metaLabel}</span>
                                     </div>
+                                    {actionLabel ? (
+                                        <div className="ts-player-skill">
+                                            <span className="ts-player-skill-icon" aria-hidden="true">
+                                                <SkillIcon skillId={currentAction ?? ""} color={skillColor} />
+                                            </span>
+                                            <span className="ts-player-skill-label">{actionLabel}</span>
+                                        </div>
+                                    ) : null}
                                 </div>
                             );
                         })}
