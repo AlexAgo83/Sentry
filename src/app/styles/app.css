@@ -363,6 +363,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(160px, 220px);
     gap: var(--m4);
+    padding: 0 var(--m2);
 }
 
 .ts-stats-column {
@@ -1287,6 +1288,10 @@
         flex-wrap: wrap;
         align-items: center;
         gap: var(--m2);
+    }
+
+    progress.generic-field.progress {
+        display: none;
     }
 
     .ts-equipment-slot {

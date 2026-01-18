@@ -63,7 +63,15 @@ export const ActionStatusPanel = memo(({
     onToggleCollapsed,
     onChangeAction,
     canChangeAction
-}: ActionStatusPanelProps) => (
+}: ActionStatusPanelProps) => {
+    const formatXp = (value: number): string => {
+        if (!Number.isFinite(value)) {
+            return "0";
+        }
+        return String(Math.round(value));
+    };
+
+    return (
     <section className="generic-panel ts-panel">
         <div className="ts-panel-header">
             <div className="ts-panel-heading">
@@ -151,7 +159,7 @@ export const ActionStatusPanel = memo(({
                     style={skillStyle}
                 >
                     <span className="ts-progress-label">
-                        Skill Lv {activeSkillLevel} - XP {activeSkillXp}/{activeSkillXpNext}
+                        Skill Lv {activeSkillLevel} - XP {formatXp(activeSkillXp)}/{formatXp(activeSkillXpNext)}
                     </span>
                 </div>
                 <progress
@@ -164,7 +172,7 @@ export const ActionStatusPanel = memo(({
                     style={recipeStyle}
                 >
                     <span className="ts-progress-label">
-                        Recipe Lv {activeRecipeLevel} - XP {activeRecipeXp}/{activeRecipeXpNext}
+                        Recipe Lv {activeRecipeLevel} - XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}
                     </span>
                 </div>
                 <progress
@@ -175,6 +183,7 @@ export const ActionStatusPanel = memo(({
             </>
         ) : null}
     </section>
-));
+    );
+});
 
 ActionStatusPanel.displayName = "ActionStatusPanel";
