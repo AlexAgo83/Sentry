@@ -29,6 +29,7 @@ export class GameRuntime {
         const save = this.persistence.load();
         this.store.dispatch({ type: "hydrate", save, version: this.version });
         this.bindVisibility();
+        this.bindUnload();
         if (!this.isDocumentVisible()) {
             const lastTick = this.store.getState().loop.lastTick;
             const hiddenAt = lastTick ?? Date.now();
@@ -212,6 +213,7 @@ export class GameRuntime {
         }
         document.addEventListener("visibilitychange", () => {
             if (!this.isDocumentVisible()) {
+                this.persist({ force: true });
                 this.hiddenAt = Date.now();
                 this.store.dispatch({ type: "setHiddenAt", hiddenAt: this.hiddenAt });
                 this.pauseLoop();
@@ -249,6 +251,15 @@ export class GameRuntime {
             }
             this.hiddenAt = null;
             this.startLoop();
+        });
+    };
+
+    private bindUnload = () => {
+        if (typeof window === "undefined") {
+            return;
+        }
+        window.addEventListener("beforeunload", () => {
+            this.persist({ force: true });
         });
     };
 
