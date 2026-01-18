@@ -2,7 +2,7 @@
 > From version: 0.7.1
 > Understanding: 97%
 > Confidence: 93%
-> Progress: 90%
+> Progress: 100%
 
 # Context
 `App.tsx` still owns modal markup, derived view logic (inventory filtering/pagination), and formatting helpers. This keeps the file large and makes changes noisy.
