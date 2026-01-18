@@ -21,7 +21,6 @@ import { ITEM_USAGE_MAP } from "./ui/itemUsage";
 import "./styles/app.css";
 
 // Vitest exposes a global `vi`; use it to detect test mode for hooks that should avoid persistence.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const vi: any;
 const isTestEnv = typeof vi !== "undefined" ||
     (typeof import.meta !== "undefined" && Boolean((import.meta as any).vitest)) ||

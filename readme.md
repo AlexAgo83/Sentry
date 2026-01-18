@@ -49,7 +49,10 @@ Codex should load project-specific instructions from `logics/instructions.md`.
 * `npm run build`: Build for production.
 * `npm run preview`: Preview the production build.
 * `npm run tests`: Run the test suite with Vitest (respects `TEST_TIMEOUT_MS`, `VITEST_STRICT`, `VITEST_LOG_CONSOLE`, `CI`).
-* `npm run coverage`: Run coverage with Vitest.
+* `npm run test:ci`: Run tests with strict CI config (`vitest.ci.mjs`, bail=1, funcs>=90%).
+* `npm run coverage`: Run coverage with local config.
+* `npm run coverage:ci`: Run coverage with CI config (strict thresholds).
+* `npm run lint`: Run ESLint on `src` and `tests`.
 
 ## Testing & Coverage
 
@@ -58,7 +61,7 @@ Coverage thresholds are enforced via Vitest (statements/lines >= 90%, functions 
 ### Test run knobs
 
 * `CI=true` disables strict mode by default (no bail, multithreaded, no console mirroring). Locally, strict mode stays enabled unless you set `VITEST_STRICT=false`.
-* `VITEST_STRICT=true|false` forces strictness (bail=1 + single-thread) on/off.
+* `VITEST_STRICT=true|false` forces strictness (bail=1 + single-thread) on/off for the local config.
 * `VITEST_LOG_CONSOLE=true` echoes all console output during tests with a prefix.
 * `TEST_TIMEOUT_MS=<ms>` overrides the kill-timeout for `npm run tests` (default 90s locally, disabled in CI unless provided).
 

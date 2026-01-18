@@ -21,8 +21,8 @@ terminate valid runs in CI/local.
       local strict=true); document defaults in README.
 - [x] 3. Test runner script: make timeout configurable (env/CLI), disable/relax kill in
       CI, and surface exit codes clearly; add a short README blurb.
-- [x] 4. Verify: run full suite locally with both strict and CI-style settings; confirm no
-      leaked listeners or hanging processes.
+- [x] 4. Verify: run full suite locally with both strict and CI-style settings; confirm no leaked listeners or hanging processes.
+- [x] FINAL: Validate acceptance, update docs/backlog/task status, and verify performance.
 
 # Acceptance
 - GameRuntime.stop removes bound listeners; repeated start/stop doesn’t duplicate handlers.
