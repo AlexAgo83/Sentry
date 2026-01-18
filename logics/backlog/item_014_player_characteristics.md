@@ -16,7 +16,7 @@ Add a player characteristics model (base + mods) with clear stacking rules and i
   - Strength: reduce stamina cost for Combat/Hunting/Excavation/MetalWork.
   - Agility: reduce action interval (faster ticks).
   - Endurance: increase stamina max + stamina regen.
-  - Intellect: increase skill XP gain for crafting skills (Cooking/Alchemy/Herbalism/Tailoring/Carpentry).
+  - Intellect: increase skill + recipe XP gain for crafting skills (Cooking/Alchemy/Herbalism/Tailoring/Carpentry).
   - Luck: small bonus chance for extra/rare rewards.
   - Ensure every skill has a primary stat influence:
     - Combat, Hunting, Excavation, MetalWork -> Strength (stamina cost reduction).
@@ -71,6 +71,7 @@ Add a player characteristics model (base + mods) with clear stacking rules and i
 - Modifiers apply immediately on the next tick (no retroactive changes).
 - Stats panel shows effective values; hover reveals Base/Perm/Temp breakdown (no toggle).
 - Luck affects loot only in v1 (no crafting bonuses yet).
+- Compute effective stats on demand per tick (no caching in v1).
 - Use linear formulas:
   - Stamina cost: `ceil(baseCost * (1 - Strength * 0.01))`, min 1.
   - Action interval: `ceil(baseInterval * (1 - Agility * 0.01))`, min 500ms.

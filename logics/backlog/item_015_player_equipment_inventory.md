@@ -25,6 +25,7 @@ Introduce a per-player equipment system with fixed slots, supporting armor and w
 - Persist equipped items in save state.
 - UI: show equipped items in a player view (Stats panel or dedicated equipment panel).
 - Ensure shared inventory can supply items to equip (no duplication).
+- Provide an explicit unequip action (return item to shared inventory).
 
 # Decisions
 - Fixed slots only in v1; no rings/trinkets or off-hand yet.
@@ -37,16 +38,19 @@ Introduce a per-player equipment system with fixed slots, supporting armor and w
 - Use a dedicated Equipment panel for the UI (avoid overloading Stats).
 - No stat requirements to equip in v1.
 - No rarity tiers in v1.
-- Equipment items are unique instances (no stacking).
+- Equipment items can stack like regular inventory items.
 - Equipment affects stats only in v1 (no recipe/skill unlocks yet).
 - Equipping into an occupied slot auto-swaps (no confirmation).
 - Equipment is swappable between players (not bound).
+- Equipment recipes use a dedicated equipment item type in definitions.
+- Empty slots show a slot icon + label (e.g., "Empty Head").
 
 # Scope (v1)
 - Data model + equip/unequip flows.
 - Minimal UI for viewing and changing equipment per player.
 - No item durability or stat scaling yet.
 - No crafting or loot table changes required in v1.
+- Generate/assign assets for new equipment items and for equipment slot icons if needed.
 
 # Acceptance
 - Player state includes equipment slots with item references.

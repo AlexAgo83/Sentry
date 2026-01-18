@@ -2,7 +2,7 @@
 > From version: 0.7.2
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 90%
+> Progress: 100%
 
 # Context
 This task executes `item_013_qa_feedback_sweep`.
@@ -15,8 +15,8 @@ This task executes `item_013_qa_feedback_sweep`.
 - [x] 5. Inventory UI spacing: add 12px desktop spacing between Sort label and Name/Count controls, and between Search label and input.
 - [x] 6. Pagination: remove the pagination row from the DOM when there is only one page.
 - [x] 7. Update/extend tests to cover the moved controls, version badge click, and pagination hiding.
-- [ ] 8. Run lint/tests and validate UI manually on desktop.
-- [ ] FINAL: Update backlog/task docs and confirm acceptance criteria.
+- [x] 8. Run lint/tests and validate UI manually on desktop.
+- [x] FINAL: Update backlog/task docs and confirm acceptance criteria.
 
 # Report
 1. Removed roster Inventory/System buttons, moved Change action/Rename hero into panel headers, and wired the version badge as the System entry.
