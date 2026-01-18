@@ -74,69 +74,28 @@ export const InventoryPanel = memo(({
             {!isCollapsed ? (
                 <div className="ts-inventory-layout">
                     <div className="ts-inventory-column">
-                        <div className="ts-inventory-toolbar">
-                            <div className="ts-inventory-filters">
-                                <div
-                                    className="ts-inventory-chip-row"
-                                    role="group"
-                                    aria-label="Sort inventory"
-                                >
-                                    <span className="ts-chip-label">Sort</span>
-                                    {(["Name", "Count"] as InventorySort[]).map((option) => {
-                                        const isActive = option === sort;
-                                        const className = isActive
-                                            ? "ts-inventory-chip is-active"
-                                            : "ts-inventory-chip";
-                                        return (
-                                            <button
-                                                key={option}
-                                                type="button"
-                                                className={className}
-                                                onClick={() => onSortChange(option)}
-                                                aria-pressed={isActive}
-                                            >
-                                                {option}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                                <div className="ts-inventory-search">
-                                    <label htmlFor="inventory-search">Search</label>
-                                    <input
-                                        id="inventory-search"
-                                        value={search}
-                                        onChange={(event) => onSearchChange(event.target.value)}
-                                        placeholder="Filter by name"
-                                    />
-                                </div>
-                            </div>
-                        </div>
                         <div className="ts-inventory-grid">
-                            {entries.length > 0 ? (
-                                gridEntries.length > 0 ? (
-                                    gridEntries.map((item) => {
-                                        const isSelected = item.id === selectedItemId;
-                                        const slotClassName = isSelected
-                                            ? "ts-inventory-slot is-selected ts-focusable"
-                                            : "ts-inventory-slot ts-focusable";
-                                        return (
-                                            <button
-                                                key={item.id}
-                                                type="button"
-                                                className={slotClassName}
-                                                aria-pressed={isSelected}
-                                                aria-label={`${item.name} x${item.count}`}
-                                                title={`${item.name} x${item.count}`}
-                                                onClick={() => onSelectItem(item.id)}
-                                            >
-                                                <InventoryIcon iconId={item.iconId} />
-                                                <span className="ts-inventory-count">{item.count}</span>
-                                            </button>
-                                        );
-                                    })
-                                ) : (
-                                    <div className="ts-inventory-empty">{emptyState}</div>
-                                )
+                            {gridEntries.length > 0 ? (
+                                gridEntries.map((item) => {
+                                    const isSelected = item.id === selectedItemId;
+                                    const slotClassName = isSelected
+                                        ? "ts-inventory-slot is-selected ts-focusable"
+                                        : "ts-inventory-slot ts-focusable";
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            className={slotClassName}
+                                            aria-pressed={isSelected}
+                                            aria-label={`${item.name} x${item.count}`}
+                                            title={`${item.name} x${item.count}`}
+                                            onClick={() => onSelectItem(item.id)}
+                                        >
+                                            <InventoryIcon iconId={item.iconId} />
+                                            <span className="ts-inventory-count">{item.count}</span>
+                                        </button>
+                                    );
+                                })
                             ) : (
                                 <div className="ts-inventory-empty">{emptyState}</div>
                             )}

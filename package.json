@@ -49,6 +49,7 @@
   "homepage": "https://github.com/AlexAgo83/Sentry#readme",
   "dependencies": {
     "glob": "^10.5.0",
+    "jest-axe": "^10.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "sweetalert2": "^11.26.17"
