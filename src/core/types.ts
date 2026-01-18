@@ -146,6 +146,7 @@ export interface TickSummaryState {
 export interface GameSave {
     version: string;
     lastTick: number | null;
+    lastHiddenAt?: number | null;
     activePlayerId?: PlayerId | null;
     players: Record<PlayerId, PlayerSaveState>;
     inventory?: InventoryState;

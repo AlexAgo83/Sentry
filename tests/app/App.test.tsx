@@ -103,7 +103,7 @@ describe("App", () => {
         const skillSelect = screen.getByLabelText("Select skill");
         await user.selectOptions(skillSelect, ["Combat"]);
 
-        const summary = screen.getByText("Action").closest(".ts-action-summary");
+        const summary = screen.getByText("Action selection").closest(".ts-action-summary");
         expect(summary).toBeTruthy();
         if (summary) {
             expect(within(summary).getByText("Combat")).toBeTruthy();

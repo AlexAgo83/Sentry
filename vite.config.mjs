@@ -24,6 +24,26 @@ export default defineConfig({
     test: {
         environment: "jsdom",
         setupFiles: ["tests/setup.ts"],
+        // Keep runs short and fail fast to avoid hanging suites locally.
+        testTimeout: 10000,
+        hookTimeout: 10000,
+        teardownTimeout: 10000,
+        bail: 1,
+        pool: "threads",
+        poolOptions: {
+            threads: {
+                singleThread: true
+            }
+        },
+        sequence: {
+            concurrent: false
+        },
+        onConsoleLog(log, type) {
+            // Surface all console output with a prefix for easier debugging of slow tests.
+            // Return false so Vitest still prints the original message.
+            console.info(`[vitest:${type}] ${log}`);
+            return false;
+        },
         coverage: {
             include: ["src/**", "public/sw.js"],
             exclude: ["**/*.d.ts"],

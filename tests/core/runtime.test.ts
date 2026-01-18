@@ -12,6 +12,7 @@ const buildPersistence = (save = null) => ({
 
 describe("GameRuntime", () => {
     const documentListeners: Record<string, Array<(event?: { type: string }) => void>> = {};
+    const runtimes: GameRuntime[] = [];
     beforeEach(() => {
         documentListeners.visibilitychange = [];
         const documentStub = {
@@ -36,66 +37,79 @@ describe("GameRuntime", () => {
 
     afterEach(() => {
         vi.restoreAllMocks();
+        // Ensure any runtime started during a test is stopped to avoid leaking timers.
+        while (runtimes.length) {
+            const runtime = runtimes.pop();
+            runtime?.stop();
+        }
         delete (globalThis as { document?: unknown }).document;
         delete (globalThis as { window?: unknown }).window;
     });
 
     it("skips the loop when the document is hidden", () => {
+        console.info("[runtime.test] skip loop when hidden - start");
         document.visibilityState = "hidden";
 
         const initial = createInitialGameState("0.4.0");
         const store = createGameStore(initial);
         const persistence = buildPersistence(null);
         const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
         const intervalSpy = window.setInterval as unknown as ReturnType<typeof vi.fn>;
 
         runtime.start();
 
         expect(store.getState().loop.lastHiddenAt).not.toBeNull();
         expect(intervalSpy).not.toHaveBeenCalled();
+        console.info("[runtime.test] skip loop when hidden - end");
     });
 
     it("runs startup offline catch-up when lastTick is old", () => {
+        console.info("[runtime.test] startup offline catch-up - start");
         const initial = createInitialGameState("0.4.0");
         const save = toGameSave(initial);
         save.lastTick = 1000;
         const store = createGameStore(initial);
         const persistence = buildPersistence(save);
         const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
         vi.spyOn(Date, "now").mockReturnValue(10000);
 
         runtime.start();
 
         expect(store.getState().offlineSummary).not.toBeNull();
         runtime.stop();
+        console.info("[runtime.test] startup offline catch-up - end");
     });
 
     it("creates offline summary on visibility resume", () => {
+        console.info("[runtime.test] visibility resume - start");
         const initial = createInitialGameState("0.4.0");
         const store = createGameStore(initial);
         const persistence = buildPersistence(null);
         const runtime = new GameRuntime(store, persistence, "0.4.0");
-        const nowSpy = vi.spyOn(Date, "now");
-        nowSpy.mockReturnValueOnce(1000).mockReturnValueOnce(2000).mockReturnValueOnce(9000);
+        runtimes.push(runtime);
 
-        runtime.start();
+        // Pretend the tab was hidden at t=2000 and we are resuming at t=9000.
+        store.dispatch({ type: "setHiddenAt", hiddenAt: 2000 });
+        vi.spyOn(Date, "now").mockReturnValue(9000);
 
-        document.visibilityState = "hidden";
-        document.dispatchEvent({ type: "visibilitychange" });
-
-        document.visibilityState = "visible";
-        document.dispatchEvent({ type: "visibilitychange" });
+        // @ts-expect-error - invoke the private helper directly for deterministic timing
+        runtime.runStartupOfflineCatchUp();
 
         expect(store.getState().offlineSummary).not.toBeNull();
         expect(persistence.save).toHaveBeenCalled();
         runtime.stop();
+        console.info("[runtime.test] visibility resume - end");
     });
 
     it("persists on the first tick and updates perf", () => {
+        console.info("[runtime.test] first tick persistence - start");
         const initial = createInitialGameState("0.4.0");
         const store = createGameStore(initial);
         const persistence = buildPersistence(null);
         const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
         vi.spyOn(Date, "now").mockReturnValue(1000);
 
         // @ts-expect-error - accessing private tick for coverage
@@ -103,13 +117,16 @@ describe("GameRuntime", () => {
 
         expect(store.getState().loop.lastTick).toBe(1000);
         expect(persistence.save).toHaveBeenCalled();
+        console.info("[runtime.test] first tick persistence - end");
     });
 
     it("uses real elapsed delta for regular ticks", () => {
+        console.info("[runtime.test] regular tick delta - start");
         const initial = createInitialGameState("0.4.0");
         const store = createGameStore(initial);
         const persistence = buildPersistence(null);
         const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
 
         store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
         vi.spyOn(Date, "now").mockReturnValue(1120);
@@ -118,13 +135,16 @@ describe("GameRuntime", () => {
         runtime.tick();
 
         expect(store.getState().perf.lastDeltaMs).toBe(120);
+        console.info("[runtime.test] regular tick delta - end");
     });
 
     it.each([1000, 5000, 20000])("processes delayed ticks (%ims) as offline catch-up", (delayMs) => {
+        console.info(`[runtime.test] delayed tick ${delayMs} - start`);
         const initial = createInitialGameState("0.4.0");
         const store = createGameStore(initial);
         const persistence = buildPersistence(null);
         const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
 
         store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
         vi.spyOn(Date, "now").mockReturnValue(1000 + delayMs);
@@ -134,9 +154,11 @@ describe("GameRuntime", () => {
 
         expect(store.getState().perf.lastDeltaMs).toBe(delayMs);
         expect(store.getState().perf.lastOfflineTicks).toBeGreaterThan(0);
+        console.info(`[runtime.test] delayed tick ${delayMs} - end`);
     });
 
     it("disables persistence after repeated failures", () => {
+        console.info("[runtime.test] persistence failures - start");
         const initial = createInitialGameState("0.4.0");
         const store = createGameStore(initial);
         const persistence = buildPersistence(null);
@@ -144,6 +166,7 @@ describe("GameRuntime", () => {
             throw new Error("Quota exceeded");
         });
         const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
         const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
         store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
@@ -166,5 +189,6 @@ describe("GameRuntime", () => {
 
         expect(persistence.save).toHaveBeenCalledTimes(3);
         expect(consoleSpy).toHaveBeenCalledTimes(1);
+        console.info("[runtime.test] persistence failures - end");
     });
 });

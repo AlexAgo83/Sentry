@@ -255,7 +255,7 @@ export class GameRuntime {
     };
 
     private bindUnload = () => {
-        if (typeof window === "undefined") {
+        if (typeof window === "undefined" || typeof window.addEventListener !== "function") {
             return;
         }
         window.addEventListener("beforeunload", () => {
@@ -340,20 +340,21 @@ export class GameRuntime {
 
     private runStartupOfflineCatchUp = () => {
         const state = this.store.getState();
-        const lastTick = state.loop.lastTick;
-        if (!lastTick) {
+        const startTime = state.loop.lastTick ?? state.loop.lastHiddenAt;
+        if (!startTime) {
             return;
         }
 
         const now = Date.now();
-        const diff = now - lastTick;
+        const diff = now - startTime;
         if (diff < 5000) {
+            console.info("[offline] skipping recap, away too short", { diffMs: diff });
             return;
         }
 
         const perfStart = this.getPerfTimestamp();
         const beforeState = this.store.getState();
-        const result = this.runOfflineTicks(lastTick, now, state.loop.offlineInterval);
+        const result = this.runOfflineTicks(startTime, now, state.loop.offlineInterval);
         const afterState = this.store.getState();
 
         const summary = this.buildOfflineSummary(
@@ -365,7 +366,10 @@ export class GameRuntime {
             result.totalItemDeltas
         );
         if (summary) {
+            console.info("[offline] recap generated", { diffMs: diff, ticks: result.ticks });
             this.store.dispatch({ type: "setOfflineSummary", summary });
+        } else {
+            console.info("[offline] recap skipped (no players)", { diffMs: diff, ticks: result.ticks });
         }
 
         this.updatePerf(perfStart, {

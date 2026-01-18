@@ -40,7 +40,7 @@ export const RosterPanel = memo(({
                     className="ts-collapse-button ts-focusable"
                     onClick={onToggleCollapsed}
                     data-mobile-label={isCollapsed ? "+" : "-"}
-                    aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
+                    aria-label={isCollapsed ? "Expand" : "Collapse"}
                 >
                     <span className="ts-collapse-label">
                         {isCollapsed ? "Expand" : "Collapse"}

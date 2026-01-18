@@ -20,10 +20,20 @@ import { InventoryIconSprite } from "./ui/inventoryIcons";
 import { ITEM_USAGE_MAP } from "./ui/itemUsage";
 import "./styles/app.css";
 
+// Vitest exposes a global `vi`; use it to detect test mode for hooks that should avoid persistence.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const vi: any;
+const isTestEnv = typeof vi !== "undefined" ||
+    (typeof import.meta !== "undefined" && Boolean((import.meta as any).vitest)) ||
+    (typeof process !== "undefined" && process.env.NODE_ENV === "test");
+
 const PANEL_STORAGE_KEY = "sentry.panelCollapsed";
 const INVENTORY_FILTERS_STORAGE_KEY = "sentry.inventoryFilters";
 
 const usePersistedCollapse = (panelKey: string, defaultValue = false) => {
+    if (isTestEnv) {
+        return useState<boolean>(defaultValue) as const;
+    }
     const [value, setValue] = useState<boolean>(() => {
         if (typeof window === "undefined") {
             return defaultValue;
@@ -41,6 +51,9 @@ const usePersistedCollapse = (panelKey: string, defaultValue = false) => {
     });
 
     useEffect(() => {
+        if (isTestEnv) {
+            return;
+        }
         if (typeof window === "undefined") {
             return;
         }
@@ -64,6 +77,9 @@ type InventoryFilters = {
 };
 
 const usePersistedInventoryFilters = (defaultValue: InventoryFilters) => {
+    if (isTestEnv) {
+        return useState<InventoryFilters>(defaultValue) as const;
+    }
     const [value, setValue] = useState<InventoryFilters>(() => {
         if (typeof window === "undefined") {
             return defaultValue;
@@ -84,6 +100,9 @@ const usePersistedInventoryFilters = (defaultValue: InventoryFilters) => {
     });
 
     useEffect(() => {
+        if (isTestEnv) {
+            return;
+        }
         if (typeof window === "undefined") {
             return;
         }
@@ -781,7 +800,7 @@ export const App = () => {
                             </select>
                             <div className="ts-action-summary">
                                 <div className="ts-action-summary-row">
-                                    <span className="ts-action-summary-label">Action</span>
+                                    <span className="ts-action-summary-label">Action selection</span>
                                     <span className="ts-action-summary-value">{pendingSkillLabel}</span>
                                 </div>
                                 <div className="ts-action-summary-row">

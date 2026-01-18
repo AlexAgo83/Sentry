@@ -1,13 +1,13 @@
 {
   "name": "sentry",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Sentry Idle",
   "scripts": {
     "dev": "vite --debug",
     "live": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "tests": "vitest",
+    "tests": "node scripts/run-tests.js",
     "coverage": "vitest --coverage"
   },
   "repository": {

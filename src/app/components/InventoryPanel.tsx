@@ -64,7 +64,7 @@ export const InventoryPanel = memo(({
                     className="ts-collapse-button ts-focusable"
                     onClick={onToggleCollapsed}
                     data-mobile-label={isCollapsed ? "+" : "-"}
-                    aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
+                    aria-label={isCollapsed ? "Expand" : "Collapse"}
                 >
                     <span className="ts-collapse-label">
                         {isCollapsed ? "Expand" : "Collapse"}
@@ -147,6 +147,7 @@ export const InventoryPanel = memo(({
                                 className="ts-pagination-button"
                                 onClick={() => onPageChange(Math.max(1, page - 1))}
                                 disabled={page <= 1}
+                                aria-label="Prev"
                             >
                                 ← Prev
                             </button>
@@ -156,6 +157,7 @@ export const InventoryPanel = memo(({
                                 className="ts-pagination-button"
                                 onClick={() => onPageChange(Math.min(pageCount, page + 1))}
                                 disabled={page >= pageCount}
+                                aria-label="Next"
                             >
                                 Next →
                             </button>

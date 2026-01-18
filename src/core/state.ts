@@ -229,7 +229,8 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         inventory,
         loop: {
             ...baseState.loop,
-            lastTick: save.lastTick ?? baseState.loop.lastTick
+            lastTick: save.lastTick ?? baseState.loop.lastTick,
+            lastHiddenAt: save.lastHiddenAt ?? baseState.loop.lastHiddenAt
         },
         offlineSummary: null,
         lastTickSummary: null
