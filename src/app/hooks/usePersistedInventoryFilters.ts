@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import type { InventorySort } from "../components/InventoryPanel";
 
 // Vitest exposes a global `vi`; use it to detect test mode for hooks that should avoid persistence.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const vi: any;
+declare const vi: { [key: string]: unknown } | undefined;
 const isTestEnv = typeof vi !== "undefined" ||
-    (typeof import.meta !== "undefined" && Boolean((import.meta as any).vitest)) ||
+    (typeof import.meta !== "undefined" && Boolean((import.meta as unknown as { vitest?: unknown }).vitest)) ||
     (typeof process !== "undefined" && process.env.NODE_ENV === "test");
 
 const INVENTORY_FILTERS_STORAGE_KEY = "sentry.inventoryFilters";
