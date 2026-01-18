@@ -212,4 +212,25 @@ describe("App", () => {
         await user.click(within(systemDialog).getByRole("button", { name: "Reset save" }));
         expect(testRuntime.reset).toHaveBeenCalled();
     });
+
+    it("renders the equipment panel and shows the active action label in telemetry", async () => {
+        const { user } = renderApp({ food: 2 });
+
+        await user.click(screen.getByRole("button", { name: "Change" }));
+        await user.selectOptions(screen.getByLabelText("Select skill"), ["Combat"]);
+        await user.click(screen.getByRole("button", { name: "Start action" }));
+        await user.click(screen.getByRole("button", { name: "Close" }));
+
+        await user.click(screen.getByRole("tab", { name: "Equipment" }));
+        expect(screen.getByRole("heading", { name: "Equipment" })).toBeTruthy();
+
+        await user.click(screen.getByRole("button", { name: "Open system telemetry" }));
+        const dialogs = await screen.findAllByRole("dialog");
+        const systemDialog = dialogs.at(-1);
+        expect(systemDialog).toBeTruthy();
+        if (!systemDialog) {
+            throw new Error("System dialog not found");
+        }
+        expect(within(systemDialog).getByText("Active action: Combat")).toBeTruthy();
+    });
 });

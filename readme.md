@@ -27,12 +27,16 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 * `src/data`: Definitions for skills, recipes, and actions.
 * `src/store`: Lightweight store for the game state.
 * `src/adapters`: Persistence adapters (localStorage).
+* `tests`: Vitest test suite (unit + UI smoke tests).
+* `scripts`: Local helper scripts (e.g. `scripts/run-tests.js`).
 * `styles`: Global styles shared by the UI.
 * `public`: PWA assets (manifest, service worker, icons).
 * `logics`: Product workflow and planning artifacts.
+* `logics/architecture`: Architecture notes and decisions.
 * `logics/request`: Incoming requests or ideas.
 * `logics/backlog`: Core product items.
 * `logics/tasks`: Execution plans derived from backlog items.
+* `dist`: Production build output (generated).
 
 ## Codex Instructions
 
@@ -78,4 +82,4 @@ Contributions are welcome. Please submit a pull request with a clear description
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License (see `package.json`).

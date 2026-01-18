@@ -30,12 +30,15 @@ import { HeroNameModal } from "./components/HeroNameModal";
 import { LoadoutModal } from "./components/LoadoutModal";
 import { SystemModal } from "./components/SystemModal";
 import { OfflineSummaryModal } from "./components/OfflineSummaryModal";
+import { ServiceWorkerUpdateModal } from "./components/ServiceWorkerUpdateModal";
 import { useInventoryView } from "./hooks/useInventoryView";
 import { usePendingActionSelection } from "./hooks/usePendingActionSelection";
 import { useActionStatus } from "./hooks/useActionStatus";
 import { formatItemListEntries, getItemListEntries } from "./ui/itemFormatters";
 import { getSkillIconColor } from "./ui/skillColors";
 import { EQUIPMENT_DEFINITIONS, getEquipmentModifiers } from "../data/equipment";
+import type { SwUpdateAvailableDetail } from "../pwa/serviceWorker";
+import { activateWaitingServiceWorker, listenForSwUpdateAvailable } from "../pwa/serviceWorker";
 
 const INTELLECT_SKILLS = new Set<SkillId>([
     "Cooking",
@@ -50,6 +53,20 @@ export const App = () => {
         gameRuntime.start();
         return () => gameRuntime.stop();
     }, []);
+
+    const [swUpdate, setSwUpdate] = useState<SwUpdateAvailableDetail | null>(null);
+    const [ignoredSwVersion, setIgnoredSwVersion] = useState<string | null>(null);
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+        return listenForSwUpdateAvailable((detail) => {
+            if (ignoredSwVersion === detail.version) {
+                return;
+            }
+            setSwUpdate((prev) => prev ?? detail);
+        });
+    }, [ignoredSwVersion]);
 
     const state = useGameStore((gameState) => gameState);
     const activePlayer = state.activePlayerId ? state.players[state.activePlayerId] : null;
@@ -445,6 +462,19 @@ export const App = () => {
         gameStore.dispatch({ type: "setOfflineSummary", summary: null });
     };
 
+    const handleCloseSwUpdate = () => {
+        if (swUpdate) {
+            setIgnoredSwVersion(swUpdate.version);
+        }
+        setSwUpdate(null);
+    };
+
+    const handleReloadSwUpdate = () => {
+        if (activateWaitingServiceWorker(swUpdate?.registration ?? null)) {
+            setSwUpdate(null);
+        }
+    };
+
     const handleResetSave = () => {
         const confirmed = window.confirm("Reset save data? This cannot be undone.");
         if (!confirmed) {
@@ -760,6 +790,13 @@ export const App = () => {
                     onClose={handleCloseOfflineSummary}
                     getSkillLabel={getSkillLabel}
                     getRecipeLabel={getRecipeLabel}
+                />
+            ) : null}
+            {swUpdate ? (
+                <ServiceWorkerUpdateModal
+                    version={swUpdate.version}
+                    onReload={handleReloadSwUpdate}
+                    onClose={handleCloseSwUpdate}
                 />
             ) : null}
         </div>

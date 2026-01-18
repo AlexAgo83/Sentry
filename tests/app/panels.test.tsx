@@ -69,11 +69,11 @@ describe("panel components", () => {
                 staminaCurrent={8}
                 staminaMax={10}
                 activeSkillLevel={2}
-                activeSkillXp={20}
-                activeSkillXpNext={50}
+                activeSkillXp={Number.NaN}
+                activeSkillXpNext={Number.POSITIVE_INFINITY}
                 activeRecipeLevel={1}
-                activeRecipeXp={10}
-                activeRecipeXpNext={20}
+                activeRecipeXp={Number.NaN}
+                activeRecipeXpNext={Number.NaN}
                 isStunned={false}
                 skillIconColor="#f2c14e"
                 isCollapsed={false}
@@ -85,9 +85,92 @@ describe("panel components", () => {
 
         expect(screen.getByText("Selected skill")).toBeTruthy();
         expect(screen.getByText("Border Skirmish")).toBeTruthy();
+        expect(screen.getByText("Skill Lv 2 - XP 0/0")).toBeTruthy();
+        expect(screen.getByText("Recipe Lv 1 - XP 0/0")).toBeTruthy();
 
         await user.click(screen.getByRole("button", { name: "Change" }));
         expect(onChangeAction).toHaveBeenCalled();
+    });
+
+    it("ActionStatusPanel shows resource hints and stunned styling", () => {
+        render(
+            <ActionStatusPanel
+                activeSkillId={"Combat" as SkillId}
+                activeSkillName="Combat"
+                activeRecipeLabel="Border Skirmish"
+                activeConsumptionLabel="1 Food"
+                activeProductionLabel="1 Gold"
+                actionDurationLabel="1.0s"
+                actionXpLabel="Skill +1 / Recipe +2"
+                resourceHint="Missing: Food x1"
+                progressPercent={12.3}
+                progressStyle={{ "--progress": "12%" } as CSSProperties}
+                staminaStyle={{ "--progress": "80%" } as CSSProperties}
+                skillStyle={{ "--progress": "30%" } as CSSProperties}
+                recipeStyle={{ "--progress": "50%" } as CSSProperties}
+                staminaPercent={80}
+                skillPercent={30}
+                recipePercent={50}
+                staminaCurrent={8}
+                staminaMax={10}
+                activeSkillLevel={2}
+                activeSkillXp={1}
+                activeSkillXpNext={2}
+                activeRecipeLevel={1}
+                activeRecipeXp={1}
+                activeRecipeXpNext={2}
+                isStunned={true}
+                skillIconColor="#f2c14e"
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                onChangeAction={vi.fn()}
+                canChangeAction={true}
+            />
+        );
+
+        expect(screen.getByText("Missing: Food x1")).toBeTruthy();
+        expect(document.querySelector(".ts-progress-row.ts-progress-action.is-stunned")).toBeTruthy();
+        expect(document.querySelector("progress.ts-progress-action.is-stunned")).toBeTruthy();
+    });
+
+    it("ActionStatusPanel hides details when collapsed", () => {
+        render(
+            <ActionStatusPanel
+                activeSkillId={"Combat" as SkillId}
+                activeSkillName="Combat"
+                activeRecipeLabel="Border Skirmish"
+                activeConsumptionLabel="1 Food"
+                activeProductionLabel="1 Gold"
+                actionDurationLabel="1.0s"
+                actionXpLabel="Skill +1 / Recipe +2"
+                resourceHint={null}
+                progressPercent={45}
+                progressStyle={{ "--progress": "45%" } as CSSProperties}
+                staminaStyle={{ "--progress": "80%" } as CSSProperties}
+                skillStyle={{ "--progress": "30%" } as CSSProperties}
+                recipeStyle={{ "--progress": "50%" } as CSSProperties}
+                staminaPercent={80}
+                skillPercent={30}
+                recipePercent={50}
+                staminaCurrent={8}
+                staminaMax={10}
+                activeSkillLevel={2}
+                activeSkillXp={20}
+                activeSkillXpNext={50}
+                activeRecipeLevel={1}
+                activeRecipeXp={10}
+                activeRecipeXpNext={20}
+                isStunned={false}
+                skillIconColor="#f2c14e"
+                isCollapsed={true}
+                onToggleCollapsed={vi.fn()}
+                onChangeAction={vi.fn()}
+                canChangeAction={true}
+            />
+        );
+
+        expect(screen.queryByText("Selected skill")).toBeNull();
+        expect(screen.getByRole("button", { name: "Expand" })).toBeTruthy();
     });
 
     it("CharacterStatsPanel toggles collapse", async () => {
@@ -111,6 +194,129 @@ describe("panel components", () => {
 
         await user.click(screen.getByRole("button", { name: "Collapse" }));
         expect(onToggleCollapsed).toHaveBeenCalled();
+    });
+
+    it("CharacterStatsPanel includes gear breakdown in tooltips and formats buff timers", () => {
+        const stats = createPlayerStatsState();
+        stats.base.Strength = 1.5;
+        stats.permanentMods.push({
+            id: "perm-1",
+            stat: "Strength",
+            kind: "flat",
+            value: 2,
+            source: "Training"
+        });
+        const now = 1000;
+        stats.temporaryMods.push(
+            {
+                id: "temp-seconds",
+                stat: "Strength",
+                kind: "mult",
+                value: 0.1,
+                source: "Potion",
+                expiresAt: now + 59000
+            },
+            {
+                id: "temp-minutes",
+                stat: "Agility",
+                kind: "flat",
+                value: 1,
+                source: "Elixir",
+                expiresAt: now + 60000
+            },
+            {
+                id: "temp-hours",
+                stat: "Luck",
+                kind: "flat",
+                value: 1,
+                source: "Charm",
+                expiresAt: now + 3600000
+            }
+        );
+
+        render(
+            <CharacterStatsPanel
+                skills={SKILL_DEFINITIONS}
+                skillLevels={{}}
+                stats={stats}
+                effectiveStats={computeEffectiveStats(stats)}
+                equipmentMods={[{
+                    id: "gear-1",
+                    stat: "Strength",
+                    kind: "flat",
+                    value: 1,
+                    source: "Rusty Blade"
+                }]}
+                now={now}
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                onRenameHero={vi.fn()}
+                canRenameHero={true}
+            />
+        );
+
+        const strengthLabel = screen.getByText("Strength");
+        const strengthRow = strengthLabel.closest(".ts-attribute-row");
+        expect(strengthRow?.getAttribute("title")).toContain("Gear:");
+        expect(strengthRow?.getAttribute("title")).toContain("Perm: +2");
+        expect(strengthRow?.getAttribute("title")).toContain("Temp: +10%");
+
+        expect(screen.getByText(/1\.5 \+3 \+10%/)).toBeTruthy();
+        expect(screen.getByText(/Potion Strength 59s/)).toBeTruthy();
+        expect(screen.getByText(/Elixir Agility 1m/)).toBeTruthy();
+        expect(screen.getByText(/Charm Luck 1h/)).toBeTruthy();
+    });
+
+    it("CharacterStatsPanel omits gear tooltip section when no equipment modifiers exist", () => {
+        const stats = createPlayerStatsState();
+        render(
+            <CharacterStatsPanel
+                skills={SKILL_DEFINITIONS}
+                skillLevels={{}}
+                stats={stats}
+                effectiveStats={computeEffectiveStats(stats)}
+                equipmentMods={[]}
+                now={0}
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                onRenameHero={vi.fn()}
+                canRenameHero={true}
+            />
+        );
+
+        const strengthRow = screen.getByText("Strength").closest(".ts-attribute-row");
+        expect(strengthRow?.getAttribute("title")).not.toContain("Gear:");
+    });
+
+    it("CharacterStatsPanel ignores invalid modifiers and formats non-finite values as zero", () => {
+        const stats = createPlayerStatsState();
+        stats.base.Strength = Number.NaN;
+        stats.permanentMods.push({
+            id: "invalid",
+            stat: "NotAStat" as any,
+            kind: "flat",
+            value: 999,
+            source: "Broken"
+        });
+
+        render(
+            <CharacterStatsPanel
+                skills={SKILL_DEFINITIONS}
+                skillLevels={{}}
+                stats={stats}
+                effectiveStats={computeEffectiveStats(stats)}
+                equipmentMods={[]}
+                now={0}
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                onRenameHero={vi.fn()}
+                canRenameHero={true}
+            />
+        );
+
+        const strengthRow = screen.getByText("Strength").closest(".ts-attribute-row");
+        expect(strengthRow).toBeTruthy();
+        expect(strengthRow?.textContent).toContain("0 +0");
     });
 
     it("InventoryPanel selects items and paginates", async () => {

@@ -119,7 +119,29 @@ describe("service worker", () => {
 
         const resolved = await respondWith.mock.calls[0][0];
         expect(resolved).toBe(response);
-        expect(cache.put).toHaveBeenCalledWith(request, response);
+        expect(cache.put).toHaveBeenCalledWith("/index.html", response);
+    });
+
+    it("returns cached index when navigation fetch is not ok", async () => {
+        const { listeners, cache } = await setupServiceWorker();
+        const waitUntil = vi.fn();
+        const respondWith = vi.fn();
+        const request = {
+            method: "GET",
+            mode: "navigate",
+            url: "https://example.com/quests",
+            destination: ""
+        };
+
+        const response = { ok: false, clone: () => response };
+        const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+        fetchMock.mockResolvedValue(response);
+        cache.match.mockResolvedValueOnce("cached-index");
+
+        listeners.fetch({ request, respondWith, waitUntil });
+
+        const resolved = await respondWith.mock.calls[0][0];
+        expect(resolved).toBe("cached-index");
     });
 
     it("serves cached assets and refreshes in background", async () => {
@@ -191,6 +213,27 @@ describe("service worker", () => {
         expect(cache.match).toHaveBeenCalledWith("/index.html");
     });
 
+    it("returns cached runtime responses when fetch fails", async () => {
+        const { listeners, cache } = await setupServiceWorker();
+        const waitUntil = vi.fn();
+        const respondWith = vi.fn();
+        const request = {
+            method: "GET",
+            mode: "no-cors",
+            url: "https://example.com/runtime.json",
+            destination: ""
+        };
+
+        cache.match.mockResolvedValueOnce("cached-runtime");
+        const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+        fetchMock.mockRejectedValue(new Error("offline"));
+
+        listeners.fetch({ request, respondWith, waitUntil });
+
+        const resolved = await respondWith.mock.calls[0][0];
+        expect(resolved).toBe("cached-runtime");
+    });
+
     it("ignores non-GET and cross-origin requests", async () => {
         const { listeners } = await setupServiceWorker();
         const respondWith = vi.fn();
@@ -219,5 +262,13 @@ describe("service worker", () => {
         });
 
         expect(respondWith).not.toHaveBeenCalled();
+    });
+
+    it("supports skip waiting messages", async () => {
+        const { listeners, self } = await setupServiceWorker();
+
+        listeners.message({ data: { type: "SKIP_WAITING" } });
+
+        expect(self.skipWaiting).toHaveBeenCalled();
     });
 });
