@@ -1,46 +1,27 @@
 ## task_011_app_architecture_and_ci_hardening - App split, deps hygiene, CI docs
-> From version: 0.6.3  
+> From version: 0.7.0  
 > Understanding: 92%  
 > Confidence: 90%  
-> Progress: 0%
+> Progress: 50%
 
 # Context
-App.tsx reste volumineux malgré les panels extraits. La dette UX/UI sur les contrôles
-d’inventory et la commutation des panneaux complique la lisibilité et les tests. Des
-vulnérabilités npm (1 low, 1 moderate, 1 high) sont signalées. Le workflow CI/local
-gagnerait à être mieux documenté avec un badge de statut.
+App.tsx remains large despite extracted panels. Inventory controls and panel switching still hurt readability and testing. Npm reported vulnerabilities (1 low, 1 moderate, 1 high). CI/local workflows need clearer documentation and a status badge.
 
 # Goal
-Simplifier l’architecture de l’app pour la lisibilité et les tests, corriger les vulnérabilités
-npm et documenter clairement le workflow CI/local (avec badge de statut).
+Simplify the app architecture for readability/tests, fix npm vulnerabilities, and clearly document the CI/local workflow (with a status badge).
 
 # Plan
-- [ ] 1. Architecture App (item_010) : gros découpage acceptable. Extraire des sous-composants dédiés
-      (InventoryControls, SidePanelSwitcher, modals/loadout/offline recap si pertinent), mutualiser
-      les hooks de persistance, réduire la taille de App.tsx sans changer le comportement. Ajouter
-      des tests RTL pour le basculement des panneaux et la persistance des filtres.
-- [ ] 2. Sécurité dépendances : appliquer `npm audit fix` ou mises à jour ciblées pour résoudre
-      les vulnérabilités (1 low, 1 moderate, 1 high) en restant compatible; ajouter un job CI
-      (ou step) audit qui échoue à partir de moderate, tolère low avec warning.
-- [ ] 3. Documentation CI/local : enrichir README et CONTRIBUTING avec le workflow local/CI
-      (dev, lint, tests, coverage, audit), et ajouter un badge de statut GitHub Actions.
-- [ ] 4. E2E smoke offline recap : ajouter un test (Playwright ou RTL renforcé) couvrant le cycle
-      de reprise offline (recap affiché et validé).
-- [ ] 5. Perf/UI : profiler Inventory/Stats (render count) et ajouter memo/`React.memo` ciblés pour
-      les listes volumineuses (200+ items).
-- [ ] 6. Accessibilité : audit axe/jest-axe sur Roster/Inventory/Stats, corriger contrastes/focus.
-- [ ] 7. Hooks de persistance : extraire dans un module dédié avec tests unitaires (reset, erreurs
-      storage, valeurs par défaut).
-- [ ] 8. CI qualité : ajouter un job “preview build + smoke” (vite build + preview + RTL smoke) sur
-      chaque PR/push pour détecter les erreurs de bundling avant merge.
-- [ ] FINAL: Validate acceptance, update docs/backlog/task status, and verify performance.
+- [x] 1. App architecture (item_010): large refactor allowed. Extract dedicated subcomponents (InventoryControls, SidePanelSwitcher, modals/loadout/offline recap where relevant), share persistence hooks, shrink App.tsx without changing behavior. Add RTL tests for panel switching and filter persistence.
+- [x] 2. Dependency security: run `npm audit fix` or targeted updates to resolve vulnerabilities (low/moderate/high) while staying compatible; add a CI audit job/step that fails at moderate+ and warns on low.
+- [x] 3. CI/local documentation: enrich README and CONTRIBUTING with local/CI workflow (dev, lint, tests, coverage, audit) and add a GitHub Actions status badge.
+- [ ] 4. E2E offline recap smoke: add a test (Playwright or stronger RTL) covering the offline resume cycle (recap displayed and acknowledged).
+- [ ] 5. Perf/UI: profile Inventory/Stats render counts and add targeted memo/React.memo for large lists (200+ items).
+- [ ] 6. Accessibility: run axe/jest-axe on Roster/Inventory/Stats, fix contrast/focus issues.
+- [ ] 7. Persistence hooks: extract into a dedicated module with unit tests (reset, storage errors, defaults).
+- [ ] 8. CI quality: add a “preview build + smoke” job (vite build + preview + RTL smoke) on each PR/push to catch bundling errors before merge.
 
 # Acceptance
-- App.tsx allégé : contrôles d’inventory et switch de panneau extraits en composants, hooks
-  de persistance réutilisables, tests existants verts.
-- `npm audit` ne reporte plus de vulnérabilités (ou explicitement ignorées/documentées), CI
-  contient un job de vérification des vulnérabilités (échoue à partir de moderate).
-- README/CONTRIBUTING décrit clairement les commandes locales/CI (dev, lint, tests, coverage,
-  audit) et affiche un badge CI GitHub Actions.
-- Un smoke offline recap valide le scénario de reprise; perf UI améliorée (memo ciblés), axe/a11y
-  corrigés sur panels; job preview+smoke en CI passe.
+- App.tsx slimmed down: inventory controls and panel switch extracted, persistence hooks reusable, existing tests green.
+- `npm audit` reports no vulnerabilities (or explicitly ignored/documented), CI includes a vuln check (fails at moderate+).
+- README/CONTRIBUTING clearly describe local/CI commands (dev, lint, tests, coverage, audit) and display a GitHub Actions badge.
+- Offline recap smoke validates the resume scenario; UI perf improved via targeted memo; a11y fixes on panels; preview+smoke job in CI passes.

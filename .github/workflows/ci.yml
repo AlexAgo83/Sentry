@@ -29,5 +29,5 @@ jobs:
           npm audit --audit-level=moderate
       - name: Preview build
         run: npm run build
-      - name: Smoke (RTL) on preview
+      - name: Smoke (offline recap)
         run: npm run test:ci -- --runTestsByPath tests/app/offlineRecapModal.test.tsx
