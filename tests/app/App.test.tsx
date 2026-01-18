@@ -81,8 +81,8 @@ describe("App", () => {
             expect(within(rosterPanel).getByRole("button", { name: "NEW" })).toBeTruthy();
         }
 
-        // Switch back to action/stats
-        await user.click(screen.getByRole("tab", { name: "Action/Stats" }));
+        // Switch back to action
+        await user.click(screen.getByRole("tab", { name: "Action" }));
         expect(screen.getByText("Action")).toBeTruthy();
     });
 

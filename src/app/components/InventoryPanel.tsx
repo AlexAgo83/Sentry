@@ -1,6 +1,8 @@
 import { memo } from "react";
 import { InventoryControls } from "./InventoryControls";
+import { getEquipmentDefinition } from "../../data/equipment";
 import { InventoryIcon, type InventoryIconId } from "../ui/inventoryIcons";
+import { CollapseIcon } from "../ui/collapseIcon";
 
 export type InventorySort = "Name" | "Count";
 
@@ -78,6 +80,12 @@ export const InventoryPanel = memo(({
     emptyState,
     selectionHint
 }: InventoryPanelProps) => {
+    const equipmentDef = selectedItem ? getEquipmentDefinition(selectedItem.id) : undefined;
+    const equipmentSlotLabel = equipmentDef
+        ? equipmentDef.weaponType
+            ? `${equipmentDef.slot} (${equipmentDef.weaponType})`
+            : equipmentDef.slot
+        : "None";
     return (
         <section className="generic-panel ts-panel ts-inventory-panel">
             <div className="ts-panel-header">
@@ -86,11 +94,10 @@ export const InventoryPanel = memo(({
                     type="button"
                     className="ts-collapse-button ts-focusable"
                     onClick={onToggleCollapsed}
-                    data-mobile-label={isCollapsed ? "+" : "-"}
                     aria-label={isCollapsed ? "Expand" : "Collapse"}
                 >
                     <span className="ts-collapse-label">
-                        {isCollapsed ? "Expand" : "Collapse"}
+                        <CollapseIcon isCollapsed={isCollapsed} />
                     </span>
                 </button>
             </div>
@@ -165,6 +172,12 @@ export const InventoryPanel = memo(({
                         {selectionHint ? (
                             <div className="ts-inventory-selection-hint">{selectionHint}</div>
                         ) : null}
+                        <div className="ts-inventory-focus-row">
+                            <span className="ts-inventory-focus-label">Equip slot</span>
+                            <span className="ts-inventory-focus-value">
+                                {selectedItem ? equipmentSlotLabel : "--"}
+                            </span>
+                        </div>
                         <div className="ts-inventory-focus-row">
                             <span className="ts-inventory-focus-label">Used by</span>
                             <span className="ts-inventory-focus-value">

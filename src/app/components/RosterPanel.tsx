@@ -2,6 +2,7 @@ import { memo } from "react";
 import type { PlayerState } from "../../core/types";
 import { getSkillIconColor } from "../ui/skillColors";
 import { SkillIcon } from "../ui/skillIcons";
+import { CollapseIcon } from "../ui/collapseIcon";
 
 type RosterPanelProps = {
     players: PlayerState[];
@@ -40,11 +41,10 @@ export const RosterPanel = memo(({
                         type="button"
                         className="ts-collapse-button ts-focusable"
                         onClick={onToggleCollapsed}
-                        data-mobile-label={isCollapsed ? "+" : "-"}
                         aria-label={isCollapsed ? "Expand" : "Collapse"}
                     >
                         <span className="ts-collapse-label">
-                            {isCollapsed ? "Expand" : "Collapse"}
+                            <CollapseIcon isCollapsed={isCollapsed} />
                         </span>
                     </button>
                 </div>

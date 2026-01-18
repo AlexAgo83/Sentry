@@ -3,6 +3,7 @@ import type { EquipmentItemDefinition, EquipmentSlotId, ItemId, PlayerEquipmentS
 import { EQUIPMENT_SLOTS } from "../../core/equipment";
 import { getInventoryMeta } from "../ui/inventoryMeta";
 import { InventoryIcon, type InventoryIconId } from "../ui/inventoryIcons";
+import { CollapseIcon } from "../ui/collapseIcon";
 
 type EquipmentPanelProps = {
     isCollapsed: boolean;
@@ -17,12 +18,12 @@ type EquipmentPanelProps = {
 const UNEQUIP_VALUE = "__unequip__";
 
 const SLOT_ICON_IDS: Record<EquipmentSlotId, InventoryIconId> = {
-    Head: "garment",
-    Torso: "garment",
-    Legs: "garment",
-    Hands: "armor",
-    Feet: "armor",
-    Weapon: "tools"
+    Head: "slot_head",
+    Torso: "slot_torso",
+    Legs: "slot_legs",
+    Hands: "slot_hands",
+    Feet: "slot_feet",
+    Weapon: "slot_weapon"
 };
 
 const buildDefinitionMap = (definitions: EquipmentItemDefinition[]): Record<ItemId, EquipmentItemDefinition> => {
@@ -86,11 +87,10 @@ export const EquipmentPanel = memo(({
                     type="button"
                     className="ts-collapse-button ts-focusable"
                     onClick={onToggleCollapsed}
-                    data-mobile-label={isCollapsed ? "+" : "-"}
                     aria-label={isCollapsed ? "Expand" : "Collapse"}
                 >
                     <span className="ts-collapse-label">
-                        {isCollapsed ? "Expand" : "Collapse"}
+                        <CollapseIcon isCollapsed={isCollapsed} />
                     </span>
                 </button>
             </div>
@@ -106,6 +106,9 @@ export const EquipmentPanel = memo(({
                         const itemLabel = equippedDef ? equippedDef.name : `Empty ${slotLabel}`;
                         const modifierLabel = equippedDef ? formatModifiers(equippedDef.modifiers) : null;
                         const options = availableBySlot[slot];
+                        const hasEquippedOption = equippedId
+                            ? options.some((item) => item.id === equippedId)
+                            : false;
 
                         return (
                             <div
@@ -127,7 +130,7 @@ export const EquipmentPanel = memo(({
                                 <div className="ts-equipment-slot-actions">
                                     <select
                                         className="generic-field input ts-equipment-select"
-                                        defaultValue=""
+                                        value={equippedId ?? ""}
                                         aria-label={`Equip ${slotLabel}`}
                                         onChange={(event) => {
                                             const itemId = event.target.value;
@@ -136,28 +139,37 @@ export const EquipmentPanel = memo(({
                                             }
                                             if (itemId === UNEQUIP_VALUE) {
                                                 onUnequipSlot(slot);
-                                                event.target.value = "";
                                                 return;
                                             }
                                             onEquipItem(itemId);
-                                            event.target.value = "";
                                         }}
                                         disabled={options.length === 0 && !equippedDef}
                                     >
-                                        <option value="">
-                                            {options.length > 0 || equippedDef ? "Equip item" : "No items"}
+                                        <option value="" hidden>
+                                            Empty {slotLabel}
                                         </option>
-                                        {equippedDef ? (
-                                            <option value={UNEQUIP_VALUE}>Unequip</option>
+                                        {equippedDef && !hasEquippedOption ? (
+                                            <option value={equippedDef.id} hidden>
+                                                {equippedDef.name}
+                                            </option>
                                         ) : null}
-                                        {options.map((item) => {
-                                            const count = inventoryItems[item.id] ?? 0;
-                                            return (
-                                                <option key={item.id} value={item.id}>
-                                                    {item.name} ({count})
-                                                </option>
-                                            );
-                                        })}
+                                        {equippedDef ? (
+                                            <optgroup label="Actions">
+                                                <option value={UNEQUIP_VALUE}>Unequip</option>
+                                            </optgroup>
+                                        ) : null}
+                                        {options.length > 0 ? (
+                                            <optgroup label="Items">
+                                                {options.map((item) => {
+                                                    const count = inventoryItems[item.id] ?? 0;
+                                                    return (
+                                                        <option key={item.id} value={item.id}>
+                                                            {item.name} ({count})
+                                                        </option>
+                                                    );
+                                                })}
+                                            </optgroup>
+                                        ) : null}
                                     </select>
                                 </div>
                             </div>

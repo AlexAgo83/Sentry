@@ -1,11 +1,13 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
+    getActionDefinition,
     ITEM_DEFINITIONS,
     SKILL_DEFINITIONS,
     getRecipeDefinition,
     getRecipesForSkill,
     isRecipeUnlocked
 } from "../data/definitions";
+import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../core/constants";
 import { EquipmentSlotId, SkillId } from "../core/types";
 import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../core/stats";
 import { createPlayerEquipmentState } from "../core/equipment";
@@ -119,7 +121,7 @@ export const App = () => {
             page
         }));
     }, [setInventoryFilters]);
-    const [activeSidePanel, setActiveSidePanel] = useState<"status" | "inventory" | "equipment">("status");
+    const [activeSidePanel, setActiveSidePanel] = useState<"action" | "stats" | "inventory" | "equipment">("action");
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
     const inventorySort = inventoryFilters.sort;
     const inventorySearch = inventoryFilters.search;
@@ -144,6 +146,12 @@ export const App = () => {
         }
         const recipeDef = getRecipeDefinition(skillId, recipeId);
         return recipeDef?.name ?? recipeId;
+    }, []);
+    const formatActionDuration = useCallback((durationMs: number): string => {
+        if (!Number.isFinite(durationMs) || durationMs <= 0) {
+            return "None";
+        }
+        return `${(durationMs / 1000).toFixed(1)}s`;
     }, []);
     const getFirstUnlockedRecipeId = useCallback((skillId: SkillId, skillLevel: number): string => {
         return getRecipesForSkill(skillId).find((recipe) => isRecipeUnlocked(recipe, skillLevel))?.id ?? "";
@@ -283,12 +291,11 @@ export const App = () => {
 
     const handleSetActivePlayer = (playerId: string) => {
         gameStore.dispatch({ type: "setActivePlayer", playerId });
-        setActiveSidePanel("status");
     };
 
     const handleOpenLoadout = (playerId: string) => {
         gameStore.dispatch({ type: "setActivePlayer", playerId });
-        setActiveSidePanel("status");
+        setActiveSidePanel("action");
         setRecruitOpen(false);
         setRenameOpen(false);
         setLoadoutOpen(true);
@@ -489,6 +496,17 @@ export const App = () => {
         ? (activeProductionEntries.length > 0 ? formatItemListEntries(activeProductionEntries) : "None")
         : "None";
     const resourceHint = hasActiveRecipeSelection ? null : "Select a recipe to see resource flow.";
+    const activeActionDef = activeSkillId ? getActionDefinition(activeSkillId as SkillId) : null;
+    const actionIntervalLabel = activeSkill && activeActionDef
+        ? (() => {
+            const agility = effectiveStats.Agility ?? 0;
+            const intervalMultiplier = 1 - agility * STAT_PERCENT_PER_POINT;
+            const baseInterval = Math.ceil(activeSkill.baseInterval * intervalMultiplier);
+            const stunDelay = isStunned ? activeActionDef.stunTime : 0;
+            const interval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval) + stunDelay;
+            return formatActionDuration(interval);
+        })()
+        : "None";
 
     const offlineSeconds = offlineSummary ? Math.round(offlineSummary.durationMs / 1000) : 0;
     const offlinePlayers = offlineSummary?.players ?? [];
@@ -540,55 +558,57 @@ export const App = () => {
                 <div className="ts-main-stack">
                     <SidePanelSwitcher
                         active={activeSidePanel}
-                        onShowStatus={() => setActiveSidePanel("status")}
+                        onShowAction={() => setActiveSidePanel("action")}
+                        onShowStats={() => setActiveSidePanel("stats")}
                         onShowInventory={() => setActiveSidePanel("inventory")}
                         onShowEquipment={() => setActiveSidePanel("equipment")}
                     />
-                    {activeSidePanel === "status" ? (
-                        <>
+                    {activeSidePanel === "action" ? (
                             <ActionStatusPanel
                                 activeSkillId={activeSkillId as SkillId | ""}
                                 activeSkillName={activeSkillName}
                                 activeRecipeLabel={activeRecipeLabel}
                                 activeConsumptionLabel={activeConsumptionLabel}
                                 activeProductionLabel={activeProductionLabel}
+                                actionDurationLabel={actionIntervalLabel}
                                 resourceHint={resourceHint}
                                 progressPercent={progressPercent}
-                                progressStyle={progressStyle}
-                                staminaStyle={staminaStyle}
-                                skillStyle={skillStyle}
-                                recipeStyle={recipeStyle}
-                                staminaPercent={staminaPercent}
-                                skillPercent={skillPercent}
-                                recipePercent={recipePercent}
-                                staminaCurrent={activePlayer?.stamina ?? 0}
-                                staminaMax={activePlayer?.staminaMax ?? 0}
-                                activeSkillLevel={activeSkill?.level ?? 0}
-                                activeSkillXp={activeSkill?.xp ?? 0}
-                                activeSkillXpNext={activeSkill?.xpNext ?? 0}
-                                activeRecipeLevel={activeRecipe?.level ?? 0}
-                                activeRecipeXp={activeRecipe?.xp ?? 0}
-                                activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
-                                isStunned={isStunned}
-                                skillIconColor={skillIconColor}
-                                isCollapsed={isActionCollapsed}
-                                onToggleCollapsed={() => setActionCollapsed((value) => !value)}
-                                onChangeAction={handleOpenActiveLoadout}
-                                canChangeAction={Boolean(activePlayer)}
-                            />
-                            <CharacterStatsPanel
-                                skills={SKILL_DEFINITIONS}
-                                skillLevels={activeSkillLevels}
-                                stats={statsState}
-                                effectiveStats={effectiveStats}
-                                equipmentMods={equipmentModifiers}
-                                now={statsNowTime}
-                                isCollapsed={isStatsCollapsed}
-                                onToggleCollapsed={() => setStatsCollapsed((value) => !value)}
-                                onRenameHero={handleOpenActiveRename}
-                                canRenameHero={Boolean(activePlayer)}
-                            />
-                        </>
+                            progressStyle={progressStyle}
+                            staminaStyle={staminaStyle}
+                            skillStyle={skillStyle}
+                            recipeStyle={recipeStyle}
+                            staminaPercent={staminaPercent}
+                            skillPercent={skillPercent}
+                            recipePercent={recipePercent}
+                            staminaCurrent={activePlayer?.stamina ?? 0}
+                            staminaMax={activePlayer?.staminaMax ?? 0}
+                            activeSkillLevel={activeSkill?.level ?? 0}
+                            activeSkillXp={activeSkill?.xp ?? 0}
+                            activeSkillXpNext={activeSkill?.xpNext ?? 0}
+                            activeRecipeLevel={activeRecipe?.level ?? 0}
+                            activeRecipeXp={activeRecipe?.xp ?? 0}
+                            activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
+                            isStunned={isStunned}
+                            skillIconColor={skillIconColor}
+                            isCollapsed={isActionCollapsed}
+                            onToggleCollapsed={() => setActionCollapsed((value) => !value)}
+                            onChangeAction={handleOpenActiveLoadout}
+                            canChangeAction={Boolean(activePlayer)}
+                        />
+                    ) : null}
+                    {activeSidePanel === "stats" ? (
+                        <CharacterStatsPanel
+                            skills={SKILL_DEFINITIONS}
+                            skillLevels={activeSkillLevels}
+                            stats={statsState}
+                            effectiveStats={effectiveStats}
+                            equipmentMods={equipmentModifiers}
+                            now={statsNowTime}
+                            isCollapsed={isStatsCollapsed}
+                            onToggleCollapsed={() => setStatsCollapsed((value) => !value)}
+                            onRenameHero={handleOpenActiveRename}
+                            canRenameHero={Boolean(activePlayer)}
+                        />
                     ) : null}
                     {activeSidePanel === "inventory" ? (
                         <>

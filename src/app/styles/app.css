@@ -136,6 +136,18 @@
     line-height: 1;
 }
 
+.ts-collapse-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ts-collapse-icon {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
 .ts-collapse-button:hover {
     border-color: rgba(242, 193, 78, 0.6);
     color: var(--color-primary);
@@ -1347,18 +1359,13 @@
     }
 
     .ts-collapse-button .ts-collapse-label {
-        opacity: 0;
-        pointer-events: none;
-        position: absolute;
+        opacity: 1;
+        pointer-events: auto;
+        position: static;
     }
 
     .ts-collapse-button::after {
-        content: attr(data-mobile-label);
-        display: block;
-        width: 100%;
-        text-align: center;
-        color: var(--color-text);
-        font-size: var(--text-m-size);
+        content: none;
     }
 }
 

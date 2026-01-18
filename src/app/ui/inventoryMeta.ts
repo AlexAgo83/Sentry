@@ -86,35 +86,35 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
     },
     cloth_cap: {
         description: "A simple cloth cap to ward off the chill.",
-        iconId: "garment"
+        iconId: "cloth_cap"
     },
     linen_tunic: {
         description: "A light tunic stitched from linen.",
-        iconId: "garment"
+        iconId: "linen_tunic"
     },
     worn_trousers: {
         description: "Well-worn trousers made for travel.",
-        iconId: "garment"
+        iconId: "worn_trousers"
     },
     leather_gloves: {
         description: "Sturdy gloves that improve grip.",
-        iconId: "armor"
+        iconId: "leather_gloves"
     },
     simple_boots: {
         description: "Basic boots for steady footing.",
-        iconId: "armor"
+        iconId: "simple_boots"
     },
     rusty_blade: {
         description: "A basic blade with a weathered edge.",
-        iconId: "tools"
+        iconId: "rusty_blade"
     },
     simple_bow: {
         description: "A light bow for ranged strikes.",
-        iconId: "wood"
+        iconId: "simple_bow"
     },
     apprentice_staff: {
         description: "A staff tuned for beginner magic.",
-        iconId: "crystal"
+        iconId: "apprentice_staff"
     },
     furniture: {
         description: "Crafted furnishings for camp upgrades.",
@@ -123,5 +123,13 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
     tonic: {
         description: "Light tonic for quick recovery.",
         iconId: "tonic"
+    },
+    elixir: {
+        description: "Potent elixir distilled from rare herbs.",
+        iconId: "elixir"
+    },
+    potion: {
+        description: "Concentrated potion brewed for longer journeys.",
+        iconId: "potion"
     }
 };

@@ -2,6 +2,7 @@ import { memo } from "react";
 import type { PlayerStatsState, SkillDefinition, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { SkillIcon } from "../ui/skillIcons";
+import { CollapseIcon } from "../ui/collapseIcon";
 
 const resolveSkillLevel = (levels: Partial<Record<SkillId, number>>, skillId: SkillId) => {
     return levels[skillId] ?? 0;
@@ -141,11 +142,10 @@ export const CharacterStatsPanel = memo(({
                         type="button"
                         className="ts-collapse-button ts-focusable"
                         onClick={onToggleCollapsed}
-                        data-mobile-label={isCollapsed ? "+" : "-"}
                         aria-label={isCollapsed ? "Expand" : "Collapse"}
                     >
                         <span className="ts-collapse-label">
-                            {isCollapsed ? "Expand" : "Collapse"}
+                            <CollapseIcon isCollapsed={isCollapsed} />
                         </span>
                     </button>
                 </div>
@@ -169,6 +169,10 @@ export const CharacterStatsPanel = memo(({
                                     const perm = permTotals[statId];
                                     const temp = tempTotals[statId];
                                     const gear = gearTotals[statId];
+                                    const totalFlat = perm.flat + temp.flat + gear.flat;
+                                    const totalMult = perm.mult + temp.mult + gear.mult;
+                                    const modifierLabel = formatModSummary(totalFlat, totalMult);
+                                    const modifierDisplay = modifierLabel === "0" ? "+0" : modifierLabel;
                                     const tooltipParts = [
                                         `Base: ${baseValue}`,
                                         `Perm: ${formatModSummary(perm.flat, perm.mult)}`,
@@ -182,7 +186,7 @@ export const CharacterStatsPanel = memo(({
                                         <div key={statId} className="ts-attribute-row" title={tooltip}>
                                             <span className="ts-attribute-label">{statId}</span>
                                             <span className="ts-attribute-value">
-                                                {formatStatValue(effectiveStats[statId])}
+                                                {formatStatValue(baseValue)} {modifierDisplay}
                                             </span>
                                         </div>
                                     );

@@ -2,6 +2,7 @@ import { memo } from "react";
 import type { CSSProperties } from "react";
 import type { SkillId } from "../../core/types";
 import { SkillIcon } from "../ui/skillIcons";
+import { CollapseIcon } from "../ui/collapseIcon";
 
 type ActionStatusPanelProps = {
     activeSkillId: SkillId | "";
@@ -9,6 +10,7 @@ type ActionStatusPanelProps = {
     activeRecipeLabel: string;
     activeConsumptionLabel: string;
     activeProductionLabel: string;
+    actionDurationLabel: string;
     resourceHint: string | null;
     progressPercent: number;
     progressStyle: CSSProperties;
@@ -40,6 +42,7 @@ export const ActionStatusPanel = memo(({
     activeRecipeLabel,
     activeConsumptionLabel,
     activeProductionLabel,
+    actionDurationLabel,
     resourceHint,
     progressPercent,
     progressStyle,
@@ -91,11 +94,10 @@ export const ActionStatusPanel = memo(({
                     type="button"
                     className="ts-collapse-button ts-focusable"
                     onClick={onToggleCollapsed}
-                    data-mobile-label={isCollapsed ? "+" : "-"}
                     aria-label={isCollapsed ? "Expand" : "Collapse"}
                 >
                     <span className="ts-collapse-label">
-                        {isCollapsed ? "Expand" : "Collapse"}
+                        <CollapseIcon isCollapsed={isCollapsed} />
                     </span>
                 </button>
             </div>
@@ -115,6 +117,10 @@ export const ActionStatusPanel = memo(({
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Recipe</span>
                         <span className="ts-resource-value">{activeRecipeLabel}</span>
+                    </div>
+                    <div className="ts-resource-row">
+                        <span className="ts-resource-label">Action time</span>
+                        <span className="ts-resource-value">{actionDurationLabel}</span>
                     </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Consumes</span>

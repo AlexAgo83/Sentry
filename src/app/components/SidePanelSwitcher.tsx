@@ -1,15 +1,17 @@
 import { memo } from "react";
 
 type SidePanelSwitcherProps = {
-    active: "status" | "inventory" | "equipment";
-    onShowStatus: () => void;
+    active: "action" | "stats" | "inventory" | "equipment";
+    onShowAction: () => void;
+    onShowStats: () => void;
     onShowInventory: () => void;
     onShowEquipment: () => void;
 };
 
 export const SidePanelSwitcher = memo(({
     active,
-    onShowStatus,
+    onShowAction,
+    onShowStats,
     onShowInventory,
     onShowEquipment
 }: SidePanelSwitcherProps) => (
@@ -17,11 +19,20 @@ export const SidePanelSwitcher = memo(({
         <button
             type="button"
             role="tab"
-            aria-selected={active === "status"}
-            className={`ts-chip ts-focusable${active === "status" ? " is-active" : ""}`}
-            onClick={onShowStatus}
+            aria-selected={active === "action"}
+            className={`ts-chip ts-focusable${active === "action" ? " is-active" : ""}`}
+            onClick={onShowAction}
         >
-            Action/Stats
+            Action
+        </button>
+        <button
+            type="button"
+            role="tab"
+            aria-selected={active === "stats"}
+            className={`ts-chip ts-focusable${active === "stats" ? " is-active" : ""}`}
+            onClick={onShowStats}
+        >
+            Stats
         </button>
         <button
             type="button"

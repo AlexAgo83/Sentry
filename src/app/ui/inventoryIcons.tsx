@@ -1,6 +1,14 @@
 import type { ItemId } from "../../core/types";
 
-export type InventoryIconId = ItemId | "generic";
+type EquipmentSlotIconId =
+    | "slot_head"
+    | "slot_torso"
+    | "slot_legs"
+    | "slot_hands"
+    | "slot_feet"
+    | "slot_weapon";
+
+export type InventoryIconId = ItemId | EquipmentSlotIconId | "generic";
 
 const ICON_SHAPES: Record<InventoryIconId, JSX.Element> = {
     generic: <circle cx="16" cy="16" r="10" />,
@@ -104,6 +112,55 @@ const ICON_SHAPES: Record<InventoryIconId, JSX.Element> = {
             <path d="M16 10v12" />
         </>
     ),
+    cloth_cap: (
+        <>
+            <path d="M6 18c2-6 6-9 10-9s8 3 10 9" />
+            <path d="M6 18h20" />
+            <path d="M10 18v4h12v-4" />
+        </>
+    ),
+    linen_tunic: (
+        <path d="M10 8l6 4l6-4l4 4l-4 4v10h-12v-10l-4-4z" />
+    ),
+    worn_trousers: (
+        <>
+            <path d="M12 8h8l2 18h-5l-1-8l-1 8h-5z" />
+            <path d="M12 8l-2 6h12l-2-6" />
+        </>
+    ),
+    leather_gloves: (
+        <>
+            <path d="M12 10l4-2l4 2v8l-2 6h-8l-2-6v-8z" />
+            <path d="M16 10v14" />
+        </>
+    ),
+    simple_boots: (
+        <>
+            <path d="M10 10h6v8h8v6h-14z" />
+            <path d="M10 24h14" />
+        </>
+    ),
+    rusty_blade: (
+        <>
+            <path d="M16 6v14" />
+            <path d="M12 12h8" />
+            <path d="M16 20l-3 6h6z" />
+        </>
+    ),
+    simple_bow: (
+        <>
+            <path d="M10 6c6 4 10 10 10 20" />
+            <path d="M22 6c-6 4-10 10-10 20" />
+            <path d="M12 16h8" />
+        </>
+    ),
+    apprentice_staff: (
+        <>
+            <path d="M16 6v18" />
+            <path d="M14 24h4" />
+            <path d="M16 4l3 4h-6z" />
+        </>
+    ),
     furniture: (
         <>
             <rect x="10" y="8" width="12" height="8" rx="1" />
@@ -117,6 +174,58 @@ const ICON_SHAPES: Record<InventoryIconId, JSX.Element> = {
             <path d="M14 6h4" />
             <path d="M14 6v4l-2 3v9c0 2 2 4 4 4s4-2 4-4v-9l-2-3v-4" />
             <path d="M12 18h8" />
+        </>
+    ),
+    elixir: (
+        <>
+            <path d="M12 6h8" />
+            <path d="M14 6v6l-4 6v6c0 2 2 4 6 4s6-2 6-4v-6l-4-6v-6" />
+            <path d="M12 18h8" />
+        </>
+    ),
+    potion: (
+        <>
+            <path d="M14 6h4" />
+            <path d="M14 6v6l-4 4v6c0 3 2 6 6 6s6-3 6-6v-6l-4-4v-6" />
+            <path d="M12 20h8" />
+        </>
+    ),
+    slot_head: (
+        <>
+            <circle cx="16" cy="12" r="4" />
+            <path d="M8 24c2-4 6-6 8-6s6 2 8 6" />
+        </>
+    ),
+    slot_torso: (
+        <>
+            <path d="M10 8l6 4l6-4l3 6v10h-18v-10z" />
+            <path d="M10 14h12" />
+        </>
+    ),
+    slot_legs: (
+        <>
+            <path d="M12 8h8l2 18h-5l-1-8l-1 8h-5z" />
+        </>
+    ),
+    slot_hands: (
+        <>
+            <circle cx="12" cy="12" r="3" />
+            <circle cx="20" cy="12" r="3" />
+            <path d="M9 16h6" />
+            <path d="M17 16h6" />
+        </>
+    ),
+    slot_feet: (
+        <>
+            <path d="M8 18h8v6h-8z" />
+            <path d="M16 18h8v6h-8z" />
+        </>
+    ),
+    slot_weapon: (
+        <>
+            <path d="M10 22l12-12" />
+            <path d="M10 10h4" />
+            <path d="M20 22h4" />
         </>
     )
 };
