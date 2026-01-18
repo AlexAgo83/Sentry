@@ -1,7 +1,7 @@
 ## item_014_player_characteristics - Introduce player characteristics + modifiers
 > From version: 0.8.0
-> Understanding: 92%
-> Confidence: 84%
+> Understanding: 94%
+> Confidence: 88%
 > Progress: 0%
 
 # Context
