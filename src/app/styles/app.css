@@ -259,47 +259,81 @@
 }
 
 .ts-stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--m2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m1);
+    padding: var(--m1);
 }
 
 .ts-stat {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--m3);
-    padding: var(--m1) var(--m4);
-    border-radius: var(--border-radius-harmonized);
-    border: 1px solid rgba(242, 193, 78, 0.12);
-    background: linear-gradient(180deg, rgba(12, 18, 32, 0.7), rgba(12, 18, 32, 0.5));
+    gap: var(--m2);
+    padding: var(--m1) var(--m2);
+    min-height: 46px;
+    border-radius: calc(var(--border-radius-harmonized) - 2px);
+    border: 1px solid rgba(93, 217, 193, 0.16);
+    background: rgba(12, 18, 32, 0.82);
+}
+
+.ts-stat-left {
+    display: flex;
+    align-items: center;
+    gap: var(--m2);
+    min-width: 0;
+}
+
+.ts-stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 1px solid currentColor;
+    background: rgba(12, 18, 32, 0.9);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    padding: var(--m1);
+}
+
+.ts-stat-icon svg {
+    width: 20px;
+    height: 20px;
 }
 
 .ts-stat-label {
-    font-size: var(--text-xs-size);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-text-fade);
-    line-height: 1.1;
-}
-
-.ts-stat-value {
-    font-size: var(--text-m-size);
-    font-family: var(--display-font);
-    color: var(--color-primary);
-    text-align: right;
-    line-height: 1.1;
-    letter-spacing: 0.04em;
-}
-
-.ts-stat-placeholder {
-    padding: var(--m4) var(--m5);
-    border-radius: var(--border-radius-harmonized);
-    border: 1px dashed rgba(93, 217, 193, 0.35);
-    color: var(--color-text-fade);
     font-size: var(--text-s-size);
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: var(--color-text);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.ts-stat-value {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m1);
+    padding: var(--m1) var(--m2);
+    border-radius: 999px;
+    border: 1px solid rgba(242, 193, 78, 0.35);
+    background: rgba(242, 193, 78, 0.1);
+    font-size: var(--text-xs-size);
+    font-family: var(--display-font);
+    color: var(--color-primary);
+    letter-spacing: 0.08em;
+}
+
+.ts-stat-placeholder {
+    padding: var(--m3) var(--m4);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px dashed rgba(93, 217, 193, 0.35);
+    color: var(--color-text-fade);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: var(--m2);
 }
 
 .ts-skill-card {

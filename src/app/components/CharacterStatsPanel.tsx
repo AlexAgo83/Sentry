@@ -1,8 +1,23 @@
 import { memo } from "react";
 import type { SkillDefinition, SkillId } from "../../core/types";
+import { SkillIcon } from "../ui/skillIcons";
 
 const resolveSkillLevel = (levels: Partial<Record<SkillId, number>>, skillId: SkillId) => {
     return levels[skillId] ?? 0;
+};
+
+const SKILL_COLORS: Record<SkillId, string> = {
+    Combat: "#f2c14e",
+    Hunting: "#5dd9c1",
+    Cooking: "#f07f4f",
+    Excavation: "#9aa7c3",
+    MetalWork: "#c68130",
+    Alchemy: "#7fd1b9",
+    Herbalism: "#8ac926",
+    Tailoring: "#f4d35e",
+    Fishing: "#4cc9f0",
+    Carpentry: "#c97c5d",
+    Leatherworking: "#a26769"
 };
 
 type CharacterStatsPanelProps = {
@@ -39,12 +54,21 @@ export const CharacterStatsPanel = memo(({
         {!isCollapsed ? (
             <>
                 <div className="ts-stat-grid">
-                    {skills.map((skill) => (
-                        <div key={skill.id} className="ts-stat">
-                            <div className="ts-stat-label">{skill.name}</div>
-                            <div className="ts-stat-value">Lv {resolveSkillLevel(skillLevels, skill.id)}</div>
-                        </div>
-                    ))}
+                    {skills.map((skill) => {
+                        const level = resolveSkillLevel(skillLevels, skill.id);
+                        const color = SKILL_COLORS[skill.id];
+                        return (
+                            <div key={skill.id} className="ts-stat">
+                                <div className="ts-stat-left">
+                                    <div className="ts-stat-icon" style={{ borderColor: color, color }}>
+                                        <SkillIcon skillId={skill.id} color={color} />
+                                    </div>
+                                    <div className="ts-stat-label">{skill.name}</div>
+                                </div>
+                                <div className="ts-stat-value">Lv {level}</div>
+                            </div>
+                        );
+                    })}
                 </div>
                 <div className="ts-stat-placeholder">Statistics overview coming soon.</div>
             </>
