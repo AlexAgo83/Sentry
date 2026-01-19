@@ -352,6 +352,16 @@
     justify-content: flex-end;
 }
 
+.ts-action-row.ts-action-stack {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.ts-action-row.ts-action-stack .generic-field.button {
+    width: 100%;
+}
+
 .generic-field.button.ts-reset {
     border: 1px solid rgba(199, 74, 61, 0.6);
     background: linear-gradient(140deg, rgba(199, 74, 61, 0.9), rgba(118, 23, 31, 0.9));

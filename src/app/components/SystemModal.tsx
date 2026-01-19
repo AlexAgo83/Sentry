@@ -154,7 +154,7 @@ export const SystemModal = memo(({
                         <li>renderCounts: {isRenderCountsEnabled ? "on" : "off"}</li>
                         <li>profiler: {isProfilerEnabled ? "on" : "off"}</li>
                     </ul>
-                    <div className="ts-action-row ts-system-actions">
+                    <div className="ts-action-row ts-system-actions ts-action-stack">
                         <button
                             type="button"
                             className="generic-field button ts-focusable"
