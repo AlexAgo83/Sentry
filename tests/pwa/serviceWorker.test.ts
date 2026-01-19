@@ -54,6 +54,7 @@ describe("pwa service worker helpers", () => {
 
     it("activateWaitingServiceWorker posts a skip-waiting message and reloads on controllerchange", async () => {
         vi.resetModules();
+        vi.useFakeTimers();
 
         const waiting = { postMessage: vi.fn() };
         const registration = { waiting } as unknown as ServiceWorkerRegistration;
@@ -69,13 +70,65 @@ describe("pwa service worker helpers", () => {
 
         Object.defineProperty(navigator, "serviceWorker", { value: swContainer, configurable: true });
 
-        const { activateWaitingServiceWorker } = await import("../../src/pwa/serviceWorker");
+        const { __setReloadHandlerForTests, activateWaitingServiceWorker } = await import("../../src/pwa/serviceWorker");
+        const reloadSpy = vi.fn();
+        __setReloadHandlerForTests(reloadSpy);
 
         const activated = activateWaitingServiceWorker(registration);
         expect(activated).toBe(true);
         expect(waiting.postMessage).toHaveBeenCalledWith({ type: "SKIP_WAITING" });
 
         expect(controllerChangeListeners.length).toBe(1);
+
+        controllerChangeListeners[0]?.();
+        expect(reloadSpy).toHaveBeenCalledTimes(1);
+
+        vi.useRealTimers();
+    });
+
+    it("activateWaitingServiceWorker falls back to a timed reload when controllerchange does not fire", async () => {
+        vi.resetModules();
+        vi.useFakeTimers();
+
+        const waiting = { postMessage: vi.fn() };
+        const registration = { waiting } as unknown as ServiceWorkerRegistration;
+
+        const swContainer = {
+            addEventListener: vi.fn()
+        } as unknown as ServiceWorkerContainer;
+
+        Object.defineProperty(navigator, "serviceWorker", { value: swContainer, configurable: true });
+
+        const { __setReloadHandlerForTests, activateWaitingServiceWorker } = await import("../../src/pwa/serviceWorker");
+        const reloadSpy = vi.fn();
+        __setReloadHandlerForTests(reloadSpy);
+
+        expect(activateWaitingServiceWorker(registration)).toBe(true);
+        vi.advanceTimersByTime(2000);
+        expect(reloadSpy).toHaveBeenCalledTimes(1);
+
+        vi.useRealTimers();
+    });
+
+    it("activateWaitingServiceWorker reloads immediately when no waiting worker exists", async () => {
+        vi.resetModules();
+        vi.useFakeTimers();
+
+        const registration = { waiting: null } as unknown as ServiceWorkerRegistration;
+        const swContainer = {
+            addEventListener: vi.fn()
+        } as unknown as ServiceWorkerContainer;
+
+        Object.defineProperty(navigator, "serviceWorker", { value: swContainer, configurable: true });
+
+        const { __setReloadHandlerForTests, activateWaitingServiceWorker } = await import("../../src/pwa/serviceWorker");
+        const reloadSpy = vi.fn();
+        __setReloadHandlerForTests(reloadSpy);
+
+        expect(activateWaitingServiceWorker(registration)).toBe(true);
+        expect(reloadSpy).toHaveBeenCalledTimes(1);
+
+        vi.useRealTimers();
     });
 
     it("registerServiceWorker dispatches update events after an update is installed", async () => {

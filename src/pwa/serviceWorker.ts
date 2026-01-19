@@ -7,9 +7,36 @@ export type SwUpdateAvailableDetail = {
 
 let pendingReload = false;
 let controllerListenerBound = false;
+let reloadTimeoutId: number | null = null;
+const RELOAD_FALLBACK_DELAY_MS = 2000;
+
+type ReloadHandler = () => void;
+
+const defaultReloadHandler: ReloadHandler = () => {
+    window.location.reload();
+};
+
+let reloadHandler: ReloadHandler = defaultReloadHandler;
+
+export const __setReloadHandlerForTests = (handler: ReloadHandler | null) => {
+    reloadHandler = handler ?? defaultReloadHandler;
+};
+
+const requestReload = () => {
+    try {
+        reloadHandler();
+    } catch {
+        // ignore
+    }
+};
 
 const bindControllerChangeReload = () => {
-    if (controllerListenerBound || typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
+    if (
+        controllerListenerBound
+        || typeof navigator === "undefined"
+        || !("serviceWorker" in navigator)
+        || typeof navigator.serviceWorker?.addEventListener !== "function"
+    ) {
         return;
     }
     controllerListenerBound = true;
@@ -18,11 +45,11 @@ const bindControllerChangeReload = () => {
             return;
         }
         pendingReload = false;
-        try {
-            window.location.reload();
-        } catch {
-            // In practice browsers won't throw here, but some test environments do.
+        if (reloadTimeoutId !== null) {
+            window.clearTimeout(reloadTimeoutId);
+            reloadTimeoutId = null;
         }
+        requestReload();
     });
 };
 
@@ -43,12 +70,32 @@ const dispatchSwUpdateAvailable = (detail: SwUpdateAvailableDetail) => {
 };
 
 export const activateWaitingServiceWorker = (registration: ServiceWorkerRegistration | null): boolean => {
-    if (!registration?.waiting) {
-        return false;
-    }
     bindControllerChangeReload();
     pendingReload = true;
-    registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    if (reloadTimeoutId !== null) {
+        window.clearTimeout(reloadTimeoutId);
+    }
+    reloadTimeoutId = window.setTimeout(() => {
+        if (!pendingReload) {
+            return;
+        }
+        pendingReload = false;
+        reloadTimeoutId = null;
+        requestReload();
+    }, RELOAD_FALLBACK_DELAY_MS);
+
+    if (!registration) {
+        return false;
+    }
+
+    if (registration.waiting) {
+        registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        return true;
+    }
+
+    // If the worker is already activated (or we no longer have a waiting reference),
+    // a plain reload is still the best-effort way to fetch the latest assets.
+    requestReload();
     return true;
 };
 
