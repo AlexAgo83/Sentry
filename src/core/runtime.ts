@@ -15,6 +15,7 @@ export class GameRuntime {
     private static readonly MAX_CATCH_UP_MS = 500;
     private static readonly PERSIST_INTERVAL_MS = 1500;
     private static readonly DRIFT_EMA_ALPHA = 0.15;
+    private static readonly OFFLINE_DEBUG_ENABLE_KEY = "sentry.debug.offline";
     private visibilityHandler?: () => void;
     private unloadHandler?: () => void;
 
@@ -417,7 +418,9 @@ export class GameRuntime {
         const now = Date.now();
         const diff = now - startTime;
         if (diff < 5000) {
-            console.debug("[offline] skipping recap, away too short", { diffMs: diff });
+            if (this.isOfflineDebugEnabled()) {
+                console.debug("[offline] skipping recap, away too short", { diffMs: diff });
+            }
             return;
         }
 
@@ -435,10 +438,14 @@ export class GameRuntime {
             result.totalItemDeltas
         );
         if (summary) {
-            console.debug("[offline] recap generated", { diffMs: diff, ticks: result.ticks });
+            if (this.isOfflineDebugEnabled()) {
+                console.debug("[offline] recap generated", { diffMs: diff, ticks: result.ticks });
+            }
             this.store.dispatch({ type: "setOfflineSummary", summary });
         } else {
-            console.debug("[offline] recap skipped (no players)", { diffMs: diff, ticks: result.ticks });
+            if (this.isOfflineDebugEnabled()) {
+                console.debug("[offline] recap skipped (no players)", { diffMs: diff, ticks: result.ticks });
+            }
         }
 
         this.updatePerf(perfStart, {
@@ -455,5 +462,17 @@ export class GameRuntime {
             lastOfflineDurationMs: diff
         });
         this.persist({ force: true });
+    };
+
+    private isOfflineDebugEnabled = (): boolean => {
+        const isDev = typeof import.meta !== "undefined" && Boolean((import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV);
+        if (!isDev || typeof window === "undefined") {
+            return false;
+        }
+        try {
+            return window.localStorage.getItem(GameRuntime.OFFLINE_DEBUG_ENABLE_KEY) === "1";
+        } catch {
+            return false;
+        }
     };
 }

@@ -15,6 +15,8 @@ type SystemModalProps = {
     lastTick: number | null;
     lastTickDurationMs: number;
     lastDeltaMs: number;
+    lastDriftMs: number;
+    driftEmaMs: number;
     driftLabel: string;
     lastOfflineTicks: number;
     lastOfflineDurationMs: number;
@@ -36,6 +38,8 @@ export const SystemModal = memo(({
     lastTick,
     lastTickDurationMs,
     lastDeltaMs,
+    lastDriftMs,
+    driftEmaMs,
     driftLabel,
     lastOfflineTicks,
     lastOfflineDurationMs,
@@ -86,6 +90,8 @@ export const SystemModal = memo(({
                 <li>Last tick: {lastTick ?? "awaiting"}</li>
                 <li>Tick duration: {lastTickDurationMs.toFixed(2)}ms</li>
                 <li>Last delta: {lastDeltaMs}ms (drift {driftLabel}ms)</li>
+                <li>Last drift: {Math.round(lastDriftMs)}ms</li>
+                <li>Drift EMA: {Math.round(driftEmaMs)}ms</li>
                 <li>Offline catch-up: {lastOfflineTicks} ticks / {lastOfflineDurationMs}ms</li>
                 <li>Expected tick rate: {tickRate}/s</li>
                 <li>Loop interval: {loopInterval}ms</li>

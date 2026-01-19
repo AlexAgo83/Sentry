@@ -5,13 +5,19 @@ import {
     DEFAULT_STAMINA_MAX,
     DEFAULT_STAMINA_REGEN,
     MIN_ACTION_INTERVAL_MS,
-    STAT_PERCENT_PER_POINT
+    STAT_PERCENT_PER_POINT,
+    STAT_MAX_VALUE
 } from "../../src/core/constants";
 import { gameReducer } from "../../src/core/reducer";
 import { createInitialGameState } from "../../src/core/state";
 import { getRecipesForSkill } from "../../src/data/definitions";
+import { afterEach, vi } from "vitest";
 
 describe("core loop", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it("increments rewards and xp when an action completes", () => {
         const initial = createInitialGameState("0.3.1");
         const playerId = initial.activePlayerId ?? "1";
@@ -184,5 +190,96 @@ describe("core loop", () => {
         const progress = next.players[playerId].actionProgress.progressPercent;
         expect(progress).toBeGreaterThanOrEqual(0);
         expect(progress).toBeLessThanOrEqual(100);
+    });
+
+    it("applies stun time when stamina is depleted (slower completion)", () => {
+        const initial = createInitialGameState("0.4.0");
+        const playerId = initial.activePlayerId ?? "1";
+        let state = gameReducer(initial, {
+            type: "selectAction",
+            playerId,
+            actionId: "Combat"
+        });
+        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        state = gameReducer(state, {
+            type: "selectRecipe",
+            playerId,
+            skillId: "Combat",
+            recipeId
+        });
+        state = {
+            ...state,
+            inventory: { ...state.inventory, items: { ...state.inventory.items, food: 1 } },
+            players: {
+                ...state.players,
+                [playerId]: {
+                    ...state.players[playerId],
+                    skills: {
+                        ...state.players[playerId].skills,
+                        Combat: {
+                            ...state.players[playerId].skills.Combat,
+                            baseInterval: MIN_ACTION_INTERVAL_MS
+                        }
+                    },
+                    stamina: 0
+                }
+            }
+        };
+
+        const beforeGold = state.inventory.items.gold ?? 0;
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionIntervalNoStun = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionIntervalNoStun + 1, Date.now());
+
+        expect(next.inventory.items.gold ?? 0).toBe(beforeGold);
+        expect(next.players[playerId].skills.Combat.xp).toBe(state.players[playerId].skills.Combat.xp);
+        expect(next.players[playerId].actionProgress.progressPercent).toBeGreaterThan(0);
+        expect(next.players[playerId].actionProgress.progressPercent).toBeLessThan(100);
+    });
+
+    it("awards rare fishing drops when luck triggers (deterministic)", () => {
+        vi.spyOn(Math, "random").mockReturnValue(0);
+
+        const initial = createInitialGameState("0.4.0");
+        const playerId = initial.activePlayerId ?? "1";
+        let state = gameReducer(initial, {
+            type: "selectAction",
+            playerId,
+            actionId: "Fishing"
+        });
+        const recipeId = "fishing_cast_net";
+        state = gameReducer(state, {
+            type: "selectRecipe",
+            playerId,
+            skillId: "Fishing",
+            recipeId
+        });
+        state = {
+            ...state,
+            players: {
+                ...state.players,
+                [playerId]: {
+                    ...state.players[playerId],
+                    stats: {
+                        ...state.players[playerId].stats,
+                        base: {
+                            ...state.players[playerId].stats.base,
+                            Luck: STAT_MAX_VALUE
+                        }
+                    }
+                }
+            }
+        };
+
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Fishing.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+
+        const next = applyTick(state, actionInterval, Date.now());
+        expect(next.inventory.items.fish ?? 0).toBe(1);
+        expect(next.inventory.items.crystal ?? 0).toBe(1);
     });
 });

@@ -85,4 +85,16 @@ describe("saveEnvelope", () => {
         expect(parsed.save?.inventory?.items.meat).toBe(0);
         expect(parsed.save?.inventory?.items.bad).toBeUndefined();
     });
+
+    it("drops negative timestamps during migration", () => {
+        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify({
+            version: "0.8.0",
+            lastTick: -1,
+            lastHiddenAt: -2,
+            players: { "1": { id: "1", name: "Player_1" } },
+        }));
+        expect(parsed.status).toBe("migrated");
+        expect(parsed.save?.lastTick).toBeNull();
+        expect(parsed.save?.lastHiddenAt).toBeNull();
+    });
 });

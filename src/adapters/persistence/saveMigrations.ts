@@ -14,6 +14,14 @@ const toNullableNumber = (value: unknown): number | null => {
     return Number.isFinite(numeric) ? numeric : null;
 };
 
+const toNonNegativeNullableNumber = (value: unknown): number | null => {
+    const numeric = toNullableNumber(value);
+    if (numeric === null) {
+        return null;
+    }
+    return numeric >= 0 ? numeric : null;
+};
+
 const toNullableString = (value: unknown): string | null => {
     if (typeof value !== "string") {
         return null;
@@ -92,16 +100,16 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
         return { ok: false, reason: "Save has no valid players." };
     }
 
-    const lastTick = toNullableNumber(input.lastTick);
-    const lastHiddenAt = toNullableNumber(input.lastHiddenAt);
-    const activePlayerId = toNullableString(input.activePlayerId);
+    const lastTick = toNonNegativeNullableNumber(input.lastTick);
+    const lastHiddenAt = toNonNegativeNullableNumber(input.lastHiddenAt);
+    const candidateActivePlayerId = toNullableString(input.activePlayerId);
     const schemaVersionRaw = typeof input.schemaVersion === "number" ? input.schemaVersion : Number(input.schemaVersion);
     const schemaVersion = Number.isFinite(schemaVersionRaw) ? schemaVersionRaw : 0;
 
     const inventory = normalizeInventory(input.inventory);
     const legacyGold = legacyGoldFromPlayers(players);
     const finalInventory: InventoryState | undefined = (() => {
-        const base = inventory ?? (legacyGold > 0 ? { items: {} } : undefined);
+        const base = inventory ?? { items: {} };
         if (!base) {
             return undefined;
         }
@@ -110,6 +118,13 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
         }
         return base;
     })();
+
+    const playerIds = Object.keys(players);
+    const activePlayerId = candidateActivePlayerId && players[candidateActivePlayerId]
+        ? candidateActivePlayerId
+        : playerIds.length > 0
+            ? playerIds[0]
+            : null;
 
     const migrated = schemaVersion !== LATEST_SAVE_SCHEMA_VERSION;
 
@@ -127,4 +142,3 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
         }
     };
 };
-

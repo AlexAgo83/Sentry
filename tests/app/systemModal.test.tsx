@@ -8,6 +8,8 @@ const baseProps = () => ({
     lastTick: 123,
     lastTickDurationMs: 4.2,
     lastDeltaMs: 250,
+    lastDriftMs: 12,
+    driftEmaMs: 9.5,
     driftLabel: "0",
     lastOfflineTicks: 0,
     lastOfflineDurationMs: 0,
@@ -31,6 +33,8 @@ describe("SystemModal", () => {
 
         expect(screen.getByText("Version: 0.8.0")).toBeTruthy();
         expect(screen.getByText("Active action: none")).toBeTruthy();
+        expect(screen.getByText("Last drift: 12ms")).toBeTruthy();
+        expect(screen.getByText("Drift EMA: 10ms")).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Simulate +30 min" }));
         expect(props.onSimulateOffline).toHaveBeenCalledTimes(1);

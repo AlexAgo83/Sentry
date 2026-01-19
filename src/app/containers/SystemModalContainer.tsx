@@ -34,6 +34,8 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
             lastTick={loop.lastTick}
             lastTickDurationMs={perf.lastTickDurationMs}
             lastDeltaMs={perf.lastDeltaMs}
+            lastDriftMs={perf.lastDriftMs}
+            driftEmaMs={perf.driftEmaMs}
             driftLabel={driftLabel}
             lastOfflineTicks={perf.lastOfflineTicks}
             lastOfflineDurationMs={perf.lastOfflineDurationMs}
