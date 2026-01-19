@@ -185,6 +185,16 @@
     box-shadow: 0 0 0 1px rgba(93, 217, 193, 0.4);
 }
 
+.ts-player-card-add {
+    border-style: dashed;
+    border-color: rgba(242, 193, 78, 0.35);
+    background: rgba(12, 18, 32, 0.55);
+}
+
+.ts-player-card-add:hover {
+    border-color: rgba(242, 193, 78, 0.7);
+}
+
 .ts-player-info {
     display: flex;
     flex-direction: column;

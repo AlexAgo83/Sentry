@@ -58,6 +58,7 @@ describe("App", () => {
         if (rosterPanel) {
             expect(within(rosterPanel).getByText("Player_1")).toBeTruthy();
             expect(within(rosterPanel).getByText("Mara")).toBeTruthy();
+            expect(within(rosterPanel).getByRole("button", { name: "Enlist a new hero" })).toBeTruthy();
         }
 
         await user.click(screen.getByRole("tab", { name: "Inventory" }));
@@ -78,7 +79,7 @@ describe("App", () => {
 
         if (rosterPanel) {
             await user.click(within(rosterPanel).getByRole("button", { name: "Collapse" }));
-            expect(within(rosterPanel).getByRole("button", { name: "NEW" })).toBeTruthy();
+            expect(within(rosterPanel).getByRole("button", { name: "Expand" })).toBeTruthy();
         }
 
         // Switch back to action
@@ -152,7 +153,7 @@ describe("App", () => {
     it("recruits and renames heroes, escape closes modal", async () => {
         const { user } = renderApp();
 
-        await user.click(screen.getByRole("button", { name: "NEW" }));
+        await user.click(screen.getByRole("button", { name: "Enlist a new hero" }));
         const nameInput = screen.getByLabelText("Hero name") as HTMLInputElement;
         await user.type(nameInput, "Nova");
         await user.click(screen.getByRole("button", { name: "Create hero" }));
@@ -231,7 +232,7 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Start action" }));
         await user.click(screen.getByRole("button", { name: "Close" }));
 
-        await user.click(screen.getByRole("tab", { name: "Equipment" }));
+        await user.click(screen.getByRole("tab", { name: "Equip" }));
         expect(screen.getByRole("heading", { name: "Equipment" })).toBeTruthy();
 
         await user.click(screen.getByRole("button", { name: "Open system telemetry" }));
@@ -241,6 +242,6 @@ describe("App", () => {
         if (!systemDialog) {
             throw new Error("System dialog not found");
         }
-        expect(within(systemDialog).getByText("Active action: Combat")).toBeTruthy();
+        expect(within(systemDialog).getByText(/Action: Combat/)).toBeTruthy();
     });
 });

@@ -31,10 +31,11 @@ describe("SystemModal", () => {
         const props = baseProps();
         render(<SystemModal {...props} />);
 
-        expect(screen.getByText("Version: 0.8.0")).toBeTruthy();
-        expect(screen.getByText("Active action: none")).toBeTruthy();
-        expect(screen.getByText("Last drift: 12ms")).toBeTruthy();
-        expect(screen.getByText("Drift EMA: 10ms")).toBeTruthy();
+        expect(screen.getByText("v0.8.0 • Action: none • Crashes: 0")).toBeTruthy();
+        expect(screen.getByText("Tick: Δ250ms • tick 4.20ms • drift 0ms (last +12ms, ema 9.5ms)")).toBeTruthy();
+        expect(screen.getByText("Loop: 250ms (4/s) • Offline: 500ms • Catch-up: 0 / 0ms")).toBeTruthy();
+        expect(screen.getByText(/Last tick:/)).toBeTruthy();
+        expect(screen.getByText("1970-01-01T00:00:00.123Z")).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Simulate +30 min" }));
         expect(props.onSimulateOffline).toHaveBeenCalledTimes(1);
@@ -75,37 +76,5 @@ describe("SystemModal", () => {
 
         fireEvent.click(screen.getByRole("button", { name: "Clear crash reports" }));
         expect(props.onClearCrashReports).toHaveBeenCalledTimes(1);
-    });
-
-    it("renders devtools and toggles localStorage flags", () => {
-        const spy = vi.spyOn(console, "debug").mockImplementation(() => {});
-        window.localStorage.removeItem("sentry.debug.renderCounts");
-        window.localStorage.removeItem("sentry.debug.profiler");
-
-        const props = baseProps();
-        render(<SystemModal {...props} />);
-
-        const printButton = screen.getByRole("button", { name: "Print renderCounts" });
-        const resetButton = screen.getByRole("button", { name: "Reset renderCounts" });
-        expect((printButton as HTMLButtonElement).disabled).toBe(true);
-        expect((resetButton as HTMLButtonElement).disabled).toBe(true);
-
-        fireEvent.click(screen.getByRole("button", { name: "Toggle renderCounts" }));
-        expect(window.localStorage.getItem("sentry.debug.renderCounts")).toBe("1");
-        expect((printButton as HTMLButtonElement).disabled).toBe(false);
-        expect((resetButton as HTMLButtonElement).disabled).toBe(false);
-
-        fireEvent.click(printButton);
-        expect(spy).toHaveBeenCalledWith("[renderCounts]", expect.any(Object));
-
-        fireEvent.click(resetButton);
-        expect(spy).toHaveBeenCalledWith("[renderCounts] reset");
-
-        fireEvent.click(screen.getByRole("button", { name: "Toggle profiler" }));
-        expect(window.localStorage.getItem("sentry.debug.profiler")).toBe("1");
-
-        spy.mockRestore();
-        window.localStorage.removeItem("sentry.debug.renderCounts");
-        window.localStorage.removeItem("sentry.debug.profiler");
     });
 });

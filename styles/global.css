@@ -60,6 +60,12 @@ body {
     margin-bottom: var(--m12);
 }
 
+.app-header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m6);
+}
+
 .app-title {
     margin: 0;
     font-family: var(--display-font);

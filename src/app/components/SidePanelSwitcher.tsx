@@ -50,7 +50,7 @@ export const SidePanelSwitcher = memo(({
             className={`ts-chip ts-focusable${active === "equipment" ? " is-active" : ""}`}
             onClick={onShowEquipment}
         >
-            Equipment
+            Equip
         </button>
     </div>
 ));

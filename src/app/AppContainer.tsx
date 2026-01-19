@@ -36,6 +36,9 @@ export const AppContainer = () => {
         isSystemOpen,
         openSystem,
         closeSystem,
+        isDevToolsOpen,
+        openDevTools,
+        closeDevTools,
         isLoadoutOpen,
         openLoadout,
         closeLoadout
@@ -67,6 +70,7 @@ export const AppContainer = () => {
         closeLoadout,
         closeAllHeroNameModals,
         closeSystem,
+        closeDevTools,
     });
 
     const handleOpenLoadout = useCallback(() => {
@@ -102,6 +106,7 @@ export const AppContainer = () => {
             <AppViewContainer
                 version={version}
                 onOpenSystem={openSystem}
+                onOpenDevTools={openDevTools}
                 activeSidePanel={activeSidePanel}
                 onShowAction={showActionPanel}
                 onShowStats={showStatsPanel}
@@ -140,6 +145,8 @@ export const AppContainer = () => {
                 isLoadoutOpen={isLoadoutOpen}
                 onCloseLoadout={closeLoadout}
                 isSystemOpen={isSystemOpen}
+                isDevToolsOpen={isDevToolsOpen}
+                onCloseDevTools={closeDevTools}
                 isRecruitOpen={isRecruitOpen}
                 newHeroName={newHeroName}
                 onNewHeroNameChange={setNewHeroName}

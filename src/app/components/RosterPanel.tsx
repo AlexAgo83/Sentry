@@ -32,13 +32,6 @@ export const RosterPanel = memo(({
                 <div className="ts-panel-actions ts-panel-actions-inline">
                     <button
                         type="button"
-                        className="ts-icon-button ts-panel-action-button ts-focusable"
-                        onClick={onAddPlayer}
-                    >
-                        NEW
-                    </button>
-                    <button
-                        type="button"
                         className="ts-collapse-button ts-focusable"
                         onClick={onToggleCollapsed}
                         aria-label={isCollapsed ? "Expand" : "Collapse"}
@@ -88,6 +81,20 @@ export const RosterPanel = memo(({
                                 </div>
                             );
                         })}
+                        <button
+                            type="button"
+                            className="ts-player-card ts-player-card-add ts-focusable"
+                            onClick={onAddPlayer}
+                            aria-label="Enlist a new hero"
+                        >
+                            <div className="ts-player-info">
+                                <span className="ts-player-name">Enlist a new hero</span>
+                                <span className="ts-player-meta">Recruit a character</span>
+                            </div>
+                            <div className="ts-player-skill" aria-hidden="true">
+                                <span className="ts-player-skill-label">+</span>
+                            </div>
+                        </button>
                     </div>
                 </>
             ) : null}

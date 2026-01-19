@@ -6,6 +6,7 @@ import { HeroNameModal } from "../components/HeroNameModal";
 import { OfflineSummaryModal } from "../components/OfflineSummaryModal";
 import { SafeModeModal } from "../components/SafeModeModal";
 import { ServiceWorkerUpdateModal } from "../components/ServiceWorkerUpdateModal";
+import { DevToolsModal } from "../components/DevToolsModal";
 import { LoadoutModalContainer } from "./LoadoutModalContainer";
 import { SystemModalContainer } from "./SystemModalContainer";
 
@@ -35,6 +36,8 @@ type AppModalsContainerProps = {
     isLoadoutOpen: boolean;
     onCloseLoadout: () => void;
     isSystemOpen: boolean;
+    isDevToolsOpen: boolean;
+    onCloseDevTools: () => void;
     isRecruitOpen: boolean;
     newHeroName: string;
     onNewHeroNameChange: (value: string) => void;
@@ -73,6 +76,8 @@ export const AppModalsContainer = ({
     isLoadoutOpen,
     onCloseLoadout,
     isSystemOpen,
+    isDevToolsOpen,
+    onCloseDevTools,
     isRecruitOpen,
     newHeroName,
     onNewHeroNameChange,
@@ -127,6 +132,9 @@ export const AppModalsContainer = ({
                     onResetSave={onResetSave}
                     onClose={onCloseSystem}
                 />
+            ) : null}
+            {import.meta.env.DEV && isDevToolsOpen ? (
+                <DevToolsModal onClose={onCloseDevTools} />
             ) : null}
             {offlineSummary ? (
                 <OfflineSummaryModal
