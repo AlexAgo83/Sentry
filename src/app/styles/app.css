@@ -1336,10 +1336,23 @@
 
 @media (max-width: 720px) {
     .ts-panel-switcher {
-        flex-wrap: wrap;
-        justify-content: center;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: var(--m2);
-        margin-bottom: var(--m2);
+        margin: 0;
+        padding: var(--m4) var(--m14) calc(var(--m4) + env(safe-area-inset-bottom)) var(--m14);
+        background: rgba(9, 12, 24, 0.72);
+        border-top: 1px solid rgba(242, 193, 78, 0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    .app-layout {
+        padding-bottom: calc(var(--m28) + var(--m10) + env(safe-area-inset-bottom));
     }
 
     .ts-inventory-controls {
@@ -1362,9 +1375,9 @@
     }
 
     .ts-chip {
-        min-width: 72px;
-        padding: 7px 11px;
-        flex: 0 1 auto;
+        min-width: 0;
+        width: 100%;
+        padding: 10px 8px;
     }
 
     .ts-chip + .ts-chip {
