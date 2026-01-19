@@ -2,7 +2,7 @@
 > From version: 0.8.0  
 > Understanding: 90%  
 > Confidence: 85%  
-> Progress: 65%
+> Progress: 70%
 
 # Context
 The app is growing and `src/app/App.tsx` is still a large integration point with lots of derived state and handlers. This increases re-render churn and makes future features harder to implement safely. Persistence also needs to become more resilient (migrations, corruption handling). Finally, we need basic client-side observability to diagnose crashes in production.
@@ -34,7 +34,7 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
 
 # Plan
 - [ ] 1. Baseline: identify current App responsibilities, major derived state blocks, and re-render hotspots (React Profiler in dev + a small “render count” helper for targeted components).
-- [ ] 2. Selectors: introduce `src/app/selectors/` for derived state with stable APIs (pure functions + unit tests).
+- [x] 2. Selectors: introduce `src/app/selectors/` for derived state with stable APIs (pure functions + unit tests).
 - [x] 3. App split: refactor `src/app/App.tsx` into a thin container (e.g. `AppContainer`) that wires:
   - store/runtime lifecycle
   - UI layout composition
@@ -49,14 +49,14 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
   - implement `migrateSave(save)` pipeline (vX -> latest) + validation
   - compute/verify SHA-256 checksum; treat mismatches as “corrupt”
   - maintain “last known good” snapshot alongside the current save
-- [ ] 6. Save UI + safe mode (partial - export/import shipped; safe-mode UX still minimal):
+- [x] 6. Save UI + safe mode:
   - add export/import in System UI
   - safe-mode screen/flow when corrupted save is detected (restore last good, export raw, reset)
 - [x] 7. Observability:
   - add `ErrorBoundary` wrapping the app root (fallback UI + recovery actions)
   - capture `error` + `unhandledrejection` and store a bounded list of local crash reports
   - expose crash report viewer + clear action via System UI
-- [ ] 8. Tests (partial - envelope/crashReporter/ErrorBoundary covered; selectors/safe-mode UI coverage pending):
+- [ ] 8. Tests (partial - key areas covered; still room to expand crashReporter + hooks coverage):
   - unit tests for selectors/migrations/checksum/corruption detection
   - smoke tests for safe-mode handling and boundary fallback UI
   - ensure CI coverage thresholds remain satisfied
@@ -69,6 +69,7 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
   - `useSafeModeState` (persistence load report + modal open/close)
 - A small perf win is implemented by isolating `loop/perf` store subscriptions into `SystemModalContainer` (only mounted when the System modal is open), and stabilizing several callbacks passed to memoized panels.
 - Save hardening is in place via a v2 envelope + checksum + last-known-good recovery; System UI now exposes export/import; “safe mode” modal appears when load is migrated/recovered/corrupt.
+- Safe mode now includes quick actions to export raw current/last-good saves (for debugging) and reset.
 - Observability is in place via a root `ErrorBoundary` and global `error` / `unhandledrejection` capture with local crash report storage and a System UI viewer.
 
 # Acceptance

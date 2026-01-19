@@ -1,9 +1,7 @@
 import { PersistenceAdapter } from "./types";
 import { setPersistenceLoadReport } from "./loadReport";
 import { createSaveEnvelopeV2, parseSaveEnvelopeOrLegacy } from "./saveEnvelope";
-
-const DEFAULT_STORAGE_KEY = "sentry-ts-save-v1";
-const lastGoodKeyFor = (storageKey: string) => `${storageKey}:lastGood`;
+import { DEFAULT_STORAGE_KEY, lastGoodKeyFor } from "./localStorageKeys";
 
 export const createLocalStorageAdapter = (storageKey = DEFAULT_STORAGE_KEY): PersistenceAdapter => {
     return {

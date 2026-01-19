@@ -37,6 +37,7 @@ import { useServiceWorkerUpdatePrompt } from "./hooks/useServiceWorkerUpdateProm
 import { selectActivePlayerFromPlayers, selectPlayersSortedFromPlayers } from "./selectors/gameSelectors";
 import { toGameSave } from "../core/serialization";
 import { createSaveEnvelopeV2, parseSaveEnvelopeOrLegacy } from "../adapters/persistence/saveEnvelope";
+import { readRawLastGoodSave, readRawSave } from "../adapters/persistence/localStorageKeys";
 
 const INTELLECT_SKILLS = new Set<SkillId>([
     "Cooking",
@@ -45,6 +46,16 @@ const INTELLECT_SKILLS = new Set<SkillId>([
     "Tailoring",
     "Carpentry"
 ]);
+
+const copyTextToClipboard = (raw: string, promptLabel: string) => {
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(raw).catch(() => {
+            window.prompt(promptLabel, raw);
+        });
+        return;
+    }
+    window.prompt(promptLabel, raw);
+};
 
 export const AppContainer = () => {
     const { loadReport, isSafeModeOpen, refreshLoadReport, closeSafeMode } = useSafeModeState();
@@ -470,13 +481,7 @@ export const AppContainer = () => {
         const save = toGameSave(gameStore.getState());
         const envelope = createSaveEnvelopeV2(save);
         const raw = JSON.stringify(envelope);
-        if (navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText(raw).catch(() => {
-                window.prompt("Copy your save data:", raw);
-            });
-            return;
-        }
-        window.prompt("Copy your save data:", raw);
+        copyTextToClipboard(raw, "Copy your save data:");
     }, []);
 
     const handleImportSave = useCallback(() => {
@@ -492,6 +497,27 @@ export const AppContainer = () => {
         }
         window.alert("Invalid save data.");
     }, [refreshLoadReport]);
+
+    const canCopyCurrentRawSave = Boolean(isSafeModeOpen && readRawSave());
+    const canCopyLastGoodRawSave = Boolean(isSafeModeOpen && readRawLastGoodSave());
+
+    const handleCopyCurrentRawSave = useCallback(() => {
+        const raw = readRawSave();
+        if (!raw) {
+            window.alert("No current save found.");
+            return;
+        }
+        copyTextToClipboard(raw, "Copy current save (raw):");
+    }, []);
+
+    const handleCopyLastGoodRawSave = useCallback(() => {
+        const raw = readRawLastGoodSave();
+        if (!raw) {
+            window.alert("No last good save found.");
+            return;
+        }
+        copyTextToClipboard(raw, "Copy last good save (raw):");
+    }, []);
 
     const {
         pendingSkill,
@@ -762,6 +788,10 @@ export const AppContainer = () => {
             {isSafeModeOpen ? (
                 <SafeModeModal
                     report={loadReport}
+                    canCopyCurrentRawSave={canCopyCurrentRawSave}
+                    canCopyLastGoodRawSave={canCopyLastGoodRawSave}
+                    onCopyCurrentRawSave={handleCopyCurrentRawSave}
+                    onCopyLastGoodRawSave={handleCopyLastGoodRawSave}
                     onResetSave={handleResetSave}
                     onClose={closeSafeMode}
                 />
