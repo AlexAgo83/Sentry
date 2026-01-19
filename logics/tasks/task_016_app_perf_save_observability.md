@@ -2,7 +2,7 @@
 > From version: 0.8.0  
 > Understanding: 90%  
 > Confidence: 85%  
-> Progress: 80%
+> Progress: 85%
 
 # Context
 The app is growing and `src/app/App.tsx` is still a large integration point with lots of derived state and handlers. This increases re-render churn and makes future features harder to implement safely. Persistence also needs to become more resilient (migrations, corruption handling). Finally, we need basic client-side observability to diagnose crashes in production.
@@ -67,7 +67,10 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
   - `useCrashReportsState` (local crash report list + clear)
   - `useServiceWorkerUpdatePrompt` (SW update prompt lifecycle)
   - `useSafeModeState` (persistence load report + modal open/close)
-- A small perf win is implemented by isolating `loop/perf` store subscriptions into `SystemModalContainer` (only mounted when the System modal is open), and stabilizing several callbacks passed to memoized panels.
+- Perf-oriented refactors:
+  - `AppView` is now a layout component and receives panel nodes instead of large derived props.
+  - Tick-heavy state is isolated behind dedicated containers under `src/app/containers/` (Action/Stats/Inventory/Equipment/Roster), reducing unnecessary recomputation and invalidations outside the active subtree.
+  - `SystemModalContainer` still isolates `loop/perf` subscriptions behind the modal boundary.
 - Dev-only baseline helper is available via `src/app/dev/renderDebug.ts`:
   - set `localStorage["sentry.debug.renderCounts"] = "1"` and watch console `debug` logs for current counts.
 - Save hardening is in place via a v2 envelope + checksum + last-known-good recovery; System UI now exposes export/import; “safe mode” modal appears when load is migrated/recovered/corrupt.
