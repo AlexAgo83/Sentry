@@ -27,9 +27,25 @@ describe("saveEnvelope", () => {
 
     it("migrates legacy saves", () => {
         const save = toGameSave(createInitialGameState("0.8.0"));
-        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify(save));
+        const legacy = { ...save };
+        delete (legacy as { schemaVersion?: number }).schemaVersion;
+        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify(legacy));
         expect(parsed.status).toBe("migrated");
         expect(parsed.save).toEqual(save);
     });
-});
 
+    it("sanitizes invalid player entries", () => {
+        const save = toGameSave(createInitialGameState("0.8.0"));
+        const legacy = {
+            ...save,
+            schemaVersion: 0,
+            players: {
+                ...save.players,
+                "bad": "not-an-object"
+            }
+        };
+        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify(legacy));
+        expect(parsed.status).toBe("migrated");
+        expect(parsed.save?.players.bad).toBeUndefined();
+    });
+});

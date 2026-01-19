@@ -2,7 +2,7 @@
 > From version: 0.8.0  
 > Understanding: 90%  
 > Confidence: 85%  
-> Progress: 75%
+> Progress: 80%
 
 # Context
 The app is growing and `src/app/App.tsx` is still a large integration point with lots of derived state and handlers. This increases re-render churn and makes future features harder to implement safely. Persistence also needs to become more resilient (migrations, corruption handling). Finally, we need basic client-side observability to diagnose crashes in production.
@@ -14,7 +14,7 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
 - Performance changes are guided by measurement (React Profiler); introduce additional context boundaries only if profiling shows broad invalidations.
 - Save hardening:
   - JSON export/import with explicit `schemaVersion`
-  - `migrateSave(vX -> latest)` pipeline + validation
+  - `migrateSave(vX -> latest)` pipeline + validation (payload-level schema version)
   - SHA-256 checksum (sync implementation) to detect corruption (not anti-cheat)
   - “last known good” snapshot and a safe-mode recovery flow
 - Observability:
@@ -71,6 +71,7 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
 - Dev-only baseline helper is available via `src/app/dev/renderDebug.ts`:
   - set `localStorage["sentry.debug.renderCounts"] = "1"` and watch console `debug` logs for current counts.
 - Save hardening is in place via a v2 envelope + checksum + last-known-good recovery; System UI now exposes export/import; “safe mode” modal appears when load is migrated/recovered/corrupt.
+- Payload-level schema versioning is introduced (`GameSave.schemaVersion`) and saves are migrated/validated on load via `src/adapters/persistence/saveMigrations.ts` before hydration.
 - Safe mode now includes quick actions to export raw current/last-good saves (for debugging) and reset.
 - Observability is in place via a root `ErrorBoundary` and global `error` / `unhandledrejection` capture with local crash report storage and a System UI viewer.
 

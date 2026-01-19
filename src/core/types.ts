@@ -185,6 +185,7 @@ export interface TickSummaryState {
 }
 
 export interface GameSave {
+    schemaVersion?: number;
     version: string;
     lastTick: number | null;
     lastHiddenAt?: number | null;

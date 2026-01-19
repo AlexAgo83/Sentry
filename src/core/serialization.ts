@@ -3,6 +3,7 @@ import { stripRuntimeFields } from "./state";
 
 export const toGameSave = (state: GameState): GameSave => {
     return {
+        schemaVersion: 1,
         version: state.version,
         lastTick: state.loop.lastTick,
         lastHiddenAt: state.loop.lastHiddenAt,

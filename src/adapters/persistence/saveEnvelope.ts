@@ -1,4 +1,5 @@
 import type { GameSave } from "../../core/types";
+import { migrateAndValidateSave } from "./saveMigrations";
 
 export type SaveEnvelopeV2 = {
     schemaVersion: 2;
@@ -170,13 +171,20 @@ export const parseSaveEnvelopeOrLegacy = (raw: string): SaveLoadResult => {
         if (computed !== envelope.checksum) {
             return { status: "corrupt", save: null };
         }
-        return { status: "ok", save: envelope.payload };
+        const migrated = migrateAndValidateSave(envelope.payload);
+        if (!migrated.ok) {
+            return { status: "corrupt", save: null };
+        }
+        return { status: migrated.migrated ? "migrated" : "ok", save: migrated.save };
     }
 
     if (isGameSaveLike(parsed)) {
-        return { status: "migrated", save: parsed };
+        const migrated = migrateAndValidateSave(parsed);
+        if (!migrated.ok) {
+            return { status: "corrupt", save: null };
+        }
+        return { status: "migrated", save: migrated.save };
     }
 
     return { status: "corrupt", save: null };
 };
-
