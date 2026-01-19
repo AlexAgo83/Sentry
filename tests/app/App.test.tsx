@@ -61,7 +61,7 @@ describe("App", () => {
             expect(within(rosterPanel).getByRole("button", { name: "Enlist a new hero" })).toBeTruthy();
         }
 
-        await user.click(screen.getByRole("tab", { name: "Inventory" }));
+        await user.click(screen.getByRole("tab", { name: "Bank" }));
 
         const inventoryPanel = screen.getByRole("heading", { name: "Inventory" }).closest("section");
         expect(inventoryPanel).toBeTruthy();
@@ -89,7 +89,7 @@ describe("App", () => {
 
     it("shows focusable inventory controls and usage labels", async () => {
         const { user } = renderApp();
-        const inventoryTab = screen.getByRole("tab", { name: "Inventory" });
+        const inventoryTab = screen.getByRole("tab", { name: "Bank" });
         expect(inventoryTab.className).toContain("ts-focusable");
 
         await user.click(inventoryTab);

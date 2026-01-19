@@ -41,7 +41,7 @@ export const SidePanelSwitcher = memo(({
             className={`ts-chip ts-focusable${active === "inventory" ? " is-active" : ""}`}
             onClick={onShowInventory}
         >
-            Inventory
+            Bank
         </button>
         <button
             type="button"

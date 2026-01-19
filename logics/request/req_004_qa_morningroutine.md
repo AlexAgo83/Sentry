@@ -5,3 +5,8 @@
 
 # Needs
 QA give me those feedbacks :
+
+1. est-ce qu'il serait possible que la "SidePanelSwitcher" devienne une action bar bottom sur l'app quand on est en mobile ?
+2. il faudrait ajouter un nouvel ecran : Shop
+3. le bouton inventory devrait devenir Bank
+
