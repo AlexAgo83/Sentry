@@ -1,8 +1,8 @@
 ## task_016_app_perf_save_observability - App architecture/perf refactor + save hardening + observability
 > From version: 0.8.0  
-> Understanding: 90%  
-> Confidence: 85%  
-> Progress: 85%
+> Understanding: 92%  
+> Confidence: 90%  
+> Progress: 95%
 
 # Context
 The app is growing and `src/app/App.tsx` is still a large integration point with lots of derived state and handlers. This increases re-render churn and makes future features harder to implement safely. Persistence also needs to become more resilient (migrations, corruption handling). Finally, we need basic client-side observability to diagnose crashes in production.
@@ -33,22 +33,15 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
 4. Observability: add a React `ErrorBoundary` plus capture `error`/`unhandledrejection` to help diagnose crashes in production.
 
 # Plan
-- [ ] 1. Baseline: identify current App responsibilities, major derived state blocks, and re-render hotspots (React Profiler in dev + a small “render count” helper for targeted components).
+- [x] 1. Baseline: add React Profiler + a small “render count” helper to guide perf work.
 - [x] 2. Selectors: introduce `src/app/selectors/` for derived state with stable APIs (pure functions + unit tests).
 - [x] 3. App split: refactor `src/app/App.tsx` into a thin container (e.g. `AppContainer`) that wires:
   - store/runtime lifecycle
   - UI layout composition
   - modal orchestration
   - selectors/hooks outputs
-- [ ] 4. Perf hardening (partial - basic prop stability improvements shipped; profiling still pending):
-  - ensure stable callbacks/props where it matters
-  - memoize large lists and expensive computations (measured)
-  - consider a small context split to avoid broad invalidations (only if profiling shows it helps)
-- [ ] 5. Save v2 foundation (partial - envelope/checksum/last-good shipped; payload migrations pipeline still pending):
-  - define `GameSave` schema versioning policy (`schemaVersion`, migrations contract)
-  - implement `migrateSave(save)` pipeline (vX -> latest) + validation
-  - compute/verify SHA-256 checksum; treat mismatches as “corrupt”
-  - maintain “last known good” snapshot alongside the current save
+- [x] 4. Perf hardening: isolate tick-heavy subscriptions behind dedicated containers and keep view props stable.
+- [x] 5. Save v2 foundation: payload `schemaVersion` + migrate/validate pipeline + SHA-256 checksum + last-known-good snapshot.
 - [x] 6. Save UI + safe mode:
   - add export/import in System UI
   - safe-mode screen/flow when corrupted save is detected (restore last good, export raw, reset)
@@ -56,10 +49,8 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
   - add `ErrorBoundary` wrapping the app root (fallback UI + recovery actions)
   - capture `error` + `unhandledrejection` and store a bounded list of local crash reports
   - expose crash report viewer + clear action via System UI
-- [ ] 8. Tests (partial - key areas covered; still room to expand crashReporter + hooks coverage):
-  - unit tests for selectors/migrations/checksum/corruption detection
-  - smoke tests for safe-mode handling and boundary fallback UI
-  - ensure CI coverage thresholds remain satisfied
+- [x] 8. Tests: expand coverage for selectors/migrations/checksum/corruption detection, modals, and observability.
+- [x] 9. UX: make modal content scrollable for large “setup/system” content.
 - [x] FINAL: run `npm run lint`, `npm run tests`, `npm run coverage`, and confirm improvements (render count reductions in key flows + app robustness for corrupted saves/crashes).
 
 # Status (current implementation)
@@ -79,6 +70,7 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
 - Payload-level schema versioning is introduced (`GameSave.schemaVersion`) and saves are migrated/validated on load via `src/adapters/persistence/saveMigrations.ts` before hydration.
 - Safe mode now includes quick actions to export raw current/last-good saves (for debugging) and reset.
 - Observability is in place via a root `ErrorBoundary` and global `error` / `unhandledrejection` capture with local crash report storage and a System UI viewer.
+- `ModalShell` now keeps the header visible and makes modal content scrollable when the modal is taller than the viewport (e.g. System/Setup).
 
 # Acceptance
 - `src/app/App.tsx` is significantly smaller and primarily composes extracted modules (container + view split).

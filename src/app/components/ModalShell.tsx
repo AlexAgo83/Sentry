@@ -51,7 +51,9 @@ export const ModalShell = memo(({
                         {closeLabel}
                     </button>
                 </div>
-                {children}
+                <div className="ts-modal-body">
+                    {children}
+                </div>
             </div>
         </div>
     );

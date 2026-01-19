@@ -23,6 +23,7 @@ describe("renderDebug", () => {
     });
 
     it("DevProfiler logs when enabled", () => {
+        vi.useFakeTimers();
         const spy = vi.spyOn(console, "debug").mockImplementation(() => {});
         window.localStorage.setItem("sentry.debug.profiler", "1");
 
@@ -32,7 +33,9 @@ describe("renderDebug", () => {
             </DevProfiler>
         );
 
+        vi.runOnlyPendingTimers();
         expect(spy).toHaveBeenCalled();
+        vi.useRealTimers();
         spy.mockRestore();
         window.localStorage.removeItem("sentry.debug.profiler");
     });

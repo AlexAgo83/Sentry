@@ -381,7 +381,7 @@ export class GameRuntime {
         const now = Date.now();
         const diff = now - startTime;
         if (diff < 5000) {
-            console.info("[offline] skipping recap, away too short", { diffMs: diff });
+            console.debug("[offline] skipping recap, away too short", { diffMs: diff });
             return;
         }
 
@@ -399,10 +399,10 @@ export class GameRuntime {
             result.totalItemDeltas
         );
         if (summary) {
-            console.info("[offline] recap generated", { diffMs: diff, ticks: result.ticks });
+            console.debug("[offline] recap generated", { diffMs: diff, ticks: result.ticks });
             this.store.dispatch({ type: "setOfflineSummary", summary });
         } else {
-            console.info("[offline] recap skipped (no players)", { diffMs: diff, ticks: result.ticks });
+            console.debug("[offline] recap skipped (no players)", { diffMs: diff, ticks: result.ticks });
         }
 
         this.updatePerf(perfStart, {

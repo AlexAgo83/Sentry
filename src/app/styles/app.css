@@ -1473,6 +1473,19 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
     display: flex;
     flex-direction: column;
     gap: var(--m7);
+    max-height: calc(100vh - (2 * var(--m12)));
+    max-height: calc(100dvh - (2 * var(--m12)));
+    overflow: hidden;
+}
+
+.ts-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m7);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: var(--m2);
 }
 
 .ts-offline-players {
