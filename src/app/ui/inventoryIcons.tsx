@@ -1,4 +1,5 @@
 import type { ItemId } from "../../core/types";
+import type { ReactElement } from "react";
 
 type EquipmentSlotIconId =
     | "slot_head"
@@ -10,7 +11,7 @@ type EquipmentSlotIconId =
 
 export type InventoryIconId = ItemId | EquipmentSlotIconId | "generic";
 
-const ICON_SHAPES: Record<InventoryIconId, JSX.Element> = {
+const ICON_SHAPES: Record<InventoryIconId, ReactElement> = {
     generic: <circle cx="16" cy="16" r="10" />,
     gold: (
         <>

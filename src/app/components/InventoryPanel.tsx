@@ -63,7 +63,6 @@ const InventorySlot = memo(({ item, isSelected, onSelect }: InventorySlotProps) 
 export const InventoryPanel = memo(({
     isCollapsed,
     onToggleCollapsed,
-    entries,
     gridEntries,
     selectedItem,
     selectedItemId,
@@ -76,7 +75,6 @@ export const InventoryPanel = memo(({
     page,
     pageCount,
     onPageChange,
-    totalItems,
     emptyState,
     selectionHint
 }: InventoryPanelProps) => {

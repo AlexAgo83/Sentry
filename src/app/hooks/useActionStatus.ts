@@ -24,7 +24,7 @@ type ActionStatusState = {
 
 export const useActionStatus = (activePlayer: PlayerState | null): ActionStatusState => {
     const activeSkillId = activePlayer?.selectedActionId ?? "";
-    const activeSkill = activeSkillId ? activePlayer?.skills[activeSkillId] : null;
+    const activeSkill = activeSkillId ? (activePlayer?.skills[activeSkillId] ?? null) : null;
     const activeRecipeId = activeSkill?.selectedRecipeId ?? "";
     const activeRecipe = activeSkillId && activeRecipeId
         ? activeSkill?.recipes[activeRecipeId] ?? null

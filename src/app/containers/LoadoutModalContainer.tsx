@@ -219,7 +219,9 @@ export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: Loadou
         ? (pendingProductionEntries.length > 0 ? formatItemListEntries(pendingProductionEntries) : "None")
         : "None";
 
-    const pendingActionDef: ActionDefinition | null = pendingSkillId ? getActionDefinition(pendingSkillId as SkillId) : null;
+    const pendingActionDef: ActionDefinition | null = pendingSkillId
+        ? (getActionDefinition(pendingSkillId as SkillId) ?? null)
+        : null;
     const pendingActionDurationLabel = getActionIntervalLabel(pendingSkill, pendingActionDef);
     const pendingActionXpLabel = getActionXpLabel(pendingActionDef);
 

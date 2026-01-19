@@ -17,7 +17,8 @@ export type InventoryFilters = {
 
 export const usePersistedInventoryFilters = (defaultValue: InventoryFilters) => {
     if (isTestEnv) {
-        return useState<InventoryFilters>(defaultValue) as const;
+        const [value, setValue] = useState<InventoryFilters>(defaultValue);
+        return [value, setValue] as const;
     }
     const [value, setValue] = useState<InventoryFilters>(() => {
         if (typeof window === "undefined") {

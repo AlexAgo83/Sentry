@@ -161,7 +161,7 @@ export const createInitialGameState = (version: string): GameState => {
 };
 
 const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
-    const { actionProgress, storage, skills, ...rest } = player as PlayerSaveState & {
+    const { storage, skills, ...rest } = player as PlayerSaveState & {
         storage?: { gold?: number };
         skills?: Record<SkillId, SkillState>;
     };

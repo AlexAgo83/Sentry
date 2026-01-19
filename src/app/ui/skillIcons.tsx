@@ -1,4 +1,5 @@
 import type { SkillId } from "../../core/types";
+import type { ReactElement } from "react";
 
 const skillIconStroke = {
     stroke: "currentColor",
@@ -8,7 +9,7 @@ const skillIconStroke = {
     fill: "none"
 } as const;
 
-const SKILL_ICON_SHAPES: Record<SkillId, JSX.Element> = {
+const SKILL_ICON_SHAPES: Record<SkillId, ReactElement> = {
     Combat: (
         <g {...skillIconStroke}>
             <path d="M20 44l12-12" />
@@ -92,7 +93,7 @@ const SKILL_ICON_SHAPES: Record<SkillId, JSX.Element> = {
     )
 };
 
-const getSkillIconShape = (skillId: SkillId | ""): JSX.Element => {
+const getSkillIconShape = (skillId: SkillId | ""): ReactElement => {
     if (!skillId) {
         return (
             <g {...skillIconStroke}>

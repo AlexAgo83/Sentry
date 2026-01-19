@@ -240,6 +240,7 @@ export const DevProfiler = ({ id, children, thresholdMs = 4 }: DevProfilerProps)
         startTime,
         commitTime
     ) => {
+        void startTime;
         if (!shouldLogProfile(actualDuration, thresholdMs)) {
             return;
         }

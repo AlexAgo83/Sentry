@@ -118,7 +118,7 @@ export const ActionPanelContainer = ({
         ? (activeProductionEntries.length > 0 ? formatItemListEntries(activeProductionEntries) : "None")
         : "None";
     const resourceHint = hasActiveRecipeSelection ? null : "Select a recipe to see resource flow.";
-    const activeActionDef = activeSkillId ? getActionDefinition(activeSkillId as SkillId) : null;
+    const activeActionDef = activeSkillId ? (getActionDefinition(activeSkillId as SkillId) ?? null) : null;
     const actionIntervalLabel = getActionIntervalLabel(activeSkill, activeActionDef, true);
     const actionXpLabel = hasActiveRecipeSelection ? getActionXpLabel(activeActionDef) : "None";
     const activeSkillName = activeSkillId ? getSkillLabel(activeSkillId as SkillId) : "None";

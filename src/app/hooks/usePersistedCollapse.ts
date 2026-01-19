@@ -10,7 +10,8 @@ const PANEL_STORAGE_KEY = "sentry.panelCollapsed";
 
 export const usePersistedCollapse = (panelKey: string, defaultValue = false) => {
     if (isTestEnv) {
-        return useState<boolean>(defaultValue) as const;
+        const [value, setValue] = useState<boolean>(defaultValue);
+        return [value, setValue] as const;
     }
     const [value, setValue] = useState<boolean>(() => {
         if (typeof window === "undefined") {

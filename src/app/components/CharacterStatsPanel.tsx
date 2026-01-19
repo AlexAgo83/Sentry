@@ -109,7 +109,6 @@ export const CharacterStatsPanel = memo(({
     skills,
     skillLevels,
     stats,
-    effectiveStats,
     equipmentMods,
     now,
     isCollapsed,
