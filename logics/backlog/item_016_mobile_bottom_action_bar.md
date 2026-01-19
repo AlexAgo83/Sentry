@@ -5,7 +5,7 @@
 > Progress: 0%
 
 # Context
-QA feedback (req_004) suggests improving mobile usability by moving the main panel navigation (`SidePanelSwitcher`: Action / Stats / Bank / Equip) to a bottom action bar on small screens.
+QA feedback suggests improving mobile usability by moving the main panel navigation (`SidePanelSwitcher`: Action / Stats / Bank / Equip) to a bottom action bar on small screens.
 
 # Goal
 Make the main panel navigation faster and more ergonomic on mobile, without changing desktop layout.
@@ -35,4 +35,3 @@ Make the main panel navigation faster and more ergonomic on mobile, without chan
 - What breakpoint(s) define “mobile” (e.g. `<= 768px`)?
 - Should the bottom bar be always visible or auto-hide on scroll?
 - Should labels be shortened further or replaced by icons on very small widths?
-
