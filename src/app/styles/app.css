@@ -376,6 +376,21 @@
     margin-top: var(--m4);
 }
 
+.ts-crash-list {
+    gap: var(--m2);
+    font-size: var(--text-s-size);
+}
+
+.ts-crash-list li {
+    padding-left: var(--m7);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.ts-crash-actions {
+    margin-top: var(--m7);
+}
+
 .generic-field.button.ts-devtools-button {
     border: 1px solid rgba(93, 217, 193, 0.28);
     background: rgba(12, 18, 32, 0.78);
@@ -682,6 +697,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.ts-action-status-actions {
+    margin-top: 0;
 }
 
 .ts-progress-label {

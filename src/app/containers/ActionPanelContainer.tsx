@@ -11,6 +11,7 @@ import { useActionStatus } from "../hooks/useActionStatus";
 import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
 import { ActionStatusPanel } from "../components/ActionStatusPanel";
 import { getSkillIconColor } from "../ui/skillColors";
+import { gameStore } from "../game";
 
 type ActionPanelContainerProps = {
     onChangeAction: () => void;
@@ -123,6 +124,13 @@ export const ActionPanelContainer = ({
     const actionXpLabel = hasActiveRecipeSelection ? getActionXpLabel(activeActionDef) : "None";
     const activeSkillName = activeSkillId ? getSkillLabel(activeSkillId as SkillId) : "None";
     const skillIconColor = getSkillIconColor(activeSkillId);
+    const canInterruptAction = Boolean(activePlayer?.selectedActionId);
+    const handleInterruptAction = useCallback(() => {
+        if (!activePlayer) {
+            return;
+        }
+        gameStore.dispatch({ type: "selectAction", playerId: activePlayer.id, actionId: null });
+    }, [activePlayer]);
 
     return (
         <ActionStatusPanel
@@ -156,6 +164,8 @@ export const ActionPanelContainer = ({
             onToggleCollapsed={() => setCollapsed((value) => !value)}
             onChangeAction={onChangeAction}
             canChangeAction={Boolean(activePlayer)}
+            onInterruptAction={handleInterruptAction}
+            canInterruptAction={canInterruptAction}
         />
     );
 };

@@ -66,6 +66,22 @@ body {
     gap: var(--m6);
 }
 
+.ts-error-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ts-error-content {
+    position: relative;
+    z-index: 1;
+    width: min(720px, 100%);
+}
+
+.ts-error-panel {
+    width: 100%;
+}
+
 .app-title {
     margin: 0;
     font-family: var(--display-font);

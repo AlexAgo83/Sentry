@@ -43,9 +43,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }
 
         return (
-            <div className="ts-app">
-                <main className="ts-main">
-                    <section className="generic-panel ts-panel">
+            <div className="app-shell ts-error-page">
+                <main className="ts-error-content">
+                    <section className="generic-panel ts-panel ts-error-panel">
                         <div className="ts-panel-header">
                             <h2 className="ts-panel-title">Something went wrong</h2>
                         </div>
@@ -67,4 +67,3 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         );
     }
 }
-

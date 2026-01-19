@@ -47,6 +47,7 @@ describe("panel components", () => {
     it("ActionStatusPanel renders current action details", async () => {
         const user = userEvent.setup();
         const onChangeAction = vi.fn();
+        const onInterruptAction = vi.fn();
 
         render(
             <ActionStatusPanel
@@ -80,6 +81,8 @@ describe("panel components", () => {
                 onToggleCollapsed={vi.fn()}
                 onChangeAction={onChangeAction}
                 canChangeAction={true}
+                onInterruptAction={onInterruptAction}
+                canInterruptAction={true}
             />
         );
 
@@ -93,6 +96,7 @@ describe("panel components", () => {
     });
 
     it("ActionStatusPanel shows resource hints and stunned styling", () => {
+        const onInterruptAction = vi.fn();
         render(
             <ActionStatusPanel
                 activeSkillId={"Combat" as SkillId}
@@ -125,12 +129,13 @@ describe("panel components", () => {
                 onToggleCollapsed={vi.fn()}
                 onChangeAction={vi.fn()}
                 canChangeAction={true}
+                onInterruptAction={onInterruptAction}
+                canInterruptAction={true}
             />
         );
 
         expect(screen.getByText("Missing: Food x1")).toBeTruthy();
         expect(document.querySelector(".ts-progress-row.ts-progress-action.is-stunned")).toBeTruthy();
-        expect(document.querySelector("progress.ts-progress-action.is-stunned")).toBeTruthy();
     });
 
     it("ActionStatusPanel hides details when collapsed", () => {
@@ -166,6 +171,8 @@ describe("panel components", () => {
                 onToggleCollapsed={vi.fn()}
                 onChangeAction={vi.fn()}
                 canChangeAction={true}
+                onInterruptAction={vi.fn()}
+                canInterruptAction={true}
             />
         );
 

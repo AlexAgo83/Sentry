@@ -35,6 +35,8 @@ type ActionStatusPanelProps = {
     onToggleCollapsed: () => void;
     onChangeAction: () => void;
     canChangeAction: boolean;
+    onInterruptAction: () => void;
+    canInterruptAction: boolean;
 };
 
 export const ActionStatusPanel = memo(({
@@ -67,7 +69,9 @@ export const ActionStatusPanel = memo(({
     isCollapsed,
     onToggleCollapsed,
     onChangeAction,
-    canChangeAction
+    canChangeAction,
+    onInterruptAction,
+    canInterruptAction
 }: ActionStatusPanelProps) => {
     const formatXp = (value: number): string => {
         if (!Number.isFinite(value)) {
@@ -85,15 +89,6 @@ export const ActionStatusPanel = memo(({
             <div className="ts-panel-actions ts-panel-actions-inline">
                 <button
                     type="button"
-                    className="ts-icon-button is-action ts-panel-action-button ts-focusable"
-                    onClick={onChangeAction}
-                    disabled={!canChangeAction}
-                    aria-label="Change"
-                >
-                    Change
-                </button>
-                <button
-                    type="button"
                     className="ts-collapse-button ts-focusable"
                     onClick={onToggleCollapsed}
                     aria-label={isCollapsed ? "Expand" : "Collapse"}
@@ -102,6 +97,17 @@ export const ActionStatusPanel = memo(({
                         <CollapseIcon isCollapsed={isCollapsed} />
                     </span>
                 </button>
+                {isCollapsed ? (
+                    <button
+                        type="button"
+                        className="ts-icon-button is-action ts-panel-action-button ts-focusable"
+                        onClick={onChangeAction}
+                        disabled={!canChangeAction}
+                        aria-label="Change"
+                    >
+                        Change
+                    </button>
+                ) : null}
             </div>
         </div>
         {!isCollapsed ? (
@@ -148,11 +154,6 @@ export const ActionStatusPanel = memo(({
                         Progress {progressPercent.toFixed(1)}%
                     </span>
                 </div>
-                <progress
-                    className={`generic-field progress ts-progress-action${isStunned ? " is-stunned" : ""}`}
-                    max={100}
-                    value={progressPercent}
-                />
                 <div
                     className="generic-field panel progress-row ts-progress-row ts-progress-stamina"
                     style={staminaStyle}
@@ -161,11 +162,6 @@ export const ActionStatusPanel = memo(({
                         Stamina {staminaCurrent}/{staminaMax}
                     </span>
                 </div>
-                <progress
-                    className="generic-field progress ts-progress-stamina"
-                    max={100}
-                    value={staminaPercent}
-                />
                 <div
                     className="generic-field panel progress-row ts-progress-row ts-progress-skill"
                     style={skillStyle}
@@ -174,11 +170,6 @@ export const ActionStatusPanel = memo(({
                         Skill Lv {activeSkillLevel} - XP {formatXp(activeSkillXp)}/{formatXp(activeSkillXpNext)}
                     </span>
                 </div>
-                <progress
-                    className="generic-field progress ts-progress-skill"
-                    max={100}
-                    value={skillPercent}
-                />
                 <div
                     className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
                     style={recipeStyle}
@@ -187,11 +178,24 @@ export const ActionStatusPanel = memo(({
                         Recipe Lv {activeRecipeLevel} - XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}
                     </span>
                 </div>
-                <progress
-                    className="generic-field progress ts-progress-recipe"
-                    max={100}
-                    value={recipePercent}
-                />
+                <div className="ts-action-row ts-action-status-actions">
+                    <button
+                        type="button"
+                        className="generic-field button ts-focusable"
+                        onClick={onChangeAction}
+                        disabled={!canChangeAction}
+                    >
+                        Change
+                    </button>
+                    <button
+                        type="button"
+                        className="generic-field button ts-stop ts-focusable"
+                        onClick={onInterruptAction}
+                        disabled={!canInterruptAction}
+                    >
+                        Interrupt
+                    </button>
+                </div>
             </>
         ) : null}
     </section>

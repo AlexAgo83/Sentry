@@ -118,14 +118,14 @@ export const SystemModal = memo(({
             </div>
             {crashReports.length > 0 ? (
                 <div className="ts-panel-body">
-                    <ul className="ts-list">
+                    <ul className="ts-list ts-crash-list">
                         {crashReports.slice(0, 3).map((report) => (
                             <li key={report.id}>
                                 [{report.kind}] {report.message}
                             </li>
                         ))}
                     </ul>
-                    <div className="ts-action-row ts-system-actions">
+                    <div className="ts-action-row ts-system-actions ts-crash-actions">
                         <button
                             type="button"
                             className="generic-field button ts-focusable"
