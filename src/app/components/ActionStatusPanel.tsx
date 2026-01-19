@@ -91,17 +91,6 @@ export const ActionStatusPanel = memo(({
                         <CollapseIcon isCollapsed={isCollapsed} />
                     </span>
                 </button>
-                {isCollapsed ? (
-                    <button
-                        type="button"
-                        className="ts-icon-button is-action ts-panel-action-button ts-focusable"
-                        onClick={onChangeAction}
-                        disabled={!canChangeAction}
-                        aria-label="Change"
-                    >
-                        Change
-                    </button>
-                ) : null}
             </div>
         </div>
         {!isCollapsed ? (

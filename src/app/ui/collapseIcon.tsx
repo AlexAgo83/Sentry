@@ -15,8 +15,21 @@ export const CollapseIcon = memo(({ isCollapsed }: CollapseIconProps) => (
         strokeLinejoin="round"
         aria-hidden="true"
     >
-        <line x1="4" y1="10" x2="16" y2="10" />
-        {isCollapsed ? <line x1="10" y1="4" x2="10" y2="16" /> : null}
+        {isCollapsed ? (
+            <>
+                <polyline points="7,4 4,4 4,7" />
+                <polyline points="13,4 16,4 16,7" />
+                <polyline points="16,13 16,16 13,16" />
+                <polyline points="4,13 4,16 7,16" />
+            </>
+        ) : (
+            <>
+                <polyline points="9,6 6,6 6,9" />
+                <polyline points="11,6 14,6 14,9" />
+                <polyline points="14,11 14,14 11,14" />
+                <polyline points="6,11 6,14 9,14" />
+            </>
+        )}
     </svg>
 ));
 

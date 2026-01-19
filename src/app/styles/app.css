@@ -125,9 +125,9 @@
     border: 1px solid rgba(93, 217, 193, 0.4);
     background: rgba(13, 19, 33, 0.75);
     color: var(--color-text-fade);
-    padding: var(--m4) var(--m14);
-    min-height: 40px;
-    min-width: 52px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
     border-radius: 999px;
     font-size: var(--text-xs-size);
     letter-spacing: 0.16em;
@@ -143,8 +143,8 @@
 }
 
 .ts-collapse-icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     display: block;
 }
 
@@ -1460,10 +1460,9 @@
 
     .ts-collapse-button {
         position: relative;
-        min-width: 52px;
-        min-height: 40px;
-        padding: var(--m4) var(--m7);
-        letter-spacing: 0.16em;
+        width: 44px;
+        height: 44px;
+        padding: 0;
     }
 
     .ts-collapse-button .ts-collapse-label {
