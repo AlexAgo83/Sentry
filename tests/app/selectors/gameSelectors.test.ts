@@ -36,12 +36,15 @@ describe("app gameSelectors", () => {
         const state = createInitialGameState("test");
         state.loop.loopInterval = 500;
         state.perf.lastDeltaMs = 610;
+        state.perf.lastDriftMs = 110;
+        state.perf.driftEmaMs = 110;
 
         expect(selectTickRateLabel(state)).toBe("2.0");
         expect(selectDriftLabel(state)).toBe("+110");
 
         state.perf.lastDeltaMs = 400;
+        state.perf.lastDriftMs = -100;
+        state.perf.driftEmaMs = -100;
         expect(selectDriftLabel(state)).toBe("-100");
     });
 });
-

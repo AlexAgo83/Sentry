@@ -183,7 +183,7 @@ export const parseSaveEnvelopeOrLegacy = (raw: string): SaveLoadResult => {
         if (!migrated.ok) {
             return { status: "corrupt", save: null };
         }
-        return { status: "migrated", save: migrated.save };
+        return { status: migrated.migrated ? "migrated" : "ok", save: migrated.save };
     }
 
     return { status: "corrupt", save: null };

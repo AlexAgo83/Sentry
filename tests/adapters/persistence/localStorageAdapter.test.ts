@@ -3,6 +3,9 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { createLocalStorageAdapter } from "../../../src/adapters/persistence/localStorageAdapter";
 import { createInitialGameState } from "../../../src/core/state";
 import { toGameSave } from "../../../src/core/serialization";
+import { getPersistenceLoadReport, setPersistenceLoadReport } from "../../../src/adapters/persistence/loadReport";
+import { createSaveEnvelopeV2 } from "../../../src/adapters/persistence/saveEnvelope";
+import { lastGoodKeyFor } from "../../../src/adapters/persistence/localStorageKeys";
 
 type LocalStorageStub = {
     getItem: (key: string) => string | null;
@@ -34,6 +37,7 @@ describe("createLocalStorageAdapter", () => {
     beforeEach(() => {
         originalStorage = (globalThis as { localStorage?: unknown }).localStorage;
         delete (globalThis as { localStorage?: unknown }).localStorage;
+        setPersistenceLoadReport({ status: "empty", recoveredFromLastGood: false });
     });
 
     afterEach(() => {
@@ -66,6 +70,7 @@ describe("createLocalStorageAdapter", () => {
         const adapter = createLocalStorageAdapter(storageKey);
 
         expect(adapter.load()).toEqual(save);
+        expect(getPersistenceLoadReport().status).toBe("ok");
     });
 
     it("handles invalid JSON and logs the error", () => {
@@ -77,6 +82,39 @@ describe("createLocalStorageAdapter", () => {
 
         expect(adapter.load()).toBeNull();
         expect(errorSpy).toHaveBeenCalled();
+        expect(getPersistenceLoadReport().status).toBe("corrupt");
+    });
+
+    it("recovers last good save when the current save is corrupt", () => {
+        const storage = createMemoryStorage();
+        storage.setItem(storageKey, "{bad-json");
+        const save = toGameSave(createInitialGameState("0.4.0"));
+        const lastGoodKey = lastGoodKeyFor(storageKey);
+        storage.setItem(lastGoodKey, JSON.stringify(createSaveEnvelopeV2(save, 123)));
+        (globalThis as { localStorage?: LocalStorageStub }).localStorage = storage;
+        const adapter = createLocalStorageAdapter(storageKey);
+        const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+        expect(adapter.load()).toEqual(save);
+        expect(getPersistenceLoadReport().status).toBe("recovered_last_good");
+        expect(getPersistenceLoadReport().recoveredFromLastGood).toBe(true);
+        expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it("saves last-good snapshot before overwriting the current save", () => {
+        const storage = createMemoryStorage();
+        const adapter = createLocalStorageAdapter(storageKey);
+        const save = toGameSave(createInitialGameState("0.4.0"));
+        const oldEnvelope = createSaveEnvelopeV2(save, 111);
+        storage.setItem(storageKey, JSON.stringify(oldEnvelope));
+        (globalThis as { localStorage?: LocalStorageStub }).localStorage = storage;
+
+        const nextSave = { ...save, version: "0.4.1" };
+        adapter.save(nextSave);
+
+        const lastGoodKey = lastGoodKeyFor(storageKey);
+        expect(storage.getItem(lastGoodKey)).toBe(JSON.stringify(oldEnvelope));
+        expect(storage.getItem(storageKey)).not.toBeNull();
     });
 
     it("saves to localStorage when available", () => {

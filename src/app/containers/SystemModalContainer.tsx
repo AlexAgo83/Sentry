@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { CrashReport } from "../../observability/crashReporter";
 import type { SkillId } from "../../core/types";
 import { SystemModal } from "../components/SystemModal";
@@ -22,9 +23,10 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
     const activePlayer = useGameStore(selectActivePlayer);
 
     const tickRate = (1000 / loop.loopInterval).toFixed(1);
-    const hasDelta = perf.lastDeltaMs > 0;
-    const driftMs = hasDelta ? perf.lastDeltaMs - loop.loopInterval : 0;
-    const driftLabel = `${driftMs > 0 ? "+" : ""}${Math.round(driftMs)}`;
+    const driftLabel = useMemo(() => {
+        const driftMs = Number.isFinite(perf.driftEmaMs) ? perf.driftEmaMs : perf.lastDriftMs;
+        return `${driftMs > 0 ? "+" : ""}${Math.round(driftMs)}`;
+    }, [perf.driftEmaMs, perf.lastDriftMs]);
 
     return (
         <SystemModal
@@ -51,4 +53,3 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
         />
     );
 };
-

@@ -15,6 +15,21 @@ The `logics` folder defines the product flow:
 * `logics/backlog`: Core product items, possibly promoted from requests.
 * `logics/tasks`: Execution plans derived from backlog items.
 
+### Backlog → Tasks
+
+Use this lightweight flow to go from an idea to an executable plan:
+
+1. Create a request in `logics/request/` (problem statement + context).
+2. Promote it to `logics/backlog/` once the scope is clear (acceptance criteria + priority).
+3. Create one or more tasks in `logics/tasks/` (step-by-step plan, progress tracking, validation commands).
+4. Update `Understanding`, `Confidence`, and `Progress` as you learn and implement.
+
+Mini example:
+
+- `logics/request/2026-01-19-offline-recap-ui.md`: “Players want a clearer offline recap modal.”
+- `logics/backlog/offline-recap-ui.md`: Acceptance: recap shows time away, item deltas, per-player XP.
+- `logics/tasks/offline-recap-ui.md`: Plan: add selectors → update modal UI → add tests → run `npm run lint` / `npm run tests`.
+
 Use the following indicators in request/backlog/task items:
 
 * `From version: X.X.X` : The version when the need was first identified (QA/backlog/etc).

@@ -152,6 +152,8 @@ export const createInitialGameState = (version: string): GameState => {
         perf: {
             lastTickDurationMs: 0,
             lastDeltaMs: 0,
+            lastDriftMs: 0,
+            driftEmaMs: 0,
             lastOfflineTicks: 0,
             lastOfflineDurationMs: 0
         },

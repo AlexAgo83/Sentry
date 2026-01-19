@@ -28,7 +28,6 @@ export const selectTickRateLabel = (state: GameState): string => {
 };
 
 export const selectDriftLabel = (state: GameState): string => {
-    const hasDelta = state.perf.lastDeltaMs > 0;
-    const driftMs = hasDelta ? state.perf.lastDeltaMs - state.loop.loopInterval : 0;
+    const driftMs = Number.isFinite(state.perf.driftEmaMs) ? state.perf.driftEmaMs : state.perf.lastDriftMs;
     return `${driftMs > 0 ? "+" : ""}${Math.round(driftMs)}`;
 };

@@ -294,4 +294,81 @@ describe("GameRuntime", () => {
         // @ts-expect-error - private access for coverage
         expect(runtime.isDocumentVisible()).toBe(false);
     });
+
+    it("caps the tick delta but records the real elapsed delta in perf", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const stateRef = store.getState();
+        stateRef.loop.loopInterval = 500;
+        stateRef.loop.offlineThreshold = 10;
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
+        const dispatchSpy = vi.spyOn(store, "dispatch");
+        vi.spyOn(Date, "now").mockReturnValue(1800);
+
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+
+        expect(dispatchSpy).toHaveBeenCalledWith({ type: "tick", deltaMs: 500, timestamp: 1800 });
+        expect(store.getState().perf.lastDeltaMs).toBe(800);
+        expect(store.getState().perf.lastOfflineTicks).toBe(0);
+        expect(store.getState().perf.lastDriftMs).toBe(300);
+        expect(store.getState().perf.driftEmaMs).toBe(300);
+    });
+
+    it("treats diff equal to offline threshold as a regular tick (not offline recap)", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const stateRef = store.getState();
+        stateRef.loop.loopInterval = 500;
+        stateRef.loop.offlineThreshold = 2; // threshold = 1000ms
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
+        const dispatchSpy = vi.spyOn(store, "dispatch");
+        vi.spyOn(Date, "now").mockReturnValue(2000);
+
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+
+        expect(dispatchSpy).toHaveBeenCalledWith({ type: "tick", deltaMs: 500, timestamp: 2000 });
+        expect(store.getState().perf.lastOfflineTicks).toBe(0);
+        expect(store.getState().perf.lastDeltaMs).toBe(1000);
+    });
+
+    it("does not show an offline summary when resuming quickly, but still processes ticks", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        runtime.start();
+        const intervalSpy = window.setInterval as unknown as ReturnType<typeof vi.fn>;
+        expect(intervalSpy).toHaveBeenCalledTimes(1);
+
+        const nowSpy = vi.spyOn(Date, "now");
+        nowSpy
+            .mockReturnValueOnce(1000) // persist on hide
+            .mockReturnValueOnce(1000) // hiddenAt
+            .mockReturnValueOnce(3500) // resumeAt
+            .mockReturnValueOnce(3500); // persist on resume
+
+        document.visibilityState = "hidden";
+        document.dispatchEvent({ type: "visibilitychange" });
+        document.visibilityState = "visible";
+        document.dispatchEvent({ type: "visibilitychange" });
+
+        expect(store.getState().offlineSummary).toBeNull();
+        expect(store.getState().loop.lastHiddenAt).toBeNull();
+        expect(store.getState().perf.lastDeltaMs).toBe(2500);
+        expect(store.getState().perf.lastOfflineTicks).toBeGreaterThan(0);
+        expect(persistence.save).toHaveBeenCalledTimes(2);
+        expect(intervalSpy).toHaveBeenCalledTimes(2);
+    });
 });

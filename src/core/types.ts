@@ -156,6 +156,8 @@ export type PlayerSaveState = Omit<PlayerState, "actionProgress">;
 export interface PerformanceState {
     lastTickDurationMs: number;
     lastDeltaMs: number;
+    lastDriftMs: number;
+    driftEmaMs: number;
     lastOfflineTicks: number;
     lastOfflineDurationMs: number;
 }

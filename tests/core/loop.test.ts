@@ -159,4 +159,30 @@ describe("core loop", () => {
         const next = applyTick(state, actionInterval, Date.now());
         expect(next.inventory.items.herbs).toBe(1);
     });
+
+    it("keeps action progress percent within 0..100 when delta spans multiple actions", () => {
+        const initial = createInitialGameState("0.4.0");
+        const playerId = initial.activePlayerId ?? "1";
+        let state = gameReducer(initial, {
+            type: "selectAction",
+            playerId,
+            actionId: "Hunting"
+        });
+        const recipeId = Object.keys(state.players[playerId].skills.Hunting.recipes)[0];
+        state = gameReducer(state, {
+            type: "selectRecipe",
+            playerId,
+            skillId: "Hunting",
+            recipeId
+        });
+
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Hunting.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval * 3 + 50, Date.now());
+        const progress = next.players[playerId].actionProgress.progressPercent;
+        expect(progress).toBeGreaterThanOrEqual(0);
+        expect(progress).toBeLessThanOrEqual(100);
+    });
 });

@@ -48,4 +48,41 @@ describe("saveEnvelope", () => {
         expect(parsed.status).toBe("migrated");
         expect(parsed.save?.players.bad).toBeUndefined();
     });
+
+    it("returns corrupt on invalid JSON", () => {
+        const parsed = parseSaveEnvelopeOrLegacy("{bad-json");
+        expect(parsed.status).toBe("corrupt");
+        expect(parsed.save).toBeNull();
+    });
+
+    it("returns corrupt when the payload is missing", () => {
+        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify({ schemaVersion: 2, checksum: "abc" }));
+        expect(parsed.status).toBe("corrupt");
+        expect(parsed.save).toBeNull();
+    });
+
+    it("returns corrupt when the migrated save has no valid players", () => {
+        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify({ version: "0.8.0", players: {} }));
+        expect(parsed.status).toBe("corrupt");
+        expect(parsed.save).toBeNull();
+    });
+
+    it("treats already-latest plain saves as ok (no migration)", () => {
+        const save = toGameSave(createInitialGameState("0.8.0"));
+        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify(save));
+        expect(parsed.status).toBe("ok");
+        expect(parsed.save).toEqual(save);
+    });
+
+    it("normalizes legacy inventory values", () => {
+        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify({
+            version: "0.8.0",
+            players: { "1": { id: "1", name: "Player_1" } },
+            inventory: { items: { gold: "10", meat: -5, bad: "nope" } }
+        }));
+        expect(parsed.status).toBe("migrated");
+        expect(parsed.save?.inventory?.items.gold).toBe(10);
+        expect(parsed.save?.inventory?.items.meat).toBe(0);
+        expect(parsed.save?.inventory?.items.bad).toBeUndefined();
+    });
 });

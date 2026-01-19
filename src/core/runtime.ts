@@ -14,6 +14,7 @@ export class GameRuntime {
     private hasLoggedPersistenceError = false;
     private static readonly MAX_CATCH_UP_MS = 500;
     private static readonly PERSIST_INTERVAL_MS = 1500;
+    private static readonly DRIFT_EMA_ALPHA = 0.15;
     private visibilityHandler?: () => void;
     private unloadHandler?: () => void;
 
@@ -71,8 +72,15 @@ export class GameRuntime {
         if (summary) {
             this.store.dispatch({ type: "setOfflineSummary", summary });
         }
+        const prevEma = this.store.getState().perf.driftEmaMs;
+        const driftMs = 0;
+        const driftEmaMs = prevEma === 0
+            ? driftMs
+            : prevEma + (driftMs - prevEma) * GameRuntime.DRIFT_EMA_ALPHA;
         this.updatePerf(perfStart, {
             lastDeltaMs: durationMs,
+            lastDriftMs: driftMs,
+            driftEmaMs,
             lastOfflineTicks: result.ticks,
             lastOfflineDurationMs: durationMs
         });
@@ -114,8 +122,15 @@ export class GameRuntime {
 
         if (!lastTick) {
             this.store.dispatch({ type: "tick", deltaMs: 0, timestamp: now });
+            const prevEma = this.store.getState().perf.driftEmaMs;
+            const driftMs = 0;
+            const driftEmaMs = prevEma === 0
+                ? driftMs
+                : prevEma + (driftMs - prevEma) * GameRuntime.DRIFT_EMA_ALPHA;
             this.updatePerf(perfStart, {
                 lastDeltaMs: 0,
+                lastDriftMs: driftMs,
+                driftEmaMs,
                 lastOfflineTicks: 0,
                 lastOfflineDurationMs: 0
             });
@@ -129,16 +144,30 @@ export class GameRuntime {
 
         if (diff > threshold) {
             const result = this.runOfflineTicks(lastTick, now, state.loop.offlineInterval);
+            const prevEma = state.perf.driftEmaMs;
+            const driftMs = 0;
+            const driftEmaMs = prevEma === 0
+                ? driftMs
+                : prevEma + (driftMs - prevEma) * GameRuntime.DRIFT_EMA_ALPHA;
             this.updatePerf(perfStart, {
                 lastDeltaMs: diff,
+                lastDriftMs: driftMs,
+                driftEmaMs,
                 lastOfflineTicks: result.ticks,
                 lastOfflineDurationMs: diff
             });
         } else {
             const deltaMs = Math.min(diff, threshold, GameRuntime.MAX_CATCH_UP_MS);
             this.store.dispatch({ type: "tick", deltaMs, timestamp: now });
+            const prevEma = state.perf.driftEmaMs;
+            const driftMs = diff > 0 ? diff - state.loop.loopInterval : 0;
+            const driftEmaMs = prevEma === 0
+                ? driftMs
+                : prevEma + (driftMs - prevEma) * GameRuntime.DRIFT_EMA_ALPHA;
             this.updatePerf(perfStart, {
-                lastDeltaMs: deltaMs,
+                lastDeltaMs: diff,
+                lastDriftMs: driftMs,
+                driftEmaMs,
                 lastOfflineTicks: 0,
                 lastOfflineDurationMs: 0
             });
@@ -254,8 +283,15 @@ export class GameRuntime {
                     }
                 }
                 this.store.dispatch({ type: "setHiddenAt", hiddenAt: null });
+                const prevEma = this.store.getState().perf.driftEmaMs;
+                const driftMs = 0;
+                const driftEmaMs = prevEma === 0
+                    ? driftMs
+                    : prevEma + (driftMs - prevEma) * GameRuntime.DRIFT_EMA_ALPHA;
                 this.updatePerf(perfStart, {
                     lastDeltaMs: durationMs,
+                    lastDriftMs: driftMs,
+                    driftEmaMs,
                     lastOfflineTicks: result.ticks,
                     lastOfflineDurationMs: durationMs
                 });
@@ -407,6 +443,14 @@ export class GameRuntime {
 
         this.updatePerf(perfStart, {
             lastDeltaMs: diff,
+            lastDriftMs: 0,
+            driftEmaMs: (() => {
+                const prevEma = this.store.getState().perf.driftEmaMs;
+                const driftMs = 0;
+                return prevEma === 0
+                    ? driftMs
+                    : prevEma + (driftMs - prevEma) * GameRuntime.DRIFT_EMA_ALPHA;
+            })(),
             lastOfflineTicks: result.ticks,
             lastOfflineDurationMs: diff
         });
