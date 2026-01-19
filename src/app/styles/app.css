@@ -1529,7 +1529,8 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    padding-right: var(--m2);
+    margin: 0 calc(var(--m2) * -1);
+    padding: 0 var(--m2);
 }
 
 .ts-offline-players {
