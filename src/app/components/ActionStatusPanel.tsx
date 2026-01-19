@@ -18,9 +18,6 @@ type ActionStatusPanelProps = {
     staminaStyle: CSSProperties;
     skillStyle: CSSProperties;
     recipeStyle: CSSProperties;
-    staminaPercent: number;
-    skillPercent: number;
-    recipePercent: number;
     staminaCurrent: number;
     staminaMax: number;
     activeSkillLevel: number;
@@ -53,9 +50,6 @@ export const ActionStatusPanel = memo(({
     staminaStyle,
     skillStyle,
     recipeStyle,
-    staminaPercent,
-    skillPercent,
-    recipePercent,
     staminaCurrent,
     staminaMax,
     activeSkillLevel,

@@ -54,9 +54,6 @@ export const ActionPanelContainer = ({
         activeRewardsWithGold,
         hasActiveRecipeSelection,
         progressPercent,
-        staminaPercent,
-        skillPercent,
-        recipePercent,
         progressStyle,
         staminaStyle,
         skillStyle,
@@ -147,9 +144,6 @@ export const ActionPanelContainer = ({
             staminaStyle={staminaStyle}
             skillStyle={skillStyle}
             recipeStyle={recipeStyle}
-            staminaPercent={staminaPercent}
-            skillPercent={skillPercent}
-            recipePercent={recipePercent}
             staminaCurrent={activePlayer?.stamina ?? 0}
             staminaMax={activePlayer?.staminaMax ?? 0}
             activeSkillLevel={activeSkill?.level ?? 0}
