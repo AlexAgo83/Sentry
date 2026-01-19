@@ -32,6 +32,7 @@ export type GameAction =
     | { type: "renamePlayer"; playerId: PlayerId; name: string }
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
     | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null }
+    | { type: "sellItem"; itemId: ItemId; count: number }
     | { type: "equipItem"; playerId: PlayerId; itemId: ItemId }
     | { type: "unequipItem"; playerId: PlayerId; slot: EquipmentSlotId };
 
@@ -149,6 +150,26 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         },
                         actionProgress: createActionProgress()
                     }
+                }
+            };
+        }
+        case "sellItem": {
+            if (action.itemId === "gold") {
+                return state;
+            }
+            const available = state.inventory.items[action.itemId] ?? 0;
+            const sellCount = Math.min(available, Math.max(0, Math.floor(action.count)));
+            if (sellCount <= 0) {
+                return state;
+            }
+            const nextItems = { ...state.inventory.items };
+            nextItems[action.itemId] = Math.max(0, available - sellCount);
+            nextItems.gold = (nextItems.gold ?? 0) + sellCount;
+            return {
+                ...state,
+                inventory: {
+                    ...state.inventory,
+                    items: nextItems
                 }
             };
         }

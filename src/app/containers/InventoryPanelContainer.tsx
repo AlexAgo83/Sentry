@@ -7,10 +7,12 @@ import { useInventoryView } from "../hooks/useInventoryView";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { usePersistedInventoryFilters } from "../hooks/usePersistedInventoryFilters";
 import { InventoryPanel, type InventorySort } from "../components/InventoryPanel";
+import { gameStore } from "../game";
 
 export const InventoryPanelContainer = () => {
     const inventoryItems = useGameStore((state) => state.inventory.items);
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
+    const [sellQuantity, setSellQuantity] = useState(1);
     const [isInventoryCollapsed, setInventoryCollapsed] = usePersistedCollapse("inventory", false);
     const [inventoryFilters, setInventoryFilters] = usePersistedInventoryFilters({
         sort: "Name",
@@ -57,6 +59,17 @@ export const InventoryPanelContainer = () => {
         selectedItemId: selectedInventoryItemId
     });
 
+    useEffect(() => {
+        setSellQuantity(1);
+    }, [selectedInventoryItemId]);
+
+    useEffect(() => {
+        if (!inventoryView.selectedItem) {
+            return;
+        }
+        setSellQuantity((current) => Math.min(Math.max(1, current), inventoryView.selectedItem?.count ?? 1));
+    }, [inventoryView.selectedItem?.count, inventoryView.selectedItem?.id]);
+
     const selectionHint = inventoryView.selectedItem
         ? inventoryView.selectedItemIndex < 0
             ? inventoryView.normalizedSearch.length > 0
@@ -78,6 +91,30 @@ export const InventoryPanelContainer = () => {
         }
     }, [handleSetInventoryPage, inventoryFilters.page, inventoryView.safePage]);
 
+    const canSellSelected = Boolean(
+        inventoryView.selectedItem
+        && inventoryView.selectedItem.id !== "gold"
+        && inventoryView.selectedItem.count > 0
+    );
+
+    const handleSellSelected = useCallback(() => {
+        const selected = inventoryView.selectedItem;
+        if (!selected || selected.id === "gold") {
+            return;
+        }
+        const available = selected.count;
+        const amount = Math.min(Math.max(1, Math.floor(sellQuantity)), available);
+        if (amount <= 0) {
+            return;
+        }
+
+        gameStore.dispatch({ type: "sellItem", itemId: selected.id, count: amount });
+
+        if (amount >= available) {
+            setSelectedInventoryItemId(null);
+        }
+    }, [inventoryView.selectedItem, sellQuantity]);
+
     return (
         <InventoryPanel
             isCollapsed={isInventoryCollapsed}
@@ -88,6 +125,10 @@ export const InventoryPanelContainer = () => {
             selectedItemId={selectedInventoryItemId}
             onSelectItem={handleToggleInventoryItem}
             onClearSelection={handleClearInventorySelection}
+            sellQuantity={sellQuantity}
+            onSellQuantityChange={setSellQuantity}
+            onSellSelected={handleSellSelected}
+            canSellSelected={canSellSelected}
             sort={inventoryFilters.sort}
             onSortChange={handleSetInventorySort}
             search={inventoryFilters.search}
@@ -101,4 +142,3 @@ export const InventoryPanelContainer = () => {
         />
     );
 };
-

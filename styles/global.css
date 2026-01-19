@@ -23,11 +23,13 @@ body {
 
 :root {
     --app-topbar-offset: var(--m22);
+    --app-shell-pad-x: 15px;
+    --app-shell-pad-y: var(--m5);
 }
 
 .app-shell {
     min-height: 100vh;
-    padding: var(--m14);
+    padding: var(--app-shell-pad-y) var(--app-shell-pad-x);
     padding-top: calc(var(--m14) + var(--app-topbar-offset) + env(safe-area-inset-top));
     position: relative;
     overflow: hidden;
@@ -169,7 +171,7 @@ body {
     }
 
     .app-shell {
-        padding: var(--m10);
+        padding: var(--app-shell-pad-y) var(--app-shell-pad-x);
         padding-top: calc(var(--m10) + var(--app-topbar-offset) + env(safe-area-inset-top));
     }
 
@@ -254,16 +256,6 @@ body {
 }
 
 @media (max-width: 900px) {
-    .app-shell {
-        padding: var(--m10);
-        padding-top: calc(var(--m10) + var(--app-topbar-offset) + env(safe-area-inset-top));
-    }
-
-    .app-title {
-        font-size: calc((var(--text-xl-size) + var(--m4)) * 0.67);
-        letter-spacing: 0.04em;
-    }
-
     .app-layout {
         grid-template-columns: 1fr;
     }

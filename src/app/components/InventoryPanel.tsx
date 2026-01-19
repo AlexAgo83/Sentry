@@ -25,6 +25,10 @@ type InventoryPanelProps = {
     selectedItemId: string | null;
     onSelectItem: (itemId: string) => void;
     onClearSelection: () => void;
+    sellQuantity: number;
+    onSellQuantityChange: (value: number) => void;
+    onSellSelected: () => void;
+    canSellSelected: boolean;
     sort: InventorySort;
     onSortChange: (sort: InventorySort) => void;
     search: string;
@@ -68,6 +72,10 @@ export const InventoryPanel = memo(({
     selectedItemId,
     onSelectItem,
     onClearSelection,
+    sellQuantity,
+    onSellQuantityChange,
+    onSellSelected,
+    canSellSelected,
     sort,
     onSortChange,
     search,
@@ -84,6 +92,8 @@ export const InventoryPanel = memo(({
             ? `${equipmentDef.slot} (${equipmentDef.weaponType})`
             : equipmentDef.slot
         : "None";
+
+    const maxSellQuantity = Math.max(1, selectedItem?.count ?? 1);
     return (
         <section className="generic-panel ts-panel ts-inventory-panel">
             <div className="ts-panel-header">
@@ -155,13 +165,23 @@ export const InventoryPanel = memo(({
                                 {selectedItem ? selectedItem.name : "No item selected"}
                             </h3>
                             {selectedItem ? (
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-inventory-clear ts-focusable"
-                                    onClick={onClearSelection}
-                                >
-                                    Clear
-                                </button>
+                                <div className="ts-inventory-focus-actions">
+                                    <button
+                                        type="button"
+                                        className="generic-field button ts-inventory-sell ts-focusable"
+                                        onClick={onSellSelected}
+                                        disabled={!canSellSelected}
+                                    >
+                                        Sell
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="generic-field button ts-inventory-clear ts-focusable"
+                                        onClick={onClearSelection}
+                                    >
+                                        Clear
+                                    </button>
+                                </div>
                             ) : null}
                         </div>
                         <div className="ts-inventory-focus-count">
@@ -197,6 +217,27 @@ export const InventoryPanel = memo(({
                                 ? selectedItem.description
                                 : "Select an item to view details."}
                         </p>
+                        {selectedItem ? (
+                            <div className="ts-inventory-sell-controls">
+                                <div className="ts-inventory-sell-row">
+                                    <span className="ts-inventory-sell-label">Quantity</span>
+                                    <input
+                                        className="ts-inventory-sell-slider"
+                                        type="range"
+                                        min={1}
+                                        max={maxSellQuantity}
+                                        step={1}
+                                        value={Math.min(Math.max(1, sellQuantity), maxSellQuantity)}
+                                        onChange={(event) => onSellQuantityChange(Number(event.currentTarget.value))}
+                                        disabled={!canSellSelected}
+                                        aria-label="Sell quantity"
+                                    />
+                                    <span className="ts-inventory-sell-value">
+                                        {Math.min(Math.max(1, sellQuantity), maxSellQuantity)} / {maxSellQuantity}
+                                    </span>
+                                </div>
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             ) : null}

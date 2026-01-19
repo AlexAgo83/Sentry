@@ -444,7 +444,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(160px, 220px);
     gap: var(--m4);
-    padding: 0 var(--m2);
+    padding: 0;
 }
 
 .ts-stats-column {
@@ -1069,6 +1069,12 @@
     gap: var(--m3);
 }
 
+.ts-inventory-focus-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m2);
+}
+
 .ts-inventory-focus-title {
     margin: 0;
     font-size: var(--text-l-size);
@@ -1106,6 +1112,36 @@
     margin: 0;
     font-size: var(--text-s-size);
     color: var(--color-text-fade);
+}
+
+.ts-inventory-sell-controls {
+    margin-top: var(--m2);
+}
+
+.ts-inventory-sell-row {
+    display: flex;
+    align-items: center;
+    gap: var(--m2);
+}
+
+.ts-inventory-sell-label {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-fade);
+}
+
+.ts-inventory-sell-slider {
+    flex: 1 1 auto;
+    min-width: 90px;
+}
+
+.ts-inventory-sell-value {
+    font-size: var(--text-xs-size);
+    color: var(--color-text);
+    min-width: 68px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 .ts-inventory-pagination {
@@ -1297,6 +1333,27 @@
 .generic-field.button.ts-inventory-clear:hover {
     border-color: rgba(242, 193, 78, 0.6);
     color: var(--color-primary);
+}
+
+.generic-field.button.ts-inventory-sell {
+    width: auto;
+    padding: var(--m2) var(--m5);
+    border: 1px solid rgba(242, 193, 78, 0.4);
+    background: rgba(22, 30, 50, 0.9);
+    color: var(--color-text);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.generic-field.button.ts-inventory-sell:hover:not(:disabled) {
+    border-color: rgba(93, 217, 193, 0.7);
+    color: var(--color-secondary);
+}
+
+.generic-field.button.ts-inventory-sell:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 @media (max-width: 900px) {
