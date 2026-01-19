@@ -29,4 +29,4 @@ Use these commands to validate changes (start with the most relevant ones):
 * `npm run coverage`: Run Vitest with V8 coverage enabled and print the report.
 * `npm run coverage:ci`: Run CI-mode Vitest with coverage enabled using `vitest.ci.mjs`.
 * `npm run build`: Build the production bundle with Vite.
-* `npx tsc -p tsconfig.json --noEmit`: Type-check the project without emitting files.
+* `npm run typecheck`: Type-check the project without emitting files.
