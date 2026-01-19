@@ -8,6 +8,7 @@ describe("SafeModeModal", () => {
         const onResetSave = vi.fn();
         const onCopyCurrentRawSave = vi.fn();
         const onCopyLastGoodRawSave = vi.fn();
+        const isDev = Boolean(import.meta.env?.DEV);
 
         render(
             <SafeModeModal
@@ -21,14 +22,22 @@ describe("SafeModeModal", () => {
             />
         );
 
-        const copyCurrent = screen.getByText("Copy current save (raw)") as HTMLButtonElement;
-        const copyLastGood = screen.getByText("Copy last good (raw)") as HTMLButtonElement;
+        const copyCurrent = screen.queryByText("Copy current save (raw)") as HTMLButtonElement | null;
+        const copyLastGood = screen.queryByText("Copy last good (raw)") as HTMLButtonElement | null;
 
-        expect(copyCurrent.disabled).toBe(true);
-        expect(copyLastGood.disabled).toBe(true);
+        if (!isDev) {
+            expect(copyCurrent).toBeNull();
+            expect(copyLastGood).toBeNull();
+            return;
+        }
 
-        fireEvent.click(copyCurrent);
-        fireEvent.click(copyLastGood);
+        expect(copyCurrent).toBeTruthy();
+        expect(copyLastGood).toBeTruthy();
+        expect(copyCurrent!.disabled).toBe(true);
+        expect(copyLastGood!.disabled).toBe(true);
+
+        fireEvent.click(copyCurrent!);
+        fireEvent.click(copyLastGood!);
         expect(onCopyCurrentRawSave).not.toHaveBeenCalled();
         expect(onCopyLastGoodRawSave).not.toHaveBeenCalled();
     });
@@ -38,6 +47,7 @@ describe("SafeModeModal", () => {
         const onResetSave = vi.fn();
         const onCopyCurrentRawSave = vi.fn();
         const onCopyLastGoodRawSave = vi.fn();
+        const isDev = Boolean(import.meta.env?.DEV);
 
         render(
             <SafeModeModal
@@ -51,6 +61,12 @@ describe("SafeModeModal", () => {
             />
         );
 
+        if (!isDev) {
+            expect(screen.queryByText("Copy current save (raw)")).toBeNull();
+            expect(screen.queryByText("Copy last good (raw)")).toBeNull();
+            return;
+        }
+
         fireEvent.click(screen.getByText("Copy current save (raw)"));
         fireEvent.click(screen.getByText("Copy last good (raw)"));
 
@@ -58,4 +74,3 @@ describe("SafeModeModal", () => {
         expect(onCopyLastGoodRawSave).toHaveBeenCalledTimes(1);
     });
 });
-

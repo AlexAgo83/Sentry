@@ -25,9 +25,11 @@ const titleFor = (status: PersistenceLoadReport["status"]) => {
     return "Save status";
 };
 
-const messageFor = (status: PersistenceLoadReport["status"]) => {
+const messageFor = (status: PersistenceLoadReport["status"], allowRawExport: boolean) => {
     if (status === "corrupt") {
-        return "The app could not load your save. Export the raw data if you want to investigate, or reset to continue.";
+        return allowRawExport
+            ? "The app could not load your save. Export the raw data if you want to investigate, or reset to continue."
+            : "The app could not load your save. Reset to continue.";
     }
     if (status === "recovered_last_good") {
         return "A newer save could not be loaded. The app recovered a previous save snapshot.";
@@ -46,12 +48,15 @@ export const SafeModeModal = memo(({
     onCopyLastGoodRawSave,
     onResetSave,
     onClose
-}: SafeModeModalProps) => (
+}: SafeModeModalProps) => {
+    const allowRawExport = Boolean(import.meta.env.DEV);
+
+    return (
     <ModalShell kicker="Save" title={titleFor(report.status)} onClose={onClose}>
         <ul className="ts-list">
             <li>Status: {report.status}</li>
             <li>Recovered from last good: {report.recoveredFromLastGood ? "yes" : "no"}</li>
-            <li>{messageFor(report.status)}</li>
+            <li>{messageFor(report.status, allowRawExport)}</li>
         </ul>
         <div className="ts-action-row">
             <button
@@ -61,22 +66,26 @@ export const SafeModeModal = memo(({
             >
                 OK
             </button>
-            <button
-                type="button"
-                className="generic-field button ts-focusable"
-                onClick={onCopyCurrentRawSave}
-                disabled={!canCopyCurrentRawSave}
-            >
-                Copy current save (raw)
-            </button>
-            <button
-                type="button"
-                className="generic-field button ts-focusable"
-                onClick={onCopyLastGoodRawSave}
-                disabled={!canCopyLastGoodRawSave}
-            >
-                Copy last good (raw)
-            </button>
+            {allowRawExport ? (
+                <>
+                    <button
+                        type="button"
+                        className="generic-field button ts-focusable"
+                        onClick={onCopyCurrentRawSave}
+                        disabled={!canCopyCurrentRawSave}
+                    >
+                        Copy current save (raw)
+                    </button>
+                    <button
+                        type="button"
+                        className="generic-field button ts-focusable"
+                        onClick={onCopyLastGoodRawSave}
+                        disabled={!canCopyLastGoodRawSave}
+                    >
+                        Copy last good (raw)
+                    </button>
+                </>
+            ) : null}
             {report.status !== "ok" ? (
                 <button
                     type="button"
@@ -88,6 +97,7 @@ export const SafeModeModal = memo(({
             ) : null}
         </div>
     </ModalShell>
-));
+    );
+});
 
 SafeModeModal.displayName = "SafeModeModal";
