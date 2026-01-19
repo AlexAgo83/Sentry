@@ -1,8 +1,8 @@
 ## task_016_app_perf_save_observability - App architecture/perf refactor + save hardening + observability
 > From version: 0.8.0  
-> Understanding: 92%  
-> Confidence: 90%  
-> Progress: 95%
+> Understanding: 95%  
+> Confidence: 95%  
+> Progress: 100%
 
 # Context
 The app is growing and `src/app/App.tsx` is still a large integration point with lots of derived state and handlers. This increases re-render churn and makes future features harder to implement safely. Persistence also needs to become more resilient (migrations, corruption handling). Finally, we need basic client-side observability to diagnose crashes in production.
