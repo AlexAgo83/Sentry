@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeEffectiveStats, createPlayerStatsState, pruneExpiredModifiers, resolveEffectiveStats } from "../../src/core/stats";
+import { STAT_MAX_VALUE } from "../../src/core/constants";
 import type { PlayerStatsState, StatModifier } from "../../src/core/types";
 
 describe("stats helpers", () => {
@@ -47,5 +48,32 @@ describe("stats helpers", () => {
         const now = 0;
         const stats = resolveEffectiveStats(null as unknown as PlayerStatsState, now);
         expect(stats.effective.Endurance).toBe(5);
+    });
+
+    it("ignores non-finite modifier values instead of poisoning the stat", () => {
+        const stats = createPlayerStatsState();
+        const result = computeEffectiveStats({
+            ...stats,
+            permanentMods: [
+                { id: "bad", stat: "Strength", kind: "flat", value: Number.NaN, source: "test" },
+                { id: "good", stat: "Strength", kind: "flat", value: 2, source: "test" }
+            ]
+        });
+        expect(result.Strength).toBe(7);
+    });
+
+    it("falls back to default base stat when base value is non-finite", () => {
+        const stats = createPlayerStatsState();
+        stats.base.Strength = Number.NaN;
+        const result = computeEffectiveStats(stats);
+        expect(result.Strength).toBe(5);
+    });
+
+    it("clamps effective stats to the configured maximum", () => {
+        const stats = createPlayerStatsState();
+        const huge: StatModifier = { id: "huge", stat: "Strength", kind: "flat", value: 1e9, source: "test" };
+        const result = computeEffectiveStats({ ...stats, permanentMods: [huge] });
+        expect(result.Strength).toBeGreaterThan(0);
+        expect(result.Strength).toBeLessThanOrEqual(STAT_MAX_VALUE);
     });
 });

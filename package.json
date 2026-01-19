@@ -11,6 +11,7 @@
     "test:ci": "vitest --config vitest.ci.mjs run",
     "coverage": "vitest --coverage",
     "coverage:ci": "vitest --config vitest.ci.mjs --coverage",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\""
   },
   "repository": {

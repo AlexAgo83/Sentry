@@ -20,6 +20,8 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
       - name: Tests (CI config)
         run: npm run test:ci
       - name: Coverage (CI config)

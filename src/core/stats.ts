@@ -63,9 +63,12 @@ const sumModifiers = (mods: StatModifier[]) => {
         if (!STAT_IDS.includes(mod.stat)) {
             return;
         }
+        if (!Number.isFinite(mod.value)) {
+            return;
+        }
         if (mod.kind === "mult") {
             multTotals[mod.stat] += mod.value;
-        } else {
+        } else if (mod.kind === "flat") {
             flatTotals[mod.stat] += mod.value;
         }
     });
@@ -102,7 +105,8 @@ export const computeEffectiveStats = (
         ...extraModifiers
     ]);
     return STAT_IDS.reduce<Record<StatId, number>>((acc, statId) => {
-        const baseValue = stats.base[statId] ?? DEFAULT_STAT_BASE;
+        const rawBaseValue = stats.base[statId];
+        const baseValue = Number.isFinite(rawBaseValue) ? rawBaseValue : DEFAULT_STAT_BASE;
         const flatValue = flatTotals[statId] ?? 0;
         const multValue = multTotals[statId] ?? 0;
         acc[statId] = clampStatValue((baseValue + flatValue) * (1 + multValue));
