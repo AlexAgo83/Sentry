@@ -12,6 +12,7 @@ import { InventoryPanel } from "./components/InventoryPanel";
 import { RosterPanel } from "./components/RosterPanel";
 import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
 import { getSkillIconColor } from "./ui/skillColors";
+import { useRenderCount } from "./dev/renderDebug";
 
 export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment";
 
@@ -100,6 +101,7 @@ export interface AppViewProps {
 }
 
 export const AppView = (props: AppViewProps) => {
+    useRenderCount("AppView");
     const {
         version,
         players,

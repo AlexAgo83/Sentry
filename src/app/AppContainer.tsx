@@ -38,6 +38,7 @@ import { selectActivePlayerFromPlayers, selectPlayersSortedFromPlayers } from ".
 import { toGameSave } from "../core/serialization";
 import { createSaveEnvelopeV2, parseSaveEnvelopeOrLegacy } from "../adapters/persistence/saveEnvelope";
 import { readRawLastGoodSave, readRawSave } from "../adapters/persistence/localStorageKeys";
+import { useRenderCount } from "./dev/renderDebug";
 
 const INTELLECT_SKILLS = new Set<SkillId>([
     "Cooking",
@@ -58,6 +59,7 @@ const copyTextToClipboard = (raw: string, promptLabel: string) => {
 };
 
 export const AppContainer = () => {
+    useRenderCount("AppContainer");
     const { loadReport, isSafeModeOpen, refreshLoadReport, closeSafeMode } = useSafeModeState();
     useEffect(() => {
         gameRuntime.start();

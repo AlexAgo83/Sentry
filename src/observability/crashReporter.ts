@@ -11,6 +11,9 @@ export type CrashReport = {
 const STORAGE_KEY = "sentry.crashReports";
 const MAX_REPORTS = 10;
 const UPDATED_EVENT = "sentry:crashReportsUpdated";
+let globalHandlersInstalled = false;
+let currentAppVersion: string | undefined;
+let globalUninstall: (() => void) | null = null;
 
 const safeJsonParse = (raw: string): unknown => {
     try {
@@ -113,13 +116,19 @@ export const installGlobalCrashHandlers = (options: { appVersion?: string } = {}
         return () => undefined;
     }
 
+    currentAppVersion = options.appVersion;
+
+    if (globalHandlersInstalled) {
+        return globalUninstall ?? (() => undefined);
+    }
+
     const onError = (event: ErrorEvent) => {
         recordCrashReport({
             kind: "error",
             message: event.message || "Unhandled error",
             stack: event.error ? getErrorStack(event.error) : undefined,
             url: event.filename,
-            appVersion: options.appVersion
+            appVersion: currentAppVersion
         });
     };
 
@@ -128,15 +137,20 @@ export const installGlobalCrashHandlers = (options: { appVersion?: string } = {}
             kind: "unhandledrejection",
             message: getErrorMessage(event.reason),
             stack: getErrorStack(event.reason),
-            appVersion: options.appVersion
+            appVersion: currentAppVersion
         });
     };
 
     window.addEventListener("error", onError);
     window.addEventListener("unhandledrejection", onUnhandledRejection);
 
-    return () => {
+    globalHandlersInstalled = true;
+    globalUninstall = () => {
         window.removeEventListener("error", onError);
         window.removeEventListener("unhandledrejection", onUnhandledRejection);
+        globalHandlersInstalled = false;
+        globalUninstall = null;
     };
+
+    return globalUninstall;
 };
