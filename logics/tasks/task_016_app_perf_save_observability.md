@@ -74,6 +74,7 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
 - Dev-only baseline helper is available via `src/app/dev/renderDebug.tsx`:
   - set `localStorage["sentry.debug.renderCounts"] = "1"` and watch console `debug` logs for current counts.
   - set `localStorage["sentry.debug.profiler"] = "1"` and watch console `debug` logs for commits over ~4ms (threshold configurable).
+  - (optional) open System → Dev tools to toggle/print/reset without typing localStorage manually.
 - Save hardening is in place via a v2 envelope + checksum + last-known-good recovery; System UI now exposes export/import; “safe mode” modal appears when load is migrated/recovered/corrupt.
 - Payload-level schema versioning is introduced (`GameSave.schemaVersion`) and saves are migrated/validated on load via `src/adapters/persistence/saveMigrations.ts` before hydration.
 - Safe mode now includes quick actions to export raw current/last-good saves (for debugging) and reset.

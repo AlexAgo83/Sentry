@@ -1,15 +1,15 @@
 import { Profiler, useEffect, useRef } from "react";
 import type { ProfilerOnRenderCallback, ReactNode } from "react";
 
-const RENDER_COUNTS_ENABLE_KEY = "sentry.debug.renderCounts";
-const PROFILER_ENABLE_KEY = "sentry.debug.profiler";
+export const RENDER_COUNTS_ENABLE_KEY = "sentry.debug.renderCounts";
+export const PROFILER_ENABLE_KEY = "sentry.debug.profiler";
 const GLOBAL_KEY = "__SENTRY_RENDER_COUNTS__";
 
 type RenderCounts = Record<string, number>;
 
 const isDev = Boolean(import.meta.env?.DEV);
 
-const isEnabled = (key: string) => {
+export const isDebugEnabled = (key: string) => {
     if (typeof window === "undefined") {
         return false;
     }
@@ -17,6 +17,21 @@ const isEnabled = (key: string) => {
         return window.localStorage.getItem(key) === "1";
     } catch {
         return false;
+    }
+};
+
+export const setDebugEnabled = (key: string, enabled: boolean) => {
+    if (typeof window === "undefined") {
+        return;
+    }
+    try {
+        if (enabled) {
+            window.localStorage.setItem(key, "1");
+        } else {
+            window.localStorage.removeItem(key);
+        }
+    } catch {
+        // ignore
     }
 };
 
@@ -33,17 +48,31 @@ const getCounts = (): RenderCounts => {
     return created;
 };
 
+export const getRenderCountsSnapshot = (): RenderCounts => {
+    if (typeof window === "undefined") {
+        return {};
+    }
+    return { ...getCounts() };
+};
+
+export const resetRenderCounts = () => {
+    if (typeof window === "undefined") {
+        return;
+    }
+    (window as unknown as Record<string, unknown>)[GLOBAL_KEY] = {};
+};
+
 export const useRenderCount = (label: string) => {
     const hasMounted = useRef(false);
     const lastLoggedAt = useRef<number>(0);
 
-    if (isDev && isEnabled(RENDER_COUNTS_ENABLE_KEY)) {
+    if (isDev && isDebugEnabled(RENDER_COUNTS_ENABLE_KEY)) {
         const counts = getCounts();
         counts[label] = (counts[label] ?? 0) + 1;
     }
 
     useEffect(() => {
-        if (!isDev || !isEnabled(RENDER_COUNTS_ENABLE_KEY)) {
+        if (!isDev || !isDebugEnabled(RENDER_COUNTS_ENABLE_KEY)) {
             return;
         }
         if (!hasMounted.current) {
@@ -71,7 +100,7 @@ const shouldLogProfile = (actualDuration: number, thresholdMs: number) => {
 };
 
 export const DevProfiler = ({ id, children, thresholdMs = 4 }: DevProfilerProps) => {
-    if (!isDev || !isEnabled(PROFILER_ENABLE_KEY)) {
+    if (!isDev || !isDebugEnabled(PROFILER_ENABLE_KEY)) {
         return <>{children}</>;
     }
 
