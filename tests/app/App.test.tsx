@@ -110,11 +110,21 @@ describe("App", () => {
         const skillSelect = screen.getByLabelText("Select skill");
         await user.selectOptions(skillSelect, ["Combat"]);
 
+        const recipeSelect = screen.getByLabelText("Select recipe") as HTMLSelectElement;
+        expect(recipeSelect.value).toBe("combat_skirmish");
+
+        await user.selectOptions(recipeSelect, ["combat_frontline"]);
+        expect(recipeSelect.value).toBe("combat_frontline");
+
+        testStore.dispatch({ type: "tick", deltaMs: 0, timestamp: Date.now() });
+        expect((screen.getByLabelText("Select skill") as HTMLSelectElement).value).toBe("Combat");
+        expect((screen.getByLabelText("Select recipe") as HTMLSelectElement).value).toBe("combat_frontline");
+
         const summary = screen.getByText("Action selection").closest(".ts-action-summary");
         expect(summary).toBeTruthy();
         if (summary) {
             expect(within(summary).getByText("Combat")).toBeTruthy();
-            expect(within(summary).getByText("Border Skirmish")).toBeTruthy();
+            expect(within(summary).getByText("Frontline Clash")).toBeTruthy();
             expect(within(summary).getByText("1 Food")).toBeTruthy();
             expect(within(summary).getByText("1 Gold, 1 Bones")).toBeTruthy();
         }

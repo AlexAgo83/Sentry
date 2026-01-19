@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getActionDefinition, getRecipeDefinition, getRecipesForSkill, isRecipeUnlocked, ITEM_DEFINITIONS, SKILL_DEFINITIONS } from "../../data/definitions";
 import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../core/constants";
 import type { ActionDefinition, SkillId, SkillState } from "../../core/types";
@@ -93,17 +93,30 @@ export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: Loadou
         return `Skill +${formatXpGain(skillXp)} / Recipe +${formatXpGain(recipeXp)}`;
     }, [effectiveStats.Intellect, formatXpGain]);
 
+    const hasInitialized = useRef(false);
+
     useEffect(() => {
         if (!isOpen) {
+            hasInitialized.current = false;
             return;
         }
-        if (!activePlayer) {
+
+        if (hasInitialized.current) {
+            return;
+        }
+        hasInitialized.current = true;
+
+        const state = gameStore.getState();
+        const playerId = state.activePlayerId;
+        const player = playerId ? state.players[playerId] : null;
+        if (!player) {
             setPendingSkillId("");
             setPendingRecipeId("");
             return;
         }
-        const skillId = activePlayer.selectedActionId ?? "";
-        const skill = skillId ? activePlayer.skills[skillId] : null;
+
+        const skillId = player.selectedActionId ?? "";
+        const skill = skillId ? player.skills[skillId] : null;
         const selectedRecipeId = skill?.selectedRecipeId ?? "";
         const selectedRecipeDef = selectedRecipeId && skillId
             ? getRecipeDefinition(skillId as SkillId, selectedRecipeId)
@@ -116,7 +129,7 @@ export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: Loadou
             : "";
         setPendingSkillId(skillId as SkillId | "");
         setPendingRecipeId(recipeId);
-    }, [activePlayer, isOpen]);
+    }, [isOpen]);
 
     const handleSkillChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         if (!activePlayer) {
