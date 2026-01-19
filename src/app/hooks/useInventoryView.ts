@@ -12,7 +12,7 @@ type InventoryUsage = {
     obtainedBy: string[];
 };
 
-type InventoryViewOptions = {
+export type InventoryViewOptions = {
     items: Record<string, number>;
     definitions: Array<{ id: string; name: string }>;
     getInventoryMeta: (itemId: string) => InventoryMeta;
@@ -24,7 +24,7 @@ type InventoryViewOptions = {
     pageSize?: number;
 };
 
-type InventoryViewState = {
+export type InventoryViewState = {
     entries: InventoryEntry[];
     visibleEntries: InventoryEntry[];
     filteredEntries: InventoryEntry[];

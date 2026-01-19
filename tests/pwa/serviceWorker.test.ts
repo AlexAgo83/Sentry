@@ -42,7 +42,7 @@ describe("pwa service worker helpers", () => {
         const { SW_UPDATE_AVAILABLE_EVENT, registerServiceWorker } = await import("../../src/pwa/serviceWorker");
 
         const onUpdate = vi.fn();
-        window.addEventListener(SW_UPDATE_AVAILABLE_EVENT, onUpdate as unknown as EventListener);
+        window.addEventListener(SW_UPDATE_AVAILABLE_EVENT, onUpdate as unknown as (event: Event) => void);
 
         await registerServiceWorker("1.2.3");
 
@@ -105,7 +105,7 @@ describe("pwa service worker helpers", () => {
         const { SW_UPDATE_AVAILABLE_EVENT, registerServiceWorker } = await import("../../src/pwa/serviceWorker");
 
         const onUpdate = vi.fn();
-        window.addEventListener(SW_UPDATE_AVAILABLE_EVENT, onUpdate as unknown as EventListener);
+        window.addEventListener(SW_UPDATE_AVAILABLE_EVENT, onUpdate as unknown as (event: Event) => void);
 
         await registerServiceWorker("1.2.3");
 

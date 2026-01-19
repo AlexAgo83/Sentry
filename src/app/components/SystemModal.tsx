@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { ModalShell } from "./ModalShell";
+import type { CrashReport } from "../../observability/crashReporter";
 
 type SystemModalProps = {
     version: string;
@@ -13,6 +14,10 @@ type SystemModalProps = {
     loopInterval: number;
     offlineInterval: number;
     activeActionLabel: string;
+    crashReports: CrashReport[];
+    onClearCrashReports: () => void;
+    onExportSave: () => void;
+    onImportSave: () => void;
     onSimulateOffline: () => void;
     onResetSave: () => void;
     onClose: () => void;
@@ -30,6 +35,10 @@ export const SystemModal = memo(({
     loopInterval,
     offlineInterval,
     activeActionLabel,
+    crashReports,
+    onClearCrashReports,
+    onExportSave,
+    onImportSave,
     onSimulateOffline,
     onResetSave,
     onClose
@@ -45,7 +54,28 @@ export const SystemModal = memo(({
             <li>Loop interval: {loopInterval}ms</li>
             <li>Offline interval: {offlineInterval}ms</li>
             <li>Active action: {activeActionLabel}</li>
+            <li>Crash reports: {crashReports.length}</li>
         </ul>
+        {crashReports.length > 0 ? (
+            <div className="ts-panel-body">
+                <ul className="ts-list">
+                    {crashReports.slice(0, 3).map((report) => (
+                        <li key={report.id}>
+                            [{report.kind}] {report.message}
+                        </li>
+                    ))}
+                </ul>
+                <div className="ts-action-row ts-system-actions">
+                    <button
+                        type="button"
+                        className="generic-field button ts-focusable"
+                        onClick={onClearCrashReports}
+                    >
+                        Clear crash reports
+                    </button>
+                </div>
+            </div>
+        ) : null}
         <div className="ts-action-row ts-system-actions">
             <button
                 type="button"
@@ -53,6 +83,22 @@ export const SystemModal = memo(({
                 onClick={onSimulateOffline}
             >
                 Simulate +30 min
+            </button>
+        </div>
+        <div className="ts-action-row ts-system-actions">
+            <button
+                type="button"
+                className="generic-field button ts-focusable"
+                onClick={onExportSave}
+            >
+                Export save
+            </button>
+            <button
+                type="button"
+                className="generic-field button ts-focusable"
+                onClick={onImportSave}
+            >
+                Import save
             </button>
         </div>
         <div className="ts-action-row ts-system-actions">

@@ -87,7 +87,11 @@ describe("createLocalStorageAdapter", () => {
 
         adapter.save(save);
 
-        expect(storage.getItem(storageKey)).toBe(JSON.stringify(save));
+        const stored = storage.getItem(storageKey);
+        expect(stored).toBeTruthy();
+        const parsed = stored ? JSON.parse(stored) as { schemaVersion?: number; payload?: unknown } : null;
+        expect(parsed?.schemaVersion).toBe(2);
+        expect(parsed?.payload).toEqual(save);
     });
 
     it("does nothing when saving without localStorage", () => {

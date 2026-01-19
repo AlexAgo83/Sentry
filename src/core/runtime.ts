@@ -86,6 +86,11 @@ export class GameRuntime {
         this.store.dispatch({ type: "hydrate", save, version: this.version });
     };
 
+    importSave = (save: GameSave) => {
+        this.persist({ force: true, save });
+        this.store.dispatch({ type: "hydrate", save, version: this.version });
+    };
+
     private startLoop = () => {
         if (this.intervalId) {
             window.clearInterval(this.intervalId);
