@@ -362,6 +362,10 @@
     width: 100%;
 }
 
+.ts-devtools-actions {
+    margin-top: var(--m4);
+}
+
 .generic-field.button.ts-devtools-button {
     border: 1px solid rgba(93, 217, 193, 0.28);
     background: rgba(12, 18, 32, 0.78);
