@@ -362,6 +362,36 @@
     width: 100%;
 }
 
+.generic-field.button.ts-devtools-button {
+    border: 1px solid rgba(93, 217, 193, 0.28);
+    background: rgba(12, 18, 32, 0.78);
+    color: var(--color-text);
+    border-radius: 14px;
+    padding: var(--m2) var(--m6);
+    font-weight: 600;
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.14em;
+    box-shadow: none;
+    transform: none;
+}
+
+.generic-field.button.ts-devtools-button:hover:not(:disabled) {
+    border-color: rgba(242, 193, 78, 0.55);
+    background: rgba(21, 28, 46, 0.85);
+    color: var(--color-primary);
+    box-shadow: none;
+    transform: translateY(-1px);
+}
+
+.generic-field.button.ts-devtools-button:disabled,
+.generic-field.button.ts-devtools-button[disabled] {
+    border-color: rgba(93, 217, 193, 0.14);
+    background: rgba(12, 18, 32, 0.5);
+    color: rgba(243, 239, 228, 0.35);
+    transform: none;
+    box-shadow: none;
+}
+
 .generic-field.button.ts-reset {
     border: 1px solid rgba(199, 74, 61, 0.6);
     background: linear-gradient(140deg, rgba(199, 74, 61, 0.9), rgba(118, 23, 31, 0.9));

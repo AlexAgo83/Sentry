@@ -157,14 +157,14 @@ export const SystemModal = memo(({
                     <div className="ts-action-row ts-system-actions ts-action-stack">
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={handleToggleRenderCounts}
                         >
                             Toggle renderCounts
                         </button>
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={handlePrintRenderCounts}
                             disabled={!isRenderCountsEnabled}
                         >
@@ -172,7 +172,7 @@ export const SystemModal = memo(({
                         </button>
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={handleResetRenderCounts}
                             disabled={!isRenderCountsEnabled}
                         >
@@ -182,7 +182,7 @@ export const SystemModal = memo(({
                     <div className="ts-action-row ts-system-actions">
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={handleToggleProfiler}
                         >
                             Toggle profiler
