@@ -99,8 +99,19 @@ export const AppContainer = () => {
         closeSafeMode,
     });
 
+    const isAnyModalOpen = Boolean(
+        isSystemOpen
+        || isDevToolsOpen
+        || isLoadoutOpen
+        || isRecruitOpen
+        || isRenameOpen
+        || offlineSummary
+        || swUpdate
+        || isSafeModeOpen
+    );
+
     return (
-        <div className="app-shell">
+        <div className={`app-shell${isAnyModalOpen ? " is-modal-open" : ""}`}>
             <EnsureSelectedRecipeEffect />
             <InventoryIconSprite />
             <AppViewContainer

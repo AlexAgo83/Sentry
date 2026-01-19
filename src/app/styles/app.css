@@ -781,6 +781,11 @@
     margin-bottom: var(--m3);
 }
 
+.ts-panel-switcher.ts-topbar-switcher,
+.ts-panel-switcher.ts-bottombar-switcher {
+    margin: 0;
+}
+
 .ts-inventory-controls {
     display: flex;
     flex-direction: column;
@@ -825,6 +830,10 @@
 }
 
 .ts-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--m2);
     border: 1px solid rgba(242, 193, 78, 0.2);
     background: radial-gradient(circle at 30% 30%, rgba(93, 217, 193, 0.08), rgba(17, 25, 40, 0.4));
     color: var(--color-text-fade);
@@ -840,6 +849,22 @@
         0 6px 14px -12px rgba(0, 0, 0, 0.6);
     min-width: 88px;
     text-align: center;
+}
+
+.ts-chip-icon {
+    display: none;
+    width: 18px;
+    height: 18px;
+}
+
+.ts-chip-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.ts-chip-text {
+    line-height: 1.1;
 }
 
 .ts-chip + .ts-chip {
@@ -1335,20 +1360,11 @@
 }
 
 @media (max-width: 720px) {
-    .ts-panel-switcher {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 50;
+    .app-bottom-bar .ts-panel-switcher {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: var(--m2);
         margin: 0;
-        padding: var(--m4) var(--m14) calc(var(--m4) + env(safe-area-inset-bottom)) var(--m14);
-        background: rgba(9, 12, 24, 0.72);
-        border-top: 1px solid rgba(242, 193, 78, 0.2);
-        backdrop-filter: blur(10px);
     }
 
     .app-layout {
@@ -1374,14 +1390,20 @@
         gap: var(--m2);
     }
 
-    .ts-chip {
+    .app-bottom-bar .ts-chip {
         min-width: 0;
         width: 100%;
         padding: 10px 8px;
+        flex-direction: column;
+        gap: var(--m1);
     }
 
-    .ts-chip + .ts-chip {
+    .app-bottom-bar .ts-chip + .ts-chip {
         margin-left: 0;
+    }
+
+    .app-bottom-bar .ts-chip-icon {
+        display: inline-flex;
     }
 
     .ts-panel-header {
@@ -1452,6 +1474,21 @@
 
     .ts-collapse-button::after {
         content: none;
+    }
+}
+
+@media (max-width: 980px) and (min-width: 721px) {
+    .ts-panel-switcher.ts-topbar-switcher .ts-chip-icon {
+        display: inline-flex;
+    }
+
+    .ts-panel-switcher.ts-topbar-switcher .ts-chip-text {
+        display: none;
+    }
+
+    .ts-panel-switcher.ts-topbar-switcher .ts-chip {
+        min-width: 44px;
+        padding: 10px 10px;
     }
 }
 
