@@ -71,8 +71,9 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
   - `AppView` is now a layout component and receives panel nodes instead of large derived props.
   - Tick-heavy state is isolated behind dedicated containers under `src/app/containers/` (Action/Stats/Inventory/Equipment/Roster), reducing unnecessary recomputation and invalidations outside the active subtree.
   - `SystemModalContainer` still isolates `loop/perf` subscriptions behind the modal boundary.
-- Dev-only baseline helper is available via `src/app/dev/renderDebug.ts`:
+- Dev-only baseline helper is available via `src/app/dev/renderDebug.tsx`:
   - set `localStorage["sentry.debug.renderCounts"] = "1"` and watch console `debug` logs for current counts.
+  - set `localStorage["sentry.debug.profiler"] = "1"` and watch console `debug` logs for commits over ~4ms (threshold configurable).
 - Save hardening is in place via a v2 envelope + checksum + last-known-good recovery; System UI now exposes export/import; “safe mode” modal appears when load is migrated/recovered/corrupt.
 - Payload-level schema versioning is introduced (`GameSave.schemaVersion`) and saves are migrated/validated on load via `src/adapters/persistence/saveMigrations.ts` before hydration.
 - Safe mode now includes quick actions to export raw current/last-good saves (for debugging) and reset.

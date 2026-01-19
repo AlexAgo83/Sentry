@@ -24,7 +24,7 @@ import { StatsPanelContainer } from "./containers/StatsPanelContainer";
 import { InventoryPanelContainer } from "./containers/InventoryPanelContainer";
 import { EquipmentPanelContainer } from "./containers/EquipmentPanelContainer";
 import { selectActivePlayer } from "./selectors/gameSelectors";
-import { useRenderCount } from "./dev/renderDebug";
+import { DevProfiler, useRenderCount } from "./dev/renderDebug";
 
 const copyTextToClipboard = (raw: string, promptLabel: string) => {
     if (navigator.clipboard?.writeText) {
@@ -236,36 +236,52 @@ export const AppContainer = () => {
         <div className="app-shell">
             <EnsureSelectedRecipeEffect />
             <InventoryIconSprite />
-            <AppView
-                version={version}
-                onOpenSystem={handleOpenSystem}
-                activeSidePanel={activeSidePanel}
-                onShowAction={showActionPanel}
-                onShowStats={showStatsPanel}
-                onShowInventory={showInventoryPanel}
-                onShowEquipment={showEquipmentPanel}
-                roster={(
-                    <RosterContainer
-                        onAddPlayer={handleAddPlayer}
-                        getSkillLabel={(skillId) => getSkillLabel(skillId)}
-                        getRecipeLabel={(skillId, recipeId) => getRecipeLabel(skillId, recipeId)}
-                    />
-                )}
-                actionPanel={(
-                    <ActionPanelContainer
-                        onChangeAction={handleOpenLoadout}
-                        getSkillLabel={(skillId) => getSkillLabel(skillId)}
-                        getRecipeLabel={(skillId, recipeId) => getRecipeLabel(skillId, recipeId)}
-                    />
-                )}
-                statsPanel={(
-                    <StatsPanelContainer
-                        onRenameHero={handleOpenActiveRename}
-                    />
-                )}
-                inventoryPanel={<InventoryPanelContainer />}
-                equipmentPanel={<EquipmentPanelContainer />}
-            />
+            <DevProfiler id="AppView">
+                <AppView
+                    version={version}
+                    onOpenSystem={handleOpenSystem}
+                    activeSidePanel={activeSidePanel}
+                    onShowAction={showActionPanel}
+                    onShowStats={showStatsPanel}
+                    onShowInventory={showInventoryPanel}
+                    onShowEquipment={showEquipmentPanel}
+                    roster={(
+                        <DevProfiler id="RosterPanel">
+                            <RosterContainer
+                                onAddPlayer={handleAddPlayer}
+                                getSkillLabel={(skillId) => getSkillLabel(skillId)}
+                                getRecipeLabel={(skillId, recipeId) => getRecipeLabel(skillId, recipeId)}
+                            />
+                        </DevProfiler>
+                    )}
+                    actionPanel={(
+                        <DevProfiler id="ActionPanel">
+                            <ActionPanelContainer
+                                onChangeAction={handleOpenLoadout}
+                                getSkillLabel={(skillId) => getSkillLabel(skillId)}
+                                getRecipeLabel={(skillId, recipeId) => getRecipeLabel(skillId, recipeId)}
+                            />
+                        </DevProfiler>
+                    )}
+                    statsPanel={(
+                        <DevProfiler id="StatsPanel">
+                            <StatsPanelContainer
+                                onRenameHero={handleOpenActiveRename}
+                            />
+                        </DevProfiler>
+                    )}
+                    inventoryPanel={(
+                        <DevProfiler id="InventoryPanel">
+                            <InventoryPanelContainer />
+                        </DevProfiler>
+                    )}
+                    equipmentPanel={(
+                        <DevProfiler id="EquipmentPanel">
+                            <EquipmentPanelContainer />
+                        </DevProfiler>
+                    )}
+                />
+            </DevProfiler>
             <LoadoutModalContainer
                 isOpen={isLoadoutOpen}
                 onClose={handleCloseLoadout}
