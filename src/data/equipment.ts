@@ -7,6 +7,15 @@ import type {
 
 export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
     {
+        id: "traveler_cape",
+        name: "Traveler Cape",
+        slot: "Cape",
+        modifiers: [
+            { stat: "Agility", kind: "flat", value: 1 },
+            { stat: "Endurance", kind: "flat", value: 1 }
+        ]
+    },
+    {
         id: "cloth_cap",
         name: "Cloth Cap",
         slot: "Head",
@@ -35,6 +44,18 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         name: "Simple Boots",
         slot: "Feet",
         modifiers: [{ stat: "Agility", kind: "flat", value: 1 }]
+    },
+    {
+        id: "signet_ring",
+        name: "Signet Ring",
+        slot: "Ring",
+        modifiers: [{ stat: "Luck", kind: "flat", value: 1 }]
+    },
+    {
+        id: "warding_amulet",
+        name: "Warding Amulet",
+        slot: "Amulet",
+        modifiers: [{ stat: "Intellect", kind: "flat", value: 1 }]
     },
     {
         id: "rusty_blade",

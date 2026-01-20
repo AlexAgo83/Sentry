@@ -3,10 +3,13 @@ import type { ReactElement } from "react";
 
 type EquipmentSlotIconId =
     | "slot_head"
+    | "slot_cape"
     | "slot_torso"
     | "slot_legs"
     | "slot_hands"
     | "slot_feet"
+    | "slot_ring"
+    | "slot_amulet"
     | "slot_weapon";
 
 export type InventoryIconId = ItemId | EquipmentSlotIconId | "generic";
@@ -113,6 +116,12 @@ const ICON_SHAPES: Record<InventoryIconId, ReactElement> = {
             <path d="M16 10v12" />
         </>
     ),
+    traveler_cape: (
+        <>
+            <path d="M16 6c4 0 8 3 9 8l-2 12h-14l-2-12c1-5 5-8 9-8z" />
+            <path d="M16 6v20" />
+        </>
+    ),
     cloth_cap: (
         <>
             <path d="M6 18c2-6 6-9 10-9s8 3 10 9" />
@@ -139,6 +148,20 @@ const ICON_SHAPES: Record<InventoryIconId, ReactElement> = {
         <>
             <path d="M10 10h6v8h8v6h-14z" />
             <path d="M10 24h14" />
+        </>
+    ),
+    signet_ring: (
+        <>
+            <circle cx="16" cy="18" r="6" />
+            <path d="M12 10h8" />
+            <path d="M16 8v2" />
+        </>
+    ),
+    warding_amulet: (
+        <>
+            <path d="M10 10c2-3 4-4 6-4s4 1 6 4" />
+            <path d="M10 10v4c0 4 2 8 6 12c4-4 6-8 6-12v-4" />
+            <circle cx="16" cy="18.5" r="2" />
         </>
     ),
     rusty_blade: (
@@ -197,6 +220,12 @@ const ICON_SHAPES: Record<InventoryIconId, ReactElement> = {
             <path d="M8 24c2-4 6-6 8-6s6 2 8 6" />
         </>
     ),
+    slot_cape: (
+        <>
+            <path d="M16 8c4 0 7 2 8 6l-2 12h-12l-2-12c1-4 4-6 8-6z" />
+            <path d="M16 8v18" />
+        </>
+    ),
     slot_torso: (
         <>
             <path d="M10 8l6 4l6-4l3 6v10h-18v-10z" />
@@ -220,6 +249,20 @@ const ICON_SHAPES: Record<InventoryIconId, ReactElement> = {
         <>
             <path d="M8 18h8v6h-8z" />
             <path d="M16 18h8v6h-8z" />
+        </>
+    ),
+    slot_ring: (
+        <>
+            <circle cx="16" cy="18" r="6" />
+            <path d="M14 10h4" />
+            <path d="M16 6v4" />
+        </>
+    ),
+    slot_amulet: (
+        <>
+            <path d="M10 10c2-3 4-4 6-4s4 1 6 4" />
+            <path d="M10 10v4c0 4 2 8 6 12c4-4 6-8 6-12v-4" />
+            <circle cx="16" cy="19" r="2" />
         </>
     ),
     slot_weapon: (

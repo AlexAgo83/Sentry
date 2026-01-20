@@ -15,7 +15,7 @@ export type ActionId = SkillId;
 export type RecipeId = string;
 export type ItemId = string;
 export type StatId = "Strength" | "Agility" | "Endurance" | "Intellect" | "Luck";
-export type EquipmentSlotId = "Head" | "Torso" | "Legs" | "Hands" | "Feet" | "Weapon";
+export type EquipmentSlotId = "Head" | "Cape" | "Torso" | "Legs" | "Hands" | "Feet" | "Ring" | "Amulet" | "Weapon";
 export type WeaponType = "Melee" | "Ranged" | "Magic";
 
 export interface StatModifier {

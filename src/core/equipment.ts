@@ -2,10 +2,13 @@ import type { EquipmentSlotId, PlayerEquipmentState } from "./types";
 
 export const EQUIPMENT_SLOTS: EquipmentSlotId[] = [
     "Head",
+    "Cape",
     "Torso",
     "Legs",
     "Hands",
     "Feet",
+    "Ring",
+    "Amulet",
     "Weapon"
 ];
 

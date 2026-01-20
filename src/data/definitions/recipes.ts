@@ -182,6 +182,22 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             itemRewards: withRewards({ rusty_blade: 1 })
         },
         {
+            id: "metalwork_signet_ring",
+            skillId: "MetalWork",
+            name: "Signet Ring",
+            unlockLevel: unlockTier(10),
+            itemCosts: { ingot: 1, crystal: 1 },
+            itemRewards: withRewards({ signet_ring: 1 })
+        },
+        {
+            id: "metalwork_warding_amulet",
+            skillId: "MetalWork",
+            name: "Warding Amulet",
+            unlockLevel: unlockTier(20),
+            itemCosts: { ingot: 2, crystal: 2 },
+            itemRewards: withRewards({ warding_amulet: 1 })
+        },
+        {
             id: "metalwork_blade",
             skillId: "MetalWork",
             name: "Blade Casting",
@@ -327,6 +343,14 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             unlockLevel: unlockTier(1),
             itemCosts: { cloth: 3 },
             itemRewards: withRewards({ worn_trousers: 1 })
+        },
+        {
+            id: "tailoring_traveler_cape",
+            skillId: "Tailoring",
+            name: "Traveler Cape",
+            unlockLevel: unlockTier(10),
+            itemCosts: { cloth: 5, leather: 2 },
+            itemRewards: withRewards({ traveler_cape: 1 })
         },
         {
             id: "tailoring_basic_garment",

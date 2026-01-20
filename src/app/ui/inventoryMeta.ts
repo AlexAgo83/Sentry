@@ -84,6 +84,10 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
         description: "Protective gear for hardened fighters.",
         iconId: "armor"
     },
+    traveler_cape: {
+        description: "A light cape that offers warmth and keeps you nimble.",
+        iconId: "traveler_cape"
+    },
     cloth_cap: {
         description: "A simple cloth cap to ward off the chill.",
         iconId: "cloth_cap"
@@ -103,6 +107,14 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
     simple_boots: {
         description: "Basic boots for steady footing.",
         iconId: "simple_boots"
+    },
+    signet_ring: {
+        description: "A small ring etched with a lucky mark.",
+        iconId: "signet_ring"
+    },
+    warding_amulet: {
+        description: "A charm that steadies the mind against harm.",
+        iconId: "warding_amulet"
     },
     rusty_blade: {
         description: "A basic blade with a weathered edge.",

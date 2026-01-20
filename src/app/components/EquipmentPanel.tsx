@@ -19,10 +19,13 @@ const UNEQUIP_VALUE = "__unequip__";
 
 const SLOT_ICON_IDS: Record<EquipmentSlotId, InventoryIconId> = {
     Head: "slot_head",
+    Cape: "slot_cape",
     Torso: "slot_torso",
     Legs: "slot_legs",
     Hands: "slot_hands",
     Feet: "slot_feet",
+    Ring: "slot_ring",
+    Amulet: "slot_amulet",
     Weapon: "slot_weapon"
 };
 
