@@ -148,7 +148,7 @@ export const ActionSelectionScreen = memo(({
                     onClick={onStopAction}
                     disabled={!canStopAction}
                 >
-                    Pause action
+                    Interrupt
                 </button>
             </div>
         </div>
@@ -156,4 +156,3 @@ export const ActionSelectionScreen = memo(({
 ));
 
 ActionSelectionScreen.displayName = "ActionSelectionScreen";
-

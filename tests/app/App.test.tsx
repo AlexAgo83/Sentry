@@ -148,7 +148,7 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Start action" }));
         expect(testStore.getState().players["1"].selectedActionId).toBe("Combat");
 
-        await user.click(screen.getByRole("button", { name: "Pause action" }));
+        await user.click(screen.getByRole("button", { name: "Interrupt" }));
         expect(testStore.getState().players["1"].selectedActionId).toBeNull();
     });
 
