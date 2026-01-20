@@ -50,7 +50,6 @@ export const ActionSelectionScreen = memo(({
         <div className="ts-panel-header">
             <div className="ts-panel-heading">
                 <h2 className="ts-panel-title">Action selection</h2>
-                <div className="ts-panel-subtitle">{activePlayer.name}</div>
             </div>
             <div className="ts-panel-actions ts-panel-actions-inline">
                 <button
