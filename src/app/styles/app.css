@@ -1075,6 +1075,10 @@
     gap: var(--m2);
 }
 
+.ts-inventory-action-tooltip {
+    display: inline-flex;
+}
+
 .ts-inventory-focus-title {
     margin: 0;
     font-size: var(--text-l-size);
@@ -1139,7 +1143,15 @@
 .ts-inventory-sell-value {
     font-size: var(--text-xs-size);
     color: var(--color-text);
-    min-width: 68px;
+    min-width: 72px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.ts-inventory-sell-gain {
+    font-size: var(--text-xs-size);
+    color: rgba(242, 193, 78, 0.95);
+    min-width: 54px;
     text-align: right;
     font-variant-numeric: tabular-nums;
 }
@@ -1344,6 +1356,12 @@
     font-size: var(--text-xs-size);
     letter-spacing: 0.18em;
     text-transform: uppercase;
+}
+
+.generic-field.button.ts-inventory-sell .ts-inventory-sell-button-gain {
+    margin-left: var(--m2);
+    color: rgba(242, 193, 78, 0.95);
+    letter-spacing: 0.06em;
 }
 
 .generic-field.button.ts-inventory-sell:hover:not(:disabled) {

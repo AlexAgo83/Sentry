@@ -8,6 +8,7 @@ import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { usePersistedInventoryFilters } from "../hooks/usePersistedInventoryFilters";
 import { InventoryPanel, type InventorySort } from "../components/InventoryPanel";
 import { gameStore } from "../game";
+import { getSellGoldGain, getSellValuePerItem } from "../../core/economy";
 
 export const InventoryPanelContainer = () => {
     const inventoryItems = useGameStore((state) => state.inventory.items);
@@ -91,29 +92,57 @@ export const InventoryPanelContainer = () => {
         }
     }, [handleSetInventoryPage, inventoryFilters.page, inventoryView.safePage]);
 
+    const selected = inventoryView.selectedItem;
     const canSellSelected = Boolean(
-        inventoryView.selectedItem
-        && inventoryView.selectedItem.id !== "gold"
-        && inventoryView.selectedItem.count > 0
+        selected
+        && selected.id !== "gold"
+        && selected.count > 0
+        && getSellValuePerItem(selected.id) > 0
     );
 
-    const handleSellSelected = useCallback(() => {
-        const selected = inventoryView.selectedItem;
-        if (!selected || selected.id === "gold") {
+    const sellDisabledReason = selected?.id === "gold"
+        ? "Gold can't be sold."
+        : null;
+
+    const sellGoldGain = selected
+        ? getSellGoldGain(selected.id, Math.min(Math.max(1, Math.floor(sellQuantity)), selected.count))
+        : 0;
+
+    const handleSellSelected = useCallback(async () => {
+        const currentSelected = inventoryView.selectedItem;
+        if (!currentSelected || !canSellSelected) {
             return;
         }
-        const available = selected.count;
+        const available = currentSelected.count;
         const amount = Math.min(Math.max(1, Math.floor(sellQuantity)), available);
         if (amount <= 0) {
             return;
         }
 
-        gameStore.dispatch({ type: "sellItem", itemId: selected.id, count: amount });
+        const valuePerItem = getSellValuePerItem(currentSelected.id);
+        const goldGainForSell = getSellGoldGain(currentSelected.id, amount);
+        const requiresConfirm = amount > 1 || valuePerItem >= 10;
+        if (requiresConfirm) {
+            const { default: Swal } = await import("sweetalert2");
+            const result = await Swal.fire({
+                title: "Sell items?",
+                text: `Sell x${amount} ${currentSelected.name} for +${goldGainForSell} gold?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Sell",
+                cancelButtonText: "Cancel",
+            });
+            if (!result.isConfirmed) {
+                return;
+            }
+        }
+
+        gameStore.dispatch({ type: "sellItem", itemId: currentSelected.id, count: amount });
 
         if (amount >= available) {
             setSelectedInventoryItemId(null);
         }
-    }, [inventoryView.selectedItem, sellQuantity]);
+    }, [canSellSelected, inventoryView.selectedItem, sellQuantity]);
 
     return (
         <InventoryPanel
@@ -129,6 +158,8 @@ export const InventoryPanelContainer = () => {
             onSellQuantityChange={setSellQuantity}
             onSellSelected={handleSellSelected}
             canSellSelected={canSellSelected}
+            sellGoldGain={sellGoldGain}
+            sellDisabledReason={sellDisabledReason}
             sort={inventoryFilters.sort}
             onSortChange={handleSetInventorySort}
             search={inventoryFilters.search}

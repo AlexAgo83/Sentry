@@ -16,6 +16,8 @@ const baseProps = {
     onSellQuantityChange: () => {},
     onSellSelected: () => {},
     canSellSelected: false,
+    sellGoldGain: 0,
+    sellDisabledReason: null as string | null,
     sort: "Name" as const,
     onSortChange: () => {},
     search: "",

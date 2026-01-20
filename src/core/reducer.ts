@@ -20,6 +20,7 @@ import {
 } from "./types";
 import { getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
 import { getEquipmentDefinition } from "../data/equipment";
+import { getSellGoldGain } from "./economy";
 
 export type GameAction =
     | { type: "hydrate"; save: GameSave | null; version: string }
@@ -164,7 +165,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }
             const nextItems = { ...state.inventory.items };
             nextItems[action.itemId] = Math.max(0, available - sellCount);
-            nextItems.gold = (nextItems.gold ?? 0) + sellCount;
+            const goldGain = getSellGoldGain(action.itemId, sellCount);
+            nextItems.gold = (nextItems.gold ?? 0) + goldGain;
             return {
                 ...state,
                 inventory: {

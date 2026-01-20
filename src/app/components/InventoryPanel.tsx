@@ -29,6 +29,8 @@ type InventoryPanelProps = {
     onSellQuantityChange: (value: number) => void;
     onSellSelected: () => void;
     canSellSelected: boolean;
+    sellGoldGain: number;
+    sellDisabledReason: string | null;
     sort: InventorySort;
     onSortChange: (sort: InventorySort) => void;
     search: string;
@@ -76,6 +78,8 @@ export const InventoryPanel = memo(({
     onSellQuantityChange,
     onSellSelected,
     canSellSelected,
+    sellGoldGain,
+    sellDisabledReason,
     sort,
     onSortChange,
     search,
@@ -94,6 +98,7 @@ export const InventoryPanel = memo(({
         : "None";
 
     const maxSellQuantity = Math.max(1, selectedItem?.count ?? 1);
+    const clampedSellQuantity = Math.min(Math.max(1, sellQuantity), maxSellQuantity);
     return (
         <section className="generic-panel ts-panel ts-inventory-panel">
             <div className="ts-panel-header">
@@ -166,14 +171,32 @@ export const InventoryPanel = memo(({
                             </h3>
                             {selectedItem ? (
                                 <div className="ts-inventory-focus-actions">
-                                    <button
-                                        type="button"
-                                        className="generic-field button ts-inventory-sell ts-focusable"
-                                        onClick={onSellSelected}
-                                        disabled={!canSellSelected}
-                                    >
-                                        Sell
-                                    </button>
+                                    {sellDisabledReason ? (
+                                        <span className="ts-inventory-action-tooltip" title={sellDisabledReason}>
+                                            <button
+                                                type="button"
+                                                className="generic-field button ts-inventory-sell ts-focusable"
+                                                onClick={onSellSelected}
+                                                disabled={!canSellSelected}
+                                            >
+                                                Sell
+                                            </button>
+                                        </span>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className="generic-field button ts-inventory-sell ts-focusable"
+                                            onClick={onSellSelected}
+                                            disabled={!canSellSelected}
+                                        >
+                                            Sell
+                                            {canSellSelected ? (
+                                                <span className="ts-inventory-sell-button-gain" aria-hidden="true">
+                                                    +{sellGoldGain}g
+                                                </span>
+                                            ) : null}
+                                        </button>
+                                    )}
                                     <button
                                         type="button"
                                         className="generic-field button ts-inventory-clear ts-focusable"
@@ -220,21 +243,26 @@ export const InventoryPanel = memo(({
                         {selectedItem ? (
                             <div className="ts-inventory-sell-controls">
                                 <div className="ts-inventory-sell-row">
-                                    <span className="ts-inventory-sell-label">Quantity</span>
+                                    <span className="ts-inventory-sell-label">Qty</span>
                                     <input
                                         className="ts-inventory-sell-slider"
                                         type="range"
                                         min={1}
                                         max={maxSellQuantity}
                                         step={1}
-                                        value={Math.min(Math.max(1, sellQuantity), maxSellQuantity)}
+                                        value={clampedSellQuantity}
                                         onChange={(event) => onSellQuantityChange(Number(event.currentTarget.value))}
                                         disabled={!canSellSelected}
                                         aria-label="Sell quantity"
                                     />
                                     <span className="ts-inventory-sell-value">
-                                        {Math.min(Math.max(1, sellQuantity), maxSellQuantity)} / {maxSellQuantity}
+                                        x{clampedSellQuantity} / {maxSellQuantity}
                                     </span>
+                                    {canSellSelected ? (
+                                        <span className="ts-inventory-sell-gain" aria-label={`Gain ${sellGoldGain} gold`}>
+                                            +{sellGoldGain}g
+                                        </span>
+                                    ) : null}
                                 </div>
                             </div>
                         ) : null}

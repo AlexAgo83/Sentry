@@ -26,6 +26,7 @@ export const AppView = (props: AppViewProps) => {
     const [isMobile, setIsMobile] = useState(() => (
         typeof window !== "undefined" ? window.innerWidth <= 720 : false
     ));
+    const [isBottomBarHidden, setBottomBarHidden] = useState(false);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -45,6 +46,50 @@ export const AppView = (props: AppViewProps) => {
         mediaQuery.addEventListener("change", handler);
         return () => mediaQuery.removeEventListener("change", handler);
     }, []);
+
+    useEffect(() => {
+        if (!isMobile || typeof window === "undefined") {
+            setBottomBarHidden(false);
+            return;
+        }
+
+        let lastY = window.scrollY;
+        let downAccum = 0;
+        let upAccum = 0;
+
+        const onScroll = () => {
+            const y = window.scrollY;
+            const delta = y - lastY;
+            lastY = y;
+
+            if (y < 40) {
+                downAccum = 0;
+                upAccum = 0;
+                setBottomBarHidden(false);
+                return;
+            }
+
+            if (delta > 0) {
+                downAccum += delta;
+                upAccum = 0;
+                if (downAccum > 24) {
+                    setBottomBarHidden(true);
+                }
+                return;
+            }
+
+            if (delta < 0) {
+                upAccum += Math.abs(delta);
+                downAccum = 0;
+                if (upAccum > 12) {
+                    setBottomBarHidden(false);
+                }
+            }
+        };
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => window.removeEventListener("scroll", onScroll);
+    }, [isMobile]);
 
     const {
         version,
@@ -148,7 +193,10 @@ export const AppView = (props: AppViewProps) => {
                 </div>
             </main>
             {isMobile ? (
-                <nav className="app-bottom-bar" aria-label="Main panels">
+                <nav
+                    className={`app-bottom-bar${isBottomBarHidden ? " is-scroll-hidden" : ""}`}
+                    aria-label="Main panels"
+                >
                     <SidePanelSwitcher
                         active={activeSidePanel}
                         onShowAction={onShowAction}

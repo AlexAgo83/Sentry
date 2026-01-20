@@ -137,6 +137,12 @@ body {
     pointer-events: none;
 }
 
+.app-bottom-bar.is-scroll-hidden {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
 .app-topbar,
 .app-bottom-bar {
     transition: transform 180ms ease, opacity 180ms ease;

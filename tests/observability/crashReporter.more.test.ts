@@ -29,6 +29,19 @@ describe("crashReporter (more)", () => {
         expect(readCrashReports()).toEqual([]);
     });
 
+    it("filters non-object entries from stored reports", () => {
+        window.localStorage.setItem("sentry.crashReports", JSON.stringify([
+            null,
+            1,
+            "nope",
+            { id: "1", timestamp: 1, kind: "error", message: "ok" }
+        ]));
+
+        const reports = readCrashReports();
+        expect(reports).toHaveLength(1);
+        expect(reports[0].message).toBe("ok");
+    });
+
     it("captures window error and unhandledrejection events", () => {
         const uninstall = installGlobalCrashHandlers({ appVersion: "1.2.3" });
 
@@ -54,5 +67,21 @@ describe("crashReporter (more)", () => {
         expect(errorReport).toBeDefined();
 
         uninstall();
+    });
+
+    it("is idempotent and keeps the latest app version", () => {
+        const uninstallA = installGlobalCrashHandlers({ appVersion: "1.0.0" });
+        const uninstallB = installGlobalCrashHandlers({ appVersion: "2.0.0" });
+
+        const rejectionEvent = new Event("unhandledrejection") as unknown as PromiseRejectionEvent;
+        (rejectionEvent as unknown as { reason?: unknown }).reason = "string-reason";
+        window.dispatchEvent(rejectionEvent as unknown as Event);
+
+        const reports = readCrashReports();
+        const latest = reports.find((report) => report.kind === "unhandledrejection" && report.message === "string-reason");
+        expect(latest?.appVersion).toBe("2.0.0");
+
+        uninstallA();
+        uninstallB();
     });
 });
