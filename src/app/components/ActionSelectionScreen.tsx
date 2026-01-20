@@ -3,6 +3,8 @@ import { memo } from "react";
 import type { PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked } from "../../data/definitions";
 import { BackIcon } from "../ui/backIcon";
+import { StartActionIcon } from "../ui/startActionIcon";
+import { InterruptIcon } from "../ui/interruptIcon";
 
 type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
@@ -133,11 +135,15 @@ export const ActionSelectionScreen = memo(({
             <div className="ts-action-row">
                 <button
                     type="button"
-                    className="generic-field button ts-focusable"
+                    className="ts-collapse-button ts-focusable"
                     onClick={onStartAction}
                     disabled={!canStartAction}
+                    aria-label="Start action"
+                    title="Start action"
                 >
-                    Start action
+                    <span className="ts-collapse-label">
+                        <StartActionIcon />
+                    </span>
                 </button>
             </div>
             {missingItemsLabel ? (
@@ -146,11 +152,15 @@ export const ActionSelectionScreen = memo(({
             <div className="ts-action-row">
                 <button
                     type="button"
-                    className="generic-field button ts-stop ts-focusable"
+                    className="ts-collapse-button ts-focusable"
                     onClick={onStopAction}
                     disabled={!canStopAction}
+                    aria-label="Interrupt"
+                    title="Interrupt"
                 >
-                    Interrupt
+                    <span className="ts-collapse-label">
+                        <InterruptIcon />
+                    </span>
                 </button>
             </div>
         </div>
