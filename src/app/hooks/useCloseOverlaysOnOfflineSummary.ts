@@ -3,7 +3,7 @@ import type { OfflineSummaryState } from "../../core/types";
 
 type UseCloseOverlaysOnOfflineSummaryOptions = {
     offlineSummary: OfflineSummaryState | null;
-    closeLoadout: () => void;
+    closeActionSelection: () => void;
     closeAllHeroNameModals: () => void;
     closeSystem: () => void;
     closeDevTools: () => void;
@@ -11,7 +11,7 @@ type UseCloseOverlaysOnOfflineSummaryOptions = {
 
 export const useCloseOverlaysOnOfflineSummary = ({
     offlineSummary,
-    closeLoadout,
+    closeActionSelection,
     closeAllHeroNameModals,
     closeSystem,
     closeDevTools,
@@ -20,9 +20,9 @@ export const useCloseOverlaysOnOfflineSummary = ({
         if (!offlineSummary) {
             return;
         }
-        closeLoadout();
+        closeActionSelection();
         closeAllHeroNameModals();
         closeSystem();
         closeDevTools();
-    }, [closeAllHeroNameModals, closeDevTools, closeLoadout, closeSystem, offlineSummary]);
+    }, [closeActionSelection, closeAllHeroNameModals, closeDevTools, closeSystem, offlineSummary]);
 };

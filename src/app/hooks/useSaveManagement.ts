@@ -6,7 +6,7 @@ import { readRawLastGoodSave, readRawSave } from "../../adapters/persistence/loc
 
 type UseSaveManagementOptions = {
     isSafeModeOpen: boolean;
-    closeLoadout: () => void;
+    closeActionSelection: () => void;
     closeAllHeroNameModals: () => void;
     refreshLoadReport: () => void;
     closeSafeMode: () => void;
@@ -24,7 +24,7 @@ const copyTextToClipboard = (raw: string, promptLabel: string) => {
 
 export const useSaveManagement = ({
     isSafeModeOpen,
-    closeLoadout,
+    closeActionSelection,
     closeAllHeroNameModals,
     refreshLoadReport,
     closeSafeMode,
@@ -38,13 +38,13 @@ export const useSaveManagement = ({
         if (!confirmed) {
             return;
         }
-        closeLoadout();
+        closeActionSelection();
         closeAllHeroNameModals();
         closeOfflineSummary();
         gameRuntime.reset();
         closeSafeMode();
         refreshLoadReport();
-    }, [closeAllHeroNameModals, closeLoadout, closeOfflineSummary, closeSafeMode, refreshLoadReport]);
+    }, [closeActionSelection, closeAllHeroNameModals, closeOfflineSummary, closeSafeMode, refreshLoadReport]);
 
     const exportSave = useCallback(() => {
         const save = toGameSave(gameStore.getState());
@@ -99,4 +99,3 @@ export const useSaveManagement = ({
         copyLastGoodRawSave,
     };
 };
-

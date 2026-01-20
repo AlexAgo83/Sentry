@@ -1,8 +1,8 @@
 ## task_019_action_selection_screen - Replace Loadout modal with a dedicated Action Selection screen
 > From version: 0.8.9  
-> Understanding: 90%  
-> Confidence: 80%  
-> Progress: 0%
+> Understanding: 95%  
+> Confidence: 90%  
+> Progress: 100%
 
 # Context
 Clicking the **Change** button currently opens a modal (`LoadoutModal`) to select the active skill/recipe.
@@ -47,21 +47,21 @@ Replace the modal-based action selection UX with a screen-based UX that feels li
 - Keep selection UX and validations equivalent (skill/recipe selection, missing item hints, start/pause flows).
 
 # Plan
-- [ ] 1. Add screen state to app shell UI
+- [x] 1. Add screen state to app shell UI
   - Introduce `activeScreen` (and optional `previousSidePanel`) to support returning to where the user came from.
   - Wire the **Change** button to open the Action Selection screen.
-- [ ] 2. Implement `ActionSelectionScreen`
+- [x] 2. Implement `ActionSelectionScreen`
   - Reuse the current `LoadoutModal` UI logic and components, but render as an in-layout screen.
   - Add **Back/Close** action.
-- [ ] 3. Remove modal-specific behavior for action selection
+- [x] 3. Remove modal-specific behavior for action selection
   - Remove the `LoadoutModal` from the modal stack.
   - Ensure “any modal open” logic and app bar hiding are not triggered by the Action Selection screen.
-- [ ] 4. Update tests
+- [x] 4. Update tests
   - Replace/adjust tests expecting a dialog on **Change**.
   - Add a test that the screen is not reachable via `SidePanelSwitcher`.
   - Add a test that Back/Close returns to the previous screen/panel.
   - Add a test that `Escape` returns to the previous screen/panel.
-- [ ] FINAL. Validation
+- [x] FINAL. Validation
   - `npm run lint`
   - `npm run typecheck`
   - `npm run test:ci`
@@ -73,3 +73,9 @@ Replace the modal-based action selection UX with a screen-based UX that feels li
 - Back/Close returns the user to where they were before opening the screen.
 - Existing action selection behavior remains correct (including missing item hints).
 - Tests updated and CI passes.
+
+# Report
+- Replaced the Loadout modal flow with a dedicated in-layout screen (“Action selection”) reachable only via **Change**.
+- Added app-shell screen state (`activeScreen`) with Back + `Escape` behavior and “return to previous panel” handling.
+- Removed the modal from the modal stack and ensured it does not affect “any modal open” app-bar hiding.
+- Updated tests and validated with `npm run lint`, `npm run typecheck`, `npm run test:ci`.

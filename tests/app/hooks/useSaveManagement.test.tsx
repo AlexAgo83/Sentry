@@ -42,7 +42,7 @@ vi.mock("../../../src/adapters/persistence/localStorageKeys", () => ({
 
 type UseSaveManagementOptions = {
     isSafeModeOpen: boolean;
-    closeLoadout: () => void;
+    closeActionSelection: () => void;
     closeAllHeroNameModals: () => void;
     refreshLoadReport: () => void;
     closeSafeMode: () => void;
@@ -91,7 +91,7 @@ describe("useSaveManagement", () => {
 
     it("resetSave does nothing when confirm is cancelled", async () => {
         const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
-        const closeLoadout = vi.fn();
+        const closeActionSelection = vi.fn();
         const closeAllHeroNameModals = vi.fn();
         const refreshLoadReport = vi.fn();
         const closeSafeMode = vi.fn();
@@ -101,7 +101,7 @@ describe("useSaveManagement", () => {
             <TestHarness
                 options={{
                     isSafeModeOpen: false,
-                    closeLoadout,
+                    closeActionSelection,
                     closeAllHeroNameModals,
                     refreshLoadReport,
                     closeSafeMode,
@@ -116,7 +116,7 @@ describe("useSaveManagement", () => {
 
         (api as unknown as SaveManagementApi).resetSave();
         expect(confirm).toHaveBeenCalledTimes(1);
-        expect(closeLoadout).not.toHaveBeenCalled();
+        expect(closeActionSelection).not.toHaveBeenCalled();
         expect(closeAllHeroNameModals).not.toHaveBeenCalled();
         expect(testRuntime.reset).not.toHaveBeenCalled();
         expect(closeSafeMode).not.toHaveBeenCalled();
@@ -125,7 +125,7 @@ describe("useSaveManagement", () => {
 
     it("resetSave closes overlays and refreshes when confirmed", async () => {
         vi.spyOn(window, "confirm").mockReturnValue(true);
-        const closeLoadout = vi.fn();
+        const closeActionSelection = vi.fn();
         const closeAllHeroNameModals = vi.fn();
         const refreshLoadReport = vi.fn();
         const closeSafeMode = vi.fn();
@@ -136,7 +136,7 @@ describe("useSaveManagement", () => {
             <TestHarness
                 options={{
                     isSafeModeOpen: true,
-                    closeLoadout,
+                    closeActionSelection,
                     closeAllHeroNameModals,
                     refreshLoadReport,
                     closeSafeMode,
@@ -150,7 +150,7 @@ describe("useSaveManagement", () => {
         });
 
         (api as unknown as SaveManagementApi).resetSave();
-        expect(closeLoadout).toHaveBeenCalledTimes(1);
+        expect(closeActionSelection).toHaveBeenCalledTimes(1);
         expect(closeAllHeroNameModals).toHaveBeenCalledTimes(1);
         expect(dispatchSpy).toHaveBeenCalledWith({ type: "setOfflineSummary", summary: null });
         expect(testRuntime.reset).toHaveBeenCalledTimes(1);
@@ -171,7 +171,7 @@ describe("useSaveManagement", () => {
             <TestHarness
                 options={{
                     isSafeModeOpen: false,
-                    closeLoadout: vi.fn(),
+                    closeActionSelection: vi.fn(),
                     closeAllHeroNameModals: vi.fn(),
                     refreshLoadReport: vi.fn(),
                     closeSafeMode: vi.fn(),
@@ -203,7 +203,7 @@ describe("useSaveManagement", () => {
             <TestHarness
                 options={{
                     isSafeModeOpen: false,
-                    closeLoadout: vi.fn(),
+                    closeActionSelection: vi.fn(),
                     closeAllHeroNameModals: vi.fn(),
                     refreshLoadReport,
                     closeSafeMode: vi.fn(),
@@ -233,7 +233,7 @@ describe("useSaveManagement", () => {
             <TestHarness
                 options={{
                     isSafeModeOpen: true,
-                    closeLoadout: vi.fn(),
+                    closeActionSelection: vi.fn(),
                     closeAllHeroNameModals: vi.fn(),
                     refreshLoadReport: vi.fn(),
                     closeSafeMode: vi.fn(),

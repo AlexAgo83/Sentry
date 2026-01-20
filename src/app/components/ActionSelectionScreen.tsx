@@ -2,9 +2,8 @@ import type { ChangeEvent } from "react";
 import { memo } from "react";
 import type { PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked } from "../../data/definitions";
-import { ModalShell } from "./ModalShell";
 
-type LoadoutModalProps = {
+type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
     skills: SkillDefinition[];
     pendingSkillId: SkillId | "";
@@ -23,10 +22,10 @@ type LoadoutModalProps = {
     onRecipeChange: (event: ChangeEvent<HTMLSelectElement>) => void;
     onStartAction: () => void;
     onStopAction: () => void;
-    onClose: () => void;
+    onBack: () => void;
 };
 
-export const LoadoutModal = memo(({
+export const ActionSelectionScreen = memo(({
     activePlayer,
     skills,
     pendingSkillId,
@@ -45,9 +44,25 @@ export const LoadoutModal = memo(({
     onRecipeChange,
     onStartAction,
     onStopAction,
-    onClose
-}: LoadoutModalProps) => (
-    <ModalShell kicker="Loadout" title={activePlayer.name} onClose={onClose}>
+    onBack
+}: ActionSelectionScreenProps) => (
+    <section className="generic-panel ts-panel">
+        <div className="ts-panel-header">
+            <div className="ts-panel-heading">
+                <h2 className="ts-panel-title">Action selection</h2>
+                <div className="ts-panel-subtitle">{activePlayer.name}</div>
+            </div>
+            <div className="ts-panel-actions ts-panel-actions-inline">
+                <button
+                    type="button"
+                    className="ts-icon-button ts-panel-action-button ts-focusable"
+                    onClick={onBack}
+                    aria-label="Back"
+                >
+                    Back
+                </button>
+            </div>
+        </div>
         <div className="ts-field-group">
             <label className="ts-field-label" htmlFor="skill-select">Select skill</label>
             <select
@@ -137,7 +152,8 @@ export const LoadoutModal = memo(({
                 </button>
             </div>
         </div>
-    </ModalShell>
+    </section>
 ));
 
-LoadoutModal.displayName = "LoadoutModal";
+ActionSelectionScreen.displayName = "ActionSelectionScreen";
+

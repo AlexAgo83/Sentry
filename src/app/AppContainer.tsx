@@ -29,6 +29,7 @@ export const AppContainer = () => {
 
     const {
         activeSidePanel,
+        activeScreen,
         showActionPanel,
         showStatsPanel,
         showInventoryPanel,
@@ -39,9 +40,8 @@ export const AppContainer = () => {
         isDevToolsOpen,
         openDevTools,
         closeDevTools,
-        isLoadoutOpen,
-        openLoadout,
-        closeLoadout
+        openActionSelection,
+        closeActionSelection
     } = useAppShellUi();
 
     const { getSkillLabel, getSkillLabelStrict, getRecipeLabel, getRecipeLabelNonNull } = useAppLabels();
@@ -61,22 +61,22 @@ export const AppContainer = () => {
         renameHero,
         closeAllHeroNameModals
     } = useHeroNameModals({
-        onBeforeOpenRecruit: closeLoadout,
-        onBeforeOpenRename: closeLoadout,
+        onBeforeOpenRecruit: closeActionSelection,
+        onBeforeOpenRename: closeActionSelection,
     });
 
     useCloseOverlaysOnOfflineSummary({
         offlineSummary,
-        closeLoadout,
+        closeActionSelection,
         closeAllHeroNameModals,
         closeSystem,
         closeDevTools,
     });
 
-    const handleOpenLoadout = useCallback(() => {
+    const handleOpenActionSelection = useCallback(() => {
         closeAllHeroNameModals();
-        openLoadout();
-    }, [closeAllHeroNameModals, openLoadout]);
+        openActionSelection();
+    }, [closeAllHeroNameModals, openActionSelection]);
 
     const handleSimulateOffline = useCallback(() => {
         gameRuntime.simulateOffline(30 * 60 * 1000);
@@ -93,7 +93,7 @@ export const AppContainer = () => {
         copyLastGoodRawSave
     } = useSaveManagement({
         isSafeModeOpen,
-        closeLoadout,
+        closeActionSelection,
         closeAllHeroNameModals,
         refreshLoadReport,
         closeSafeMode,
@@ -102,7 +102,6 @@ export const AppContainer = () => {
     const isAnyModalOpen = Boolean(
         isSystemOpen
         || isDevToolsOpen
-        || isLoadoutOpen
         || isRecruitOpen
         || isRenameOpen
         || offlineSummary
@@ -118,13 +117,15 @@ export const AppContainer = () => {
                 version={version}
                 onOpenSystem={openSystem}
                 onOpenDevTools={openDevTools}
+                activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={showActionPanel}
                 onShowStats={showStatsPanel}
                 onShowInventory={showInventoryPanel}
                 onShowEquipment={showEquipmentPanel}
                 onAddPlayer={openRecruit}
-                onChangeAction={handleOpenLoadout}
+                onChangeAction={handleOpenActionSelection}
+                onCloseActionSelection={closeActionSelection}
                 onRenameHero={openActiveRename}
                 getSkillLabel={getSkillLabelStrict}
                 getRecipeLabel={getRecipeLabel}
@@ -153,8 +154,6 @@ export const AppContainer = () => {
                 onCopyCurrentRawSave={copyCurrentRawSave}
                 onCopyLastGoodRawSave={copyLastGoodRawSave}
                 onCloseSafeMode={closeSafeMode}
-                isLoadoutOpen={isLoadoutOpen}
-                onCloseLoadout={closeLoadout}
                 isSystemOpen={isSystemOpen}
                 isDevToolsOpen={isDevToolsOpen}
                 onCloseDevTools={closeDevTools}

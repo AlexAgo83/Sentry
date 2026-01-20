@@ -7,7 +7,6 @@ import { OfflineSummaryModal } from "../components/OfflineSummaryModal";
 import { SafeModeModal } from "../components/SafeModeModal";
 import { ServiceWorkerUpdateModal } from "../components/ServiceWorkerUpdateModal";
 import { DevToolsModal } from "../components/DevToolsModal";
-import { LoadoutModalContainer } from "./LoadoutModalContainer";
 import { SystemModalContainer } from "./SystemModalContainer";
 
 type AppModalsContainerProps = {
@@ -33,8 +32,6 @@ type AppModalsContainerProps = {
     onCopyCurrentRawSave: () => void;
     onCopyLastGoodRawSave: () => void;
     onCloseSafeMode: () => void;
-    isLoadoutOpen: boolean;
-    onCloseLoadout: () => void;
     isSystemOpen: boolean;
     isDevToolsOpen: boolean;
     onCloseDevTools: () => void;
@@ -73,8 +70,6 @@ export const AppModalsContainer = ({
     onCopyCurrentRawSave,
     onCopyLastGoodRawSave,
     onCloseSafeMode,
-    isLoadoutOpen,
-    onCloseLoadout,
     isSystemOpen,
     isDevToolsOpen,
     onCloseDevTools,
@@ -91,11 +86,6 @@ export const AppModalsContainer = ({
 }: AppModalsContainerProps) => {
     return (
         <>
-            <LoadoutModalContainer
-                isOpen={isLoadoutOpen}
-                onClose={onCloseLoadout}
-                getSkillLabel={getSkillLabel}
-            />
             {isRecruitOpen ? (
                 <HeroNameModal
                     kicker="Recruit"

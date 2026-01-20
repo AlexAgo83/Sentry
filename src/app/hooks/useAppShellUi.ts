@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
-import type { AppActiveSidePanel } from "../AppView";
+import type { AppActiveScreen, AppActiveSidePanel } from "../AppView";
 
 export const useAppShellUi = () => {
     const [activeSidePanel, setActiveSidePanel] = useState<AppActiveSidePanel>("action");
+    const [activeScreen, setActiveScreen] = useState<AppActiveScreen>("main");
+    const [returnSidePanel, setReturnSidePanel] = useState<AppActiveSidePanel>("action");
     const [isSystemOpen, setSystemOpen] = useState(false);
     const [isDevToolsOpen, setDevToolsOpen] = useState(false);
-    const [isLoadoutOpen, setLoadoutOpen] = useState(false);
 
     const openSystem = useCallback(() => {
         setDevToolsOpen(false);
@@ -22,19 +23,35 @@ export const useAppShellUi = () => {
     }, []);
     const closeDevTools = useCallback(() => setDevToolsOpen(false), []);
 
-    const openLoadout = useCallback(() => {
-        setActiveSidePanel("action");
-        setLoadoutOpen(true);
-    }, []);
-    const closeLoadout = useCallback(() => setLoadoutOpen(false), []);
+    const openActionSelection = useCallback(() => {
+        setReturnSidePanel(activeSidePanel);
+        setActiveScreen("actionSelection");
+    }, [activeSidePanel]);
+    const closeActionSelection = useCallback(() => {
+        setActiveScreen("main");
+        setActiveSidePanel(returnSidePanel);
+    }, [returnSidePanel]);
 
-    const showActionPanel = useCallback(() => setActiveSidePanel("action"), []);
-    const showStatsPanel = useCallback(() => setActiveSidePanel("stats"), []);
-    const showInventoryPanel = useCallback(() => setActiveSidePanel("inventory"), []);
-    const showEquipmentPanel = useCallback(() => setActiveSidePanel("equipment"), []);
+    const showActionPanel = useCallback(() => {
+        setActiveScreen("main");
+        setActiveSidePanel("action");
+    }, []);
+    const showStatsPanel = useCallback(() => {
+        setActiveScreen("main");
+        setActiveSidePanel("stats");
+    }, []);
+    const showInventoryPanel = useCallback(() => {
+        setActiveScreen("main");
+        setActiveSidePanel("inventory");
+    }, []);
+    const showEquipmentPanel = useCallback(() => {
+        setActiveScreen("main");
+        setActiveSidePanel("equipment");
+    }, []);
 
     return {
         activeSidePanel,
+        activeScreen,
         showActionPanel,
         showStatsPanel,
         showInventoryPanel,
@@ -45,8 +62,7 @@ export const useAppShellUi = () => {
         isDevToolsOpen,
         openDevTools,
         closeDevTools,
-        isLoadoutOpen,
-        openLoadout,
-        closeLoadout,
+        openActionSelection,
+        closeActionSelection,
     };
 };

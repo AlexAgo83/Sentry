@@ -1,22 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import type { SkillId } from "../../../src/core/types";
 import type { ComponentProps } from "react";
 import type { SwUpdateAvailableDetail } from "../../../src/pwa/serviceWorker";
 
-const loadoutSpy = vi.fn();
 const systemSpy = vi.fn();
-
-vi.mock("../../../src/app/containers/LoadoutModalContainer", () => ({
-    LoadoutModalContainer: (props: { isOpen: boolean; onClose: () => void; getSkillLabel: (skillId: SkillId | "") => string }) => {
-        loadoutSpy(props);
-        return (
-            <div data-testid="loadout" data-open={props.isOpen ? "1" : "0"}>
-                <button type="button" onClick={props.onClose}>close-loadout</button>
-            </div>
-        );
-    },
-}));
 
 vi.mock("../../../src/app/containers/SystemModalContainer", () => ({
     SystemModalContainer: (props: { onClose: () => void }) => {
@@ -120,8 +107,6 @@ const baseProps = (): ComponentProps<typeof AppModalsContainer> => ({
     onCopyCurrentRawSave: vi.fn(),
     onCopyLastGoodRawSave: vi.fn(),
     onCloseSafeMode: vi.fn(),
-    isLoadoutOpen: false,
-    onCloseLoadout: vi.fn(),
     isSystemOpen: false,
     isDevToolsOpen: false,
     onCloseDevTools: vi.fn(),
@@ -140,15 +125,7 @@ const baseProps = (): ComponentProps<typeof AppModalsContainer> => ({
 describe("AppModalsContainer", () => {
     beforeEach(() => {
         vi.restoreAllMocks();
-        loadoutSpy.mockClear();
         systemSpy.mockClear();
-    });
-
-    it("always renders LoadoutModalContainer and passes isOpen", () => {
-        const props = baseProps();
-        render(<AppModalsContainer {...props} />);
-        expect(screen.getByTestId("loadout").getAttribute("data-open")).toBe("0");
-        expect(loadoutSpy).toHaveBeenCalledTimes(1);
     });
 
     it("renders recruit modal and wires callbacks", () => {

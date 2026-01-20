@@ -122,7 +122,8 @@ describe("App", () => {
         expect((screen.getByLabelText("Select skill") as HTMLSelectElement).value).toBe("Combat");
         expect((screen.getByLabelText("Select recipe") as HTMLSelectElement).value).toBe("combat_frontline");
 
-        const summary = screen.getByText("Action selection").closest(".ts-action-summary") as HTMLElement | null;
+        const summary = screen.getByText("Action selection", { selector: ".ts-action-summary-label" })
+            .closest(".ts-action-summary") as HTMLElement | null;
         expect(summary).toBeTruthy();
         if (summary) {
             expect(within(summary).getByText("Combat")).toBeTruthy();
@@ -178,7 +179,7 @@ describe("App", () => {
         await user.click(screen.getByRole("tab", { name: "Action" }));
         await user.click(screen.getByRole("button", { name: "Change" }));
         fireEvent.keyDown(window, { key: "Escape" });
-        expect(screen.queryByText("Loadout")).toBeNull();
+        expect(screen.queryByRole("heading", { name: "Action selection" })).toBeNull();
     });
 
     it("shows offline summary and handles system actions", async () => {
@@ -283,7 +284,7 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Change" }));
         await user.selectOptions(screen.getByLabelText("Select skill"), ["Combat"]);
         await user.click(screen.getByRole("button", { name: "Start action" }));
-        await user.click(screen.getByRole("button", { name: "Close" }));
+        await user.click(screen.getByRole("button", { name: "Back" }));
 
         await user.click(screen.getByRole("tab", { name: "Equip" }));
         expect(screen.getByRole("heading", { name: "Equipment" })).toBeTruthy();

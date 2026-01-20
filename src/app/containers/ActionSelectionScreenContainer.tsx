@@ -1,5 +1,12 @@
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getActionDefinition, getRecipeDefinition, getRecipesForSkill, isRecipeUnlocked, ITEM_DEFINITIONS, SKILL_DEFINITIONS } from "../../data/definitions";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+    getActionDefinition,
+    getRecipeDefinition,
+    getRecipesForSkill,
+    isRecipeUnlocked,
+    ITEM_DEFINITIONS,
+    SKILL_DEFINITIONS
+} from "../../data/definitions";
 import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../core/constants";
 import type { ActionDefinition, SkillId, SkillState } from "../../core/types";
 import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../../core/stats";
@@ -9,7 +16,7 @@ import { useGameStore } from "../hooks/useGameStore";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { usePendingActionSelection } from "../hooks/usePendingActionSelection";
 import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
-import { LoadoutModal } from "../components/LoadoutModal";
+import { ActionSelectionScreen } from "../components/ActionSelectionScreen";
 
 const getFirstUnlockedRecipeId = (skillId: SkillId, skillLevel: number): string => {
     return getRecipesForSkill(skillId).find((recipe) => isRecipeUnlocked(recipe, skillLevel))?.id ?? "";
@@ -23,13 +30,12 @@ const INTELLECT_SKILLS = new Set<SkillId>([
     "Carpentry"
 ]);
 
-type LoadoutModalContainerProps = {
-    isOpen: boolean;
-    onClose: () => void;
-    getSkillLabel: (skillId: SkillId | "") => string;
+type ActionSelectionScreenContainerProps = {
+    onBack: () => void;
+    getSkillLabel: (skillId: SkillId) => string;
 };
 
-export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: LoadoutModalContainerProps) => {
+export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: ActionSelectionScreenContainerProps) => {
     const activePlayer = useGameStore(selectActivePlayer);
     const inventoryItems = useGameStore((state) => state.inventory.items);
 
@@ -94,19 +100,7 @@ export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: Loadou
         return `Skill +${formatXpGain(skillXp)} / Recipe +${formatXpGain(recipeXp)}`;
     }, [effectiveStats.Intellect, formatXpGain]);
 
-    const hasInitialized = useRef(false);
-
     useEffect(() => {
-        if (!isOpen) {
-            hasInitialized.current = false;
-            return;
-        }
-
-        if (hasInitialized.current) {
-            return;
-        }
-        hasInitialized.current = true;
-
         const state = gameStore.getState();
         const playerId = state.activePlayerId;
         const player = playerId ? state.players[playerId] : null;
@@ -119,18 +113,36 @@ export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: Loadou
         const skillId = player.selectedActionId ?? "";
         const skill = skillId ? player.skills[skillId] : null;
         const selectedRecipeId = skill?.selectedRecipeId ?? "";
-        const selectedRecipeDef = selectedRecipeId && skillId
+        const selectedRecipeDef = skillId && selectedRecipeId
             ? getRecipeDefinition(skillId as SkillId, selectedRecipeId)
             : null;
-        const selectedRecipeUnlocked = Boolean(selectedRecipeDef && skill && isRecipeUnlocked(selectedRecipeDef, skill.level));
-        const recipeId = skill && skillId
-            ? selectedRecipeUnlocked && selectedRecipeId
-                ? selectedRecipeId
-                : getFirstUnlockedRecipeId(skillId as SkillId, skill.level)
-            : "";
+        const selectedRecipeUnlocked = Boolean(
+            selectedRecipeDef && skill && isRecipeUnlocked(selectedRecipeDef, skill.level)
+        );
+        const recipeId = selectedRecipeUnlocked && selectedRecipeId
+            ? selectedRecipeId
+            : skillId && skill
+                ? getFirstUnlockedRecipeId(skillId as SkillId, skill.level)
+                : "";
+
         setPendingSkillId(skillId as SkillId | "");
         setPendingRecipeId(recipeId);
-    }, [isOpen]);
+    }, [activePlayer?.id]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== "Escape") {
+                return;
+            }
+            event.preventDefault();
+            onBack();
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [onBack]);
 
     const handleSkillChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         if (!activePlayer) {
@@ -230,12 +242,12 @@ export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: Loadou
         ? `Missing: ${missingItems.map((entry) => `${itemNameById[entry.itemId] ?? entry.itemId} x${entry.needed}`).join(", ")}`
         : "";
 
-    if (!isOpen || !activePlayer) {
+    if (!activePlayer) {
         return null;
     }
 
     return (
-        <LoadoutModal
+        <ActionSelectionScreen
             activePlayer={activePlayer}
             skills={SKILL_DEFINITIONS}
             pendingSkillId={pendingSkillId}
@@ -254,7 +266,7 @@ export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: Loadou
             onRecipeChange={handleRecipeChange}
             onStartAction={handleStartAction}
             onStopAction={handleStopAction}
-            onClose={onClose}
+            onBack={onBack}
         />
     );
 };

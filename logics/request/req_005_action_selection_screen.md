@@ -16,3 +16,6 @@
 - Return to the panel the user came from.
 - Do not persist the screen state in saves.
 
+# Execution
+- Promoted to `logics/backlog/item_017_action_selection_screen.md`.
+- Executed in `logics/tasks/task_019_action_selection_screen.md`.

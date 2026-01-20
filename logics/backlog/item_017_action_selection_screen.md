@@ -2,7 +2,7 @@
 > From version: 0.8.9
 > Understanding: 90%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Action selection is currently implemented as a modal (`LoadoutModal`) opened by the **Change** button.
@@ -24,5 +24,4 @@ Replace the modal with a dedicated **Action Selection** screen that is reachable
 - Tests updated and CI passes.
 
 # Status
-- Execution is tracked in `logics/tasks/task_019_action_selection_screen.md`.
-
+- Delivered in `logics/tasks/task_019_action_selection_screen.md`.

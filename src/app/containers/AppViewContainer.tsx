@@ -1,6 +1,7 @@
 import type { SkillId } from "../../core/types";
-import { AppView, type AppActiveSidePanel } from "../AppView";
+import { AppView, type AppActiveScreen, type AppActiveSidePanel } from "../AppView";
 import { ActionPanelContainer } from "./ActionPanelContainer";
+import { ActionSelectionScreenContainer } from "./ActionSelectionScreenContainer";
 import { EquipmentPanelContainer } from "./EquipmentPanelContainer";
 import { InventoryPanelContainer } from "./InventoryPanelContainer";
 import { RosterContainer } from "./RosterContainer";
@@ -11,6 +12,7 @@ type AppViewContainerProps = {
     version: string;
     onOpenSystem: () => void;
     onOpenDevTools: () => void;
+    activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
     onShowStats: () => void;
@@ -18,6 +20,7 @@ type AppViewContainerProps = {
     onShowEquipment: () => void;
     onAddPlayer: () => void;
     onChangeAction: () => void;
+    onCloseActionSelection: () => void;
     onRenameHero: () => void;
     getSkillLabel: (skillId: SkillId) => string;
     getRecipeLabel: (skillId: SkillId, recipeId: string | null) => string;
@@ -28,6 +31,7 @@ export const AppViewContainer = ({
     version,
     onOpenSystem,
     onOpenDevTools,
+    activeScreen,
     activeSidePanel,
     onShowAction,
     onShowStats,
@@ -35,6 +39,7 @@ export const AppViewContainer = ({
     onShowEquipment,
     onAddPlayer,
     onChangeAction,
+    onCloseActionSelection,
     onRenameHero,
     getSkillLabel,
     getRecipeLabel,
@@ -46,6 +51,7 @@ export const AppViewContainer = ({
                 version={version}
                 onOpenSystem={onOpenSystem}
                 onOpenDevTools={onOpenDevTools}
+                activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={onShowAction}
                 onShowStats={onShowStats}
@@ -82,6 +88,14 @@ export const AppViewContainer = ({
                 equipmentPanel={(
                     <DevProfiler id="EquipmentPanel">
                         <EquipmentPanelContainer />
+                    </DevProfiler>
+                )}
+                actionSelectionScreen={(
+                    <DevProfiler id="ActionSelectionScreen">
+                        <ActionSelectionScreenContainer
+                            onBack={onCloseActionSelection}
+                            getSkillLabel={getSkillLabel}
+                        />
                     </DevProfiler>
                 )}
             />

@@ -4,11 +4,13 @@ import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
 import { useRenderCount } from "./dev/renderDebug";
 
 export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment";
+export type AppActiveScreen = "main" | "actionSelection";
 
 export interface AppViewProps {
     version: string;
     onOpenSystem: () => void;
     onOpenDevTools: () => void;
+    activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
     onShowStats: () => void;
@@ -19,6 +21,7 @@ export interface AppViewProps {
     statsPanel: ReactNode;
     inventoryPanel: ReactNode;
     equipmentPanel: ReactNode;
+    actionSelectionScreen: ReactNode;
 }
 
 export const AppView = (props: AppViewProps) => {
@@ -50,6 +53,7 @@ export const AppView = (props: AppViewProps) => {
         version,
         onOpenSystem,
         onOpenDevTools,
+        activeScreen,
         activeSidePanel,
         onShowAction,
         onShowStats,
@@ -60,6 +64,7 @@ export const AppView = (props: AppViewProps) => {
         statsPanel,
         inventoryPanel,
         equipmentPanel,
+        actionSelectionScreen,
     } = props;
 
     return (
@@ -133,18 +138,24 @@ export const AppView = (props: AppViewProps) => {
             <main className="app-layout generic-global ts-layout">
                 {roster}
                 <div className="ts-main-stack">
-                    {activeSidePanel === "action" ? (
-                        actionPanel
-                    ) : null}
-                    {activeSidePanel === "stats" ? (
-                        statsPanel
-                    ) : null}
-                    {activeSidePanel === "inventory" ? (
-                        inventoryPanel
-                    ) : null}
-                    {activeSidePanel === "equipment" ? (
-                        equipmentPanel
-                    ) : null}
+                    {activeScreen === "actionSelection"
+                        ? actionSelectionScreen
+                        : (
+                            <>
+                                {activeSidePanel === "action" ? (
+                                    actionPanel
+                                ) : null}
+                                {activeSidePanel === "stats" ? (
+                                    statsPanel
+                                ) : null}
+                                {activeSidePanel === "inventory" ? (
+                                    inventoryPanel
+                                ) : null}
+                                {activeSidePanel === "equipment" ? (
+                                    equipmentPanel
+                                ) : null}
+                            </>
+                        )}
                 </div>
             </main>
             {isMobile ? (
