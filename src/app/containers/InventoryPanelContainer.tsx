@@ -9,11 +9,19 @@ import { usePersistedInventoryFilters } from "../hooks/usePersistedInventoryFilt
 import { InventoryPanel, type InventorySort } from "../components/InventoryPanel";
 import { gameStore } from "../game";
 import { getSellGoldGain, getSellValuePerItem } from "../../core/economy";
+import { ConfirmSellModal } from "../components/ConfirmSellModal";
 
 export const InventoryPanelContainer = () => {
     const inventoryItems = useGameStore((state) => state.inventory.items);
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
     const [sellQuantity, setSellQuantity] = useState(1);
+    const [pendingSell, setPendingSell] = useState<{
+        itemId: string;
+        itemName: string;
+        count: number;
+        availableCount: number;
+        goldGain: number;
+    } | null>(null);
     const [isInventoryCollapsed, setInventoryCollapsed] = usePersistedCollapse("inventory", false);
     const [inventoryFilters, setInventoryFilters] = usePersistedInventoryFilters({
         sort: "Name",
@@ -108,7 +116,7 @@ export const InventoryPanelContainer = () => {
         ? getSellGoldGain(selected.id, Math.min(Math.max(1, Math.floor(sellQuantity)), selected.count))
         : 0;
 
-    const handleSellSelected = useCallback(async () => {
+    const handleSellSelected = useCallback(() => {
         const currentSelected = inventoryView.selectedItem;
         if (!currentSelected || !canSellSelected) {
             return;
@@ -123,18 +131,14 @@ export const InventoryPanelContainer = () => {
         const goldGainForSell = getSellGoldGain(currentSelected.id, amount);
         const requiresConfirm = amount > 1 || valuePerItem >= 10;
         if (requiresConfirm) {
-            const { default: Swal } = await import("sweetalert2");
-            const result = await Swal.fire({
-                title: "Sell items?",
-                text: `Sell x${amount} ${currentSelected.name} for +${goldGainForSell} gold?`,
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Sell",
-                cancelButtonText: "Cancel",
+            setPendingSell({
+                itemId: currentSelected.id,
+                itemName: currentSelected.name,
+                count: amount,
+                availableCount: available,
+                goldGain: goldGainForSell
             });
-            if (!result.isConfirmed) {
-                return;
-            }
+            return;
         }
 
         gameStore.dispatch({ type: "sellItem", itemId: currentSelected.id, count: amount });
@@ -145,31 +149,51 @@ export const InventoryPanelContainer = () => {
     }, [canSellSelected, inventoryView.selectedItem, sellQuantity]);
 
     return (
-        <InventoryPanel
-            isCollapsed={isInventoryCollapsed}
-            onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
-            entries={inventoryView.visibleEntries}
-            gridEntries={inventoryView.pageEntries}
-            selectedItem={inventoryView.selectedItem}
-            selectedItemId={selectedInventoryItemId}
-            onSelectItem={handleToggleInventoryItem}
-            onClearSelection={handleClearInventorySelection}
-            sellQuantity={sellQuantity}
-            onSellQuantityChange={setSellQuantity}
-            onSellSelected={handleSellSelected}
-            canSellSelected={canSellSelected}
-            sellGoldGain={sellGoldGain}
-            sellDisabledReason={sellDisabledReason}
-            sort={inventoryFilters.sort}
-            onSortChange={handleSetInventorySort}
-            search={inventoryFilters.search}
-            onSearchChange={handleSetInventorySearch}
-            page={inventoryView.safePage}
-            pageCount={inventoryView.pageCount}
-            onPageChange={handleSetInventoryPage}
-            totalItems={inventoryView.visibleEntries.length}
-            emptyState={inventoryEmptyState}
-            selectionHint={selectionHint}
-        />
+        <>
+            <InventoryPanel
+                isCollapsed={isInventoryCollapsed}
+                onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
+                entries={inventoryView.visibleEntries}
+                gridEntries={inventoryView.pageEntries}
+                selectedItem={inventoryView.selectedItem}
+                selectedItemId={selectedInventoryItemId}
+                onSelectItem={handleToggleInventoryItem}
+                onClearSelection={handleClearInventorySelection}
+                sellQuantity={sellQuantity}
+                onSellQuantityChange={setSellQuantity}
+                onSellSelected={handleSellSelected}
+                canSellSelected={canSellSelected}
+                sellGoldGain={sellGoldGain}
+                sellDisabledReason={sellDisabledReason}
+                sort={inventoryFilters.sort}
+                onSortChange={handleSetInventorySort}
+                search={inventoryFilters.search}
+                onSearchChange={handleSetInventorySearch}
+                page={inventoryView.safePage}
+                pageCount={inventoryView.pageCount}
+                onPageChange={handleSetInventoryPage}
+                totalItems={inventoryView.visibleEntries.length}
+                emptyState={inventoryEmptyState}
+                selectionHint={selectionHint}
+            />
+            <ConfirmSellModal
+                isOpen={Boolean(pendingSell)}
+                itemName={pendingSell?.itemName ?? ""}
+                count={pendingSell?.count ?? 1}
+                goldGain={pendingSell?.goldGain ?? 0}
+                onCancel={() => setPendingSell(null)}
+                onConfirm={() => {
+                    if (!pendingSell) {
+                        return;
+                    }
+                    const { itemId, count, availableCount } = pendingSell;
+                    gameStore.dispatch({ type: "sellItem", itemId, count });
+                    setPendingSell(null);
+                    if (count >= availableCount) {
+                        setSelectedInventoryItemId((current) => (current === itemId ? null : current));
+                    }
+                }}
+            />
+        </>
     );
 };

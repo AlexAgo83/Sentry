@@ -1,6 +1,8 @@
 import { memo, useEffect } from "react";
 import type { ReactNode } from "react";
 
+let openModalCount = 0;
+
 type ModalShellProps = {
     kicker: string;
     title: ReactNode;
@@ -20,6 +22,17 @@ export const ModalShell = memo(({
     onBackdropClick,
     onEscape
 }: ModalShellProps) => {
+    useEffect(() => {
+        openModalCount += 1;
+        document.documentElement.classList.add("ts-any-modal-open");
+        return () => {
+            openModalCount = Math.max(0, openModalCount - 1);
+            if (openModalCount === 0) {
+                document.documentElement.classList.remove("ts-any-modal-open");
+            }
+        };
+    }, []);
+
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {

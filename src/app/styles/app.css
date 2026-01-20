@@ -1686,6 +1686,23 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
     padding: 0 var(--m2);
 }
 
+.ts-modal-copy {
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+.ts-modal-copy-muted {
+    color: var(--color-text-fade);
+}
+
+.ts-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--m4);
+}
+
 .ts-offline-players {
     display: flex;
     flex-direction: column;

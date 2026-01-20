@@ -96,7 +96,8 @@ body {
     margin-left: var(--m2);
 }
 
-.app-shell.is-modal-open .app-topbar {
+.app-shell.is-modal-open .app-topbar,
+.ts-any-modal-open .app-topbar {
     opacity: 0;
     transform: translateY(-8px);
     pointer-events: none;
@@ -131,7 +132,8 @@ body {
     backdrop-filter: blur(10px);
 }
 
-.app-shell.is-modal-open .app-bottom-bar {
+.app-shell.is-modal-open .app-bottom-bar,
+.ts-any-modal-open .app-bottom-bar {
     opacity: 0;
     transform: translateY(8px);
     pointer-events: none;
