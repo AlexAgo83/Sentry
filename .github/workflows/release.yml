@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests (CI config)
+        run: npm run test:ci
+
+      - name: Coverage (CI config)
+        run: npm run coverage:ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Package dist
+        run: tar -czf "sentry-dist-${{ github.ref_name }}.tgz" dist
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: "sentry-dist-${{ github.ref_name }}.tgz"
+
