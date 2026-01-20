@@ -3,6 +3,8 @@ import type { CSSProperties } from "react";
 import type { SkillId } from "../../core/types";
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
+import { ChangeIcon } from "../ui/changeIcon";
+import { InterruptIcon } from "../ui/interruptIcon";
 
 type ActionStatusPanelProps = {
     activeSkillId: SkillId | "";
@@ -75,16 +77,40 @@ export const ActionStatusPanel = memo(({
     };
 
     return (
-    <section className="generic-panel ts-panel">
-        <div className="ts-panel-header">
-            <div className="ts-panel-heading">
-                <h2 className="ts-panel-title">Action</h2>
-            </div>
-            <div className="ts-panel-actions ts-panel-actions-inline">
-                <button
-                    type="button"
-                    className="ts-collapse-button ts-focusable"
-                    onClick={onToggleCollapsed}
+	    <section className="generic-panel ts-panel">
+	        <div className="ts-panel-header">
+	            <div className="ts-panel-heading">
+	                <h2 className="ts-panel-title">Action</h2>
+	            </div>
+	            <div className="ts-panel-actions ts-panel-actions-inline">
+	                <button
+	                    type="button"
+	                    className="ts-collapse-button ts-focusable"
+	                    onClick={onChangeAction}
+	                    disabled={!canChangeAction}
+	                    aria-label="Change"
+	                    title="Change"
+	                >
+	                    <span className="ts-collapse-label">
+	                        <ChangeIcon />
+	                    </span>
+	                </button>
+	                <button
+	                    type="button"
+	                    className="ts-collapse-button ts-focusable"
+	                    onClick={onInterruptAction}
+	                    disabled={!canInterruptAction}
+	                    aria-label="Interrupt"
+	                    title="Interrupt"
+	                >
+	                    <span className="ts-collapse-label">
+	                        <InterruptIcon />
+	                    </span>
+	                </button>
+	                <button
+	                    type="button"
+	                    className="ts-collapse-button ts-focusable"
+	                    onClick={onToggleCollapsed}
                     aria-label={isCollapsed ? "Expand" : "Collapse"}
                 >
                     <span className="ts-collapse-label">
@@ -156,33 +182,15 @@ export const ActionStatusPanel = memo(({
                 <div
                     className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
                     style={recipeStyle}
-                >
-                    <span className="ts-progress-label">
-                        Recipe Lv {activeRecipeLevel} - XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}
-                    </span>
-                </div>
-                <div className="ts-action-row ts-action-status-actions">
-                    <button
-                        type="button"
-                        className="generic-field button ts-focusable"
-                        onClick={onChangeAction}
-                        disabled={!canChangeAction}
-                    >
-                        Change
-                    </button>
-                    <button
-                        type="button"
-                        className="generic-field button ts-stop ts-focusable"
-                        onClick={onInterruptAction}
-                        disabled={!canInterruptAction}
-                    >
-                        Interrupt
-                    </button>
-                </div>
-            </>
-        ) : null}
-    </section>
-    );
+	                >
+	                    <span className="ts-progress-label">
+	                        Recipe Lv {activeRecipeLevel} - XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}
+	                    </span>
+	                </div>
+	            </>
+	        ) : null}
+	    </section>
+	    );
 });
 
 ActionStatusPanel.displayName = "ActionStatusPanel";
