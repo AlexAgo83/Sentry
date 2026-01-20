@@ -2,7 +2,6 @@ import type { ChangeEvent } from "react";
 import { memo } from "react";
 import type { PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked } from "../../data/definitions";
-import { BackIcon } from "../ui/backIcon";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { CollapseIcon } from "../ui/collapseIcon";
@@ -27,8 +26,6 @@ type ActionSelectionScreenProps = {
     onStartAction: () => void;
     onStopAction: () => void;
     onBack: () => void;
-    isCollapsed: boolean;
-    onToggleCollapsed: () => void;
 };
 
 export const ActionSelectionScreen = memo(({
@@ -50,9 +47,7 @@ export const ActionSelectionScreen = memo(({
     onRecipeChange,
     onStartAction,
     onStopAction,
-    onBack,
-    isCollapsed,
-    onToggleCollapsed
+    onBack
 }: ActionSelectionScreenProps) => (
     <section className="generic-panel ts-panel">
         <div className="ts-panel-header">
@@ -60,16 +55,6 @@ export const ActionSelectionScreen = memo(({
                 <h2 className="ts-panel-title">Action</h2>
             </div>
             <div className="ts-panel-actions ts-panel-actions-inline">
-                <button
-                    type="button"
-                    className="ts-collapse-button ts-focusable"
-                    onClick={onBack}
-                    aria-label="Back"
-                >
-                    <span className="ts-collapse-label">
-                        <BackIcon />
-                    </span>
-                </button>
                 <button
                     type="button"
                     className="ts-collapse-button ts-focusable"
@@ -97,16 +82,16 @@ export const ActionSelectionScreen = memo(({
                 <button
                     type="button"
                     className="ts-collapse-button ts-focusable"
-                    onClick={onToggleCollapsed}
-                    aria-label={isCollapsed ? "Expand" : "Collapse"}
+                    onClick={onBack}
+                    aria-label="Back"
+                    title="Back"
                 >
                     <span className="ts-collapse-label">
-                        <CollapseIcon isCollapsed={isCollapsed} />
+                        <CollapseIcon isCollapsed={false} />
                     </span>
                 </button>
             </div>
         </div>
-        {!isCollapsed ? (
         <div className="ts-field-group">
             <label className="ts-field-label" htmlFor="skill-select">Select skill</label>
             <select
@@ -176,7 +161,6 @@ export const ActionSelectionScreen = memo(({
                 <div className="ts-missing-hint">{missingItemsLabel}</div>
             ) : null}
         </div>
-        ) : null}
     </section>
 ));
 

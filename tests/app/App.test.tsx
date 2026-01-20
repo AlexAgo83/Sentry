@@ -179,7 +179,7 @@ describe("App", () => {
         await user.click(screen.getByRole("tab", { name: "Action" }));
         await user.click(screen.getByRole("button", { name: "Change" }));
         fireEvent.keyDown(window, { key: "Escape" });
-        expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
+        expect(screen.queryByLabelText("Select skill")).toBeNull();
     });
 
     it("shows offline summary and handles system actions", async () => {
