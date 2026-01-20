@@ -2,7 +2,7 @@
 > From version: 0.8.4
 > Understanding: 96%
 > Confidence: 92%
-> Progress: 95%
+> Progress: 100%
 
 # Context
 The app has 3 “global” entry points users reach frequently:
@@ -67,5 +67,19 @@ Introduce proper app bars:
 - Bar show/hide has a subtle slide/fade transition (disabled for reduced-motion users).
 
 # Open questions
-- Should the mobile bottom bar be always visible or auto-hide on scroll?
-- Which overlays count as “modal open” for hiding bars (all modals vs only some)?
+- None (resolved for v1).
+
+# Decisions (confirmed)
+- Mobile bottom bar is always visible (no auto-hide on scroll in v1).
+- Hide app bars while a modal is open (any overlay that blocks background interaction, including Setup/Dev/Offline recap and SweetAlert2-style dialogs).
+- Fixed bars must not overlap content; use app-shell padding (CSS variables) rather than per-panel offsets.
+- Breakpoint for mobile layout: `max-width: 720px`.
+- Use subtle slide/fade transitions for show/hide; disable with `prefers-reduced-motion`.
+
+# Status
+- Delivered:
+  - Desktop: fixed top bar with Title + `SidePanelSwitcher` + System + Dev.
+  - Mobile: fixed top bar (Title + System + Dev) + fixed bottom bar (`SidePanelSwitcher`, always visible).
+  - Safe-area padding via `env(safe-area-inset-top/bottom)` and app-shell padding to prevent overlap.
+  - App bars hide with slide/fade while a modal is open (also covers SweetAlert2 via `.swal2-shown`).
+- Executed in `logics/tasks/task_018_req_004_polish.md`.

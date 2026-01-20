@@ -2,7 +2,7 @@
 > From version: 0.7.2
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 90%
+> Progress: 100%
 
 # Context
 QA provided UI and UX feedback covering redundant controls, discoverability, copy clarity, and spacing issues.
@@ -13,8 +13,8 @@ Address QA feedback with small UI adjustments while preserving current behavior.
 # Needs
 - Remove the Inventory button from the roster (redundant with the inventory tab).
 - Use the version badge as the only System entry point (remove the System button), with clickable styling and a small gear icon.
-- Move the "ACT" control into the Action panel header and rename to "Change action".
-- Move the "SET" control into the Stats panel header and rename to "Rename hero".
+- Move the "ACT" control into the Action panel header and rename to a descriptive action-change label (shipped label: "Change").
+- Move the "SET" control into the Stats panel header and rename to a descriptive rename label (shipped label: "Rename").
 - Format Offline recap "Time away" as `Xs` (<60s), `Xm Ys` (<1h), `Xh Ym` (>=1h, no seconds).
 - Add 12px desktop spacing between "Sort" label and Name/Count buttons.
 - Add 12px desktop spacing between "Search" label and the filter input.
@@ -43,10 +43,13 @@ Address QA feedback with small UI adjustments while preserving current behavior.
 # Acceptance
 - Roster no longer shows a redundant Inventory button.
 - System access is available via the version badge (gear icon + hover) and is visually discoverable.
-- Action panel header shows "Change action" and Stats header shows "Rename hero".
+- Action panel header provides an explicit control to change action (shipped label: "Change") and Stats header provides an explicit control to rename the hero (shipped label: "Rename").
 - Offline recap displays a readable time-away value for longer durations.
 - Desktop spacing between sort/search labels and controls is improved (12px gap).
 - Pagination controls are hidden when only one page exists.
 
 # Open questions
 - None for v1.
+
+# Status
+- Delivered in `logics/tasks/task_013_qa_feedback_sweep.md`.

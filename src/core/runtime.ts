@@ -3,6 +3,7 @@ import { createInitialGameState } from "./state";
 import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
 import { PersistenceAdapter } from "../adapters/persistence/types";
+import { RESTED_THRESHOLD_MS } from "./constants";
 
 export class GameRuntime {
     private intervalId: number | null = null;
@@ -77,6 +78,9 @@ export class GameRuntime {
         );
         if (summary) {
             this.store.dispatch({ type: "setOfflineSummary", summary });
+        }
+        if (awayMs >= RESTED_THRESHOLD_MS) {
+            this.store.dispatch({ type: "grantRestedBuff", timestamp: now });
         }
         const prevEma = this.store.getState().perf.driftEmaMs;
         const driftMs = 0;
@@ -296,6 +300,9 @@ export class GameRuntime {
                         this.store.dispatch({ type: "setOfflineSummary", summary });
                     }
                 }
+                if (durationMs >= RESTED_THRESHOLD_MS) {
+                    this.store.dispatch({ type: "grantRestedBuff", timestamp: resumeAt });
+                }
                 this.store.dispatch({ type: "setHiddenAt", hiddenAt: null });
                 const prevEma = this.store.getState().perf.driftEmaMs;
                 const driftMs = 0;
@@ -465,6 +472,9 @@ export class GameRuntime {
             if (this.isOfflineDebugEnabled()) {
                 console.debug("[offline] recap skipped (no players)", { diffMs: diff, ticks: result.ticks });
             }
+        }
+        if (diff >= RESTED_THRESHOLD_MS) {
+            this.store.dispatch({ type: "grantRestedBuff", timestamp: now });
         }
 
         this.updatePerf(perfStart, {

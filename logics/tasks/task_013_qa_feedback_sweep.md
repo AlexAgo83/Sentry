@@ -9,8 +9,8 @@ This task executes `item_013_qa_feedback_sweep`.
 
 # Plan
 - [x] 1. Roster + System entry: remove the roster Inventory button and make the version badge the only System entry (inline SVG gear icon, subtle button styling, hover + pointer).
-- [x] 2. Action panel: move the ACT control into the Action panel header (right-aligned) and rename it to "Change action" using existing button styles.
-- [x] 3. Stats panel: move the SET control into the Stats panel header (right-aligned) and rename it to "Rename hero" using existing button styles.
+- [x] 2. Action panel: move the ACT control into the Action panel header (right-aligned) and use a descriptive action-change label (shipped label: "Change") using existing button styles.
+- [x] 3. Stats panel: move the SET control into the Stats panel header (right-aligned) and use a descriptive rename label (shipped label: "Rename") using existing button styles.
 - [x] 4. Offline recap: add a compact time-away formatter (`Xs`, `Xm Ys`, `Xh Ym`) and use it in the recap.
 - [x] 5. Inventory UI spacing: add 12px desktop spacing between Sort label and Name/Count controls, and between Search label and input.
 - [x] 6. Pagination: remove the pagination row from the DOM when there is only one page.

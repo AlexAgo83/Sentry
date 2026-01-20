@@ -1,4 +1,4 @@
-import { render, screen, within, fireEvent } from "@testing-library/react";
+import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../src/app/App";
@@ -225,6 +225,56 @@ describe("App", () => {
         expect(testRuntime.reset).not.toHaveBeenCalled();
         await user.click(within(systemDialog).getByRole("button", { name: "Reset save" }));
         expect(testRuntime.reset).toHaveBeenCalled();
+    });
+
+    it("toggles the app shell modal class when overlays are open", async () => {
+        const { user } = renderApp();
+        const shell = document.querySelector(".app-shell");
+        expect(shell).toBeTruthy();
+        expect(shell?.className).not.toContain("is-modal-open");
+
+        await user.click(screen.getByRole("button", { name: "Open system telemetry" }));
+        const systemDialog = await screen.findByRole("dialog");
+        await waitFor(() => {
+            expect(document.querySelector(".app-shell")?.className).toContain("is-modal-open");
+        });
+
+        await user.click(within(systemDialog).getByRole("button", { name: "Close" }));
+        await waitFor(() => {
+            expect(document.querySelector(".app-shell")?.className).not.toContain("is-modal-open");
+        });
+
+        const summary: OfflineSummaryState = {
+            durationMs: 20000,
+            processedMs: 20000,
+            ticks: 2,
+            capped: false,
+            players: [
+                {
+                    playerId: "1",
+                    playerName: "Player_1",
+                    actionId: "Hunting",
+                    recipeId: "hunt_small_game",
+                    skillXpGained: 2,
+                    recipeXpGained: 4,
+                    skillLevelGained: 0,
+                    recipeLevelGained: 0,
+                    itemDeltas: { bones: 2 }
+                }
+            ],
+            totalItemDeltas: { bones: 2 }
+        };
+
+        testStore.dispatch({ type: "setOfflineSummary", summary });
+        expect(await screen.findByText("Offline recap")).toBeTruthy();
+        await waitFor(() => {
+            expect(document.querySelector(".app-shell")?.className).toContain("is-modal-open");
+        });
+
+        await user.click(await screen.findByRole("button", { name: "Close" }));
+        await waitFor(() => {
+            expect(document.querySelector(".app-shell")?.className).not.toContain("is-modal-open");
+        });
     });
 
     it("renders the equipment panel and shows the active action label in telemetry", async () => {

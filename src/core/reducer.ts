@@ -6,6 +6,7 @@ import {
     hydrateGameState,
     sanitizePlayerName
 } from "./state";
+import { RESTED_DURATION_MS, RESTED_ENDURANCE_FLAT } from "./constants";
 import {
     ActionId,
     EquipmentSlotId,
@@ -14,6 +15,8 @@ import {
     ItemId,
     OfflineSummaryState,
     PerformanceState,
+    StatModifier,
+    PlayerState,
     PlayerId,
     RecipeId,
     SkillId
@@ -28,6 +31,7 @@ export type GameAction =
     | { type: "setHiddenAt"; hiddenAt: number | null }
     | { type: "setPerf"; perf: Partial<PerformanceState> }
     | { type: "setOfflineSummary"; summary: OfflineSummaryState | null }
+    | { type: "grantRestedBuff"; timestamp: number }
     | { type: "setActivePlayer"; playerId: PlayerId }
     | { type: "addPlayer"; name?: string }
     | { type: "renamePlayer"; playerId: PlayerId; name: string }
@@ -64,6 +68,44 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 ...state,
                 offlineSummary: action.summary
             };
+        case "grantRestedBuff": {
+            if (!Number.isFinite(action.timestamp)) {
+                return state;
+            }
+            const expiresAt = action.timestamp + RESTED_DURATION_MS;
+            const restedMod: StatModifier = {
+                id: "rested",
+                stat: "Endurance",
+                kind: "flat",
+                value: RESTED_ENDURANCE_FLAT,
+                source: "Rested",
+                expiresAt,
+                stackKey: "rested"
+            };
+            const players = Object.keys(state.players).reduce<Record<PlayerId, PlayerState>>((acc, playerId) => {
+                const typedPlayerId = playerId as PlayerId;
+                const player = state.players[typedPlayerId];
+                if (!player) {
+                    return acc;
+                }
+                const nextMods = [
+                    ...player.stats.temporaryMods.filter((mod) => mod.stackKey !== "rested"),
+                    restedMod
+                ];
+                acc[typedPlayerId] = {
+                    ...player,
+                    stats: {
+                        ...player.stats,
+                        temporaryMods: nextMods
+                    }
+                };
+                return acc;
+            }, {} as Record<PlayerId, PlayerState>);
+            return {
+                ...state,
+                players
+            };
+        }
         case "setActivePlayer":
             if (!state.players[action.playerId]) {
                 return state;

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { AppView } from "../../src/app/AppView";
 
 describe("AppView (mobile bottom bar)", () => {
-    it("auto-hides the bottom bar on scroll down and shows it on scroll up", async () => {
+    it("keeps the bottom bar visible while scrolling", async () => {
         Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
         Object.defineProperty(window, "scrollY", { value: 0, writable: true });
 
@@ -35,7 +35,7 @@ describe("AppView (mobile bottom bar)", () => {
         });
 
         await waitFor(() => {
-            expect(container.querySelector(".app-bottom-bar")?.className).toContain("is-scroll-hidden");
+            expect(container.querySelector(".app-bottom-bar")?.className).not.toContain("is-scroll-hidden");
         });
 
         await act(async () => {
@@ -48,4 +48,3 @@ describe("AppView (mobile bottom bar)", () => {
         });
     });
 });
-

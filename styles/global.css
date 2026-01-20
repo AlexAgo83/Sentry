@@ -97,7 +97,8 @@ body {
 }
 
 .app-shell.is-modal-open .app-topbar,
-.ts-any-modal-open .app-topbar {
+.ts-any-modal-open .app-topbar,
+.swal2-shown .app-topbar {
     opacity: 0;
     transform: translateY(-8px);
     pointer-events: none;
@@ -133,15 +134,10 @@ body {
 }
 
 .app-shell.is-modal-open .app-bottom-bar,
-.ts-any-modal-open .app-bottom-bar {
+.ts-any-modal-open .app-bottom-bar,
+.swal2-shown .app-bottom-bar {
     opacity: 0;
     transform: translateY(8px);
-    pointer-events: none;
-}
-
-.app-bottom-bar.is-scroll-hidden {
-    opacity: 0;
-    transform: translateY(10px);
     pointer-events: none;
 }
 
@@ -193,6 +189,16 @@ body {
 
     .app-title {
         font-size: var(--text-l-size);
+    }
+}
+
+@media (min-width: 721px) and (max-width: 960px) {
+    .app-topbar .ts-topbar-switcher .ts-chip-text {
+        display: none;
+    }
+
+    .app-topbar .ts-topbar-switcher .ts-chip {
+        padding: 10px 12px;
     }
 }
 

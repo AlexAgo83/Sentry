@@ -5,6 +5,7 @@ import { createInitialGameState } from "../../src/core/state";
 import { createGameStore } from "../../src/store/gameStore";
 import { toGameSave } from "../../src/core/serialization";
 import type { GameSave } from "../../src/core/types";
+import { RESTED_DURATION_MS, RESTED_THRESHOLD_MS } from "../../src/core/constants";
 
 const buildPersistence = (save: GameSave | null = null) => ({
     load: () => save,
@@ -158,6 +159,40 @@ describe("GameRuntime", () => {
         expect(persistence.save).toHaveBeenCalled();
         runtime.stop();
         console.info("[runtime.test] visibility resume - end");
+    });
+
+    it("grants and refreshes the Rested buff after long offline simulations", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        const now1 = RESTED_THRESHOLD_MS + 1000;
+        const now2 = now1 + 60_000;
+        let nowValue = now1;
+        vi.spyOn(Date, "now").mockImplementation(() => nowValue);
+
+        runtime.simulateOffline(RESTED_THRESHOLD_MS + 1);
+
+        const player1Mods = store.getState().players["1"]?.stats.temporaryMods ?? [];
+        const rested1 = player1Mods.find((mod) => mod.stackKey === "rested");
+        expect(rested1).toMatchObject({
+            id: "rested",
+            stat: "Endurance",
+            kind: "flat",
+            source: "Rested",
+            stackKey: "rested",
+        });
+        expect(rested1?.expiresAt).toBe(now1 + RESTED_DURATION_MS);
+
+        nowValue = now2;
+        runtime.simulateOffline(RESTED_THRESHOLD_MS + 1);
+
+        const player1ModsAfter = store.getState().players["1"]?.stats.temporaryMods ?? [];
+        const restedMods = player1ModsAfter.filter((mod) => mod.stackKey === "rested");
+        expect(restedMods).toHaveLength(1);
+        expect(restedMods[0]?.expiresAt).toBe(now2 + RESTED_DURATION_MS);
     });
 
     it("skips recap when no players exist", () => {
