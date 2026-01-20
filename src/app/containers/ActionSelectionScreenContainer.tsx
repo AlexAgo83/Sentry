@@ -13,6 +13,7 @@ import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } 
 import { getEquipmentModifiers } from "../../data/equipment";
 import { gameStore } from "../game";
 import { useGameStore } from "../hooks/useGameStore";
+import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { usePendingActionSelection } from "../hooks/usePendingActionSelection";
 import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
@@ -38,6 +39,7 @@ type ActionSelectionScreenContainerProps = {
 export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: ActionSelectionScreenContainerProps) => {
     const activePlayer = useGameStore(selectActivePlayer);
     const inventoryItems = useGameStore((state) => state.inventory.items);
+    const [isCollapsed, setCollapsed] = usePersistedCollapse("actionSelection", false);
 
     const [pendingSkillId, setPendingSkillId] = useState<SkillId | "">("");
     const [pendingRecipeId, setPendingRecipeId] = useState("");
@@ -267,6 +269,8 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
             onStartAction={handleStartAction}
             onStopAction={handleStopAction}
             onBack={onBack}
+            isCollapsed={isCollapsed}
+            onToggleCollapsed={() => setCollapsed((value) => !value)}
         />
     );
 };

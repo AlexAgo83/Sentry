@@ -5,6 +5,7 @@ import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked } from "../.
 import { BackIcon } from "../ui/backIcon";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
+import { CollapseIcon } from "../ui/collapseIcon";
 
 type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
@@ -26,6 +27,8 @@ type ActionSelectionScreenProps = {
     onStartAction: () => void;
     onStopAction: () => void;
     onBack: () => void;
+    isCollapsed: boolean;
+    onToggleCollapsed: () => void;
 };
 
 export const ActionSelectionScreen = memo(({
@@ -47,12 +50,14 @@ export const ActionSelectionScreen = memo(({
     onRecipeChange,
     onStartAction,
     onStopAction,
-    onBack
+    onBack,
+    isCollapsed,
+    onToggleCollapsed
 }: ActionSelectionScreenProps) => (
     <section className="generic-panel ts-panel">
         <div className="ts-panel-header">
             <div className="ts-panel-heading">
-                <h2 className="ts-panel-title">Action selection</h2>
+                <h2 className="ts-panel-title">Action</h2>
             </div>
             <div className="ts-panel-actions ts-panel-actions-inline">
                 <button
@@ -65,8 +70,43 @@ export const ActionSelectionScreen = memo(({
                         <BackIcon />
                     </span>
                 </button>
+                <button
+                    type="button"
+                    className="ts-collapse-button ts-focusable"
+                    onClick={onStartAction}
+                    disabled={!canStartAction}
+                    aria-label="Start action"
+                    title="Start action"
+                >
+                    <span className="ts-collapse-label">
+                        <StartActionIcon />
+                    </span>
+                </button>
+                <button
+                    type="button"
+                    className="ts-collapse-button ts-focusable"
+                    onClick={onStopAction}
+                    disabled={!canStopAction}
+                    aria-label="Interrupt"
+                    title="Interrupt"
+                >
+                    <span className="ts-collapse-label">
+                        <InterruptIcon />
+                    </span>
+                </button>
+                <button
+                    type="button"
+                    className="ts-collapse-button ts-focusable"
+                    onClick={onToggleCollapsed}
+                    aria-label={isCollapsed ? "Expand" : "Collapse"}
+                >
+                    <span className="ts-collapse-label">
+                        <CollapseIcon isCollapsed={isCollapsed} />
+                    </span>
+                </button>
             </div>
         </div>
+        {!isCollapsed ? (
         <div className="ts-field-group">
             <label className="ts-field-label" htmlFor="skill-select">Select skill</label>
             <select
@@ -108,7 +148,7 @@ export const ActionSelectionScreen = memo(({
             </select>
             <div className="ts-action-summary">
                 <div className="ts-action-summary-row">
-                    <span className="ts-action-summary-label">Action selection</span>
+                    <span className="ts-action-summary-label">Action</span>
                     <span className="ts-action-summary-value">{pendingSkillLabel}</span>
                 </div>
                 <div className="ts-action-summary-row">
@@ -132,38 +172,11 @@ export const ActionSelectionScreen = memo(({
                     <span className="ts-action-summary-value">{pendingProductionLabel}</span>
                 </div>
             </div>
-            <div className="ts-action-row">
-                <button
-                    type="button"
-                    className="ts-collapse-button ts-focusable"
-                    onClick={onStartAction}
-                    disabled={!canStartAction}
-                    aria-label="Start action"
-                    title="Start action"
-                >
-                    <span className="ts-collapse-label">
-                        <StartActionIcon />
-                    </span>
-                </button>
-            </div>
             {missingItemsLabel ? (
                 <div className="ts-missing-hint">{missingItemsLabel}</div>
             ) : null}
-            <div className="ts-action-row">
-                <button
-                    type="button"
-                    className="ts-collapse-button ts-focusable"
-                    onClick={onStopAction}
-                    disabled={!canStopAction}
-                    aria-label="Interrupt"
-                    title="Interrupt"
-                >
-                    <span className="ts-collapse-label">
-                        <InterruptIcon />
-                    </span>
-                </button>
-            </div>
         </div>
+        ) : null}
     </section>
 ));
 
