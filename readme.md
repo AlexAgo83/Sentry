@@ -14,11 +14,26 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 
 ## Tech Stack
 
-* TypeScript
-* React
-* Vite
-* Vitest
-* SweetAlert2
+### App
+
+* TypeScript + React (functional components + hooks).
+* Vite (build/dev server) + `@vitejs/plugin-react-swc` (fast React/TS transforms).
+* Custom CSS (global styles in `styles/` + app styles in `src/app/styles/`).
+* SweetAlert2 (dialogs/confirm flows).
+
+### Game engine & state
+
+* Reducer-driven state machine: `src/core/reducer.ts`.
+* Runtime tick loop + offline catch-up: `src/core/runtime.ts`, `src/core/loop.ts`.
+* Lightweight store (subscribe/dispatch): `src/store/gameStore.ts`.
+* Persistence + save migrations: `src/adapters/persistence/*`, `src/core/state.ts`.
+
+### Testing & quality
+
+* Vitest + Testing Library + jsdom (unit + UI tests).
+* Coverage via `@vitest/coverage-v8` (HTML report in `coverage/`).
+* `jest-axe` accessibility smoke checks.
+* ESLint + TypeScript typecheck.
 
 ## Project Structure
 
@@ -33,7 +48,7 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 * `public`: PWA assets (manifest, service worker, icons).
 * `logics`: Product workflow and planning artifacts.
 * `logics/architecture`: Architecture notes and decisions.
-* `logics/request`: Incoming requests or ideas.
+* `logics/request`: Incoming requests or ideas (planning only).
 * `logics/backlog`: Core product items.
 * `logics/tasks`: Execution plans derived from backlog items.
 * `dist`: Production build output (generated).
@@ -44,8 +59,15 @@ Codex should load project-specific instructions from `logics/instructions.md`.
 
 ## Setup
 
+### Requirements
+
+* Node.js `>= 20` (CI uses Node 20).
+* npm (lockfile-based installs supported via `package-lock.json`).
+
 1. Clone the repository: `git clone https://github.com/AlexAgo83/Sentry.git`
-2. Install dependencies: `npm install`
+2. Install dependencies:
+   - Recommended (CI-like): `npm ci`
+   - Local dev: `npm install`
 3. Start the dev server: `npm run dev`
 
 ## Scripts
@@ -71,6 +93,18 @@ Coverage thresholds are enforced via Vitest (statements/lines/functions/branches
 * `VITEST_STRICT=true|false` forces strictness (bail=1 + single-thread) on/off for the local config.
 * `VITEST_LOG_CONSOLE=true` echoes all console output during tests with a prefix.
 * `TEST_TIMEOUT_MS=<ms>` overrides the kill-timeout for `npm run tests` (default 90s locally, disabled in CI unless provided).
+
+## CI (GitHub Actions)
+
+The `CI` workflow runs on push/PR to `main` and executes:
+
+* `npm ci` (requires `package-lock.json`)
+* `npm run lint`
+* `npm run typecheck`
+* `npm run test:ci`
+* `npm run coverage:ci` (enforces thresholds)
+* `npm audit --audit-level=moderate`
+* `npm run build`
 
 ## Troubleshooting
 
