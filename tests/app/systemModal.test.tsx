@@ -58,14 +58,13 @@ describe("SystemModal", () => {
                 kind: "error",
                 message: "Boom",
                 stack: "stack",
-                createdAt: Date.now()
+                timestamp: Date.now()
             },
             {
                 id: "b",
                 kind: "unhandledrejection",
                 message: "Nope",
-                stack: null,
-                createdAt: Date.now()
+                timestamp: Date.now()
             }
         ];
 

@@ -55,8 +55,8 @@ vi.mock("../../../src/app/components/HeroNameModal", () => ({
 }));
 
 vi.mock("../../../src/app/components/OfflineSummaryModal", () => ({
-    OfflineSummaryModal: (props: { offlineSeconds: number; onClose: () => void }) => (
-        <div data-testid="offline-summary" data-seconds={String(props.offlineSeconds)}>
+    OfflineSummaryModal: (props: { summary: { durationMs: number }; onClose: () => void }) => (
+        <div data-testid="offline-summary" data-duration={String(props.summary.durationMs)}>
             <button type="button" onClick={props.onClose}>close-offline</button>
         </div>
     ),
@@ -123,6 +123,8 @@ const baseProps = (): ComponentProps<typeof AppModalsContainer> => ({
     isLoadoutOpen: false,
     onCloseLoadout: vi.fn(),
     isSystemOpen: false,
+    isDevToolsOpen: false,
+    onCloseDevTools: vi.fn(),
     isRecruitOpen: false,
     newHeroName: "",
     onNewHeroNameChange: vi.fn(),
@@ -196,18 +198,20 @@ describe("AppModalsContainer", () => {
         expect(props.onCloseSystem).toHaveBeenCalledTimes(1);
     });
 
-    it("renders offline summary when present and computes seconds", () => {
+    it("renders offline summary when present and closes", () => {
         const props = baseProps();
         props.offlineSummary = {
             durationMs: 12500,
+            processedMs: 12500,
             ticks: 10,
+            capped: false,
             players: [],
             totalItemDeltas: {}
         };
         render(<AppModalsContainer {...props} />);
 
         const node = screen.getByTestId("offline-summary");
-        expect(node.getAttribute("data-seconds")).toBe("13");
+        expect(node.getAttribute("data-duration")).toBe("12500");
         fireEvent.click(screen.getByRole("button", { name: "close-offline" }));
         expect(props.onCloseOfflineSummary).toHaveBeenCalledTimes(1);
     });

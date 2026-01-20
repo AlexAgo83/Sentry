@@ -40,11 +40,28 @@ vi.mock("../../../src/adapters/persistence/localStorageKeys", () => ({
     readRawLastGoodSave: () => readRawLastGoodSaveSpy(),
 }));
 
-type Api = ReturnType<typeof useSaveManagement>;
+type UseSaveManagementOptions = {
+    isSafeModeOpen: boolean;
+    closeLoadout: () => void;
+    closeAllHeroNameModals: () => void;
+    refreshLoadReport: () => void;
+    closeSafeMode: () => void;
+};
+
+type SaveManagementApi = {
+    closeOfflineSummary: () => void;
+    resetSave: () => void;
+    exportSave: () => void;
+    importSave: () => void;
+    canCopyCurrentRawSave: boolean;
+    canCopyLastGoodRawSave: boolean;
+    copyCurrentRawSave: () => void;
+    copyLastGoodRawSave: () => void;
+};
 
 const TestHarness = (props: {
-    onReady: (api: Api) => void;
-    options: Parameters<typeof useSaveManagement>[0];
+    onReady: (api: SaveManagementApi) => void;
+    options: UseSaveManagementOptions;
 }) => {
     const api = useSaveManagement(props.options);
     useEffect(() => {
@@ -79,7 +96,7 @@ describe("useSaveManagement", () => {
         const refreshLoadReport = vi.fn();
         const closeSafeMode = vi.fn();
 
-        let api: Api | null = null;
+        let api: SaveManagementApi | null = null;
         render(
             <TestHarness
                 options={{
@@ -97,7 +114,7 @@ describe("useSaveManagement", () => {
             expect(api).not.toBeNull();
         });
 
-        api?.resetSave();
+        (api as unknown as SaveManagementApi).resetSave();
         expect(confirm).toHaveBeenCalledTimes(1);
         expect(closeLoadout).not.toHaveBeenCalled();
         expect(closeAllHeroNameModals).not.toHaveBeenCalled();
@@ -114,7 +131,7 @@ describe("useSaveManagement", () => {
         const closeSafeMode = vi.fn();
         const dispatchSpy = vi.spyOn(testStore, "dispatch");
 
-        let api: Api | null = null;
+        let api: SaveManagementApi | null = null;
         render(
             <TestHarness
                 options={{
@@ -132,7 +149,7 @@ describe("useSaveManagement", () => {
             expect(api).not.toBeNull();
         });
 
-        api?.resetSave();
+        (api as unknown as SaveManagementApi).resetSave();
         expect(closeLoadout).toHaveBeenCalledTimes(1);
         expect(closeAllHeroNameModals).toHaveBeenCalledTimes(1);
         expect(dispatchSpy).toHaveBeenCalledWith({ type: "setOfflineSummary", summary: null });
@@ -149,7 +166,7 @@ describe("useSaveManagement", () => {
             configurable: true
         });
 
-        let api: Api | null = null;
+        let api: SaveManagementApi | null = null;
         render(
             <TestHarness
                 options={{
@@ -167,7 +184,7 @@ describe("useSaveManagement", () => {
             expect(api).not.toBeNull();
         });
 
-        api?.exportSave();
+        (api as unknown as SaveManagementApi).exportSave();
         expect(writeText).toHaveBeenCalledTimes(1);
 
         await waitFor(() => {
@@ -181,7 +198,7 @@ describe("useSaveManagement", () => {
         const refreshLoadReport = vi.fn();
         parseSpy.mockReturnValue({ status: "ok", save: { version: "0.1.0", players: {}, lastTick: null } });
 
-        let api: Api | null = null;
+        let api: SaveManagementApi | null = null;
         render(
             <TestHarness
                 options={{
@@ -199,7 +216,7 @@ describe("useSaveManagement", () => {
             expect(api).not.toBeNull();
         });
 
-        api?.importSave();
+        (api as unknown as SaveManagementApi).importSave();
         expect(prompt).toHaveBeenCalledTimes(1);
         expect(alert).not.toHaveBeenCalled();
         expect(testRuntime.importSave).toHaveBeenCalledTimes(1);
@@ -211,7 +228,7 @@ describe("useSaveManagement", () => {
         readRawSaveSpy.mockReturnValue(null);
         readRawLastGoodSaveSpy.mockReturnValue(null);
 
-        let api: Api | null = null;
+        let api: SaveManagementApi | null = null;
         render(
             <TestHarness
                 options={{
@@ -229,11 +246,11 @@ describe("useSaveManagement", () => {
             expect(api).not.toBeNull();
         });
 
-        expect(api?.canCopyCurrentRawSave).toBe(false);
-        expect(api?.canCopyLastGoodRawSave).toBe(false);
+        expect((api as unknown as SaveManagementApi).canCopyCurrentRawSave).toBe(false);
+        expect((api as unknown as SaveManagementApi).canCopyLastGoodRawSave).toBe(false);
 
-        api?.copyCurrentRawSave();
-        api?.copyLastGoodRawSave();
+        (api as unknown as SaveManagementApi).copyCurrentRawSave();
+        (api as unknown as SaveManagementApi).copyLastGoodRawSave();
         expect(alert).toHaveBeenCalledWith("No current save found.");
         expect(alert).toHaveBeenCalledWith("No last good save found.");
     });

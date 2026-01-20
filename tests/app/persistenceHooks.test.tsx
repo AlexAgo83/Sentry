@@ -2,19 +2,18 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 
 describe("persistence hooks", () => {
-    const originalVi = globalThis.vi;
+    const originalVi = (globalThis as any).vi;
     const originalEnv = process.env.NODE_ENV;
 
     afterEach(() => {
-        globalThis.vi = originalVi;
+        (globalThis as any).vi = originalVi;
         process.env.NODE_ENV = originalEnv;
         vi.resetModules();
     });
 
     it("usePersistedCollapse stores and restores state", async () => {
         // Force non-test path to hit localStorage
-        // @ts-expect-error override for test
-        globalThis.vi = undefined;
+        (globalThis as any).vi = undefined;
         process.env.NODE_ENV = "development";
         vi.resetModules();
         const { usePersistedCollapse } = await import("../../src/app/hooks/usePersistedCollapse");
@@ -40,8 +39,7 @@ describe("persistence hooks", () => {
 
     it("usePersistedInventoryFilters stores and restores values", async () => {
         // Force non-test path
-        // @ts-expect-error override for test
-        globalThis.vi = undefined;
+        (globalThis as any).vi = undefined;
         process.env.NODE_ENV = "development";
         vi.resetModules();
         const { usePersistedInventoryFilters } = await import("../../src/app/hooks/usePersistedInventoryFilters");

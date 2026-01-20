@@ -13,7 +13,7 @@ const mulberry32 = (seed: number) => {
     };
 };
 
-const pick = <T>(rand: () => number, items: T[]): T => items[Math.floor(rand() * items.length)]!;
+const pick = <T>(rand: () => number, items: readonly T[]): T => items[Math.floor(rand() * items.length)]!;
 
 describe("stats property tests", () => {
     it("computeEffectiveStats never returns NaN/Infinity and always clamps", () => {

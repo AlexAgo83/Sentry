@@ -5,6 +5,7 @@ import { App } from "../../src/app/App";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
 import { createGameStore } from "../../src/store/gameStore";
 import type { GameStore } from "../../src/store/gameStore";
+import type { OfflineSummaryState } from "../../src/core/types";
 
 let testStore: GameStore;
 let testRuntime: {
@@ -121,7 +122,7 @@ describe("App", () => {
         expect((screen.getByLabelText("Select skill") as HTMLSelectElement).value).toBe("Combat");
         expect((screen.getByLabelText("Select recipe") as HTMLSelectElement).value).toBe("combat_frontline");
 
-        const summary = screen.getByText("Action selection").closest(".ts-action-summary");
+        const summary = screen.getByText("Action selection").closest(".ts-action-summary") as HTMLElement | null;
         expect(summary).toBeTruthy();
         if (summary) {
             expect(within(summary).getByText("Combat")).toBeTruthy();
@@ -182,9 +183,11 @@ describe("App", () => {
 
     it("shows offline summary and handles system actions", async () => {
         const { user } = renderApp({ food: 1 });
-        const summary = {
+        const summary: OfflineSummaryState = {
             durationMs: 20000,
+            processedMs: 20000,
             ticks: 2,
+            capped: false,
             players: [
                 {
                     playerId: "1",

@@ -42,9 +42,10 @@ export const LoadoutModalContainer = ({ isOpen, onClose, getSkillLabel }: Loadou
     }, {}), []);
 
     const statsNowTime = Date.now();
+    const activeEquipment = activePlayer?.equipment ?? null;
     const equipmentModifiers = useMemo(
-        () => (activePlayer ? getEquipmentModifiers(activePlayer.equipment) : []),
-        [activePlayer?.equipment]
+        () => (activeEquipment ? getEquipmentModifiers(activeEquipment) : []),
+        [activeEquipment]
     );
     const statsSnapshot = activePlayer
         ? resolveEffectiveStats(activePlayer.stats, statsNowTime, equipmentModifiers)

@@ -139,7 +139,6 @@ export const AppModalsContainer = ({
             {offlineSummary ? (
                 <OfflineSummaryModal
                     summary={offlineSummary}
-                    offlineSeconds={Math.round(offlineSummary.durationMs / 1000)}
                     players={offlineSummary.players ?? []}
                     onClose={onCloseOfflineSummary}
                     getSkillLabel={getSkillLabel}

@@ -29,6 +29,8 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+      - name: Typecheck (tests)
+        run: npm run typecheck:tests
 
       - name: Tests (CI config)
         run: npm run test:ci
@@ -47,4 +49,3 @@ jobs:
         with:
           generate_release_notes: true
           files: "sentry-dist-${{ github.ref_name }}.tgz"
-

@@ -176,7 +176,9 @@ export interface OfflinePlayerSummary {
 
 export interface OfflineSummaryState {
     durationMs: number;
+    processedMs: number;
     ticks: number;
+    capped: boolean;
     players: OfflinePlayerSummary[];
     totalItemDeltas: ItemDelta;
 }

@@ -9,11 +9,10 @@ const isTestEnv = typeof vi !== "undefined" ||
 const PANEL_STORAGE_KEY = "sentry.panelCollapsed";
 
 export const usePersistedCollapse = (panelKey: string, defaultValue = false) => {
-    if (isTestEnv) {
-        const [value, setValue] = useState<boolean>(defaultValue);
-        return [value, setValue] as const;
-    }
     const [value, setValue] = useState<boolean>(() => {
+        if (isTestEnv) {
+            return defaultValue;
+        }
         if (typeof window === "undefined") {
             return defaultValue;
         }
@@ -30,9 +29,7 @@ export const usePersistedCollapse = (panelKey: string, defaultValue = false) => 
     });
 
     useEffect(() => {
-        if (isTestEnv) {
-            return;
-        }
+        if (isTestEnv) return;
         if (typeof window === "undefined") {
             return;
         }

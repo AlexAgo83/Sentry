@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { App } from "../../src/app/App";
 import { createInitialGameState } from "../../src/core/state";
 import { createGameStore } from "../../src/store/gameStore";
+import type { OfflineSummaryState } from "../../src/core/types";
 
 let testStore: ReturnType<typeof createGameStore>;
 let testRuntime: {
@@ -32,9 +33,11 @@ describe("Smoke: offline recap modal", () => {
             reset: vi.fn()
         };
 
-        const summary = {
+        const summary: OfflineSummaryState = {
             durationMs: 15000,
+            processedMs: 15000,
             ticks: 3,
+            capped: false,
             players: [
                 {
                     playerId: "1",

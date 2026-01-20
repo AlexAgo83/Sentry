@@ -16,11 +16,10 @@ export type InventoryFilters = {
 };
 
 export const usePersistedInventoryFilters = (defaultValue: InventoryFilters) => {
-    if (isTestEnv) {
-        const [value, setValue] = useState<InventoryFilters>(defaultValue);
-        return [value, setValue] as const;
-    }
     const [value, setValue] = useState<InventoryFilters>(() => {
+        if (isTestEnv) {
+            return defaultValue;
+        }
         if (typeof window === "undefined") {
             return defaultValue;
         }
@@ -40,9 +39,7 @@ export const usePersistedInventoryFilters = (defaultValue: InventoryFilters) => 
     });
 
     useEffect(() => {
-        if (isTestEnv) {
-            return;
-        }
+        if (isTestEnv) return;
         if (typeof window === "undefined") {
             return;
         }

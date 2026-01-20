@@ -12,7 +12,7 @@ const mulberry32 = (seed: number) => {
     };
 };
 
-const pick = <T>(rand: () => number, items: T[]): T => items[Math.floor(rand() * items.length)]!;
+const pick = <T>(rand: () => number, items: readonly T[]): T => items[Math.floor(rand() * items.length)]!;
 
 const randomString = (rand: () => number) => {
     const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -58,9 +58,18 @@ describe("saveMigrations property tests", () => {
             const save = result.save;
             expect(typeof save.version).toBe("string");
             expect(Object.keys(save.players).length).toBeGreaterThan(0);
-            expect(save.activePlayerId === null || save.players[save.activePlayerId] !== undefined).toBe(true);
+            const activePlayerId = save.activePlayerId;
+            if (activePlayerId) {
+                expect(save.players[activePlayerId]).not.toBeUndefined();
+            } else {
+                expect(activePlayerId === null || activePlayerId === undefined).toBe(true);
+            }
             expect(save.lastTick === null || (Number.isFinite(save.lastTick) && save.lastTick >= 0)).toBe(true);
-            expect(save.lastHiddenAt === null || (Number.isFinite(save.lastHiddenAt) && save.lastHiddenAt >= 0)).toBe(true);
+            expect(
+                save.lastHiddenAt === undefined
+                || save.lastHiddenAt === null
+                || (Number.isFinite(save.lastHiddenAt) && save.lastHiddenAt >= 0)
+            ).toBe(true);
             const items = save.inventory?.items ?? {};
             for (const value of Object.values(items)) {
                 expect(Number.isFinite(value)).toBe(true);
@@ -69,4 +78,3 @@ describe("saveMigrations property tests", () => {
         }
     });
 });
-

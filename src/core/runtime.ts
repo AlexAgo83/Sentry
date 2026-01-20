@@ -13,6 +13,8 @@ export class GameRuntime {
     private persistenceDisabled = false;
     private hasLoggedPersistenceError = false;
     private static readonly MAX_CATCH_UP_MS = 500;
+    private static readonly MAX_OFFLINE_CATCH_UP_MS = 12 * 60 * 60 * 1000;
+    private static readonly MAX_OFFLINE_STEP_MS = 5000;
     private static readonly PERSIST_INTERVAL_MS = 1500;
     private static readonly DRIFT_EMA_ALPHA = 0.15;
     private static readonly OFFLINE_DEBUG_ENABLE_KEY = "sentry.debug.offline";
@@ -60,13 +62,16 @@ export class GameRuntime {
         const start = Math.max(0, now - durationMs);
         const perfStart = this.getPerfTimestamp();
         const beforeState = this.store.getState();
-        const result = this.runOfflineTicks(start, now, this.store.getState().loop.offlineInterval);
+        const result = this.runOfflineCatchUp(start, now);
         const afterState = this.store.getState();
+        const awayMs = now - start;
         const summary = this.buildOfflineSummary(
             beforeState,
             afterState,
-            durationMs,
+            awayMs,
+            result.processedMs,
             result.ticks,
+            result.capped,
             result.playerItemDeltas,
             result.totalItemDeltas
         );
@@ -144,7 +149,7 @@ export class GameRuntime {
         const threshold = state.loop.loopInterval * state.loop.offlineThreshold;
 
         if (diff > threshold) {
-            const result = this.runOfflineTicks(lastTick, now, state.loop.offlineInterval);
+            const result = this.runOfflineCatchUp(lastTick, now);
             const prevEma = state.perf.driftEmaMs;
             const driftMs = 0;
             const driftEmaMs = prevEma === 0
@@ -176,28 +181,34 @@ export class GameRuntime {
         this.persist();
     };
 
-    private runOfflineTicks = (lastTick: number, now: number, interval: number) => {
-        const diff = Math.max(0, now - lastTick);
-        const totalTicks = Math.floor(diff / interval);
-        let tickTime = lastTick;
+    private runOfflineCatchUp = (from: number, to: number) => {
+        const diff = Math.max(0, to - from);
+        const processedMs = Math.min(diff, GameRuntime.MAX_OFFLINE_CATCH_UP_MS);
+        const end = from + processedMs;
+        const offlineInterval = this.store.getState().loop.offlineInterval;
+        const stepMs = Math.max(offlineInterval, GameRuntime.MAX_OFFLINE_STEP_MS);
+        let tickTime = from;
         const totalItemDeltas: ItemDelta = {};
         const playerItemDeltas: Record<string, ItemDelta> = {};
 
-        for (let i = 0; i < totalTicks; i += 1) {
-            tickTime += interval;
-            this.store.dispatch({ type: "tick", deltaMs: interval, timestamp: tickTime });
+        while (tickTime < end) {
+            const nextTickTime = Math.min(end, tickTime + stepMs);
+            const deltaMs = nextTickTime - tickTime;
+            tickTime = nextTickTime;
+            this.store.dispatch({ type: "tick", deltaMs, timestamp: tickTime });
             this.collectTickDeltas(totalItemDeltas, playerItemDeltas);
         }
 
-        const remainder = diff - totalTicks * interval;
-        if (remainder > 0) {
-            tickTime += remainder;
-            this.store.dispatch({ type: "tick", deltaMs: remainder, timestamp: tickTime });
-            this.collectTickDeltas(totalItemDeltas, playerItemDeltas);
+        const capped = processedMs < diff;
+        if (capped && to > end) {
+            this.store.dispatch({ type: "tick", deltaMs: 0, timestamp: to });
         }
+
         return {
-            ticks: totalTicks + (remainder > 0 ? 1 : 0),
             diff,
+            processedMs,
+            capped,
+            ticks: processedMs > 0 ? Math.ceil(processedMs / offlineInterval) : 0,
             totalItemDeltas,
             playerItemDeltas
         };
@@ -267,7 +278,7 @@ export class GameRuntime {
             if (hiddenAt) {
                 const perfStart = this.getPerfTimestamp();
                 const beforeState = this.store.getState();
-                const result = this.runOfflineTicks(hiddenAt, resumeAt, this.store.getState().loop.offlineInterval);
+                const result = this.runOfflineCatchUp(hiddenAt, resumeAt);
                 const afterState = this.store.getState();
                 const durationMs = resumeAt - hiddenAt;
                 if (durationMs >= 5000) {
@@ -275,7 +286,9 @@ export class GameRuntime {
                         beforeState,
                         afterState,
                         durationMs,
+                        result.processedMs,
                         result.ticks,
+                        result.capped,
                         result.playerItemDeltas,
                         result.totalItemDeltas
                     );
@@ -362,7 +375,9 @@ export class GameRuntime {
         beforeState: GameState,
         afterState: GameState,
         durationMs: number,
+        processedMs: number,
         ticks: number,
+        capped: boolean,
         playerItemDeltas: Record<string, ItemDelta>,
         totalItemDeltas: ItemDelta
     ): OfflineSummaryState | null => {
@@ -402,7 +417,9 @@ export class GameRuntime {
 
         return {
             durationMs,
+            processedMs,
             ticks,
+            capped,
             players,
             totalItemDeltas
         };
@@ -426,14 +443,16 @@ export class GameRuntime {
 
         const perfStart = this.getPerfTimestamp();
         const beforeState = this.store.getState();
-        const result = this.runOfflineTicks(startTime, now, state.loop.offlineInterval);
+        const result = this.runOfflineCatchUp(startTime, now);
         const afterState = this.store.getState();
 
         const summary = this.buildOfflineSummary(
             beforeState,
             afterState,
             diff,
+            result.processedMs,
             result.ticks,
+            result.capped,
             result.playerItemDeltas,
             result.totalItemDeltas
         );

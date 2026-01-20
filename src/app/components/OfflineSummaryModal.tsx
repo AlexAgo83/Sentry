@@ -6,7 +6,6 @@ import { ModalShell } from "./ModalShell";
 
 type OfflineSummaryModalProps = {
     summary: OfflineSummaryState;
-    offlineSeconds: number;
     players: OfflinePlayerSummary[];
     onClose: () => void;
     getSkillLabel: (skillId: SkillId | "") => string;
@@ -15,7 +14,6 @@ type OfflineSummaryModalProps = {
 
 export const OfflineSummaryModal = memo(({
     summary,
-    offlineSeconds,
     players,
     onClose,
     getSkillLabel,
@@ -46,10 +44,20 @@ export const OfflineSummaryModal = memo(({
         ? formatItemDeltaEntries(summaryEntries)
         : "None";
 
+    const awaySeconds = Math.round(summary.durationMs / 1000);
+    const processedSeconds = Math.round(summary.processedMs / 1000);
+    const showProcessed = summary.capped || processedSeconds !== awaySeconds;
+
     return (
         <ModalShell kicker="Offline recap" title="Your party" onClose={onClose}>
             <ul className="ts-list">
-                <li>Time away: {formatTimeAway(offlineSeconds)}</li>
+                <li>Time away: {formatTimeAway(awaySeconds)}</li>
+                {showProcessed ? (
+                    <li>
+                        Processed: {formatTimeAway(processedSeconds)}
+                        {summary.capped ? " (capped)" : ""}
+                    </li>
+                ) : null}
                 <li>Ticks processed: {summary.ticks}</li>
                 <li>Players summarized: {players.length}</li>
                 <li>Inventory changes: {summaryLabel}</li>

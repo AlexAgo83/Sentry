@@ -35,9 +35,10 @@ export const ActionPanelContainer = ({
     const activePlayer = useGameStore(selectActivePlayer);
     const [isCollapsed, setCollapsed] = usePersistedCollapse("actionStatus", false);
     const statsNowTime = Date.now();
+    const activeEquipment = activePlayer?.equipment ?? null;
     const equipmentModifiers = useMemo(
-        () => (activePlayer ? getEquipmentModifiers(activePlayer.equipment) : []),
-        [activePlayer?.equipment]
+        () => (activeEquipment ? getEquipmentModifiers(activeEquipment) : []),
+        [activeEquipment]
     );
     const statsSnapshot = activePlayer
         ? resolveEffectiveStats(activePlayer.stats, statsNowTime, equipmentModifiers)

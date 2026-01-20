@@ -4,8 +4,9 @@ import { GameRuntime } from "../../src/core/runtime";
 import { createInitialGameState } from "../../src/core/state";
 import { createGameStore } from "../../src/store/gameStore";
 import { toGameSave } from "../../src/core/serialization";
+import type { GameSave } from "../../src/core/types";
 
-const buildPersistence = (save = null) => ({
+const buildPersistence = (save: GameSave | null = null) => ({
     load: () => save,
     save: vi.fn()
 });
@@ -36,8 +37,8 @@ describe("GameRuntime", () => {
             removeEventListener: vi.fn()
         };
 
-        (globalThis as { document?: typeof documentStub }).document = documentStub;
-        (globalThis as { window?: typeof windowStub }).window = windowStub;
+        (globalThis as any).document = documentStub;
+        (globalThis as any).window = windowStub;
     });
 
     afterEach(() => {
@@ -53,14 +54,14 @@ describe("GameRuntime", () => {
 
     it("skips the loop when the document is hidden", () => {
         console.info("[runtime.test] skip loop when hidden - start");
-        document.visibilityState = "hidden";
+        (document as any).visibilityState = "hidden";
 
         const initial = createInitialGameState("0.4.0");
         const store = createGameStore(initial);
         const persistence = buildPersistence(null);
         const runtime = new GameRuntime(store, persistence, "0.4.0");
         runtimes.push(runtime);
-        const intervalSpy = window.setInterval as unknown as ReturnType<typeof vi.fn>;
+        const intervalSpy = (window as any).setInterval as ReturnType<typeof vi.fn>;
 
         runtime.start();
 
@@ -111,17 +112,17 @@ describe("GameRuntime", () => {
         runtimes.push(runtime);
 
         runtime.start();
-        expect(document.addEventListener).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
-        expect(window.addEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+        expect((document as any).addEventListener).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+        expect((window as any).addEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
 
         runtime.stop();
-        expect(document.removeEventListener).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
-        expect(window.removeEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+        expect((document as any).removeEventListener).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+        expect((window as any).removeEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
 
         runtime.start();
         // Should rebind only once more after restart
-        expect((document.addEventListener as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
-        expect((window.addEventListener as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
+        expect(((document as any).addEventListener as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
+        expect(((window as any).addEventListener as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
     });
 
     it("starts without document present (SSR-safe)", () => {
@@ -134,7 +135,7 @@ describe("GameRuntime", () => {
 
         runtime.start();
 
-        expect(window.addEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+        expect((window as any).addEventListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
         runtime.stop();
     });
 
@@ -289,7 +290,7 @@ describe("GameRuntime", () => {
         const persistence = buildPersistence(null);
         const runtime = new GameRuntime(store, persistence, "0.4.0");
         runtimes.push(runtime);
-        document.visibilityState = "hidden";
+        (document as any).visibilityState = "hidden";
 
         // @ts-expect-error - private access for coverage
         expect(runtime.isDocumentVisible()).toBe(false);
@@ -349,7 +350,7 @@ describe("GameRuntime", () => {
         runtimes.push(runtime);
 
         runtime.start();
-        const intervalSpy = window.setInterval as unknown as ReturnType<typeof vi.fn>;
+        const intervalSpy = (window as any).setInterval as ReturnType<typeof vi.fn>;
         expect(intervalSpy).toHaveBeenCalledTimes(1);
 
         const nowSpy = vi.spyOn(Date, "now");
@@ -359,10 +360,10 @@ describe("GameRuntime", () => {
             .mockReturnValueOnce(3500) // resumeAt
             .mockReturnValueOnce(3500); // persist on resume
 
-        document.visibilityState = "hidden";
-        document.dispatchEvent({ type: "visibilitychange" });
-        document.visibilityState = "visible";
-        document.dispatchEvent({ type: "visibilitychange" });
+        (document as any).visibilityState = "hidden";
+        (document as any).dispatchEvent({ type: "visibilitychange" });
+        (document as any).visibilityState = "visible";
+        (document as any).dispatchEvent({ type: "visibilitychange" });
 
         expect(store.getState().offlineSummary).toBeNull();
         expect(store.getState().loop.lastHiddenAt).toBeNull();

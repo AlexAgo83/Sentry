@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../src/app/App";
 import { createInitialGameState } from "../../src/core/state";
 import { createGameStore } from "../../src/store/gameStore";
+import type { OfflineSummaryState } from "../../src/core/types";
 
 let testStore: ReturnType<typeof createGameStore>;
 let testRuntime: {
@@ -34,9 +35,11 @@ describe("App offline recap on startup", () => {
     });
 
     it("shows offline recap modal when summary exists at mount", async () => {
-        const summary = {
+        const summary: OfflineSummaryState = {
             durationMs: 10000,
+            processedMs: 10000,
             ticks: 5,
+            capped: false,
             players: [
                 {
                     playerId: "1",

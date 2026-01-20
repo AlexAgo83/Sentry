@@ -67,17 +67,18 @@ export const InventoryPanelContainer = () => {
         page: inventoryFilters.page,
         selectedItemId: selectedInventoryItemId
     });
+    const selectedItem = inventoryView.selectedItem;
 
     useEffect(() => {
         setSellQuantity(1);
     }, [selectedInventoryItemId]);
 
     useEffect(() => {
-        if (!inventoryView.selectedItem) {
+        if (!selectedItem) {
             return;
         }
-        setSellQuantity((current) => Math.min(Math.max(1, current), inventoryView.selectedItem?.count ?? 1));
-    }, [inventoryView.selectedItem?.count, inventoryView.selectedItem?.id]);
+        setSellQuantity((current) => Math.min(Math.max(1, current), selectedItem.count));
+    }, [selectedItem, selectedItem?.count, selectedItem?.id]);
 
     const selectionHint = inventoryView.selectedItem
         ? inventoryView.selectedItemIndex < 0
@@ -100,7 +101,7 @@ export const InventoryPanelContainer = () => {
         }
     }, [handleSetInventoryPage, inventoryFilters.page, inventoryView.safePage]);
 
-    const selected = inventoryView.selectedItem;
+    const selected = selectedItem;
     const canSellSelected = Boolean(
         selected
         && selected.id !== "gold"

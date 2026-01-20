@@ -28,9 +28,9 @@ const setupServiceWorker = async () => {
         }
     };
 
-    (globalThis as typeof globalThis & { self: typeof self }).self = self;
-    (globalThis as typeof globalThis & { caches: typeof caches }).caches = caches;
-    (globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = vi.fn();
+    (globalThis as any).self = self;
+    (globalThis as any).caches = caches;
+    (globalThis as any).fetch = vi.fn();
 
     await import("../../public/sw.js");
 

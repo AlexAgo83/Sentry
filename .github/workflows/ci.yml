@@ -22,6 +22,8 @@ jobs:
         run: npm run lint
       - name: Typecheck
         run: npm run typecheck
+      - name: Typecheck (tests)
+        run: npm run typecheck:tests
       - name: Tests (CI config)
         run: npm run test:ci
       - name: Coverage (CI config)
