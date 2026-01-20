@@ -4,7 +4,7 @@ import type { PlayerState, SkillDefinition, SkillId, SkillState } from "../../co
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked } from "../../data/definitions";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
-import { CollapseIcon } from "../ui/collapseIcon";
+import { BackIcon } from "../ui/backIcon";
 
 type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
@@ -87,7 +87,7 @@ export const ActionSelectionScreen = memo(({
                     title="Back"
                 >
                     <span className="ts-collapse-label">
-                        <CollapseIcon isCollapsed={false} />
+                        <BackIcon />
                     </span>
                 </button>
             </div>
