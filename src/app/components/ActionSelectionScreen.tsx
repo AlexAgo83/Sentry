@@ -2,6 +2,7 @@ import type { ChangeEvent } from "react";
 import { memo } from "react";
 import type { PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked } from "../../data/definitions";
+import { BackIcon } from "../ui/backIcon";
 
 type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
@@ -54,11 +55,13 @@ export const ActionSelectionScreen = memo(({
             <div className="ts-panel-actions ts-panel-actions-inline">
                 <button
                     type="button"
-                    className="ts-icon-button ts-panel-action-button ts-focusable"
+                    className="ts-collapse-button ts-focusable"
                     onClick={onBack}
                     aria-label="Back"
                 >
-                    Back
+                    <span className="ts-collapse-label">
+                        <BackIcon />
+                    </span>
                 </button>
             </div>
         </div>
