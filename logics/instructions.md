@@ -14,8 +14,7 @@ The `logics` folder defines the product flow:
 * `logics/request`: Incoming requests or ideas.
 * `logics/backlog`: Core product items, possibly promoted from requests.
 * `logics/tasks`: Execution plans derived from backlog items.
-
-Note: this repo does not use `logics/specs/` (removed).
+ 
 
 ### Backlog → Tasks
 
