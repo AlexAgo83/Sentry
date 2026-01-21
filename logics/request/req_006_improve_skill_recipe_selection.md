@@ -1,4 +1,4 @@
-## req_006_action_selection_screen_improve_skill_recipe_selection_ui_desktop_mobile - Action Selection screen — improve skill & recipe selection UI (desktop + mobile)
+## req_006_improve_skill_recipe_selection - Action Selection screen — improve skill & recipe selection UI (desktop + mobile)
 > From version: 0.8.9
 > Understanding: 80%
 > Confidence: 70%
