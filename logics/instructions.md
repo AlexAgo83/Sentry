@@ -14,7 +14,8 @@ The `logics` folder defines the product flow:
 * `logics/request`: Incoming requests or ideas.
 * `logics/backlog`: Core product items, possibly promoted from requests.
 * `logics/tasks`: Execution plans derived from backlog items.
-* `logics/specs`: Lightweight functional specs derived from backlog/tasks.
+
+Note: this repo does not use `logics/specs/` (removed).
 
 ### Backlog → Tasks
 
@@ -79,8 +80,6 @@ These are the available skills under `logics/skills/`:
   - `python3 logics/skills/logics-release-notes/scripts/generate_release_notes.py --out logics/RELEASE_NOTES.md`
 * `logics-changelog-curator`: Generate a user-facing changelog from release notes.
   - `python3 logics/skills/logics-changelog-curator/scripts/curate_changelog.py --in logics/RELEASE_NOTES.md --out logics/CHANGELOG.md`
-* `logics-spec-writer`: Create spec docs in `logics/specs/`.
-  - `python3 logics/skills/logics-spec-writer/scripts/logics_spec.py new --title \"...\"`
 * `logics-pr-template-writer`: Generate a PR template from a task doc.
   - `python3 logics/skills/logics-pr-template-writer/scripts/generate_pr_template.py logics/tasks/<task>.md --out PR.md`
 * `logics-architecture-decision-writer`: Create a new ADR in `logics/architecture/`.
