@@ -1,5 +1,5 @@
 ## req_003_qa_beertime - Global feedbacks
-> Targeted version: 0.7.1
+> From version: 0.7.1
 > Understanding: ??%
 > Confidence: ??%
 

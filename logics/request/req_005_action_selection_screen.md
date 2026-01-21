@@ -1,5 +1,5 @@
 ## req_005_action_selection_screen - Replace action selection modal with a dedicated screen
-> Targeted version: 0.8.9
+> From version: 0.8.9
 > Understanding: 90%
 > Confidence: 80%
 

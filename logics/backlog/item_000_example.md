@@ -2,6 +2,7 @@
 > From version: X.X.X
 > Understanding: ??%
 > Confidence: ??%
+> Progress: ??%
 
 # Contexte
 Example contexte

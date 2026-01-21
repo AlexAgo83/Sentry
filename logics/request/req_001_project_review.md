@@ -1,5 +1,5 @@
 ## req_001_project_review - Review project
-> Targeted version: 0.2.0
+> From version: 0.2.0
 > Understanding: 95%
 > Confidence: 90%
 

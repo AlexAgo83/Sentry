@@ -1,5 +1,5 @@
 ## req_004_polish - Global polish
-> Targeted version: 0.8.9
+> From version: 0.8.9
 > Understanding: 90%
 > Confidence: 80%
 

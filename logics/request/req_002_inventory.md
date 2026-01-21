@@ -1,5 +1,5 @@
 ## req_002_inventory - Inventory
-> Targeted version: 0.3.1
+> From version: 0.3.1
 > Understanding: 92%
 > Confidence: 88%
 
