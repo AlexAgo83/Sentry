@@ -143,11 +143,16 @@ describe("App", () => {
 
         await user.click(within(screen.getByRole("group", { name: "Select skill" })).getByRole("radio", { name: /Combat/i }));
 
-        await user.click(screen.getByRole("button", { name: "Start action" }));
+        const startButton = screen.getByRole("button", { name: "Start action" }) as HTMLButtonElement;
+        expect(startButton.disabled).toBe(false);
+
+        await user.click(startButton);
         expect(testStore.getState().players["1"].selectedActionId).toBe("Combat");
+        expect((screen.getByRole("button", { name: "Start action" }) as HTMLButtonElement).disabled).toBe(true);
 
         await user.click(screen.getByRole("button", { name: "Interrupt" }));
         expect(testStore.getState().players["1"].selectedActionId).toBeNull();
+        expect((screen.getByRole("button", { name: "Start action" }) as HTMLButtonElement).disabled).toBe(false);
     });
 
     it("recruits and renames heroes, escape closes modal", async () => {

@@ -148,7 +148,14 @@
     display: block;
 }
 
-.ts-collapse-button:hover {
+.ts-collapse-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    border-color: rgba(93, 217, 193, 0.25);
+    color: rgba(208, 219, 240, 0.55);
+}
+
+.ts-collapse-button:hover:not(:disabled) {
     border-color: rgba(242, 193, 78, 0.6);
     color: var(--color-primary);
 }

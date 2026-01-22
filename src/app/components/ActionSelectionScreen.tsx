@@ -194,7 +194,7 @@ export const ActionSelectionScreen = memo(({
                                         />
                                         <div className="ts-choice-card ts-recipe-choice">
                                             <div className="ts-choice-copy">
-                                                <div className="ts-choice-title">{recipeDef.name} — Lv {recipeLevel}</div>
+                                                <div className="ts-choice-title">{recipeDef.name} - Lv {recipeLevel}</div>
                                                 {!unlocked ? (
                                                     <div className="ts-choice-subtitle">Unlocks at Lv {unlockLevel}</div>
                                                 ) : (
