@@ -110,7 +110,7 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Change" }));
 
         const skillGroup = screen.getByRole("group", { name: "Select skill" });
-        await user.click(within(skillGroup).getByRole("radio", { name: /Combat/i }));
+        await user.click(within(skillGroup).getByRole("radio", { name: /Roaming/i }));
 
         const recipeGroup = screen.getByRole("group", { name: "Select recipe" });
         expect((within(recipeGroup).getByRole("radio", { name: /Border Skirmish/i }) as HTMLInputElement).checked).toBe(true);
@@ -118,14 +118,14 @@ describe("App", () => {
         expect((within(recipeGroup).getByRole("radio", { name: /Frontline Clash/i }) as HTMLInputElement).checked).toBe(true);
 
         testStore.dispatch({ type: "tick", deltaMs: 0, timestamp: Date.now() });
-        expect((within(skillGroup).getByRole("radio", { name: /Combat/i }) as HTMLInputElement).checked).toBe(true);
+        expect((within(skillGroup).getByRole("radio", { name: /Roaming/i }) as HTMLInputElement).checked).toBe(true);
         expect((within(recipeGroup).getByRole("radio", { name: /Frontline Clash/i }) as HTMLInputElement).checked).toBe(true);
 
         const summary = screen.getByText("Action", { selector: ".ts-action-summary-label" })
             .closest(".ts-action-summary") as HTMLElement | null;
         expect(summary).toBeTruthy();
         if (summary) {
-            expect(within(summary).getByText("Combat")).toBeTruthy();
+            expect(within(summary).getByText("Roaming")).toBeTruthy();
             expect(within(summary).getByText("Frontline Clash")).toBeTruthy();
             expect(within(summary).getByText("1 Food")).toBeTruthy();
             expect(within(summary).getByText("1 Gold, 1 Bones")).toBeTruthy();
@@ -141,7 +141,7 @@ describe("App", () => {
         const { user } = renderApp({ food: 2 });
         await user.click(screen.getByRole("button", { name: "Change" }));
 
-        await user.click(within(screen.getByRole("group", { name: "Select skill" })).getByRole("radio", { name: /Combat/i }));
+        await user.click(within(screen.getByRole("group", { name: "Select skill" })).getByRole("radio", { name: /Roaming/i }));
 
         const startButton = screen.getByRole("button", { name: "Start action" }) as HTMLButtonElement;
         expect(startButton.disabled).toBe(false);
@@ -285,7 +285,7 @@ describe("App", () => {
         const { user } = renderApp({ food: 2 });
 
         await user.click(screen.getByRole("button", { name: "Change" }));
-        await user.click(within(screen.getByRole("group", { name: "Select skill" })).getByRole("radio", { name: /Combat/i }));
+        await user.click(within(screen.getByRole("group", { name: "Select skill" })).getByRole("radio", { name: /Roaming/i }));
         await user.click(screen.getByRole("button", { name: "Start action" }));
         await user.click(screen.getByRole("button", { name: "Back" }));
 
@@ -299,6 +299,6 @@ describe("App", () => {
         if (!systemDialog) {
             throw new Error("System dialog not found");
         }
-        expect(within(systemDialog).getByText(/Action: Combat/)).toBeTruthy();
+        expect(within(systemDialog).getByText(/Action: Roaming/)).toBeTruthy();
     });
 });

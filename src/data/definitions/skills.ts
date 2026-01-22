@@ -1,7 +1,7 @@
 import type { SkillDefinition, SkillId } from "../../core/types";
 
 export const SKILL_DEFINITIONS: SkillDefinition[] = [
-    { id: "Combat", name: "Combat", baseInterval: 5000 },
+    { id: "Combat", name: "Roaming", baseInterval: 5000 },
     { id: "Hunting", name: "Hunting", baseInterval: 2500 },
     { id: "Cooking", name: "Cooking", baseInterval: 3000 },
     { id: "Excavation", name: "Excavation", baseInterval: 2000 },
