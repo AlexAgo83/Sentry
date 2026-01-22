@@ -395,6 +395,30 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             rareRewards: withRewards({ crystal: 1 })
         },
         {
+            id: "fishing_river_shoal",
+            skillId: "Fishing",
+            name: "River Shoal",
+            unlockLevel: unlockTier(10),
+            itemRewards: withRewards({ fish: 2 }),
+            rareRewards: withRewards({ crystal: 1 })
+        },
+        {
+            id: "fishing_deep_trawl",
+            skillId: "Fishing",
+            name: "Deep Trawl",
+            unlockLevel: unlockTier(20),
+            itemRewards: withRewards({ fish: 3 }),
+            rareRewards: withRewards({ crystal: 1 })
+        },
+        {
+            id: "fishing_heroic_shoal",
+            skillId: "Fishing",
+            name: "Heroic Shoal",
+            unlockLevel: unlockTier(30),
+            itemRewards: withRewards({ fish: 4 }),
+            rareRewards: withRewards({ crystal: 2 })
+        },
+        {
             id: "fishing_smoke_catch",
             skillId: "Fishing",
             name: "Smoke Catch",
