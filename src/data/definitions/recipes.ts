@@ -596,6 +596,27 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             itemRewards: withRewards({ leather: 4 })
         },
         {
+            id: "leatherworking_master_tannery",
+            skillId: "Leatherworking",
+            name: "Master Tannery",
+            unlockLevel: unlockTier(40),
+            itemRewards: withRewards({ leather: 6 })
+        },
+        {
+            id: "leatherworking_legendary_tannery",
+            skillId: "Leatherworking",
+            name: "Legendary Tannery",
+            unlockLevel: unlockTier(60),
+            itemRewards: withRewards({ leather: 8 })
+        },
+        {
+            id: "leatherworking_mythic_tannery",
+            skillId: "Leatherworking",
+            name: "Mythic Tannery",
+            unlockLevel: unlockTier(80),
+            itemRewards: withRewards({ leather: 10 })
+        },
+        {
             id: "leatherworking_leather_gloves",
             skillId: "Leatherworking",
             name: "Leather Gloves",
@@ -642,6 +663,30 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             unlockLevel: unlockTier(30),
             itemCosts: { leather: 5, cloth: 2 },
             itemRewards: withRewards({ armor: 4 })
+        },
+        {
+            id: "leatherworking_studded_harness",
+            skillId: "Leatherworking",
+            name: "Studded Harness",
+            unlockLevel: unlockTier(40),
+            itemCosts: { leather: 6, cloth: 2 },
+            itemRewards: withRewards({ armor: 5 })
+        },
+        {
+            id: "leatherworking_reinforced_brigandine",
+            skillId: "Leatherworking",
+            name: "Reinforced Brigandine",
+            unlockLevel: unlockTier(60),
+            itemCosts: { leather: 8, cloth: 3 },
+            itemRewards: withRewards({ armor: 7 })
+        },
+        {
+            id: "leatherworking_mythic_warhide",
+            skillId: "Leatherworking",
+            name: "Mythic Warhide",
+            unlockLevel: unlockTier(80),
+            itemCosts: { leather: 10, cloth: 4 },
+            itemRewards: withRewards({ armor: 9 })
         }
     ]
 };
