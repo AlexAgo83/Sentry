@@ -321,6 +321,27 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             itemRewards: withRewards({ cloth: 1 })
         },
         {
+            id: "tailoring_weave_bolts",
+            skillId: "Tailoring",
+            name: "Weave Bolts",
+            unlockLevel: unlockTier(10),
+            itemRewards: withRewards({ cloth: 2 })
+        },
+        {
+            id: "tailoring_fine_weave",
+            skillId: "Tailoring",
+            name: "Fine Weave",
+            unlockLevel: unlockTier(20),
+            itemRewards: withRewards({ cloth: 3 })
+        },
+        {
+            id: "tailoring_heroic_bolts",
+            skillId: "Tailoring",
+            name: "Heroic Bolts",
+            unlockLevel: unlockTier(30),
+            itemRewards: withRewards({ cloth: 4 })
+        },
+        {
             id: "tailoring_cloth_cap",
             skillId: "Tailoring",
             name: "Cloth Cap",
