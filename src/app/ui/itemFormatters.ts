@@ -4,6 +4,7 @@ type ItemDefinition = {
 };
 
 type ItemEntry = {
+    id: string;
     name: string;
     amount: number;
 };
@@ -14,6 +15,7 @@ export const getItemDeltaEntries = (definitions: ItemDefinition[], deltas?: Reco
     }
     return definitions
         .map((item) => ({
+            id: item.id,
             name: item.name,
             amount: deltas[item.id] ?? 0
         }))
@@ -26,6 +28,7 @@ export const getItemListEntries = (definitions: ItemDefinition[], items?: Record
     }
     return definitions
         .map((item) => ({
+            id: item.id,
             name: item.name,
             amount: items[item.id] ?? 0
         }))

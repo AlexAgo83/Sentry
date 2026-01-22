@@ -7,6 +7,7 @@ import { BackIcon } from "../ui/backIcon";
 import { SkillIcon } from "../ui/skillIcons";
 import { getSkillIconColor } from "../ui/skillColors";
 import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
+import { ItemIcon } from "../ui/itemIcon";
 
 type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
@@ -203,11 +204,35 @@ export const ActionSelectionScreen = memo(({
                                                 <div className="ts-choice-details" aria-hidden="true">
                                                     <div className="ts-choice-detail-row">
                                                         <span className="ts-choice-detail-label">Consumes</span>
-                                                        <span className="ts-choice-detail-value">{consumptionLabel}</span>
+                                                        <span className="ts-choice-detail-value">
+                                                            {consumptionEntries.length > 0 ? (
+                                                                <span className="ts-item-inline-list">
+                                                                    {consumptionEntries.map((entry, index) => (
+                                                                        <span key={entry.id} className="ts-item-inline">
+                                                                            {entry.amount} {entry.name}
+                                                                            <ItemIcon itemId={entry.id} tone="consume" />
+                                                                            {index < consumptionEntries.length - 1 ? ", " : null}
+                                                                        </span>
+                                                                    ))}
+                                                                </span>
+                                                            ) : consumptionLabel}
+                                                        </span>
                                                     </div>
                                                     <div className="ts-choice-detail-row">
                                                         <span className="ts-choice-detail-label">Produces</span>
-                                                        <span className="ts-choice-detail-value">{productionLabel}</span>
+                                                        <span className="ts-choice-detail-value">
+                                                            {productionEntries.length > 0 ? (
+                                                                <span className="ts-item-inline-list">
+                                                                    {productionEntries.map((entry, index) => (
+                                                                        <span key={entry.id} className="ts-item-inline">
+                                                                            {entry.amount} {entry.name}
+                                                                            <ItemIcon itemId={entry.id} tone="produce" />
+                                                                            {index < productionEntries.length - 1 ? ", " : null}
+                                                                        </span>
+                                                                    ))}
+                                                                </span>
+                                                            ) : productionLabel}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
