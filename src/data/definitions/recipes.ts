@@ -518,6 +518,27 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             itemRewards: withRewards({ wood: 1 })
         },
         {
+            id: "carpentry_fell_timber",
+            skillId: "Carpentry",
+            name: "Fell Timber",
+            unlockLevel: unlockTier(10),
+            itemRewards: withRewards({ wood: 2 })
+        },
+        {
+            id: "carpentry_saw_logs",
+            skillId: "Carpentry",
+            name: "Saw Logs",
+            unlockLevel: unlockTier(20),
+            itemRewards: withRewards({ wood: 3 })
+        },
+        {
+            id: "carpentry_heroic_lumber",
+            skillId: "Carpentry",
+            name: "Heroic Lumber",
+            unlockLevel: unlockTier(30),
+            itemRewards: withRewards({ wood: 4 })
+        },
+        {
             id: "carpentry_simple_bow",
             skillId: "Carpentry",
             name: "Simple Bow",
