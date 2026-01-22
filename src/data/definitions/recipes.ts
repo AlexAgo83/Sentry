@@ -575,6 +575,27 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             itemRewards: withRewards({ leather: 1 })
         },
         {
+            id: "leatherworking_stretched_hides",
+            skillId: "Leatherworking",
+            name: "Stretched Hides",
+            unlockLevel: unlockTier(10),
+            itemRewards: withRewards({ leather: 2 })
+        },
+        {
+            id: "leatherworking_oiled_leather",
+            skillId: "Leatherworking",
+            name: "Oiled Leather",
+            unlockLevel: unlockTier(20),
+            itemRewards: withRewards({ leather: 3 })
+        },
+        {
+            id: "leatherworking_heroic_tan",
+            skillId: "Leatherworking",
+            name: "Heroic Tan",
+            unlockLevel: unlockTier(30),
+            itemRewards: withRewards({ leather: 4 })
+        },
+        {
             id: "leatherworking_leather_gloves",
             skillId: "Leatherworking",
             name: "Leather Gloves",
