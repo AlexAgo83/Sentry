@@ -35,15 +35,15 @@
 - Desktop:
   - Left: Skill picker as a vertical list of “skill cards” (icon + name + level).
   - Middle: Recipe picker as a list/grid of “recipe cards” (name + recipe level + lock/unlock).
-  - Right: action summary (duration, XP, consumes/produces, missing items).
+  - Below: action summary panel (duration, XP, consumes/produces, missing items).
 - Mobile:
-  - Top: Skill picker as horizontally scrollable chips/cards.
+  - Top: Skill picker as a vertical list (touch-friendly cards).
   - Below: recipe list as tappable cards with clear locked styling.
   - Keep Start/Interrupt/Back accessible without covering content.
 
 # Decisions (v1 defaults)
 - Pickers:
-  - Skills: visual “card list” on desktop, horizontal chips on mobile (no `<select>` as primary UX).
+  - Skills: visual “card list” on desktop and mobile (no `<select>` as primary UX).
   - Recipes: responsive grid on desktop, single-column list on mobile.
 - Locked recipes:
   - Shown by default (disabled) with an “Unlocks at Lv X” label.
@@ -54,7 +54,7 @@
   - No search or filters in v1 (consider “Unlocked only” / “Craftable now” later if needed).
 - Card density:
   - Cards show the minimum needed to decide: name + level (+ unlock level when locked).
-  - Consumes/produces remain in the summary block (no per-card ingredient preview in v1).
+  - Recipes also show a lightweight “Consumes / Produces” preview on each recipe card.
 - Accessibility:
   - Use semantic, focusable controls for selection (radio-like behavior).
   - Keyboard: Tab to move between sections, Enter/Space to select; visible focus states.

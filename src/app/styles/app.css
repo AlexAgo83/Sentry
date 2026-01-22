@@ -728,6 +728,197 @@
     color: rgba(242, 193, 78, 0.9);
 }
 
+.ts-action-selection-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    row-gap: var(--m6);
+    column-gap: var(--m8);
+    align-items: start;
+}
+
+.ts-action-selection-summary-panel {
+    margin-top: var(--m6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m3);
+}
+
+.ts-action-selection-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+    min-width: 0;
+}
+
+.ts-picker {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+
+.ts-picker-legend {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-fade);
+    padding: 0 0 var(--m2);
+}
+
+.ts-picker-empty {
+    padding: var(--m4) var(--m5);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px dashed rgba(93, 217, 193, 0.35);
+    color: var(--color-text-fade);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.ts-skill-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m3);
+}
+
+.ts-recipe-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--m3);
+}
+
+.ts-choice {
+    display: block;
+    position: relative;
+    padding: 2px;
+}
+
+.ts-choice-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+    padding: 0;
+}
+
+.ts-choice-card {
+    display: flex;
+    align-items: center;
+    gap: var(--m4);
+    padding: var(--m4) var(--m5);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px solid rgba(93, 217, 193, 0.2);
+    background: rgba(12, 18, 32, 0.7);
+    cursor: pointer;
+    user-select: none;
+}
+
+.ts-choice-card:hover {
+    border-color: rgba(93, 217, 193, 0.45);
+}
+
+.ts-choice-input:focus-visible + .ts-choice-card {
+    box-shadow: 0 0 0 3px rgba(93, 217, 193, 0.35);
+}
+
+.ts-choice-input:checked + .ts-choice-card {
+    border-color: rgba(242, 193, 78, 0.75);
+    box-shadow: 0 0 0 3px rgba(242, 193, 78, 0.2);
+}
+
+.ts-choice-input:disabled + .ts-choice-card {
+    cursor: not-allowed;
+    opacity: 0.6;
+    border-style: dashed;
+}
+
+.ts-choice-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 2px solid rgba(93, 217, 193, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(12, 18, 32, 0.9);
+    flex-shrink: 0;
+}
+
+.ts-choice-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.ts-choice-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m1);
+    flex: 1;
+    min-width: 0;
+}
+
+.ts-choice-title {
+    font-size: var(--text-s-size);
+    color: var(--color-text);
+    font-family: var(--display-font);
+}
+
+.ts-choice-subtitle {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-text-fade);
+}
+
+.ts-choice-details {
+    margin-top: var(--m2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m1);
+}
+
+.ts-choice-detail-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--m3);
+}
+
+.ts-choice-detail-label {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-text-fade);
+    flex-shrink: 0;
+}
+
+.ts-choice-detail-value {
+    font-size: var(--text-xs-size);
+    color: var(--color-text);
+    text-align: right;
+}
+
+.ts-choice-meta {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--m1);
+    flex-shrink: 0;
+}
+
+.ts-choice-level {
+    font-size: var(--text-s-size);
+    color: var(--color-primary);
+    font-family: var(--display-font);
+}
+
 .ts-inventory-layout {
     display: grid;
     gap: var(--m5);
@@ -1435,6 +1626,19 @@
 }
 
 @media (max-width: 720px) {
+    .ts-action-selection-layout {
+        grid-template-columns: 1fr;
+        row-gap: var(--m8);
+    }
+
+    .ts-skill-picker {
+        flex-direction: column;
+    }
+
+    .ts-recipe-picker {
+        grid-template-columns: 1fr;
+    }
+
     .app-bottom-bar .ts-panel-switcher {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));

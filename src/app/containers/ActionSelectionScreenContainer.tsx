@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     getActionDefinition,
     getRecipeDefinition,
@@ -144,11 +144,10 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [onBack]);
 
-    const handleSkillChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+    const handleSkillSelect = useCallback((nextSkillId: SkillId | "") => {
         if (!activePlayer) {
             return;
         }
-        const nextSkillId = event.target.value as SkillId | "";
         setPendingSkillId(nextSkillId);
         if (!nextSkillId) {
             setPendingRecipeId("");
@@ -172,8 +171,7 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
         setPendingRecipeId(nextRecipeId);
     }, [activePlayer]);
 
-    const handleRecipeChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
-        const nextRecipeId = event.target.value ?? "";
+    const handleRecipeSelect = useCallback((nextRecipeId: string) => {
         setPendingRecipeId(nextRecipeId);
     }, []);
 
@@ -262,8 +260,8 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
             missingItemsLabel={missingItemsLabel}
             canStartAction={canStartAction}
             canStopAction={Boolean(activePlayer.selectedActionId)}
-            onSkillChange={handleSkillChange}
-            onRecipeChange={handleRecipeChange}
+            onSkillSelect={handleSkillSelect}
+            onRecipeSelect={handleRecipeSelect}
             onStartAction={handleStartAction}
             onStopAction={handleStopAction}
             onBack={onBack}

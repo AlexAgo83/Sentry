@@ -1,8 +1,8 @@
 ## task_020_req_006_action_selection_skill_recipe_pickers - req_006 — Action Selection skill & recipe pickers
 > From version: 0.8.9
 > Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 
 # Context
 This task executes:
@@ -23,24 +23,24 @@ Replace the dropdown-based selection UI with visual pickers:
 - Recipes: grid (desktop) / list (mobile), with locked recipes shown disabled + unlock level.
 
 # Plan
-- [ ] 1. Implement visual skill picker
+- [x] 1. Implement visual skill picker
   - Replace skill `<select>` with a radio-like list of skill cards (icon + name + level).
-  - Mobile layout becomes a horizontally scrollable row of chips/cards.
+  - Mobile layout uses a vertical list (touch-friendly).
   - Selection updates `pendingSkillId` (no behavior changes).
-- [ ] 2. Implement visual recipe picker
+- [x] 2. Implement visual recipe picker
   - Replace recipe `<select>` with recipe cards/list items.
   - Locked recipes render disabled with “Unlocks at Lv X”.
   - Selection updates `pendingRecipeId` (no behavior changes).
-- [ ] 3. Update layout and summary
-  - Desktop layout: skills left, recipes center, summary right.
+- [x] 3. Update layout and summary
+  - Desktop layout: skills left, recipes right, summary panel below.
   - Mobile layout: stack sections; keep summary and missing-items hint easy to find.
-- [ ] 4. Accessibility + keyboard pass
+- [x] 4. Accessibility + keyboard pass
   - Ensure all selectable items are focusable and have visible focus styles.
   - Ensure selection works with Enter/Space (and basic Tab navigation).
-- [ ] 5. Update tests
+- [x] 5. Update tests
   - Update Action Selection tests to target the new picker UI.
   - Add/adjust a test for locked recipe disabled state and correct defaulting behavior.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
   - Update `Progress` / links in request and backlog docs.
 
 # Validation
@@ -50,3 +50,6 @@ Replace the dropdown-based selection UI with visual pickers:
 - npm run build
 
 # Report
+- Replaced skill/recipe `<select>` dropdowns with visual, radio-like pickers (skill cards + recipe cards).
+- Added responsive layout: desktop 3-column grid, mobile single-column + horizontally scrollable skill chips.
+- Updated tests to use the new controls; validated with `npm run lint`, `npm run typecheck`, `npm run test:ci`.

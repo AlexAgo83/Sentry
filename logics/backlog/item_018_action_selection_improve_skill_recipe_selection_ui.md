@@ -2,7 +2,7 @@
 > From version: 0.8.9
 > Understanding: 90%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 The Action Selection screen is the place where players choose:
@@ -23,6 +23,7 @@ Replace the dropdown-based selection UX with visual pickers that are faster to s
 # Needs
 - Provide a visual skill picker (icon + name + level, clear selected state).
 - Provide a visual recipe picker (name + recipe level, clear locked state + unlock level).
+- Show a lightweight per-recipe preview of “Consumes / Produces” on recipe cards.
 - Keep the action summary and “missing items” hint readable and easy to find.
 - Support desktop and mobile layouts (mobile breakpoint `max-width: 720px`).
 - Preserve selection rules and validations (no gameplay changes).
@@ -30,10 +31,12 @@ Replace the dropdown-based selection UX with visual pickers that are faster to s
 # Decisions (v1)
 - Skills picker:
   - Desktop: vertical list of “skill cards”.
-  - Mobile: horizontally scrollable chips/cards.
+  - Mobile: vertical list of touch-friendly cards.
 - Recipes picker:
   - Desktop: responsive grid.
   - Mobile: single-column list.
+- Summary:
+  - Desktop: summary panel below the pickers.
 - Locked recipes:
   - Visible by default (disabled) with “Unlocks at Lv X”.
   - No “Show locked” toggle in v1.
@@ -70,3 +73,6 @@ Replace the dropdown-based selection UX with visual pickers that are faster to s
 
 # Notes
 - Executed in: `logics/tasks/task_020_req_006_action_selection_skill_recipe_pickers.md`.
+
+# Status
+- Delivered (visual pickers for skills/recipes + responsive layout + tests updated).

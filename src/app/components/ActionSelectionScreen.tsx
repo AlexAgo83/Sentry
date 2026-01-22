@@ -1,10 +1,12 @@
-import type { ChangeEvent } from "react";
 import { memo } from "react";
 import type { PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
-import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked } from "../../data/definitions";
+import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked, ITEM_DEFINITIONS } from "../../data/definitions";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { BackIcon } from "../ui/backIcon";
+import { SkillIcon } from "../ui/skillIcons";
+import { getSkillIconColor } from "../ui/skillColors";
+import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
 
 type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
@@ -21,8 +23,8 @@ type ActionSelectionScreenProps = {
     missingItemsLabel: string;
     canStartAction: boolean;
     canStopAction: boolean;
-    onSkillChange: (event: ChangeEvent<HTMLSelectElement>) => void;
-    onRecipeChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+    onSkillSelect: (skillId: SkillId | "") => void;
+    onRecipeSelect: (recipeId: string) => void;
     onStartAction: () => void;
     onStopAction: () => void;
     onBack: () => void;
@@ -43,8 +45,8 @@ export const ActionSelectionScreen = memo(({
     missingItemsLabel,
     canStartAction,
     canStopAction,
-    onSkillChange,
-    onRecipeChange,
+    onSkillSelect,
+    onRecipeSelect,
     onStartAction,
     onStopAction,
     onBack
@@ -92,45 +94,135 @@ export const ActionSelectionScreen = memo(({
                 </button>
             </div>
         </div>
-        <div className="ts-field-group">
-            <label className="ts-field-label" htmlFor="skill-select">Select skill</label>
-            <select
-                id="skill-select"
-                className="generic-field select ts-focusable"
-                value={pendingSkillId}
-                onChange={onSkillChange}
-            >
-                <option value="">Choose a path</option>
-                {skills.map((skill) => (
-                    <option key={skill.id} value={skill.id}>
-                        {skill.name} - Lv {activePlayer?.skills[skill.id]?.level ?? 0}
-                    </option>
-                ))}
-            </select>
-            <label className="ts-field-label" htmlFor="recipe-select">Select recipe</label>
-            <select
-                id="recipe-select"
-                className="generic-field select ts-focusable"
-                value={pendingRecipeId}
-                onChange={onRecipeChange}
-                disabled={!pendingSkill}
-            >
-                <option value="">Choose a recipe</option>
-                {pendingSkill && pendingSkillId
-                    ? getRecipesForSkill(pendingSkillId as SkillId).map((recipeDef) => {
-                        const recipeState = pendingSkill.recipes[recipeDef.id];
-                        const recipeLevel = recipeState?.level ?? 0;
-                        const unlocked = isRecipeUnlocked(recipeDef, pendingSkill.level);
-                        const unlockLevel = getRecipeUnlockLevel(recipeDef);
-                        const unlockLabel = unlocked ? "" : ` (Unlocks at Lv ${unlockLevel})`;
-                        return (
-                            <option key={recipeDef.id} value={recipeDef.id} disabled={!unlocked}>
-                                {recipeDef.name} - Lv {recipeLevel}{unlockLabel}
-                            </option>
-                        );
-                    })
-                    : null}
-            </select>
+        <div className="ts-action-selection-layout">
+            <div className="ts-action-selection-column">
+                <fieldset className="ts-picker">
+                    <legend className="ts-picker-legend">Select skill</legend>
+                    <div className="ts-skill-picker" role="radiogroup" aria-label="Select skill">
+                        <label className="ts-choice">
+                            <input
+                                className="ts-choice-input"
+                                type="radio"
+                                name="pending-skill"
+                                value=""
+                                checked={pendingSkillId === ""}
+                                onChange={() => onSkillSelect("")}
+                            />
+                            <div className="ts-choice-card ts-skill-choice">
+                                <div
+                                    className="ts-choice-icon"
+                                    style={{ borderColor: getSkillIconColor("") }}
+                                    aria-hidden="true"
+                                >
+                                    <SkillIcon skillId="" color={getSkillIconColor("")} />
+                                </div>
+                                <div className="ts-choice-copy">
+                                    <div className="ts-choice-title">Choose a path</div>
+                                    <div className="ts-choice-subtitle">No skill selected</div>
+                                </div>
+                            </div>
+                        </label>
+                        {skills.map((skill) => {
+                            const skillLevel = activePlayer?.skills[skill.id]?.level ?? 0;
+                            const skillColor = getSkillIconColor(skill.id);
+                            return (
+                                <label key={skill.id} className="ts-choice">
+                                    <input
+                                        className="ts-choice-input"
+                                        type="radio"
+                                        name="pending-skill"
+                                        value={skill.id}
+                                        checked={pendingSkillId === skill.id}
+                                        onChange={() => onSkillSelect(skill.id)}
+                                    />
+                                    <div className="ts-choice-card ts-skill-choice">
+                                        <div className="ts-choice-icon" style={{ borderColor: skillColor }} aria-hidden="true">
+                                            <SkillIcon skillId={skill.id} color={skillColor} />
+                                        </div>
+                                        <div className="ts-choice-copy">
+                                            <div className="ts-choice-title">{skill.name}</div>
+                                            <div className="ts-choice-subtitle">Skill level</div>
+                                        </div>
+                                        <div className="ts-choice-meta">
+                                            <div className="ts-choice-level">Lv {skillLevel}</div>
+                                        </div>
+                                    </div>
+                                </label>
+                            );
+                        })}
+                    </div>
+                </fieldset>
+            </div>
+
+            <div className="ts-action-selection-column">
+                <fieldset className="ts-picker">
+                    <legend className="ts-picker-legend">Select recipe</legend>
+                    {pendingSkill && pendingSkillId ? (
+                        <div className="ts-recipe-picker" role="radiogroup" aria-label="Select recipe">
+                            {getRecipesForSkill(pendingSkillId as SkillId)
+                                .map((recipeDef, index) => ({
+                                    recipeDef,
+                                    index,
+                                    unlockLevel: getRecipeUnlockLevel(recipeDef)
+                                }))
+                                .sort((a, b) => (a.unlockLevel - b.unlockLevel) || (a.index - b.index))
+                                .map(({ recipeDef, unlockLevel }) => {
+                                const recipeState = pendingSkill.recipes[recipeDef.id];
+                                const recipeLevel = recipeState?.level ?? 0;
+                                const recipeXp = recipeState?.xp ?? 0;
+                                const recipeXpNext = recipeState?.xpNext ?? 0;
+                                const unlocked = isRecipeUnlocked(recipeDef, pendingSkill.level);
+                                const recipeXpLabel = `XP ${Number.isFinite(recipeXp) ? Math.round(recipeXp) : 0}/${Number.isFinite(recipeXpNext) ? Math.round(recipeXpNext) : 0}`;
+                                const consumptionEntries = getItemListEntries(ITEM_DEFINITIONS, recipeDef.itemCosts);
+                                const productionEntries = getItemListEntries(ITEM_DEFINITIONS, recipeDef.itemRewards);
+                                const consumptionLabel = consumptionEntries.length > 0
+                                    ? formatItemListEntries(consumptionEntries)
+                                    : "None";
+                                const productionLabel = productionEntries.length > 0
+                                    ? formatItemListEntries(productionEntries)
+                                    : "None";
+                                return (
+                                    <label key={recipeDef.id} className="ts-choice">
+                                        <input
+                                            className="ts-choice-input"
+                                            type="radio"
+                                            name="pending-recipe"
+                                            value={recipeDef.id}
+                                            checked={pendingRecipeId === recipeDef.id}
+                                            disabled={!unlocked}
+                                            onChange={() => onRecipeSelect(recipeDef.id)}
+                                        />
+                                        <div className="ts-choice-card ts-recipe-choice">
+                                            <div className="ts-choice-copy">
+                                                <div className="ts-choice-title">{recipeDef.name} — Lv {recipeLevel}</div>
+                                                {!unlocked ? (
+                                                    <div className="ts-choice-subtitle">Unlocks at Lv {unlockLevel}</div>
+                                                ) : (
+                                                    <div className="ts-choice-subtitle">{recipeXpLabel}</div>
+                                                )}
+                                                <div className="ts-choice-details" aria-hidden="true">
+                                                    <div className="ts-choice-detail-row">
+                                                        <span className="ts-choice-detail-label">Consumes</span>
+                                                        <span className="ts-choice-detail-value">{consumptionLabel}</span>
+                                                    </div>
+                                                    <div className="ts-choice-detail-row">
+                                                        <span className="ts-choice-detail-label">Produces</span>
+                                                        <span className="ts-choice-detail-value">{productionLabel}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="ts-picker-empty">Choose a skill to see recipes.</div>
+                    )}
+                </fieldset>
+            </div>
+        </div>
+        <div className="ts-action-selection-summary-panel">
             <div className="ts-action-summary">
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">Action</span>

@@ -109,18 +109,17 @@ describe("App", () => {
         const { user } = renderApp({ food: 0 });
         await user.click(screen.getByRole("button", { name: "Change" }));
 
-        const skillSelect = screen.getByLabelText("Select skill");
-        await user.selectOptions(skillSelect, ["Combat"]);
+        const skillGroup = screen.getByRole("group", { name: "Select skill" });
+        await user.click(within(skillGroup).getByRole("radio", { name: /Combat/i }));
 
-        const recipeSelect = screen.getByLabelText("Select recipe") as HTMLSelectElement;
-        expect(recipeSelect.value).toBe("combat_skirmish");
-
-        await user.selectOptions(recipeSelect, ["combat_frontline"]);
-        expect(recipeSelect.value).toBe("combat_frontline");
+        const recipeGroup = screen.getByRole("group", { name: "Select recipe" });
+        expect((within(recipeGroup).getByRole("radio", { name: /Border Skirmish/i }) as HTMLInputElement).checked).toBe(true);
+        await user.click(within(recipeGroup).getByRole("radio", { name: /Frontline Clash/i }));
+        expect((within(recipeGroup).getByRole("radio", { name: /Frontline Clash/i }) as HTMLInputElement).checked).toBe(true);
 
         testStore.dispatch({ type: "tick", deltaMs: 0, timestamp: Date.now() });
-        expect((screen.getByLabelText("Select skill") as HTMLSelectElement).value).toBe("Combat");
-        expect((screen.getByLabelText("Select recipe") as HTMLSelectElement).value).toBe("combat_frontline");
+        expect((within(skillGroup).getByRole("radio", { name: /Combat/i }) as HTMLInputElement).checked).toBe(true);
+        expect((within(recipeGroup).getByRole("radio", { name: /Frontline Clash/i }) as HTMLInputElement).checked).toBe(true);
 
         const summary = screen.getByText("Action", { selector: ".ts-action-summary-label" })
             .closest(".ts-action-summary") as HTMLElement | null;
@@ -142,8 +141,7 @@ describe("App", () => {
         const { user } = renderApp({ food: 2 });
         await user.click(screen.getByRole("button", { name: "Change" }));
 
-        const skillSelect = screen.getByLabelText("Select skill");
-        await user.selectOptions(skillSelect, ["Combat"]);
+        await user.click(within(screen.getByRole("group", { name: "Select skill" })).getByRole("radio", { name: /Combat/i }));
 
         await user.click(screen.getByRole("button", { name: "Start action" }));
         expect(testStore.getState().players["1"].selectedActionId).toBe("Combat");
@@ -179,7 +177,7 @@ describe("App", () => {
         await user.click(screen.getByRole("tab", { name: "Action" }));
         await user.click(screen.getByRole("button", { name: "Change" }));
         fireEvent.keyDown(window, { key: "Escape" });
-        expect(screen.queryByLabelText("Select skill")).toBeNull();
+        expect(screen.queryByRole("group", { name: "Select skill" })).toBeNull();
     });
 
     it("shows offline summary and handles system actions", async () => {
@@ -282,7 +280,7 @@ describe("App", () => {
         const { user } = renderApp({ food: 2 });
 
         await user.click(screen.getByRole("button", { name: "Change" }));
-        await user.selectOptions(screen.getByLabelText("Select skill"), ["Combat"]);
+        await user.click(within(screen.getByRole("group", { name: "Select skill" })).getByRole("radio", { name: /Combat/i }));
         await user.click(screen.getByRole("button", { name: "Start action" }));
         await user.click(screen.getByRole("button", { name: "Back" }));
 
