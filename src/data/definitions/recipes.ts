@@ -174,6 +174,14 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             itemRewards: withRewards({ ingot: 1 })
         },
         {
+            id: "metalwork_crystal_smelting",
+            skillId: "MetalWork",
+            name: "Crystal Smelting",
+            unlockLevel: unlockTier(10),
+            itemCosts: { ore: 2, crystal: 1 },
+            itemRewards: withRewards({ ingot: 2 })
+        },
+        {
             id: "metalwork_rusty_blade",
             skillId: "MetalWork",
             name: "Rusty Blade",
@@ -212,6 +220,14 @@ const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
             unlockLevel: unlockTier(10),
             itemCosts: { ore: 4 },
             itemRewards: withRewards({ tools: 1 })
+        },
+        {
+            id: "metalwork_crystal_tools",
+            skillId: "MetalWork",
+            name: "Crystal Tools",
+            unlockLevel: unlockTier(20),
+            itemCosts: { ore: 4, crystal: 2 },
+            itemRewards: withRewards({ tools: 2 })
         },
         {
             id: "metalwork_forged_tools",
