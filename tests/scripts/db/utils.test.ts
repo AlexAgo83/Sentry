@@ -1,13 +1,22 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 
-const loadUtils = async () => {
-    const mod = await import("../../../scripts/db/utils.js");
-    return (mod.default ?? mod) as {
-        parseArgs: typeof mod.parseArgs;
-        parseDatabaseUrl: typeof mod.parseDatabaseUrl;
-        assertSchema: typeof mod.assertSchema;
+type DbUtils = {
+    parseArgs: (argv: string[], options?: { dumpFile?: boolean; force?: boolean; sql?: boolean; confirm?: boolean }) => {
+        target: string;
+        dryRun: boolean;
+        sql: boolean;
+        force: boolean;
+        confirm: boolean;
+        dumpFile: string | null;
     };
+    parseDatabaseUrl: (url: string) => { url: URL; schema: string | null; database: string | null };
+    assertSchema: (parsed: { schema: string | null }) => void;
+};
+
+const loadUtils = async (): Promise<DbUtils> => {
+    const mod = await import("../../../scripts/db/utils.js");
+    return mod as unknown as DbUtils;
 };
 
 describe("db utils", () => {

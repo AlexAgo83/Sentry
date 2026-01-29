@@ -12,6 +12,7 @@ import { gameReducer } from "../../src/core/reducer";
 import { createInitialGameState } from "../../src/core/state";
 import { getRecipesForSkill } from "../../src/data/definitions";
 import { afterEach, vi } from "vitest";
+import type { GameState } from "../../src/core/types";
 
 describe("core loop", () => {
     afterEach(() => {
@@ -68,7 +69,7 @@ describe("core loop", () => {
     it("depletes tablet charges when actions complete", () => {
         const initial = createInitialGameState("0.3.1");
         const playerId = initial.activePlayerId ?? "1";
-        let state = {
+        let state: GameState = {
             ...initial,
             inventory: {
                 ...initial.inventory,
@@ -112,7 +113,7 @@ describe("core loop", () => {
     it("removes tablet when charges hit zero", () => {
         const initial = createInitialGameState("0.3.1");
         const playerId = initial.activePlayerId ?? "1";
-        let state = {
+        let state: GameState = {
             ...initial,
             inventory: {
                 ...initial.inventory,
