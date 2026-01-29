@@ -19,7 +19,11 @@
     "db:restore": "node scripts/db/restore.js",
     "db:restore:render": "node scripts/db/restore.js --target=render",
     "db:reset:dump": "node scripts/db/reset-from-dump.js",
-    "db:reset:dump:render": "node scripts/db/reset-from-dump.js --target=render"
+    "db:reset:dump:render": "node scripts/db/reset-from-dump.js --target=render",
+    "backend:dev": "node backend/server.js",
+    "backend:start": "node backend/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
   },
   "repository": {
     "type": "git",
@@ -46,6 +50,7 @@
     "globals": "^15.11.0",
     "jsdom": "^22.1.0",
     "jest-axe": "^10.0.0",
+    "prisma": "^5.19.1",
     "typescript": "^5.9.2",
     "vite": "^7.3.1",
     "vitest": "^3.2.4"
@@ -57,6 +62,15 @@
   },
   "homepage": "https://github.com/AlexAgo83/Sentry#readme",
   "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@fastify/cookie": "^9.4.0",
+    "@fastify/cors": "^8.5.0",
+    "@fastify/jwt": "^7.2.0",
+    "@fastify/rate-limit": "^9.1.0",
+    "@prisma/client": "^5.19.1",
+    "bcryptjs": "^2.4.3",
+    "fastify": "^4.28.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "sweetalert2": "^11.26.17"
