@@ -3,7 +3,15 @@ import { createInitialGameState } from "./state";
 import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
 import { PersistenceAdapter } from "../adapters/persistence/types";
-import { RESTED_THRESHOLD_MS } from "./constants";
+import { OFFLINE_CAP_DAYS, RESTED_THRESHOLD_MS } from "./constants";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const resolveOfflineCapDays = () => {
+    const raw = import.meta.env?.VITE_OFFLINE_CAP_DAYS;
+    const parsed = typeof raw === "string" ? Number(raw) : Number(raw);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : OFFLINE_CAP_DAYS;
+};
+const OFFLINE_CAP_MS = resolveOfflineCapDays() * DAY_MS;
 
 export class GameRuntime {
     private intervalId: number | null = null;
@@ -14,7 +22,7 @@ export class GameRuntime {
     private persistenceDisabled = false;
     private hasLoggedPersistenceError = false;
     private static readonly MAX_CATCH_UP_MS = 500;
-    private static readonly MAX_OFFLINE_CATCH_UP_MS = 12 * 60 * 60 * 1000;
+    private static readonly MAX_OFFLINE_CATCH_UP_MS = OFFLINE_CAP_MS;
     private static readonly MAX_OFFLINE_STEP_MS = 5000;
     private static readonly PERSIST_INTERVAL_MS = 1500;
     private static readonly DRIFT_EMA_ALPHA = 0.15;

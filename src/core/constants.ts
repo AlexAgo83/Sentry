@@ -16,6 +16,7 @@ export const DEFAULT_STAMINA_REGEN = 1;
 export const LOOP_INTERVAL = 250;
 export const OFFLINE_INTERVAL = 500;
 export const OFFLINE_THRESHOLD = 1.5;
+export const OFFLINE_CAP_DAYS = 7;
 
 export const RESTED_THRESHOLD_MS = 15 * 60 * 1000;
 export const RESTED_DURATION_MS = 10 * 60 * 1000;

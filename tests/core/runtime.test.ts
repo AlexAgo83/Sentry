@@ -5,7 +5,7 @@ import { createInitialGameState } from "../../src/core/state";
 import { createGameStore } from "../../src/store/gameStore";
 import { toGameSave } from "../../src/core/serialization";
 import type { GameSave } from "../../src/core/types";
-import { RESTED_DURATION_MS, RESTED_THRESHOLD_MS } from "../../src/core/constants";
+import { OFFLINE_CAP_DAYS, RESTED_DURATION_MS, RESTED_THRESHOLD_MS } from "../../src/core/constants";
 
 const buildPersistence = (save: GameSave | null = null) => ({
     load: () => save,
@@ -213,6 +213,28 @@ describe("GameRuntime", () => {
         runtime.runStartupOfflineCatchUp();
 
         expect(store.getState().offlineSummary).toBeNull();
+    });
+
+    it("caps offline catch-up to the configured cap", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        const dayMs = 24 * 60 * 60 * 1000;
+        const capMs = OFFLINE_CAP_DAYS * dayMs;
+        vi.spyOn(Date, "now").mockReturnValue(1_000_000);
+
+        runtime.simulateOffline(capMs + dayMs);
+
+        const summary = store.getState().offlineSummary;
+        expect(summary).not.toBeNull();
+        if (summary) {
+            expect(summary.capped).toBe(true);
+            expect(summary.processedMs).toBe(capMs);
+            expect(summary.durationMs).toBe(capMs + dayMs);
+        }
     });
 
     it("persists on the first tick and updates perf", () => {
