@@ -1,17 +1,17 @@
 ## task_026_cloud_save_backend_and_conflict_ui - Cloud save backend and conflict UI
 > From version: 0.8.11
-> Understanding: 90%
-> Confidence: 82%
-> Progress: 0%
+> Understanding: 92%
+> Confidence: 84%
+> Progress: 45%
 
 # Context
 Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
 
 # Plan
-- [ ] 1. Scaffold backend (Fastify + Prisma) with `/api/v1` base, Postgres schema `sentry`, and env config.
-- [ ] 2. Implement auth: register/login, bcrypt hashing, access + refresh tokens, refresh cookie handling.
-- [ ] 3. Implement save endpoints with payload validation, size limits, and metadata storage.
-- [ ] 4. Add basic rate limiting on auth endpoints.
+- [x] 1. Scaffold backend (Fastify + Prisma) with `/api/v1` base, Postgres schema `sentry`, and env config.
+- [x] 2. Implement auth: register/login, bcrypt hashing, access + refresh tokens, refresh cookie handling.
+- [x] 3. Implement save endpoints with payload validation, size limits, and metadata storage.
+- [x] 4. Add basic rate limiting on auth endpoints.
 - [ ] 5. Wire frontend client calls and conflict UI (diff + actions), with offline-first disable behavior.
 - [ ] 6. Add backend tests (auth, saves, size limits, security) and frontend conflict UI tests.
 - [ ] FINAL: Update related Logics docs if scope changes.
@@ -33,6 +33,9 @@ Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
 - Rollback plan: disable cloud UI entry points and keep local-only saves; revert backend changes.
 
 # Report
+- Added Fastify server with auth + save endpoints, Prisma schema, and env defaults.
+- Added dependencies + backend scripts; no frontend wiring yet.
+- Validation not run yet.
 
 # Estimate
 - Size: L

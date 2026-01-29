@@ -1,18 +1,18 @@
 ## task_023_mobile_roster_navigation_update - Mobile roster navigation update
 > From version: 0.8.11
-> Understanding: 94%
-> Confidence: 92%
-> Progress: 0%
+> Understanding: 96%
+> Confidence: 94%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_021_mobile_roster_navigation_update.md`
 
 # Plan
-- [ ] 1. Locate mobile nav label for Stats and change to Roster at the mobile breakpoint.
-- [ ] 2. Hide the roster panel outside the Stats/Roster screen on mobile.
-- [ ] 3. Update any a11y labels/tooltips that expose the Stats label.
-- [ ] 4. Add a lightweight UI regression test or snapshot update.
-- [ ] FINAL: Update related Logics docs if scope changes.
+- [x] 1. Locate mobile nav label for Stats and change to Roster at the mobile breakpoint.
+- [x] 2. Hide the roster panel outside the Stats/Roster screen on mobile.
+- [x] 3. Update any a11y labels/tooltips that expose the Stats label.
+- [x] 4. Add a lightweight UI regression test or snapshot update.
+- [x] FINAL: Update related Logics docs if scope changes.
 
 # Test plan
 - UI: verify "Roster" label renders on mobile breakpoint and "Stats" on desktop.
@@ -29,6 +29,9 @@ Derived from `logics/backlog/item_021_mobile_roster_navigation_update.md`
 - Rollback plan: revert label + visibility condition to previous behavior.
 
 # Report
+- Mobile bottom bar label now shows "Roster" and roster panel hides outside the Stats screen on mobile.
+- Added a focused AppView mobile test for label + roster visibility.
+- Validation not run yet.
 
 # Estimate
 - Size: S

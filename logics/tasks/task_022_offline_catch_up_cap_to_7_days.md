@@ -1,17 +1,17 @@
 ## task_022_offline_catch_up_cap_to_7_days - Offline catch-up cap to 7 days
 > From version: 0.8.11
-> Understanding: 94%
-> Confidence: 90%
-> Progress: 0%
+> Understanding: 96%
+> Confidence: 94%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_020_offline_catch_up_cap_to_7_days.md`
 
 # Plan
-- [ ] 1. Introduce a configurable offline cap constant (default 7 days) and optional dev env override.
-- [ ] 2. Update runtime catch-up to use the new cap and keep capped recap messaging intact.
-- [ ] 3. Add/adjust tests for the cap and capped recap behavior.
-- [ ] FINAL: Update related Logics docs if scope changes.
+- [x] 1. Introduce a configurable offline cap constant (default 7 days) and optional dev env override.
+- [x] 2. Update runtime catch-up to use the new cap and keep capped recap messaging intact.
+- [x] 3. Add/adjust tests for the cap and capped recap behavior.
+- [x] FINAL: Update related Logics docs if scope changes.
 
 # Test plan
 - Unit: cap derivation from constant/env; processedMs never exceeds cap.
@@ -28,6 +28,9 @@ Derived from `logics/backlog/item_020_offline_catch_up_cap_to_7_days.md`
 - Rollback plan: revert cap constant/env override to previous 12h behavior.
 
 # Report
+- Added OFFLINE_CAP_DAYS constant with optional VITE_OFFLINE_CAP_DAYS override and wired it to runtime cap.
+- Added runtime test for capped offline duration; existing recap messaging remains unchanged.
+- Validation not run yet.
 
 # Estimate
 - Size: M
