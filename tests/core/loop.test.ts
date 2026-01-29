@@ -75,7 +75,7 @@ describe("core loop", () => {
                 items: {
                     ...initial.inventory.items,
                     invocation_tablet: 1,
-                    food: 2
+                    food: 3
                 }
             }
         };

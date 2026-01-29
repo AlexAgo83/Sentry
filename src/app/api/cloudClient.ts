@@ -47,7 +47,7 @@ const saveAccessToken = (token: string | null) => {
     localStorage.setItem(ACCESS_TOKEN_KEY, token);
 };
 
-const requestJson = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
+const requestJson = async <T>(path: string, options: globalThis.RequestInit = {}): Promise<T> => {
     const url = buildUrl(path);
     if (!url) {
         throw new Error("Cloud API base is not configured.");
@@ -70,7 +70,7 @@ const requestJson = async <T>(path: string, options: RequestInit = {}): Promise<
     return response.json() as Promise<T>;
 };
 
-const authHeaders = (accessToken: string | null) => {
+const authHeaders = (accessToken: string | null): Record<string, string> => {
     if (!accessToken) {
         return {};
     }
@@ -110,9 +110,7 @@ const getLatestSave = async (accessToken: string | null): Promise<CloudSaveRespo
     }
     const response = await fetch(url, {
         credentials: "include",
-        headers: {
-            ...authHeaders(accessToken)
-        }
+        headers: authHeaders(accessToken)
     });
     if (response.status === 204) {
         return null;
@@ -132,9 +130,7 @@ const putLatestSave = async (
 ): Promise<CloudSaveMetaResponse> => {
     return requestJson<CloudSaveMetaResponse>("/api/v1/saves/latest", {
         method: "PUT",
-        headers: {
-            ...authHeaders(accessToken)
-        },
+        headers: authHeaders(accessToken),
         body: JSON.stringify({ payload, virtualScore, appVersion })
     });
 };

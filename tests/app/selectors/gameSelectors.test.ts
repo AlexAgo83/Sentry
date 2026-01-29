@@ -53,11 +53,26 @@ describe("app gameSelectors", () => {
         const state = createInitialGameState("test");
         const player2 = createPlayerState("2");
         state.players[player2.id] = player2;
+        const baseCombat1 = state.players["1"].skills.Combat.level;
+        const baseCooking1 = state.players["1"].skills.Cooking.level;
+        const baseCombat2 = state.players["2"].skills.Combat.level;
+        const baseFishing2 = state.players["2"].skills.Fishing.level;
+        const baseScore = Object.values(state.players).reduce((total, player) => {
+            return total + Object.values(player.skills).reduce((sum, skill) => sum + skill.level, 0);
+        }, 0);
+
         state.players["1"].skills.Combat.level = 3;
         state.players["1"].skills.Cooking.level = 2;
         state.players["2"].skills.Combat.level = 5;
         state.players["2"].skills.Fishing.level = 1;
 
-        expect(selectVirtualScore(state)).toBe(11);
+        const expected =
+            baseScore +
+            (3 - baseCombat1) +
+            (2 - baseCooking1) +
+            (5 - baseCombat2) +
+            (1 - baseFishing2);
+
+        expect(selectVirtualScore(state)).toBe(expected);
     });
 });

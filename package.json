@@ -71,8 +71,6 @@
     "@prisma/client": "^5.19.1",
     "bcryptjs": "^2.4.3",
     "fastify": "^4.28.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
     "sweetalert2": "^11.26.17"
   }
 }

@@ -1,10 +1,18 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 
-const utils = require("../../../scripts/db/utils.js");
+const loadUtils = async () => {
+    const mod = await import("../../../scripts/db/utils.js");
+    return (mod.default ?? mod) as {
+        parseArgs: typeof mod.parseArgs;
+        parseDatabaseUrl: typeof mod.parseDatabaseUrl;
+        assertSchema: typeof mod.assertSchema;
+    };
+};
 
 describe("db utils", () => {
-    it("parses args with target and dry-run", () => {
+    it("parses args with target and dry-run", async () => {
+        const utils = await loadUtils();
         const args = utils.parseArgs(["--target=render", "--dry-run"], {
             dumpFile: true,
             force: true,
@@ -15,7 +23,8 @@ describe("db utils", () => {
         expect(args.dryRun).toBe(true);
     });
 
-    it("rejects missing schema or public schema", () => {
+    it("rejects missing schema or public schema", async () => {
+        const utils = await loadUtils();
         const missing = utils.parseDatabaseUrl("postgresql://user:pass@localhost:5432/db");
         expect(() => utils.assertSchema(missing)).toThrow();
 
@@ -23,7 +32,8 @@ describe("db utils", () => {
         expect(() => utils.assertSchema(publicSchema)).toThrow();
     });
 
-    it("accepts the sentry schema", () => {
+    it("accepts the sentry schema", async () => {
+        const utils = await loadUtils();
         const sentrySchema = utils.parseDatabaseUrl("postgresql://user:pass@localhost:5432/db?schema=sentry");
         expect(() => utils.assertSchema(sentrySchema)).not.toThrow();
     });

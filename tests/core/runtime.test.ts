@@ -224,7 +224,8 @@ describe("GameRuntime", () => {
 
         const dayMs = 24 * 60 * 60 * 1000;
         const capMs = OFFLINE_CAP_DAYS * dayMs;
-        vi.spyOn(Date, "now").mockReturnValue(1_000_000);
+        const now = capMs + dayMs + 1000;
+        vi.spyOn(Date, "now").mockReturnValue(now);
 
         runtime.simulateOffline(capMs + dayMs);
 

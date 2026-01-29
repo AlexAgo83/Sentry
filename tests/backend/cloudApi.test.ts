@@ -87,6 +87,11 @@ const getCookieHeader = (response: { headers: Record<string, string | string[] |
     return setCookie.split(";")[0];
 };
 
+const loadServer = async () => {
+    const mod = await import("../../backend/server.js");
+    return (mod.default ?? mod) as { buildServer: (options?: { prismaClient?: unknown; logger?: boolean }) => any };
+};
+
 describe("cloud API", () => {
     beforeEach(() => {
         process.env.JWT_SECRET = "test-secret";
@@ -97,7 +102,7 @@ describe("cloud API", () => {
 
     it("registers, refreshes, and stores latest save", async () => {
         const prisma = buildMockPrisma();
-        const { buildServer } = require("../../backend/server.js");
+        const { buildServer } = await loadServer();
         const app = buildServer({ prismaClient: prisma, logger: false });
 
         const register = await app.inject({
@@ -144,7 +149,7 @@ describe("cloud API", () => {
 
     it("rejects invalid login", async () => {
         const prisma = buildMockPrisma();
-        const { buildServer } = require("../../backend/server.js");
+        const { buildServer } = await loadServer();
         const app = buildServer({ prismaClient: prisma, logger: false });
 
         await app.inject({
