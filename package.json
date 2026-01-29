@@ -13,7 +13,13 @@
     "coverage:ci": "vitest --config vitest.ci.mjs --coverage",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:tests": "tsc -p tsconfig.tests.json --noEmit",
-    "lint": "eslint \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\""
+    "lint": "eslint \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\"",
+    "db:dump": "node scripts/db/dump.js",
+    "db:dump:render": "node scripts/db/dump.js --target=render",
+    "db:restore": "node scripts/db/restore.js",
+    "db:restore:render": "node scripts/db/restore.js --target=render",
+    "db:reset:dump": "node scripts/db/reset-from-dump.js",
+    "db:reset:dump:render": "node scripts/db/reset-from-dump.js --target=render"
   },
   "repository": {
     "type": "git",
