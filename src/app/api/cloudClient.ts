@@ -19,6 +19,18 @@ type CloudSaveMetaResponse = {
 
 const ACCESS_TOKEN_KEY = "sentry.cloud.accessToken";
 
+export class CloudApiError extends Error {
+    status: number;
+    body: string;
+
+    constructor(status: number, body: string) {
+        super(body || `Request failed (${status}).`);
+        this.name = "CloudApiError";
+        this.status = status;
+        this.body = body;
+    }
+}
+
 const getApiBase = () => import.meta.env?.VITE_API_BASE ?? "";
 
 const buildUrl = (path: string) => {
@@ -54,17 +66,19 @@ const requestJson = async <T>(path: string, options: globalThis.RequestInit = {}
     if (!url) {
         throw new Error("Cloud API base is not configured.");
     }
+    const hasBody = options.body !== undefined && options.body !== null;
+    const headers = new Headers(options.headers ?? {});
+    if (hasBody && !(options.body instanceof FormData) && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+    }
     const response = await fetch(url, {
         credentials: "include",
         ...options,
-        headers: {
-            "Content-Type": "application/json",
-            ...(options.headers ?? {})
-        }
+        headers
     });
     if (!response.ok) {
         const message = await response.text();
-        throw new Error(message || `Request failed (${response.status}).`);
+        throw new CloudApiError(response.status, message);
     }
     if (response.status === 204) {
         return null as T;
@@ -119,7 +133,7 @@ const getLatestSave = async (accessToken: string | null): Promise<CloudSaveRespo
     }
     if (!response.ok) {
         const message = await response.text();
-        throw new Error(message || `Request failed (${response.status}).`);
+        throw new CloudApiError(response.status, message);
     }
     return response.json() as Promise<CloudSaveResponse>;
 };

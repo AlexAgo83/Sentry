@@ -69,6 +69,7 @@ export const SystemModal = memo(({
         <ModalShell kicker="System" title="Telemetry" onClose={onClose}>
             <ul className="ts-list">
                 <li>v{version} • Action: {activeActionLabel} • Crashes: {crashReports.length}</li>
+                <li>Virtual score: {virtualScore}</li>
                 <li>
                     Tick: Δ{lastDeltaMs}ms • tick {lastTickDurationMs.toFixed(2)}ms • drift {driftLabel}ms (last{" "}
                     {formatMs(lastDriftMs, { plus: true })}ms, ema {formatMs(driftEmaMs, { decimals: 1 })}ms)
@@ -120,7 +121,6 @@ export const SystemModal = memo(({
                     Reset save
                 </button>
             </div>
-            <div className="ts-system-footer">Virtual score: {virtualScore}</div>
             {crashReports.length > 0 ? (
                 <div className="ts-panel-body">
                     <ul className="ts-list ts-crash-list">

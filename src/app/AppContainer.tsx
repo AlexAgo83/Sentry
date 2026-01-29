@@ -34,6 +34,7 @@ export const AppContainer = () => {
         showStatsPanel,
         showInventoryPanel,
         showEquipmentPanel,
+        showShopPanel,
         isSystemOpen,
         openSystem,
         closeSystem,
@@ -123,6 +124,7 @@ export const AppContainer = () => {
                 onShowStats={showStatsPanel}
                 onShowInventory={showInventoryPanel}
                 onShowEquipment={showEquipmentPanel}
+                onShowShop={showShopPanel}
                 onAddPlayer={openRecruit}
                 onChangeAction={handleOpenActionSelection}
                 onCloseActionSelection={closeActionSelection}

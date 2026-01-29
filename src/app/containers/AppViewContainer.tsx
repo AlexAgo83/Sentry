@@ -5,6 +5,7 @@ import { ActionSelectionScreenContainer } from "./ActionSelectionScreenContainer
 import { EquipmentPanelContainer } from "./EquipmentPanelContainer";
 import { InventoryPanelContainer } from "./InventoryPanelContainer";
 import { RosterContainer } from "./RosterContainer";
+import { ShopPanelContainer } from "./ShopPanelContainer";
 import { StatsPanelContainer } from "./StatsPanelContainer";
 import { DevProfiler } from "../dev/renderDebug";
 
@@ -18,6 +19,7 @@ type AppViewContainerProps = {
     onShowStats: () => void;
     onShowInventory: () => void;
     onShowEquipment: () => void;
+    onShowShop: () => void;
     onAddPlayer: () => void;
     onChangeAction: () => void;
     onCloseActionSelection: () => void;
@@ -37,6 +39,7 @@ export const AppViewContainer = ({
     onShowStats,
     onShowInventory,
     onShowEquipment,
+    onShowShop,
     onAddPlayer,
     onChangeAction,
     onCloseActionSelection,
@@ -57,6 +60,7 @@ export const AppViewContainer = ({
                 onShowStats={onShowStats}
                 onShowInventory={onShowInventory}
                 onShowEquipment={onShowEquipment}
+                onShowShop={onShowShop}
                 roster={(
                     <DevProfiler id="RosterPanel">
                         <RosterContainer
@@ -88,6 +92,11 @@ export const AppViewContainer = ({
                 equipmentPanel={(
                     <DevProfiler id="EquipmentPanel">
                         <EquipmentPanelContainer />
+                    </DevProfiler>
+                )}
+                shopPanel={(
+                    <DevProfiler id="ShopPanel">
+                        <ShopPanelContainer />
                     </DevProfiler>
                 )}
                 actionSelectionScreen={(

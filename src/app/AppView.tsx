@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
 import { useRenderCount } from "./dev/renderDebug";
 
-export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment";
+export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment" | "shop";
 export type AppActiveScreen = "main" | "actionSelection";
 
 export interface AppViewProps {
@@ -16,11 +16,13 @@ export interface AppViewProps {
     onShowStats: () => void;
     onShowInventory: () => void;
     onShowEquipment: () => void;
+    onShowShop: () => void;
     roster: ReactNode;
     actionPanel: ReactNode;
     statsPanel: ReactNode;
     inventoryPanel: ReactNode;
     equipmentPanel: ReactNode;
+    shopPanel: ReactNode;
     actionSelectionScreen: ReactNode;
 }
 
@@ -59,11 +61,13 @@ export const AppView = (props: AppViewProps) => {
         onShowStats,
         onShowInventory,
         onShowEquipment,
+        onShowShop,
         roster,
         actionPanel,
         statsPanel,
         inventoryPanel,
         equipmentPanel,
+        shopPanel,
         actionSelectionScreen,
     } = props;
 
@@ -86,12 +90,14 @@ export const AppView = (props: AppViewProps) => {
                                 onShowStats={onShowStats}
                                 onShowInventory={onShowInventory}
                                 onShowEquipment={onShowEquipment}
+                                onShowShop={onShowShop}
                                 className="ts-topbar-switcher"
                                 labels={{
                                     action: "Action",
                                     stats: "Stats",
                                     inventory: "Bank",
-                                    equipment: "Equip"
+                                    equipment: "Equip",
+                                    shop: "Shop"
                                 }}
                             />
                         ) : null}
@@ -156,6 +162,9 @@ export const AppView = (props: AppViewProps) => {
                                 {activeSidePanel === "equipment" ? (
                                     equipmentPanel
                                 ) : null}
+                                {activeSidePanel === "shop" ? (
+                                    shopPanel
+                                ) : null}
                             </>
                         )}
                 </div>
@@ -171,12 +180,15 @@ export const AppView = (props: AppViewProps) => {
                         onShowStats={onShowStats}
                         onShowInventory={onShowInventory}
                         onShowEquipment={onShowEquipment}
+                        onShowShop={onShowShop}
                         className="ts-bottombar-switcher"
+                        useInventoryMenu
                         labels={{
                             action: "Act",
                             stats: "Roster",
                             inventory: "Bank",
-                            equipment: "Equip"
+                            equipment: "Equip",
+                            shop: "Shop"
                         }}
                     />
                 </nav>

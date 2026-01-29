@@ -5,7 +5,7 @@ import { readRawSave } from "../../adapters/persistence/localStorageKeys";
 import { selectVirtualScore } from "../selectors/gameSelectors";
 import { useGameStore } from "./useGameStore";
 import { gameRuntime, gameStore } from "../game";
-import { cloudClient } from "../api/cloudClient";
+import { CloudApiError, cloudClient } from "../api/cloudClient";
 
 export type CloudSaveMeta = {
     updatedAt: Date | null;
@@ -43,6 +43,8 @@ const buildLocalMeta = (virtualScore: number, appVersion: string): CloudSaveMeta
         appVersion
     };
 };
+
+const isUnauthorizedError = (err: unknown) => err instanceof CloudApiError && err.status === 401;
 
 export const useCloudSave = () => {
     const virtualScore = useGameStore(selectVirtualScore);
@@ -103,12 +105,29 @@ export const useCloudSave = () => {
             setAccessToken(token);
             return token;
         } catch (err) {
+            cloudClient.clearAccessToken();
             setAccessToken(null);
             setStatus("error");
             setError(err instanceof Error ? err.message : "Refresh failed.");
             return null;
         }
     }, [isAvailable]);
+
+    const withRefreshRetry = useCallback(async <T,>(action: (token: string | null) => Promise<T>): Promise<T> => {
+        const token = accessToken ?? (await refreshToken());
+        try {
+            return await action(token);
+        } catch (err) {
+            if (!isUnauthorizedError(err)) {
+                throw err;
+            }
+            const refreshed = await refreshToken();
+            if (!refreshed) {
+                throw err;
+            }
+            return await action(refreshed);
+        }
+    }, [accessToken, refreshToken]);
 
     const refreshCloud = useCallback(async () => {
         if (!isAvailable) {
@@ -119,8 +138,7 @@ export const useCloudSave = () => {
         setStatus("idle");
         setError(null);
         try {
-            const token = accessToken ?? (await refreshToken());
-            const response = await cloudClient.getLatestSave(token);
+            const response = await withRefreshRetry((token) => cloudClient.getLatestSave(token));
             if (!response) {
                 setHasCloudSave(false);
                 setCloudMeta(null);
@@ -140,7 +158,7 @@ export const useCloudSave = () => {
             setStatus("error");
             setError(err instanceof Error ? err.message : "Failed to fetch cloud save.");
         }
-    }, [accessToken, isAvailable, refreshToken]);
+    }, [isAvailable, withRefreshRetry]);
 
     useEffect(() => {
         if (!isAvailable || !accessToken) {
@@ -164,9 +182,13 @@ export const useCloudSave = () => {
             return;
         }
         try {
-            const token = accessToken ?? (await refreshToken());
             const payload = toGameSave(gameStore.getState());
-            const result = await cloudClient.putLatestSave(token, payload, virtualScore, appVersion);
+            const result = await withRefreshRetry((token) => cloudClient.putLatestSave(
+                token,
+                payload,
+                virtualScore,
+                appVersion
+            ));
             setCloudMeta({
                 updatedAt: toDateOrNull(result.meta.updatedAt),
                 virtualScore: result.meta.virtualScore,
@@ -178,7 +200,7 @@ export const useCloudSave = () => {
             setStatus("error");
             setError(err instanceof Error ? err.message : "Failed to upload cloud save.");
         }
-    }, [accessToken, appVersion, isAvailable, refreshToken, virtualScore]);
+    }, [appVersion, isAvailable, virtualScore, withRefreshRetry]);
 
     const logout = useCallback(() => {
         cloudClient.clearAccessToken();

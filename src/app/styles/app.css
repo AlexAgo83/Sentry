@@ -571,7 +571,7 @@
     border: 1px solid rgba(242, 193, 78, 0.35);
     background: rgba(12, 18, 32, 0.7);
     border-radius: 999px;
-    padding: var(--m1) var(--m3);
+    padding: var(--m1) var(--m5);
     font-size: var(--text-xs-size);
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -588,6 +588,42 @@
     border-radius: calc(var(--border-radius-harmonized) - 2px);
     border: 1px solid rgba(93, 217, 193, 0.16);
     background: rgba(12, 18, 32, 0.82);
+}
+
+.ts-shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: var(--m4);
+    padding: var(--m2);
+}
+
+.ts-shop-tile {
+    border: 1px solid rgba(242, 193, 78, 0.22);
+    background: radial-gradient(circle at 25% 20%, rgba(93, 217, 193, 0.08), rgba(12, 18, 32, 0.9));
+    border-radius: 16px;
+    padding: var(--m4);
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--m2);
+    box-shadow:
+        inset 0 0 0 1px rgba(15, 21, 36, 0.45),
+        0 12px 24px -20px rgba(0, 0, 0, 0.7);
+}
+
+.ts-shop-tile-title {
+    font-size: var(--text-s-size);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+
+.ts-shop-tile-subtitle {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
 }
 
 .ts-stat-left {
@@ -1082,6 +1118,74 @@
     align-items: center;
     gap: var(--m4);
     margin-bottom: var(--m3);
+}
+
+.ts-panel-switcher-item.ts-bank-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.ts-bank-menu-popover {
+    position: absolute;
+    bottom: calc(100% + var(--m2));
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+    padding: var(--m3);
+    min-width: 180px;
+    border-radius: 14px;
+    border: 1px solid rgba(93, 217, 193, 0.28);
+    background: rgba(12, 18, 32, 0.95);
+    box-shadow:
+        inset 0 0 0 1px rgba(15, 21, 36, 0.5),
+        0 14px 26px -18px rgba(0, 0, 0, 0.85);
+    z-index: 40;
+}
+
+.ts-bank-menu-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m2);
+    border-radius: 12px;
+    border: 1px solid rgba(242, 193, 78, 0.2);
+    background: rgba(17, 25, 40, 0.65);
+    color: var(--color-text);
+    padding: 10px 12px;
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.18s ease, color 0.18s ease, transform 0.12s ease, background 0.18s ease;
+    text-align: left;
+}
+
+.ts-bank-menu-item:hover {
+    border-color: rgba(242, 193, 78, 0.6);
+    color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.ts-bank-menu-item.is-active {
+    border-color: rgba(242, 193, 78, 0.75);
+    background: rgba(242, 193, 78, 0.1);
+    color: var(--color-primary);
+    box-shadow: inset 0 0 0 1px rgba(242, 193, 78, 0.25);
+}
+
+.ts-bank-menu-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+}
+
+.ts-bank-menu-icon svg {
+    width: 100%;
+    height: 100%;
 }
 
 .ts-panel-switcher.ts-topbar-switcher,
@@ -1765,6 +1869,10 @@
         margin: 0;
     }
 
+    .app-bottom-bar .ts-panel-switcher.ts-panel-switcher--inventory-menu {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .app-layout {
         padding-bottom: calc(var(--m28) + var(--m10) + env(safe-area-inset-bottom));
     }
@@ -1845,6 +1953,20 @@
         order: 3;
         width: 100%;
         justify-content: flex-end;
+    }
+
+    .ts-system-cloud {
+        gap: var(--m5);
+    }
+
+    .ts-system-cloud-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--m4);
+    }
+
+    .ts-system-cloud-actions .generic-field.button {
+        width: 100%;
     }
 
     .ts-panel-actions-inline {

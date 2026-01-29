@@ -36,7 +36,9 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
 
     app.register(cors, {
         origin: true,
-        credentials: true
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "OPTIONS"],
+        allowedHeaders: ["Authorization", "Content-Type"]
     });
 
     app.register(cookie, {
