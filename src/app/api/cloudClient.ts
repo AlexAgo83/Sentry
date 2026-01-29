@@ -54,11 +54,11 @@ const requestJson = async <T>(path: string, options: globalThis.RequestInit = {}
     }
     const response = await fetch(url, {
         credentials: "include",
+        ...options,
         headers: {
             "Content-Type": "application/json",
             ...(options.headers ?? {})
-        },
-        ...options
+        }
     });
     if (!response.ok) {
         const message = await response.text();
