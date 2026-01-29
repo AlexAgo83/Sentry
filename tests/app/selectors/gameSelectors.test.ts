@@ -6,7 +6,8 @@ import {
     selectDriftLabel,
     selectPlayersSorted,
     selectPlayersSortedFromPlayers,
-    selectTickRateLabel
+    selectTickRateLabel,
+    selectVirtualScore
 } from "../../../src/app/selectors/gameSelectors";
 
 describe("app gameSelectors", () => {
@@ -46,5 +47,17 @@ describe("app gameSelectors", () => {
         state.perf.lastDriftMs = -100;
         state.perf.driftEmaMs = -100;
         expect(selectDriftLabel(state)).toBe("-100");
+    });
+
+    it("selectVirtualScore sums all player skill levels", () => {
+        const state = createInitialGameState("test");
+        const player2 = createPlayerState("2");
+        state.players[player2.id] = player2;
+        state.players["1"].skills.Combat.level = 3;
+        state.players["1"].skills.Cooking.level = 2;
+        state.players["2"].skills.Combat.level = 5;
+        state.players["2"].skills.Fishing.level = 1;
+
+        expect(selectVirtualScore(state)).toBe(11);
     });
 });

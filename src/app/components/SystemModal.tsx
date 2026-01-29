@@ -15,6 +15,7 @@ type SystemModalProps = {
     tickRate: string;
     loopInterval: number;
     offlineInterval: number;
+    virtualScore: number;
     activeActionLabel: string;
     crashReports: CrashReport[];
     onClearCrashReports: () => void;
@@ -38,6 +39,7 @@ export const SystemModal = memo(({
     tickRate,
     loopInterval,
     offlineInterval,
+    virtualScore,
     activeActionLabel,
     crashReports,
     onClearCrashReports,
@@ -116,6 +118,7 @@ export const SystemModal = memo(({
                     Reset save
                 </button>
             </div>
+            <div className="ts-system-footer">Virtual score: {virtualScore}</div>
             {crashReports.length > 0 ? (
                 <div className="ts-panel-body">
                     <ul className="ts-list ts-crash-list">

@@ -67,6 +67,8 @@ export const AppView = (props: AppViewProps) => {
         actionSelectionScreen,
     } = props;
 
+    const showRoster = !isMobile || (activeScreen === "main" && activeSidePanel === "stats");
+
     return (
         <>
             <header className="app-topbar">
@@ -136,7 +138,7 @@ export const AppView = (props: AppViewProps) => {
                 </div>
             </header>
             <main className="app-layout generic-global ts-layout">
-                {roster}
+                {showRoster ? roster : null}
                 <div className="ts-main-stack">
                     {activeScreen === "actionSelection"
                         ? actionSelectionScreen
@@ -172,7 +174,7 @@ export const AppView = (props: AppViewProps) => {
                         className="ts-bottombar-switcher"
                         labels={{
                             action: "Act",
-                            stats: "Stats",
+                            stats: "Roster",
                             inventory: "Bank",
                             equipment: "Equip"
                         }}

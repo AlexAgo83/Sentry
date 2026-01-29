@@ -16,6 +16,7 @@ const baseProps = () => ({
     tickRate: "4",
     loopInterval: 250,
     offlineInterval: 500,
+    virtualScore: 128,
     activeActionLabel: "none",
     crashReports: [] as CrashReport[],
     onClearCrashReports: vi.fn(),
@@ -36,6 +37,7 @@ describe("SystemModal", () => {
         expect(screen.getByText("Loop: 250ms (4/s) • Offline: 500ms • Catch-up: 0 / 0ms")).toBeTruthy();
         expect(screen.getByText(/Last tick:/)).toBeTruthy();
         expect(screen.getByText("1970-01-01T00:00:00.123Z")).toBeTruthy();
+        expect(screen.getByText("Virtual score: 128")).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Simulate +30 min" }));
         expect(props.onSimulateOffline).toHaveBeenCalledTimes(1);

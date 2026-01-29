@@ -31,3 +31,10 @@ export const selectDriftLabel = (state: GameState): string => {
     const driftMs = Number.isFinite(state.perf.driftEmaMs) ? state.perf.driftEmaMs : state.perf.lastDriftMs;
     return `${driftMs > 0 ? "+" : ""}${Math.round(driftMs)}`;
 };
+
+export const selectVirtualScore = (state: GameState): number => {
+    return Object.values(state.players).reduce((total, player) => {
+        const playerScore = Object.values(player.skills).reduce((sum, skill) => sum + skill.level, 0);
+        return total + playerScore;
+    }, 0);
+};

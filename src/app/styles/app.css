@@ -369,6 +369,13 @@
     justify-content: flex-end;
 }
 
+.ts-system-footer {
+    margin-top: var(--m5);
+    text-align: right;
+    font-size: var(--text-xs-size);
+    color: var(--color-text-muted);
+}
+
 .ts-action-row.ts-action-stack {
     flex-direction: column;
     align-items: stretch;
