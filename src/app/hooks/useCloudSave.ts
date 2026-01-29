@@ -142,6 +142,13 @@ export const useCloudSave = () => {
         }
     }, [accessToken, isAvailable, refreshToken]);
 
+    useEffect(() => {
+        if (!isAvailable || !accessToken) {
+            return;
+        }
+        refreshCloud();
+    }, [accessToken, isAvailable, refreshCloud]);
+
     const loadCloud = useCallback(async () => {
         if (!cloudPayload) {
             setError("No cloud save available.");
