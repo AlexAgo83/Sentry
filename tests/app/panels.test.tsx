@@ -350,6 +350,7 @@ describe("panel components", () => {
                 ]}
                 selectedItem={null}
                 selectedItemId={null}
+                selectedItemCharges={null}
                 onSelectItem={onSelectItem}
                 onClearSelection={vi.fn()}
                 sellQuantity={1}
@@ -387,6 +388,7 @@ describe("panel components", () => {
                 gridEntries={[]}
                 selectedItem={null}
                 selectedItemId={null}
+                selectedItemCharges={null}
                 onSelectItem={vi.fn()}
                 onClearSelection={vi.fn()}
                 sellQuantity={1}
@@ -411,6 +413,49 @@ describe("panel components", () => {
         expect(screen.getByText("No items available")).toBeTruthy();
         expect(screen.getByText("Off-page selection")).toBeTruthy();
         expect(screen.queryByText(/Page 1 of 1/)).toBeNull();
+    });
+
+    it("InventoryPanel shows tablet charges for equipped items", () => {
+        render(
+            <InventoryPanel
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                entries={[]}
+                gridEntries={[]}
+                selectedItem={{
+                    id: "invocation_tablet",
+                    name: "Invocation Tablet",
+                    count: 1,
+                    description: "Stone tablet etched with invocation sigils.",
+                    iconId: "invocation_tablet",
+                    usedBy: [],
+                    obtainedBy: []
+                }}
+                selectedItemId="invocation_tablet"
+                selectedItemCharges={80}
+                onSelectItem={vi.fn()}
+                onClearSelection={vi.fn()}
+                sellQuantity={1}
+                onSellQuantityChange={vi.fn()}
+                onSellSelected={vi.fn()}
+                canSellSelected={false}
+                sellGoldGain={0}
+                sellDisabledReason={null}
+                sort="Name"
+                onSortChange={vi.fn()}
+                search=""
+                onSearchChange={vi.fn()}
+                page={1}
+                pageCount={1}
+                onPageChange={vi.fn()}
+                totalItems={0}
+                emptyState="No items available"
+                selectionHint={null}
+            />
+        );
+
+        expect(screen.getByText("Charges")).toBeTruthy();
+        expect(screen.getByText("80/100")).toBeTruthy();
     });
 
     it("EquipmentPanel triggers equip and unequip actions", async () => {
@@ -443,5 +488,25 @@ describe("panel components", () => {
             "Unequip"
         );
         expect(onUnequipSlot).toHaveBeenCalledWith("Weapon");
+    });
+
+    it("EquipmentPanel shows tablet charges in the slot", () => {
+        const equipment = createPlayerEquipmentState();
+        equipment.slots.Tablet = "invocation_tablet";
+        equipment.charges.Tablet = 42;
+
+        render(
+            <EquipmentPanel
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                equipment={equipment}
+                inventoryItems={{}}
+                definitions={EQUIPMENT_DEFINITIONS}
+                onEquipItem={vi.fn()}
+                onUnequipSlot={vi.fn()}
+            />
+        );
+
+        expect(screen.getByText("Charges: 42/100")).toBeTruthy();
     });
 });

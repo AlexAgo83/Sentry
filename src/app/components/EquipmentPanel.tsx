@@ -26,7 +26,8 @@ const SLOT_ICON_IDS: Record<EquipmentSlotId, InventoryIconId> = {
     Feet: "slot_feet",
     Ring: "slot_ring",
     Amulet: "slot_amulet",
-    Weapon: "slot_weapon"
+    Weapon: "slot_weapon",
+    Tablet: "slot_tablet"
 };
 
 const buildDefinitionMap = (definitions: EquipmentItemDefinition[]): Record<ItemId, EquipmentItemDefinition> => {
@@ -108,6 +109,8 @@ export const EquipmentPanel = memo(({
                             : SLOT_ICON_IDS[slot];
                         const itemLabel = equippedDef ? equippedDef.name : `Empty ${slotLabel}`;
                         const modifierLabel = equippedDef ? formatModifiers(equippedDef.modifiers) : null;
+                        const chargeValue = slot === "Tablet" && equippedDef ? equipment.charges[slot] : null;
+                        const chargeLabel = chargeValue !== null ? `Charges: ${chargeValue}/100` : null;
                         const options = availableBySlot[slot];
                         const hasEquippedOption = equippedId
                             ? options.some((item) => item.id === equippedId)
@@ -127,6 +130,9 @@ export const EquipmentPanel = memo(({
                                         <span className="ts-equipment-slot-name">{itemLabel}</span>
                                         {modifierLabel ? (
                                             <span className="ts-equipment-slot-mods">{modifierLabel}</span>
+                                        ) : null}
+                                        {chargeLabel ? (
+                                            <span className="ts-equipment-slot-charges">{chargeLabel}</span>
                                         ) : null}
                                     </div>
                                 </div>

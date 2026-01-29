@@ -10,6 +10,7 @@ const baseProps = {
     gridEntries: [] as InventoryEntry[],
     selectedItem: null,
     selectedItemId: null,
+    selectedItemCharges: null,
     onSelectItem: () => {},
     onClearSelection: () => {},
     sellQuantity: 1,

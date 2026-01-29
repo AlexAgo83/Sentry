@@ -212,6 +212,34 @@ const applyActionTick = (
         };
     }
 
+    const applyTabletCharges = (candidate: PlayerState, count: number): PlayerState => {
+        if (count <= 0) {
+            return candidate;
+        }
+        const tabletId = candidate.equipment.slots.Tablet;
+        if (!tabletId) {
+            return candidate;
+        }
+        const currentCharges = candidate.equipment.charges.Tablet;
+        const resolvedCharges = typeof currentCharges === "number" && currentCharges > 0 ? currentCharges : 100;
+        const nextCharges = Math.max(0, resolvedCharges - count);
+        const nextEquipment = {
+            ...candidate.equipment,
+            slots: {
+                ...candidate.equipment.slots,
+                Tablet: nextCharges > 0 ? tabletId : null
+            },
+            charges: {
+                ...candidate.equipment.charges,
+                Tablet: nextCharges
+            }
+        };
+        return {
+            ...candidate,
+            equipment: nextEquipment
+        };
+    };
+
     const progressPercent = clampProgress((currentInterval / actionInterval) * 100);
     const nextSkills = {
         ...nextPlayer.skills,
@@ -225,9 +253,10 @@ const applyActionTick = (
     };
 
     if (shouldStop) {
+        const updatedPlayer = applyTabletCharges(nextPlayer, completedCount);
         return {
             player: {
-                ...nextPlayer,
+                ...updatedPlayer,
                 skills: nextSkills,
                 selectedActionId: null,
                 actionProgress: createActionProgress()
@@ -237,9 +266,11 @@ const applyActionTick = (
         };
     }
 
+    const updatedPlayer = applyTabletCharges(nextPlayer, completedCount);
+
     return {
         player: {
-            ...nextPlayer,
+            ...updatedPlayer,
             skills: nextSkills,
             actionProgress: {
                 currentInterval,

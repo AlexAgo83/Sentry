@@ -235,6 +235,18 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             if (currentItemId === action.itemId) {
                 return state;
             }
+            const nextCharges = slot === "Tablet"
+                ? (() => {
+                    const currentCharges = player.equipment.charges[slot];
+                    const resolved = typeof currentCharges === "number" && currentCharges > 0
+                        ? currentCharges
+                        : 100;
+                    return {
+                        ...player.equipment.charges,
+                        [slot]: resolved
+                    };
+                })()
+                : player.equipment.charges;
             const nextItems = { ...state.inventory.items };
             nextItems[action.itemId] = Math.max(0, available - 1);
             if (currentItemId) {
@@ -255,7 +267,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             slots: {
                                 ...player.equipment.slots,
                                 [slot]: action.itemId
-                            }
+                            },
+                            charges: nextCharges
                         }
                     }
                 }

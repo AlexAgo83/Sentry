@@ -16,7 +16,17 @@ export type ActionId = SkillId;
 export type RecipeId = string;
 export type ItemId = string;
 export type StatId = "Strength" | "Agility" | "Endurance" | "Intellect" | "Luck";
-export type EquipmentSlotId = "Head" | "Cape" | "Torso" | "Legs" | "Hands" | "Feet" | "Ring" | "Amulet" | "Weapon";
+export type EquipmentSlotId =
+    | "Head"
+    | "Cape"
+    | "Torso"
+    | "Legs"
+    | "Hands"
+    | "Feet"
+    | "Ring"
+    | "Amulet"
+    | "Weapon"
+    | "Tablet";
 export type WeaponType = "Melee" | "Ranged" | "Magic";
 
 export interface StatModifier {
@@ -45,6 +55,7 @@ export interface EquipmentItemDefinition {
 
 export interface PlayerEquipmentState {
     slots: Record<EquipmentSlotId, ItemId | null>;
+    charges: Record<EquipmentSlotId, number | null>;
 }
 
 export interface PlayerStatsState {

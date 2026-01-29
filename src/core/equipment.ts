@@ -9,14 +9,19 @@ export const EQUIPMENT_SLOTS: EquipmentSlotId[] = [
     "Feet",
     "Ring",
     "Amulet",
-    "Weapon"
+    "Weapon",
+    "Tablet"
 ];
 
 export const createPlayerEquipmentState = (): PlayerEquipmentState => ({
     slots: EQUIPMENT_SLOTS.reduce<Record<EquipmentSlotId, null>>((acc, slot) => {
         acc[slot] = null;
         return acc;
-    }, {} as Record<EquipmentSlotId, null>)
+    }, {} as Record<EquipmentSlotId, null>),
+    charges: EQUIPMENT_SLOTS.reduce<Record<EquipmentSlotId, number | null>>((acc, slot) => {
+        acc[slot] = null;
+        return acc;
+    }, {} as Record<EquipmentSlotId, number | null>)
 });
 
 export const normalizePlayerEquipment = (equipment?: PlayerEquipmentState | null): PlayerEquipmentState => {
@@ -28,5 +33,11 @@ export const normalizePlayerEquipment = (equipment?: PlayerEquipmentState | null
         acc[slot] = equipment.slots[slot] ?? null;
         return acc;
     }, {} as Record<EquipmentSlotId, string | null>);
-    return { slots };
+    const charges = EQUIPMENT_SLOTS.reduce<Record<EquipmentSlotId, number | null>>((acc, slot) => {
+        const raw = equipment.charges?.[slot];
+        const numeric = typeof raw === "number" ? raw : Number(raw);
+        acc[slot] = Number.isFinite(numeric) ? Math.max(0, Math.floor(numeric)) : null;
+        return acc;
+    }, {} as Record<EquipmentSlotId, number | null>);
+    return { slots, charges };
 };

@@ -60,7 +60,7 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
     {
         id: "invocation_tablet",
         name: "Invocation Tablet",
-        slot: "Amulet",
+        slot: "Tablet",
         modifiers: []
     },
     {

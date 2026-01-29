@@ -1537,6 +1537,13 @@
     color: rgba(242, 193, 78, 0.9);
 }
 
+.ts-equipment-slot-charges {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(93, 217, 193, 0.85);
+}
+
 .ts-equipment-slot-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

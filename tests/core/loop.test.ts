@@ -65,6 +65,111 @@ describe("core loop", () => {
         );
     });
 
+    it("depletes tablet charges when actions complete", () => {
+        const initial = createInitialGameState("0.3.1");
+        const playerId = initial.activePlayerId ?? "1";
+        let state = {
+            ...initial,
+            inventory: {
+                ...initial.inventory,
+                items: {
+                    ...initial.inventory.items,
+                    invocation_tablet: 1,
+                    food: 2
+                }
+            }
+        };
+
+        state = gameReducer(state, {
+            type: "equipItem",
+            playerId,
+            itemId: "invocation_tablet"
+        });
+
+        state = gameReducer(state, {
+            type: "selectAction",
+            playerId,
+            actionId: "Combat"
+        });
+        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        state = gameReducer(state, {
+            type: "selectRecipe",
+            playerId,
+            skillId: "Combat",
+            recipeId
+        });
+
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval * 3, Date.now());
+
+        expect(next.players[playerId].equipment.charges.Tablet).toBe(97);
+        expect(next.players[playerId].equipment.slots.Tablet).toBe("invocation_tablet");
+    });
+
+    it("removes tablet when charges hit zero", () => {
+        const initial = createInitialGameState("0.3.1");
+        const playerId = initial.activePlayerId ?? "1";
+        let state = {
+            ...initial,
+            inventory: {
+                ...initial.inventory,
+                items: {
+                    ...initial.inventory.items,
+                    invocation_tablet: 1,
+                    food: 1
+                }
+            }
+        };
+
+        state = gameReducer(state, {
+            type: "equipItem",
+            playerId,
+            itemId: "invocation_tablet"
+        });
+
+        state = {
+            ...state,
+            players: {
+                ...state.players,
+                [playerId]: {
+                    ...state.players[playerId],
+                    equipment: {
+                        ...state.players[playerId].equipment,
+                        charges: {
+                            ...state.players[playerId].equipment.charges,
+                            Tablet: 1
+                        }
+                    }
+                }
+            }
+        };
+
+        state = gameReducer(state, {
+            type: "selectAction",
+            playerId,
+            actionId: "Combat"
+        });
+        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        state = gameReducer(state, {
+            type: "selectRecipe",
+            playerId,
+            skillId: "Combat",
+            recipeId
+        });
+
+        const baseInterval = Math.ceil(
+            state.players[playerId].skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+        );
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
+        const next = applyTick(state, actionInterval, Date.now());
+
+        expect(next.players[playerId].equipment.charges.Tablet).toBe(0);
+        expect(next.players[playerId].equipment.slots.Tablet).toBe(null);
+    });
+
     it("advances progress percent when action is not complete", () => {
         const initial = createInitialGameState("0.3.1");
         const playerId = initial.activePlayerId ?? "1";

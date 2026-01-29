@@ -10,7 +10,8 @@ type EquipmentSlotIconId =
     | "slot_feet"
     | "slot_ring"
     | "slot_amulet"
-    | "slot_weapon";
+    | "slot_weapon"
+    | "slot_tablet";
 
 export type InventoryIconId = ItemId | EquipmentSlotIconId | "generic";
 
@@ -164,6 +165,13 @@ const ICON_SHAPES: Record<InventoryIconId, ReactElement> = {
             <circle cx="16" cy="18.5" r="2" />
         </>
     ),
+    invocation_tablet: (
+        <>
+            <rect x="9" y="6" width="14" height="20" rx="2" />
+            <path d="M12 12h8" />
+            <path d="M12 16h6" />
+        </>
+    ),
     rusty_blade: (
         <>
             <path d="M16 6v14" />
@@ -270,6 +278,13 @@ const ICON_SHAPES: Record<InventoryIconId, ReactElement> = {
             <path d="M10 22l12-12" />
             <path d="M10 10h4" />
             <path d="M20 22h4" />
+        </>
+    ),
+    slot_tablet: (
+        <>
+            <rect x="9" y="6" width="14" height="20" rx="2" />
+            <path d="M12 12h8" />
+            <path d="M12 16h6" />
         </>
     )
 };

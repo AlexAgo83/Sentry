@@ -23,6 +23,7 @@ type InventoryPanelProps = {
     gridEntries: InventoryEntry[];
     selectedItem: InventoryEntry | null;
     selectedItemId: string | null;
+    selectedItemCharges: number | null;
     onSelectItem: (itemId: string) => void;
     onClearSelection: () => void;
     sellQuantity: number;
@@ -72,6 +73,7 @@ export const InventoryPanel = memo(({
     gridEntries,
     selectedItem,
     selectedItemId,
+    selectedItemCharges,
     onSelectItem,
     onClearSelection,
     sellQuantity,
@@ -219,6 +221,12 @@ export const InventoryPanel = memo(({
                                 {selectedItem ? equipmentSlotLabel : "--"}
                             </span>
                         </div>
+                        {selectedItem && selectedItemCharges !== null ? (
+                            <div className="ts-inventory-focus-row">
+                                <span className="ts-inventory-focus-label">Charges</span>
+                                <span className="ts-inventory-focus-value">{selectedItemCharges}/100</span>
+                            </div>
+                        ) : null}
                         <div className="ts-inventory-focus-row">
                             <span className="ts-inventory-focus-label">Used by</span>
                             <span className="ts-inventory-focus-value">

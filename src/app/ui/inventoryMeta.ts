@@ -118,7 +118,7 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
     },
     invocation_tablet: {
         description: "Stone tablet etched with invocation sigils.",
-        iconId: "artifact"
+        iconId: "invocation_tablet"
     },
     rusty_blade: {
         description: "A basic blade with a weathered edge.",

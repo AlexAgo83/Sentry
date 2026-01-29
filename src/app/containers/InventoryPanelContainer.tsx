@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { ITEM_DEFINITIONS } from "../../data/definitions";
+import { getEquipmentDefinition } from "../../data/equipment";
 import { useGameStore } from "../hooks/useGameStore";
 import { getInventoryMeta } from "../ui/inventoryMeta";
+import { selectActivePlayer } from "../selectors/gameSelectors";
 import { ITEM_USAGE_MAP } from "../ui/itemUsage";
 import { useInventoryView } from "../hooks/useInventoryView";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
@@ -13,6 +15,7 @@ import { ConfirmSellModal } from "../components/ConfirmSellModal";
 
 export const InventoryPanelContainer = () => {
     const inventoryItems = useGameStore((state) => state.inventory.items);
+    const activePlayer = useGameStore(selectActivePlayer);
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
     const [sellQuantity, setSellQuantity] = useState(1);
     const [pendingSell, setPendingSell] = useState<{
@@ -68,6 +71,17 @@ export const InventoryPanelContainer = () => {
         selectedItemId: selectedInventoryItemId
     });
     const selectedItem = inventoryView.selectedItem;
+    const selectedItemCharges = (() => {
+        if (!selectedItem || !activePlayer) {
+            return null;
+        }
+        const equipmentDef = getEquipmentDefinition(selectedItem.id);
+        if (!equipmentDef || equipmentDef.slot !== "Tablet") {
+            return null;
+        }
+        const storedCharges = activePlayer.equipment.charges.Tablet;
+        return typeof storedCharges === "number" ? storedCharges : 100;
+    })();
 
     useEffect(() => {
         setSellQuantity(1);
@@ -158,6 +172,7 @@ export const InventoryPanelContainer = () => {
                 gridEntries={inventoryView.pageEntries}
                 selectedItem={inventoryView.selectedItem}
                 selectedItemId={selectedInventoryItemId}
+                selectedItemCharges={selectedItemCharges}
                 onSelectItem={handleToggleInventoryItem}
                 onClearSelection={handleClearInventorySelection}
                 sellQuantity={sellQuantity}
