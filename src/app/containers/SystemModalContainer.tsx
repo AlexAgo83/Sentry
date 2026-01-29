@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { CrashReport } from "../../observability/crashReporter";
 import type { SkillId } from "../../core/types";
 import { SystemModal } from "../components/SystemModal";
+import { CloudSavePanelContainer } from "./CloudSavePanelContainer";
 import { useGameStore } from "../hooks/useGameStore";
 import { selectActivePlayer, selectVirtualScore } from "../selectors/gameSelectors";
 
@@ -54,6 +55,7 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
             onSimulateOffline={props.onSimulateOffline}
             onResetSave={props.onResetSave}
             onClose={props.onClose}
+            cloudPanel={<CloudSavePanelContainer />}
         />
     );
 };

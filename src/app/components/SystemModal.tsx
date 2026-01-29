@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import { ModalShell } from "./ModalShell";
 import type { CrashReport } from "../../observability/crashReporter";
 
@@ -24,6 +24,7 @@ type SystemModalProps = {
     onSimulateOffline: () => void;
     onResetSave: () => void;
     onClose: () => void;
+    cloudPanel?: ReactNode;
 };
 
 export const SystemModal = memo(({
@@ -47,7 +48,8 @@ export const SystemModal = memo(({
     onImportSave,
     onSimulateOffline,
     onResetSave,
-    onClose
+    onClose,
+    cloudPanel = null
 }: SystemModalProps) => {
     const formatMs = (value: number, options?: { decimals?: number; plus?: boolean }) => {
         const decimals = options?.decimals ?? 0;
@@ -139,6 +141,7 @@ export const SystemModal = memo(({
                     </div>
                 </div>
             ) : null}
+            {cloudPanel}
         </ModalShell>
     );
 });

@@ -15,6 +15,10 @@ export type SaveLoadResult =
     | { status: "recovered_last_good"; save: GameSave }
     | { status: "corrupt"; save: null };
 
+export type SaveEnvelopeMeta = {
+    savedAt: number | null;
+};
+
 const isObject = (value: unknown): value is Record<string, unknown> => {
     return Boolean(value) && typeof value === "object";
 };
@@ -187,4 +191,20 @@ export const parseSaveEnvelopeOrLegacy = (raw: string): SaveLoadResult => {
     }
 
     return { status: "corrupt", save: null };
+};
+
+export const parseSaveEnvelopeMeta = (raw: string): SaveEnvelopeMeta => {
+    try {
+        const parsed = JSON.parse(raw) as unknown;
+        if (!isObject(parsed)) {
+            return { savedAt: null };
+        }
+        if (parsed.schemaVersion === 2) {
+            const savedAt = typeof parsed.savedAt === "number" ? parsed.savedAt : Number(parsed.savedAt);
+            return { savedAt: Number.isFinite(savedAt) ? savedAt : null };
+        }
+        return { savedAt: null };
+    } catch {
+        return { savedAt: null };
+    }
 };

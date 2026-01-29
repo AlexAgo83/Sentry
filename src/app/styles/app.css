@@ -376,6 +376,63 @@
     color: var(--color-text-muted);
 }
 
+.ts-system-cloud {
+    margin-top: var(--m6);
+    padding-top: var(--m5);
+    border-top: 1px solid rgba(93, 217, 193, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+}
+
+.ts-system-cloud-header {
+    font-size: var(--text-s-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
+}
+
+.ts-system-cloud-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m3);
+}
+
+.ts-system-cloud-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+    font-size: var(--text-xs-size);
+    color: var(--color-text-muted);
+}
+
+.ts-system-cloud-input {
+    width: 100%;
+}
+
+.ts-system-cloud-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--m3);
+    justify-content: flex-start;
+}
+
+.ts-system-cloud-status {
+    font-size: var(--text-xs-size);
+    color: var(--color-text);
+}
+
+.ts-system-cloud-error {
+    color: rgba(242, 120, 120, 0.9);
+}
+
+.ts-system-cloud-diff {
+    display: grid;
+    gap: var(--m2);
+    font-size: var(--text-xs-size);
+    color: var(--color-text-muted);
+}
+
 .ts-action-row.ts-action-stack {
     flex-direction: column;
     align-items: stretch;

@@ -1,0 +1,29 @@
+import { useState } from "react";
+import { CloudSavePanel } from "../components/CloudSavePanel";
+import { useCloudSave } from "../hooks/useCloudSave";
+
+export const CloudSavePanelContainer = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const cloud = useCloudSave();
+
+    return (
+        <CloudSavePanel
+            email={email}
+            password={password}
+            status={cloud.status}
+            error={cloud.error}
+            isAvailable={cloud.isAvailable}
+            hasCloudSave={cloud.hasCloudSave}
+            localMeta={cloud.localMeta}
+            cloudMeta={cloud.cloudMeta}
+            onEmailChange={setEmail}
+            onPasswordChange={setPassword}
+            onLogin={() => cloud.authenticate("login", email, password)}
+            onRegister={() => cloud.authenticate("register", email, password)}
+            onRefresh={cloud.refreshCloud}
+            onLoadCloud={cloud.loadCloud}
+            onOverwriteCloud={cloud.overwriteCloud}
+        />
+    );
+};
