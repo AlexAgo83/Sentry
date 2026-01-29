@@ -5,6 +5,7 @@ import { CloudSavePanel } from "../../src/app/components/CloudSavePanel";
 const baseProps = {
     email: "",
     password: "",
+    isAuthenticated: true,
     status: "ready" as const,
     error: null,
     isAvailable: true,
@@ -41,5 +42,13 @@ describe("CloudSavePanel", () => {
         render(<CloudSavePanel {...baseProps} isAvailable={false} />);
         expect(screen.getByText(/Cloud sync unavailable/)).toBeTruthy();
         expect(screen.getByRole("button", { name: "Load cloud save" }).hasAttribute("disabled")).toBe(true);
+    });
+
+    it("hides cloud details when unauthenticated", () => {
+        render(<CloudSavePanel {...baseProps} isAuthenticated={false} />);
+        expect(screen.queryByText(/Local:/)).toBeNull();
+        expect(screen.queryByText(/Cloud:/)).toBeNull();
+        expect(screen.queryByRole("button", { name: "Load cloud save" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Overwrite cloud with local" })).toBeNull();
     });
 });

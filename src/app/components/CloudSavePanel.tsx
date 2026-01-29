@@ -4,6 +4,7 @@ import type { CloudSaveMeta } from "../hooks/useCloudSave";
 export type CloudSavePanelProps = {
     email: string;
     password: string;
+    isAuthenticated: boolean;
     status: "idle" | "authenticating" | "ready" | "error" | "offline";
     error: string | null;
     isAvailable: boolean;
@@ -30,6 +31,7 @@ const formatMetaLine = (label: string, meta: CloudSaveMeta | null) => {
 export const CloudSavePanel = memo(({
     email,
     password,
+    isAuthenticated,
     status,
     error,
     isAvailable,
@@ -45,6 +47,7 @@ export const CloudSavePanel = memo(({
     onOverwriteCloud
 }: CloudSavePanelProps) => {
     const disabled = !isAvailable || status === "authenticating";
+    const authDisabled = disabled || !isAuthenticated;
 
     return (
         <div className="ts-system-cloud">
@@ -93,47 +96,51 @@ export const CloudSavePanel = memo(({
                         type="button"
                         className="generic-field button ts-focusable"
                         onClick={onRefresh}
-                        disabled={disabled}
+                        disabled={authDisabled}
                     >
                         Check cloud
                     </button>
                 </div>
             </div>
-            <div className="ts-system-cloud-status">
-                {!isAvailable ? (
-                    <span>Cloud sync unavailable (missing API base or offline).</span>
-                ) : status === "authenticating" ? (
-                    <span>Authenticating…</span>
-                ) : error ? (
-                    <span className="ts-system-cloud-error">{error}</span>
-                ) : hasCloudSave ? (
-                    <span>Cloud save available.</span>
-                ) : (
-                    <span>No cloud save found.</span>
-                )}
-            </div>
-            <div className="ts-system-cloud-diff">
-                <div>{formatMetaLine("Local", localMeta)}</div>
-                <div>{formatMetaLine("Cloud", cloudMeta)}</div>
-            </div>
-            <div className="ts-system-cloud-actions">
-                <button
-                    type="button"
-                    className="generic-field button ts-focusable"
-                    onClick={onLoadCloud}
-                    disabled={disabled || !hasCloudSave}
-                >
-                    Load cloud save
-                </button>
-                <button
-                    type="button"
-                    className="generic-field button ts-focusable"
-                    onClick={onOverwriteCloud}
-                    disabled={disabled}
-                >
-                    Overwrite cloud with local
-                </button>
-            </div>
+            {isAuthenticated ? (
+                <>
+                    <div className="ts-system-cloud-status">
+                        {!isAvailable ? (
+                            <span>Cloud sync unavailable (missing API base or offline).</span>
+                        ) : status === "authenticating" ? (
+                            <span>Authenticating…</span>
+                        ) : error ? (
+                            <span className="ts-system-cloud-error">{error}</span>
+                        ) : hasCloudSave ? (
+                            <span>Cloud save available.</span>
+                        ) : (
+                            <span>No cloud save found.</span>
+                        )}
+                    </div>
+                    <div className="ts-system-cloud-diff">
+                        <div>{formatMetaLine("Local", localMeta)}</div>
+                        <div>{formatMetaLine("Cloud", cloudMeta)}</div>
+                    </div>
+                    <div className="ts-system-cloud-actions">
+                        <button
+                            type="button"
+                            className="generic-field button ts-focusable"
+                            onClick={onLoadCloud}
+                            disabled={disabled || !hasCloudSave}
+                        >
+                            Load cloud save
+                        </button>
+                        <button
+                            type="button"
+                            className="generic-field button ts-focusable"
+                            onClick={onOverwriteCloud}
+                            disabled={disabled}
+                        >
+                            Overwrite cloud with local
+                        </button>
+                    </div>
+                </>
+            ) : null}
         </div>
     );
 });

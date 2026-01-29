@@ -11,6 +11,7 @@ export const CloudSavePanelContainer = () => {
         <CloudSavePanel
             email={email}
             password={password}
+            isAuthenticated={Boolean(cloud.accessToken)}
             status={cloud.status}
             error={cloud.error}
             isAvailable={cloud.isAvailable}
