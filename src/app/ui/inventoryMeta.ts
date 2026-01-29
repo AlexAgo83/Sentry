@@ -116,6 +116,10 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
         description: "A charm that steadies the mind against harm.",
         iconId: "warding_amulet"
     },
+    invocation_tablet: {
+        description: "Stone tablet etched with invocation sigils.",
+        iconId: "artifact"
+    },
     rusty_blade: {
         description: "A basic blade with a weathered edge.",
         iconId: "rusty_blade"

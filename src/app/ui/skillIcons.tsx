@@ -90,6 +90,15 @@ const SKILL_ICON_SHAPES: Record<SkillId, ReactElement> = {
         <g {...skillIconStroke}>
             <path d="M20 14c-4 0-6 4-4 8l2 6l-2 8c-2 6 4 10 10 8l6-2l6 2c6 2 12-2 10-8l-2-8l2-6c2-4 0-8-4-8l-4 2l-6-2l-6 2z" />
         </g>
+    ),
+    Invocation: (
+        <g {...skillIconStroke}>
+            <rect x="20" y="10" width="24" height="40" rx="4" />
+            <path d="M26 20h12" />
+            <path d="M26 28h12" />
+            <path d="M26 36h12" />
+            <path d="M30 44l4-6l4 6" />
+        </g>
     )
 };
 

@@ -58,7 +58,14 @@ const addItemDelta = (target: ItemDelta, itemId: string, amount: number) => {
 };
 
 const STRENGTH_SKILLS = new Set<SkillId>(["Combat", "Hunting", "Excavation", "MetalWork"]);
-const INTELLECT_SKILLS = new Set<SkillId>(["Cooking", "Alchemy", "Herbalism", "Tailoring", "Carpentry"]);
+const INTELLECT_SKILLS = new Set<SkillId>([
+    "Cooking",
+    "Alchemy",
+    "Herbalism",
+    "Tailoring",
+    "Carpentry",
+    "Invocation"
+]);
 const LUCK_SKILLS = new Set<SkillId>(["Fishing"]);
 
 const canAffordCosts = (inventory: InventoryState, costs?: ItemDelta): boolean => {

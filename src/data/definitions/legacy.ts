@@ -30,7 +30,8 @@ export const LEGACY_RECIPE_ID_MAP: Record<SkillId, Record<string, RecipeId>> = {
     Tailoring: {},
     Fishing: {},
     Carpentry: {},
-    Leatherworking: {}
+    Leatherworking: {},
+    Invocation: {}
 };
 
 export const resolveRecipeId = (skillId: SkillId, recipeId: RecipeId): RecipeId => {

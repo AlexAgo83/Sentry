@@ -10,7 +10,8 @@ export type SkillId =
     | "Tailoring"
     | "Fishing"
     | "Carpentry"
-    | "Leatherworking";
+    | "Leatherworking"
+    | "Invocation";
 export type ActionId = SkillId;
 export type RecipeId = string;
 export type ItemId = string;
@@ -130,6 +131,7 @@ export interface RecipeDefinition {
     id: RecipeId;
     skillId: SkillId;
     name: string;
+    description?: string;
     media?: string;
     unlockLevel?: number;
     goldReward?: number;

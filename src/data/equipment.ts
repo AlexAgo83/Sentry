@@ -58,6 +58,12 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         modifiers: [{ stat: "Intellect", kind: "flat", value: 1 }]
     },
     {
+        id: "invocation_tablet",
+        name: "Invocation Tablet",
+        slot: "Amulet",
+        modifiers: []
+    },
+    {
         id: "rusty_blade",
         name: "Rusty Blade",
         slot: "Weapon",

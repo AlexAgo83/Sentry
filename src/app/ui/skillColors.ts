@@ -11,7 +11,8 @@ const SKILL_ICON_COLORS: Record<SkillId, string> = {
     Tailoring: "#f4d35e",
     Fishing: "#4cc9f0",
     Carpentry: "#c97c5d",
-    Leatherworking: "#a26769"
+    Leatherworking: "#a26769",
+    Invocation: "#6f93ff"
 };
 
 const DEFAULT_SKILL_COLOR = "#f2c14e";
