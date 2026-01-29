@@ -16,6 +16,7 @@ export type CloudSavePanelProps = {
     onLogin: () => void;
     onRegister: () => void;
     onRefresh: () => void;
+    onLogout: () => void;
     onLoadCloud: () => void;
     onOverwriteCloud: () => void;
 };
@@ -43,6 +44,7 @@ export const CloudSavePanel = memo(({
     onLogin,
     onRegister,
     onRefresh,
+    onLogout,
     onLoadCloud,
     onOverwriteCloud
 }: CloudSavePanelProps) => {
@@ -52,45 +54,58 @@ export const CloudSavePanel = memo(({
     return (
         <div className="ts-system-cloud">
             <div className="ts-system-cloud-header">Cloud save</div>
-            <div className="ts-system-cloud-form">
-                <label className="ts-system-cloud-field">
-                    <span>Email</span>
-                    <input
-                        className="generic-field input ts-system-cloud-input"
-                        type="email"
-                        value={email}
-                        onChange={(event) => onEmailChange(event.currentTarget.value)}
-                        placeholder="you@example.com"
-                        disabled={disabled}
-                    />
-                </label>
-                <label className="ts-system-cloud-field">
-                    <span>Password</span>
-                    <input
-                        className="generic-field input ts-system-cloud-input"
-                        type="password"
-                        value={password}
-                        onChange={(event) => onPasswordChange(event.currentTarget.value)}
-                        placeholder="••••••"
-                        disabled={disabled}
-                    />
-                </label>
+            {!isAuthenticated ? (
+                <div className="ts-system-cloud-form">
+                    <label className="ts-system-cloud-field">
+                        <span>Email</span>
+                        <input
+                            className="generic-field input ts-system-cloud-input"
+                            type="email"
+                            value={email}
+                            onChange={(event) => onEmailChange(event.currentTarget.value)}
+                            placeholder="you@example.com"
+                            disabled={disabled}
+                        />
+                    </label>
+                    <label className="ts-system-cloud-field">
+                        <span>Password</span>
+                        <input
+                            className="generic-field input ts-system-cloud-input"
+                            type="password"
+                            value={password}
+                            onChange={(event) => onPasswordChange(event.currentTarget.value)}
+                            placeholder="••••••"
+                            disabled={disabled}
+                        />
+                    </label>
+                    <div className="ts-system-cloud-actions">
+                        <button
+                            type="button"
+                            className="generic-field button ts-focusable"
+                            onClick={onRegister}
+                            disabled={disabled}
+                        >
+                            Register
+                        </button>
+                        <button
+                            type="button"
+                            className="generic-field button ts-focusable"
+                            onClick={onLogin}
+                            disabled={disabled}
+                        >
+                            Login
+                        </button>
+                    </div>
+                </div>
+            ) : (
                 <div className="ts-system-cloud-actions">
                     <button
                         type="button"
                         className="generic-field button ts-focusable"
-                        onClick={onRegister}
+                        onClick={onLogout}
                         disabled={disabled}
                     >
-                        Register
-                    </button>
-                    <button
-                        type="button"
-                        className="generic-field button ts-focusable"
-                        onClick={onLogin}
-                        disabled={disabled}
-                    >
-                        Login
+                        Logout
                     </button>
                     <button
                         type="button"
@@ -101,7 +116,7 @@ export const CloudSavePanel = memo(({
                         Check cloud
                     </button>
                 </div>
-            </div>
+            )}
             {isAuthenticated ? (
                 <>
                     <div className="ts-system-cloud-status">

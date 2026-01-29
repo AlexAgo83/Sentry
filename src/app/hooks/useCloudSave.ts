@@ -180,6 +180,16 @@ export const useCloudSave = () => {
         }
     }, [accessToken, appVersion, isAvailable, refreshToken, virtualScore]);
 
+    const logout = useCallback(() => {
+        cloudClient.clearAccessToken();
+        setAccessToken(null);
+        setCloudMeta(null);
+        setCloudPayload(null);
+        setHasCloudSave(false);
+        setStatus("idle");
+        setError(null);
+    }, []);
+
     return {
         status,
         error,
@@ -191,11 +201,13 @@ export const useCloudSave = () => {
         authenticate,
         refreshCloud,
         loadCloud,
-        overwriteCloud
+        overwriteCloud,
+        logout
     } satisfies CloudSaveState & {
         authenticate: (mode: "login" | "register", email: string, password: string) => Promise<void>;
         refreshCloud: () => Promise<void>;
         loadCloud: () => Promise<void>;
         overwriteCloud: () => Promise<void>;
+        logout: () => void;
     };
 };

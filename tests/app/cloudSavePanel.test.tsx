@@ -25,6 +25,7 @@ const baseProps = {
     onLogin: vi.fn(),
     onRegister: vi.fn(),
     onRefresh: vi.fn(),
+    onLogout: vi.fn(),
     onLoadCloud: vi.fn(),
     onOverwriteCloud: vi.fn()
 };
@@ -46,9 +47,16 @@ describe("CloudSavePanel", () => {
 
     it("hides cloud details when unauthenticated", () => {
         render(<CloudSavePanel {...baseProps} isAuthenticated={false} />);
+        expect(screen.getByRole("button", { name: "Register" })).toBeTruthy();
+        expect(screen.getByRole("button", { name: "Login" })).toBeTruthy();
         expect(screen.queryByText(/Local:/)).toBeNull();
         expect(screen.queryByText(/Cloud:/)).toBeNull();
         expect(screen.queryByRole("button", { name: "Load cloud save" })).toBeNull();
         expect(screen.queryByRole("button", { name: "Overwrite cloud with local" })).toBeNull();
+    });
+
+    it("shows logout when authenticated", () => {
+        render(<CloudSavePanel {...baseProps} />);
+        expect(screen.getByRole("button", { name: "Logout" })).toBeTruthy();
     });
 });

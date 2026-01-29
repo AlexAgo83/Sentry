@@ -23,6 +23,7 @@ export const CloudSavePanelContainer = () => {
             onLogin={() => cloud.authenticate("login", email, password)}
             onRegister={() => cloud.authenticate("register", email, password)}
             onRefresh={cloud.refreshCloud}
+            onLogout={cloud.logout}
             onLoadCloud={cloud.loadCloud}
             onOverwriteCloud={cloud.overwriteCloud}
         />

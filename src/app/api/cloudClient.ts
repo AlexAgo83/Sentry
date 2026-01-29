@@ -47,6 +47,8 @@ const saveAccessToken = (token: string | null) => {
     localStorage.setItem(ACCESS_TOKEN_KEY, token);
 };
 
+const clearAccessToken = () => saveAccessToken(null);
+
 const requestJson = async <T>(path: string, options: globalThis.RequestInit = {}): Promise<T> => {
     const url = buildUrl(path);
     if (!url) {
@@ -138,6 +140,7 @@ const putLatestSave = async (
 export const cloudClient = {
     getApiBase,
     loadAccessToken,
+    clearAccessToken,
     register,
     login,
     refresh,
