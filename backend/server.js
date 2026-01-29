@@ -6,22 +6,33 @@ const rateLimit = require("@fastify/rate-limit");
 const bcrypt = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
 
-const prisma = new PrismaClient();
-
 const MAX_SAVE_BYTES = 2 * 1024 * 1024;
-const ACCESS_TTL_MINUTES = Number(process.env.ACCESS_TOKEN_TTL_MINUTES ?? 15);
-const REFRESH_TTL_DAYS = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30);
-const JWT_SECRET = process.env.JWT_SECRET;
-const COOKIE_SECRET = process.env.COOKIE_SECRET || JWT_SECRET;
 
-if (!JWT_SECRET) {
-    throw new Error("JWT_SECRET is required.");
-}
+const buildConfig = () => {
+    const ACCESS_TTL_MINUTES = Number(process.env.ACCESS_TOKEN_TTL_MINUTES ?? 15);
+    const REFRESH_TTL_DAYS = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30);
+    const JWT_SECRET = process.env.JWT_SECRET;
+    const COOKIE_SECRET = process.env.COOKIE_SECRET || JWT_SECRET;
+    const isProduction = process.env.NODE_ENV === "production";
 
-const isProduction = process.env.NODE_ENV === "production";
+    if (!JWT_SECRET) {
+        throw new Error("JWT_SECRET is required.");
+    }
 
-const buildServer = () => {
-    const app = fastify({ logger: true, bodyLimit: MAX_SAVE_BYTES });
+    return {
+        ACCESS_TTL_MINUTES,
+        REFRESH_TTL_DAYS,
+        JWT_SECRET,
+        COOKIE_SECRET,
+        isProduction
+    };
+};
+
+const buildServer = ({ prismaClient, logger = true } = {}) => {
+    const config = buildConfig();
+    const prisma = prismaClient ?? new PrismaClient();
+    const shouldDisconnect = !prismaClient;
+    const app = fastify({ logger, bodyLimit: MAX_SAVE_BYTES });
 
     app.register(cors, {
         origin: true,
@@ -29,11 +40,11 @@ const buildServer = () => {
     });
 
     app.register(cookie, {
-        secret: COOKIE_SECRET
+        secret: config.COOKIE_SECRET
     });
 
     app.register(jwt, {
-        secret: JWT_SECRET
+        secret: config.JWT_SECRET
     });
 
     app.register(rateLimit, { global: false });
@@ -51,21 +62,21 @@ const buildServer = () => {
 
     const signAccessToken = (userId) => app.jwt.sign(
         { sub: userId, type: "access" },
-        { expiresIn: `${ACCESS_TTL_MINUTES}m` }
+        { expiresIn: `${config.ACCESS_TTL_MINUTES}m` }
     );
 
     const signRefreshToken = (userId) => app.jwt.sign(
         { sub: userId, type: "refresh" },
-        { expiresIn: `${REFRESH_TTL_DAYS}d` }
+        { expiresIn: `${config.REFRESH_TTL_DAYS}d` }
     );
 
     const setRefreshCookie = (reply, token) => {
         reply.setCookie("refreshToken", token, {
             httpOnly: true,
             sameSite: "lax",
-            secure: isProduction,
+            secure: config.isProduction,
             path: "/api/v1/auth/refresh",
-            maxAge: REFRESH_TTL_DAYS * 24 * 60 * 60
+            maxAge: config.REFRESH_TTL_DAYS * 24 * 60 * 60
         });
     };
 
@@ -222,7 +233,9 @@ const buildServer = () => {
     });
 
     app.addHook("onClose", async () => {
-        await prisma.$disconnect();
+        if (shouldDisconnect) {
+            await prisma.$disconnect();
+        }
     });
 
     return app;
