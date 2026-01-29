@@ -1,8 +1,8 @@
 ## task_026_cloud_save_backend_and_conflict_ui - Cloud save backend and conflict UI
 > From version: 0.8.11
-> Understanding: 93%
-> Confidence: 86%
-> Progress: 65%
+> Understanding: 94%
+> Confidence: 88%
+> Progress: 80%
 
 # Context
 Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
@@ -13,7 +13,7 @@ Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
 - [x] 3. Implement save endpoints with payload validation, size limits, and metadata storage.
 - [x] 4. Add basic rate limiting on auth endpoints.
 - [x] 5. Wire frontend client calls and conflict UI (diff + actions), with offline-first disable behavior.
-- [ ] 6. Add backend tests (auth, saves, size limits, security) and frontend conflict UI tests.
+- [x] 6. Add backend tests (auth, saves, size limits, security) and frontend conflict UI tests.
 - [ ] FINAL: Update related Logics docs if scope changes.
 
 # Test plan
@@ -35,7 +35,7 @@ Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
 # Report
 - Added Fastify server with auth + save endpoints, Prisma schema, env defaults, and dependencies.
 - Added cloud client + System modal cloud panel for login/register, diff display, load/overwrite, offline disable.
-- Backend tests and frontend conflict UI tests still pending.
+- Added backend API tests with mocked Prisma and a CloudSavePanel UI test.
 - Validation not run yet.
 
 # Estimate
