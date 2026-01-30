@@ -1,7 +1,7 @@
 ## req_013_local_cloud_save_modals - Split Local/Cloud save modals
 > From version: 0.8.14
-> Understanding: 70%
-> Confidence: 60%
+> Understanding: 85%
+> Confidence: 75%
 
 # Needs
 - Add two new modals: **Local Save** and **Cloud Save**.
@@ -28,9 +28,9 @@
   - Upload/download/refresh actions.
 - **Setup/System modal** keeps:
   - Telemetry list (tick/loop/drift details).
-  - Simulate offline button.
   - Links/buttons to open Local Save + Cloud Save modals.
   - Optional: surface last sync time-ago inline next to the Cloud Save entry.
+  - Dev tools entry in dev builds (simulate lives there now).
 
 # UX suggestions (best)
 - Setup shows two primary buttons: “Local save” + “Cloud save” with a short helper line under each.
@@ -50,6 +50,7 @@
 
 # Context
 - System modal currently mixes telemetry, local save actions, and the cloud panel.
+- Simulate offline has been moved into Dev Tools, so Setup should stay focused on telemetry + save navigation.
 - Splitting these into dedicated modals should make save management clearer and reduce clutter.
 
 # Open questions
