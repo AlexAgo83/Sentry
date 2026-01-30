@@ -1,8 +1,8 @@
 ## item_033_split_local_cloud_save_modals - Split Local/Cloud save modals
 > From version: 0.8.14
-> Understanding: 88%
-> Confidence: 80%
-> Progress: 0%
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 100%
 
 # Problem
 Promoted from `logics/request/req_013_local_cloud_save_modals.md`

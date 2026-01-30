@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 let openModalCount = 0;
 
 type ModalShellProps = {
-    kicker: string;
+    kicker: ReactNode;
     title: ReactNode;
     onClose: () => void;
     children: ReactNode;

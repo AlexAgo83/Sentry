@@ -34,7 +34,7 @@ export const LocalSaveModal = memo(({
                     </button>
                 </div>
                 <span className="ts-system-helper">
-                    Export, import, or reset this device's save.
+                    {"Export, import, or reset this device's save."}
                 </span>
             </div>
             <div className="ts-system-entry">

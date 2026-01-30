@@ -1,8 +1,8 @@
 ## item_034_onboarding_hero_creation - Onboarding hero creation
 > From version: 0.8.14
-> Understanding: 88%
-> Confidence: 80%
-> Progress: 0%
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 100%
 
 # Problem
 Promoted from `logics/request/req_012_onboarding_hero_creation.md`

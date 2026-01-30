@@ -14,6 +14,7 @@ export type CloudSavePanelProps = {
     localMeta: CloudSaveMeta;
     cloudMeta: CloudSaveMeta | null;
     lastSyncAt: Date | null;
+    showHeader?: boolean;
     onEmailChange: (value: string) => void;
     onPasswordChange: (value: string) => void;
     onLogin: () => void;
@@ -64,6 +65,7 @@ export const CloudSavePanel = memo(({
     localMeta,
     cloudMeta,
     lastSyncAt,
+    showHeader = true,
     onEmailChange,
     onPasswordChange,
     onLogin,
@@ -122,10 +124,12 @@ export const CloudSavePanel = memo(({
 
     return (
         <div className="ts-system-cloud">
-            <div className="ts-system-cloud-header">
-                <span>Cloud save</span>
-                <span className={`ts-system-cloud-badge ${badgeTone}`}>{badgeLabel}</span>
-            </div>
+            {showHeader ? (
+                <div className="ts-system-cloud-header">
+                    <span>Cloud save</span>
+                    <span className={`ts-system-cloud-badge ${badgeTone}`}>{badgeLabel}</span>
+                </div>
+            ) : null}
             {!isAuthenticated ? (
                 <div className="ts-system-cloud-form">
                     <label className="ts-system-cloud-field">
