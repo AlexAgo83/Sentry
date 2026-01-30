@@ -39,6 +39,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
             <CharacterSkinPanel
                 avatarColor={avatarColor}
                 avatarSkillId={activePlayer?.selectedActionId ?? null}
+                faceSeed={activePlayer?.id ?? null}
                 isPlaceholder={!activePlayer}
             />
             <CharacterStatsPanel
