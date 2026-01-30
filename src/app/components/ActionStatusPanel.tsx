@@ -91,6 +91,13 @@ export const ActionStatusPanel = memo(({
     onInterruptAction,
     canInterruptAction
 }: ActionStatusPanelProps) => {
+    const hasActiveAction = Boolean(activeSkillId);
+    const changeActionClassName = [
+        "ts-collapse-button",
+        "ts-focusable",
+        "ts-action-change",
+        canChangeAction ? (hasActiveAction ? "is-ready-active" : "is-ready-empty") : ""
+    ].filter(Boolean).join(" ");
     const formatXp = (value: number): string => {
         if (!Number.isFinite(value)) {
             return "0";
@@ -129,7 +136,7 @@ export const ActionStatusPanel = memo(({
 	            <div className="ts-panel-actions ts-panel-actions-inline">
 	                <button
 	                    type="button"
-	                    className="ts-collapse-button ts-focusable"
+	                    className={changeActionClassName}
 	                    onClick={onChangeAction}
 	                    disabled={!canChangeAction}
 	                    aria-label="Change"

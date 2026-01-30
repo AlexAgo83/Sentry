@@ -201,6 +201,7 @@ describe("panel components", () => {
             <CharacterStatsPanel
                 skills={SKILL_DEFINITIONS}
                 skillLevels={{}}
+                skillProgress={{}}
                 stats={createPlayerStatsState()}
                 effectiveStats={computeEffectiveStats(createPlayerStatsState())}
                 equipmentMods={[]}
@@ -256,6 +257,7 @@ describe("panel components", () => {
             <CharacterStatsPanel
                 skills={SKILL_DEFINITIONS}
                 skillLevels={{}}
+                skillProgress={{}}
                 stats={stats}
                 effectiveStats={computeEffectiveStats(stats)}
                 equipmentMods={[{
@@ -289,6 +291,7 @@ describe("panel components", () => {
             <CharacterStatsPanel
                 skills={SKILL_DEFINITIONS}
                 skillLevels={{}}
+                skillProgress={{}}
                 stats={stats}
                 effectiveStats={computeEffectiveStats(stats)}
                 equipmentMods={[]}
@@ -317,6 +320,7 @@ describe("panel components", () => {
             <CharacterStatsPanel
                 skills={SKILL_DEFINITIONS}
                 skillLevels={{}}
+                skillProgress={{}}
                 stats={stats}
                 effectiveStats={computeEffectiveStats(stats)}
                 equipmentMods={[]}

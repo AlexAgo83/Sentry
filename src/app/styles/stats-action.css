@@ -210,14 +210,21 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--m2);
-    padding: var(--m1) 0;
+    padding: var(--m2) var(--m3);
     min-height: 40px;
     flex-wrap: nowrap;
+    border-radius: 12px;
+    background: linear-gradient(
+        90deg,
+        var(--ts-skill-progress-color, rgba(93, 217, 193, 0.18)) 0%,
+        var(--ts-skill-progress-color, rgba(93, 217, 193, 0.18)) var(--ts-skill-progress, 0%),
+        rgba(12, 18, 32, 0.15) var(--ts-skill-progress, 0%),
+        rgba(12, 18, 32, 0.15) 100%
+    );
 }
 
 .ts-stat + .ts-stat {
-    border-top: 1px solid rgba(93, 217, 193, 0.12);
-    padding-top: var(--m1);
+    margin-top: var(--m1);
 }
 
 .ts-shop-grid {
@@ -626,6 +633,26 @@
     user-select: none;
 }
 
+.ts-choice-card.ts-skill-choice {
+    background: linear-gradient(
+        90deg,
+        var(--ts-skill-progress-color, rgba(93, 217, 193, 0.12)) 0%,
+        var(--ts-skill-progress-color, rgba(93, 217, 193, 0.12)) var(--ts-skill-progress, 0%),
+        rgba(12, 18, 32, 0.7) var(--ts-skill-progress, 0%),
+        rgba(12, 18, 32, 0.7) 100%
+    );
+}
+
+.ts-choice-card.ts-recipe-choice {
+    background: linear-gradient(
+        90deg,
+        var(--ts-recipe-progress-color, rgba(93, 217, 193, 0.12)) 0%,
+        var(--ts-recipe-progress-color, rgba(93, 217, 193, 0.12)) var(--ts-recipe-progress, 0%),
+        rgba(12, 18, 32, 0.7) var(--ts-recipe-progress, 0%),
+        rgba(12, 18, 32, 0.7) 100%
+    );
+}
+
 .ts-choice-card:hover {
     border-color: rgba(93, 217, 193, 0.45);
 }
@@ -698,6 +725,33 @@
 }
 
 .ts-action-start.is-ready-same:hover:not(:disabled) {
+    border-color: rgba(165, 205, 255, 0.95);
+    color: rgba(205, 225, 255, 0.95);
+}
+
+.ts-action-change.is-ready-empty {
+    border-color: rgba(110, 220, 150, 0.85);
+    color: rgba(140, 240, 190, 0.95);
+    animation: ts-action-ready-pulse 1.6s ease-in-out infinite;
+    box-shadow:
+        0 0 10px rgba(90, 220, 140, 0.35),
+        0 0 24px rgba(90, 220, 140, 0.25);
+}
+
+.ts-action-change.is-ready-empty:hover:not(:disabled) {
+    border-color: rgba(170, 255, 210, 0.95);
+    color: rgba(190, 255, 230, 0.95);
+}
+
+.ts-action-change.is-ready-active {
+    border-color: rgba(110, 170, 255, 0.85);
+    color: rgba(175, 210, 255, 0.95);
+    box-shadow:
+        0 0 10px rgba(90, 150, 240, 0.35),
+        0 0 24px rgba(90, 150, 240, 0.3);
+}
+
+.ts-action-change.is-ready-active:hover:not(:disabled) {
     border-color: rgba(165, 205, 255, 0.95);
     color: rgba(205, 225, 255, 0.95);
 }

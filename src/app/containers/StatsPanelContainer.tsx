@@ -31,6 +31,20 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
         acc[skill.id] = activePlayer?.skills[skill.id]?.level ?? 0;
         return acc;
     }, {}), [activePlayer]);
+    const skillProgress = useMemo(() => SKILL_DEFINITIONS.reduce<Partial<Record<SkillId, number>>>((acc, skill) => {
+        const state = activePlayer?.skills[skill.id];
+        if (!state) {
+            acc[skill.id] = 0;
+            return acc;
+        }
+        if (state.maxLevel > 0 && state.level >= state.maxLevel) {
+            acc[skill.id] = 1;
+            return acc;
+        }
+        const progress = state.xpNext > 0 ? state.xp / state.xpNext : 0;
+        acc[skill.id] = Math.max(0, Math.min(1, progress));
+        return acc;
+    }, {}), [activePlayer]);
 
     return (
         <>
@@ -38,6 +52,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
             <CharacterStatsPanel
                 skills={SKILL_DEFINITIONS}
                 skillLevels={skillLevels}
+                skillProgress={skillProgress}
                 stats={statsState}
                 effectiveStats={effectiveStats}
                 equipmentMods={equipmentMods}

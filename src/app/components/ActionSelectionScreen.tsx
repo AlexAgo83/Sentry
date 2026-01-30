@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, type CSSProperties } from "react";
 import type { PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked, ITEM_DEFINITIONS } from "../../data/definitions";
 import { StartActionIcon } from "../ui/startActionIcon";
@@ -109,6 +109,52 @@ export const ActionSelectionScreen = memo(({
         );
     };
 
+    const getSkillProgressStyle = (skillId: SkillId | ""): CSSProperties => {
+        if (!skillId) {
+            return {
+                "--ts-skill-progress": "0%",
+                "--ts-skill-progress-color": "rgba(93, 217, 193, 0.12)"
+            } as CSSProperties;
+        }
+        const state = activePlayer.skills[skillId];
+        if (!state) {
+            return {};
+        }
+        const progress = state.maxLevel > 0 && state.level >= state.maxLevel
+            ? 1
+            : state.xpNext > 0
+                ? state.xp / state.xpNext
+                : 0;
+        const percent = `${Math.round(Math.max(0, Math.min(1, progress)) * 100)}%`;
+        const color = getSkillIconColor(skillId);
+        const progressColor = color.startsWith("#") && color.length === 7
+            ? `${color}33`
+            : "rgba(93, 217, 193, 0.2)";
+        return {
+            "--ts-skill-progress": percent,
+            "--ts-skill-progress-color": progressColor
+        } as CSSProperties;
+    };
+
+    const getRecipeProgressStyle = (xp: number, xpNext: number, isUnlocked: boolean): CSSProperties => {
+        if (!isUnlocked) {
+            return {
+                "--ts-recipe-progress": "0%",
+                "--ts-recipe-progress-color": "rgba(93, 217, 193, 0.12)"
+            } as CSSProperties;
+        }
+        const progress = xpNext > 0 ? xp / xpNext : 0;
+        const percent = `${Math.round(Math.max(0, Math.min(1, progress)) * 100)}%`;
+        const color = getSkillIconColor(pendingSkillId as SkillId);
+        const progressColor = color.startsWith("#") && color.length === 7
+            ? `${color}33`
+            : "rgba(93, 217, 193, 0.2)";
+        return {
+            "--ts-recipe-progress": percent,
+            "--ts-recipe-progress-color": progressColor
+        } as CSSProperties;
+    };
+
     return (
         <section className="generic-panel ts-panel">
         <div className="ts-panel-header">
@@ -167,7 +213,7 @@ export const ActionSelectionScreen = memo(({
                                 checked={pendingSkillId === ""}
                                 onChange={() => onSkillSelect("")}
                             />
-                            <div className="ts-choice-card ts-skill-choice">
+                            <div className="ts-choice-card ts-skill-choice" style={getSkillProgressStyle("")}>
                                 <div className="ts-choice-icon" aria-hidden="true">
                                     <SkillIcon skillId="" color={getSkillIconColor("")} />
                                 </div>
@@ -190,7 +236,7 @@ export const ActionSelectionScreen = memo(({
                                         checked={pendingSkillId === skill.id}
                                         onChange={() => onSkillSelect(skill.id)}
                                     />
-                                    <div className="ts-choice-card ts-skill-choice">
+                                    <div className="ts-choice-card ts-skill-choice" style={getSkillProgressStyle(skill.id)}>
                                         <div className="ts-choice-icon" aria-hidden="true">
                                             <SkillIcon skillId={skill.id} color={skillColor} />
                                         </div>
@@ -306,7 +352,10 @@ export const ActionSelectionScreen = memo(({
                                             disabled={!unlocked}
                                             onChange={() => onRecipeSelect(recipeDef.id)}
                                         />
-                                        <div className="ts-choice-card ts-recipe-choice">
+                                        <div
+                                            className="ts-choice-card ts-recipe-choice"
+                                            style={getRecipeProgressStyle(recipeXp, recipeXpNext, unlocked)}
+                                        >
                                             <div className="ts-choice-copy">
                                                 <div className="ts-choice-title">{recipeDef.name} - Lv {recipeLevel}</div>
                                                 {!unlocked ? (

@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, type CSSProperties } from "react";
 import type { PlayerStatsState, SkillDefinition, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { SkillIcon } from "../ui/skillIcons";
@@ -8,6 +8,7 @@ import { getSkillIconColor } from "../ui/skillColors";
 type CharacterStatsPanelProps = {
     skills: SkillDefinition[];
     skillLevels: Partial<Record<SkillId, number>>;
+    skillProgress: Partial<Record<SkillId, number>>;
     stats: PlayerStatsState;
     effectiveStats: Record<StatId, number>;
     equipmentMods: StatModifier[];
@@ -24,10 +25,21 @@ type StatRowProps = {
     skill: SkillDefinition;
     level: number;
     color: string;
+    progress: number;
 };
 
-const StatRow = memo(({ skill, level, color }: StatRowProps) => (
-    <div className="ts-stat">
+const StatRow = memo(({ skill, level, color, progress }: StatRowProps) => {
+    const progressPercent = `${Math.round(Math.max(0, Math.min(1, progress)) * 100)}%`;
+    const progressColor = color.startsWith("#") && color.length === 7
+        ? `${color}33`
+        : "rgba(93, 217, 193, 0.2)";
+    const style = {
+        "--ts-skill-progress": progressPercent,
+        "--ts-skill-progress-color": progressColor
+    } as CSSProperties;
+
+    return (
+        <div className="ts-stat" style={style}>
         <div className="ts-stat-left">
             <div className="ts-stat-icon" style={{ borderColor: color, color }}>
                 <SkillIcon skillId={skill.id} color={color} />
@@ -35,8 +47,9 @@ const StatRow = memo(({ skill, level, color }: StatRowProps) => (
             <div className="ts-stat-label">{skill.name}</div>
         </div>
         <div className="ts-stat-value">Lv {level}</div>
-    </div>
-));
+        </div>
+    );
+});
 
 type StatTotals = Record<StatId, { flat: number; mult: number }>;
 
@@ -93,6 +106,7 @@ const formatTimeLeft = (ms: number): string => {
 export const CharacterStatsPanel = memo(({
     skills,
     skillLevels,
+    skillProgress,
     stats,
     equipmentMods,
     now,
@@ -131,7 +145,16 @@ export const CharacterStatsPanel = memo(({
                                 {skills.map((skill) => {
                                     const level = resolveSkillLevel(skillLevels, skill.id);
                                     const color = getSkillIconColor(skill.id);
-                                    return <StatRow key={skill.id} skill={skill} level={level} color={color} />;
+                                    const progress = skillProgress[skill.id] ?? 0;
+                                    return (
+                                        <StatRow
+                                            key={skill.id}
+                                            skill={skill}
+                                            level={level}
+                                            color={color}
+                                            progress={progress}
+                                        />
+                                    );
                                 })}
                             </div>
                         </div>
