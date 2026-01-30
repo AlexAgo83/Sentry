@@ -2,8 +2,8 @@ import { memo } from "react";
 import type { CSSProperties } from "react";
 import type { PlayerState } from "../../core/types";
 import { getSkillIconColor } from "../ui/skillColors";
-import { getFaceUrl } from "../ui/heroFaces";
-import { getHairColor, getHairUrl } from "../ui/heroHair";
+import { getFaceIndex, getFaceUrlByIndex } from "../ui/heroFaces";
+import { getHairColor, getHairIndex, getHairUrlByIndex, getSkinColor } from "../ui/heroHair";
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
 
@@ -67,11 +67,16 @@ export const RosterPanel = memo(({
                             const metaLabel = recipeLabel ?? "No recipe";
                             const skillColor = getSkillIconColor(currentAction);
                             const skillLevel = currentAction ? currentSkill?.level ?? 0 : 0;
+                            const faceIndex = player.appearance?.faceIndex ?? getFaceIndex(player.id);
+                            const hairIndex = player.appearance?.hairIndex ?? getHairIndex(player.id);
+                            const hairColor = player.appearance?.hairColor ?? getHairColor(player.id);
+                            const skinColor = player.appearance?.skinColor ?? getSkinColor(player.id);
                             const avatarStyle = {
                                 "--ts-avatar-torso": skillColor,
-                                "--ts-avatar-face": `url(\"${getFaceUrl(player.id)}\")`,
-                                "--ts-avatar-hair": `url(\"${getHairUrl(player.id)}\")`,
-                                "--ts-avatar-hair-color": getHairColor(player.id)
+                                "--ts-avatar-face": `url(\"${getFaceUrlByIndex(faceIndex)}\")`,
+                                "--ts-avatar-hair": `url(\"${getHairUrlByIndex(hairIndex)}\")`,
+                                "--ts-avatar-hair-color": hairColor,
+                                "--ts-avatar-skin": skinColor
                             } as CSSProperties;
 
                             return (

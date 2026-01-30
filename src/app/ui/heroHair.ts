@@ -50,3 +50,21 @@ export const getHairColor = (seed?: string | number | null): string => {
     const hash = hashSeed(`${safeSeed}-hair-color`);
     return HAIR_COLORS[hash % HAIR_COLORS.length];
 };
+
+const SKIN_COLORS = [
+    "#f2d6b3",
+    "#e7c6a0",
+    "#d7b089",
+    "#c79a72",
+    "#b5835a",
+    "#a06f4b",
+    "#8a5b3b",
+    "#6e4630",
+    "#d8c2a3"
+];
+
+export const getSkinColor = (seed?: string | number | null): string => {
+    const safeSeed = seed === null || seed === undefined ? "default" : String(seed);
+    const hash = hashSeed(`${safeSeed}-skin-color`);
+    return SKIN_COLORS[hash % SKIN_COLORS.length];
+};

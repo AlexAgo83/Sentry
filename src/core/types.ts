@@ -110,6 +110,12 @@ export interface PlayerState {
     selectedActionId: ActionId | null;
     actionProgress: ActionProgressState;
     createdAt: number;
+    appearance?: {
+        faceIndex?: number;
+        hairIndex?: number;
+        hairColor?: string;
+        skinColor?: string;
+    };
 }
 
 export interface LoopState {

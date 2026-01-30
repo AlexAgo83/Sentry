@@ -38,6 +38,7 @@ export type GameAction =
     | { type: "renamePlayer"; playerId: PlayerId; name: string }
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
     | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null }
+    | { type: "updateAppearance"; playerId: PlayerId; appearance: { faceIndex?: number; hairIndex?: number; hairColor?: string } }
     | { type: "sellItem"; itemId: ItemId; count: number }
     | { type: "purchaseRosterSlot" }
     | { type: "equipItem"; playerId: PlayerId; itemId: ItemId }
@@ -198,6 +199,25 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             }
                         },
                         actionProgress: createActionProgress()
+                    }
+                }
+            };
+        }
+        case "updateAppearance": {
+            const player = state.players[action.playerId];
+            if (!player) {
+                return state;
+            }
+            return {
+                ...state,
+                players: {
+                    ...state.players,
+                    [action.playerId]: {
+                        ...player,
+                        appearance: {
+                            ...player.appearance,
+                            ...action.appearance
+                        }
                     }
                 }
             };
