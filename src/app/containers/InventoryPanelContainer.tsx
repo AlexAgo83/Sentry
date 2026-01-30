@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ITEM_DEFINITIONS } from "../../data/definitions";
 import { getEquipmentDefinition } from "../../data/equipment";
 import { useGameStore } from "../hooks/useGameStore";
@@ -13,7 +13,15 @@ import { gameStore } from "../game";
 import { getSellGoldGain, getSellValuePerItem } from "../../core/economy";
 import { ConfirmSellModal } from "../components/ConfirmSellModal";
 
-export const InventoryPanelContainer = () => {
+type InventoryPanelContainerProps = {
+    newItemIds?: string[];
+    onMarkItemSeen?: (itemId: string) => void;
+};
+
+export const InventoryPanelContainer = ({
+    newItemIds = [],
+    onMarkItemSeen
+}: InventoryPanelContainerProps) => {
     const inventoryItems = useGameStore((state) => state.inventory.items);
     const activePlayer = useGameStore(selectActivePlayer);
     const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
@@ -54,8 +62,14 @@ export const InventoryPanelContainer = () => {
     }, [setInventoryFilters]);
 
     const handleToggleInventoryItem = useCallback((itemId: string) => {
-        setSelectedInventoryItemId((current) => (current === itemId ? null : itemId));
-    }, []);
+        setSelectedInventoryItemId((current) => {
+            const nextId = current === itemId ? null : itemId;
+            if (nextId && onMarkItemSeen) {
+                onMarkItemSeen(nextId);
+            }
+            return nextId;
+        });
+    }, [onMarkItemSeen]);
     const handleClearInventorySelection = useCallback(() => {
         setSelectedInventoryItemId(null);
     }, []);
@@ -70,6 +84,19 @@ export const InventoryPanelContainer = () => {
         page: inventoryFilters.page,
         selectedItemId: selectedInventoryItemId
     });
+    const newItemIdSet = useMemo(() => new Set(newItemIds), [newItemIds]);
+    const visibleEntries = useMemo(
+        () => inventoryView.visibleEntries.map((entry) => (
+            newItemIdSet.has(entry.id) ? { ...entry, isNew: true } : entry
+        )),
+        [inventoryView.visibleEntries, newItemIdSet]
+    );
+    const gridEntries = useMemo(
+        () => inventoryView.pageEntries.map((entry) => (
+            newItemIdSet.has(entry.id) ? { ...entry, isNew: true } : entry
+        )),
+        [inventoryView.pageEntries, newItemIdSet]
+    );
     const selectedItem = inventoryView.selectedItem;
     const selectedItemCharges = (() => {
         if (!selectedItem || !activePlayer) {
@@ -130,6 +157,7 @@ export const InventoryPanelContainer = () => {
     const sellGoldGain = selected
         ? getSellGoldGain(selected.id, Math.min(Math.max(1, Math.floor(sellQuantity)), selected.count))
         : 0;
+    const unitValue = selected ? getSellValuePerItem(selected.id) : 0;
 
     const handleSellSelected = useCallback(() => {
         const currentSelected = inventoryView.selectedItem;
@@ -163,13 +191,32 @@ export const InventoryPanelContainer = () => {
         }
     }, [canSellSelected, inventoryView.selectedItem, sellQuantity]);
 
+    const handleSellAll = useCallback(() => {
+        const currentSelected = inventoryView.selectedItem;
+        if (!currentSelected || !canSellSelected) {
+            return;
+        }
+        const available = currentSelected.count;
+        if (available <= 0) {
+            return;
+        }
+        const goldGainForSell = getSellGoldGain(currentSelected.id, available);
+        setPendingSell({
+            itemId: currentSelected.id,
+            itemName: currentSelected.name,
+            count: available,
+            availableCount: available,
+            goldGain: goldGainForSell
+        });
+    }, [canSellSelected, inventoryView.selectedItem]);
+
     return (
         <>
             <InventoryPanel
                 isCollapsed={isInventoryCollapsed}
                 onToggleCollapsed={() => setInventoryCollapsed((value) => !value)}
-                entries={inventoryView.visibleEntries}
-                gridEntries={inventoryView.pageEntries}
+                entries={visibleEntries}
+                gridEntries={gridEntries}
                 selectedItem={inventoryView.selectedItem}
                 selectedItemId={selectedInventoryItemId}
                 selectedItemCharges={selectedItemCharges}
@@ -178,8 +225,10 @@ export const InventoryPanelContainer = () => {
                 sellQuantity={sellQuantity}
                 onSellQuantityChange={setSellQuantity}
                 onSellSelected={handleSellSelected}
+                onSellAll={handleSellAll}
                 canSellSelected={canSellSelected}
                 sellGoldGain={sellGoldGain}
+                unitValue={unitValue}
                 sellDisabledReason={sellDisabledReason}
                 sort={inventoryFilters.sort}
                 onSortChange={handleSetInventorySort}

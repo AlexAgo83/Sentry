@@ -132,11 +132,20 @@ export const ActionPanelContainer = ({
     const actionSpeedBonusLabel = hasActiveRecipeSelection && speedBonusPercent > 0
         ? `-${formatBonusPercent(speedBonusPercent)} time`
         : "None";
+    const speedBonusPercentLabel = speedBonusPercent > 0 ? formatBonusPercent(speedBonusPercent) : "0%";
+    const actionSpeedBonusTooltip = `Agility reduces action time by 1% per point. Current: ${speedBonusPercentLabel}.`;
     const xpBonusPercent = (effectiveStats.Intellect ?? 0) * STAT_PERCENT_PER_POINT * 100;
-    const actionXpBonusLabel = hasActiveRecipeSelection && activeActionDef && INTELLECT_SKILLS.has(activeActionDef.skillId)
-        && xpBonusPercent > 0
+    const xpBonusApplies = Boolean(activeActionDef && INTELLECT_SKILLS.has(activeActionDef.skillId));
+    const xpBonusPercentLabel = xpBonusPercent > 0 ? formatBonusPercent(xpBonusPercent) : "0%";
+    const actionXpBonusLabel = hasActiveRecipeSelection && xpBonusApplies && xpBonusPercent > 0
         ? `+${formatBonusPercent(xpBonusPercent)} XP`
         : "None";
+    const actionXpBonusTooltip = xpBonusApplies
+        ? `Intellect increases XP by 1% per point. Current: ${xpBonusPercentLabel}.`
+        : "Intellect increases XP by 1% per point (intellect skills only). Current: 0%.";
+    const stunTimeLabel = activePlayer && activePlayer.stamina <= 0 && activeActionDef?.stunTime
+        ? formatActionDuration(activeActionDef.stunTime)
+        : null;
     const activeSkillName = activeSkillId ? getSkillLabel(activeSkillId as SkillId) : "None";
     const skillIconColor = getSkillIconColor(activeSkillId);
     const canInterruptAction = Boolean(activePlayer?.selectedActionId);
@@ -157,9 +166,12 @@ export const ActionPanelContainer = ({
             activeConsumptionEntries={hasActiveRecipeSelection ? activeConsumptionEntries : []}
             activeProductionEntries={hasActiveRecipeSelection ? activeProductionEntries : []}
             actionSpeedBonusLabel={actionSpeedBonusLabel}
+            actionSpeedBonusTooltip={actionSpeedBonusTooltip}
             actionDurationLabel={actionIntervalLabel}
             actionXpLabel={actionXpLabel}
             actionXpBonusLabel={actionXpBonusLabel}
+            actionXpBonusTooltip={actionXpBonusTooltip}
+            stunTimeLabel={stunTimeLabel}
             resourceHint={resourceHint}
             progressPercent={progressPercent}
             progressStyle={progressStyle}

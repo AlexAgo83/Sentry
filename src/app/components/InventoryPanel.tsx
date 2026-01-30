@@ -15,6 +15,7 @@ export type InventoryEntry = {
     iconId: InventoryIconId;
     usedBy: string[];
     obtainedBy: string[];
+    isNew?: boolean;
 };
 
 type InventoryPanelProps = {
@@ -32,7 +33,9 @@ type InventoryPanelProps = {
     onSellSelected: () => void;
     canSellSelected: boolean;
     sellGoldGain: number;
+    unitValue: number;
     sellDisabledReason: string | null;
+    onSellAll: () => void;
     sort: InventorySort;
     onSortChange: (sort: InventorySort) => void;
     search: string;
@@ -53,17 +56,24 @@ type InventorySlotProps = {
 
 const InventorySlot = memo(({ item, isSelected, onSelect }: InventorySlotProps) => {
     const slotClassName = isSelected ? "ts-inventory-slot is-selected ts-focusable" : "ts-inventory-slot ts-focusable";
+    const formattedCount = formatNumberCompact(item.count);
+    const formattedCountFull = formatNumberFull(item.count);
     return (
         <button
             type="button"
             className={slotClassName}
             aria-pressed={isSelected}
-            aria-label={`${item.name} x${item.count}`}
-            title={`${item.name} x${item.count}`}
+            aria-label={`${item.name} x${formattedCountFull}`}
+            title={`${item.name} x${formattedCountFull}`}
             onClick={onSelect}
         >
             <InventoryIcon iconId={item.iconId} />
-            <span className="ts-inventory-count">{item.count}</span>
+            {item.isNew ? (
+                <span className="ts-inventory-badge" aria-hidden="true">New</span>
+            ) : null}
+            <span className="ts-inventory-count" title={formattedCountFull}>
+                {formattedCount}
+            </span>
         </button>
     );
 });
@@ -82,7 +92,9 @@ export const InventoryPanel = memo(({
     onSellSelected,
     canSellSelected,
     sellGoldGain,
+    unitValue,
     sellDisabledReason,
+    onSellAll,
     sort,
     onSortChange,
     search,
@@ -106,9 +118,12 @@ export const InventoryPanel = memo(({
     const formattedSellGoldGainFull = formatNumberFull(sellGoldGain);
     const formattedSelectedCount = selectedItem ? formatNumberCompact(selectedItem.count) : "--";
     const formattedSelectedCountFull = selectedItem ? formatNumberFull(selectedItem.count) : "--";
+    const formattedUnitValue = selectedItem ? formatNumberCompact(unitValue) : "--";
+    const formattedUnitValueFull = selectedItem ? formatNumberFull(unitValue) : "--";
     const formattedMaxSellQuantity = formatNumberCompact(maxSellQuantity);
     const formattedMaxSellQuantityFull = formatNumberFull(maxSellQuantity);
     const formattedClampedSellQuantity = formatNumberCompact(clampedSellQuantity);
+    const canSellAll = Boolean(canSellSelected && selectedItem && selectedItem.count > 1);
     return (
         <section className="generic-panel ts-panel ts-inventory-panel">
             <div className="ts-panel-header">
@@ -193,19 +208,30 @@ export const InventoryPanel = memo(({
                                             </button>
                                         </span>
                                     ) : (
-                                        <button
-                                            type="button"
-                                            className="generic-field button ts-inventory-sell ts-focusable"
-                                            onClick={onSellSelected}
-                                            disabled={!canSellSelected}
-                                        >
-                                            Sell
-                                            {canSellSelected ? (
-                                                <span className="ts-inventory-sell-button-gain" aria-hidden="true">
-                                                    +{formattedSellGoldGain}g
-                                                </span>
+                                        <>
+                                            <button
+                                                type="button"
+                                                className="generic-field button ts-inventory-sell ts-focusable"
+                                                onClick={onSellSelected}
+                                                disabled={!canSellSelected}
+                                            >
+                                                Sell
+                                                {canSellSelected ? (
+                                                    <span className="ts-inventory-sell-button-gain" aria-hidden="true">
+                                                        +{formattedSellGoldGain}g
+                                                    </span>
+                                                ) : null}
+                                            </button>
+                                            {canSellAll ? (
+                                                <button
+                                                    type="button"
+                                                    className="generic-field button ts-inventory-sell ts-focusable"
+                                                    onClick={onSellAll}
+                                                >
+                                                    Sell all
+                                                </button>
                                             ) : null}
-                                        </button>
+                                        </>
                                     )}
                                     <button
                                         type="button"
@@ -220,6 +246,15 @@ export const InventoryPanel = memo(({
                         <div className="ts-inventory-focus-count">
                             <span title={selectedItem ? formattedSelectedCountFull : undefined}>
                                 Count: {formattedSelectedCount}
+                            </span>
+                        </div>
+                        <div className="ts-inventory-focus-row">
+                            <span className="ts-inventory-focus-label">Unit value</span>
+                            <span
+                                className="ts-inventory-focus-value"
+                                title={selectedItem ? `${formattedUnitValueFull}g` : undefined}
+                            >
+                                {selectedItem ? `${formattedUnitValue}g` : "--"}
                             </span>
                         </div>
                         {selectionHint ? (

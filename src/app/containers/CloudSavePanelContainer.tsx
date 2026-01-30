@@ -19,6 +19,7 @@ export const CloudSavePanelContainer = () => {
             hasCloudSave={cloud.hasCloudSave}
             localMeta={cloud.localMeta}
             cloudMeta={cloud.cloudMeta}
+            lastSyncAt={cloud.lastSyncAt}
             onEmailChange={setEmail}
             onPasswordChange={setPassword}
             onLogin={() => cloud.authenticate("login", email, password)}

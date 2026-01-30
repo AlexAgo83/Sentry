@@ -118,6 +118,48 @@
     color: var(--color-text-muted);
 }
 
+.ts-system-cloud-sync {
+    font-size: var(--text-xs-size);
+    color: var(--color-text);
+}
+
+.ts-system-cloud-diff-row {
+    display: grid;
+    grid-template-columns: minmax(64px, 80px) minmax(120px, 1.4fr) minmax(80px, 1fr) minmax(70px, 1fr);
+    gap: var(--m3);
+    align-items: center;
+}
+
+.ts-system-cloud-diff-header {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.7rem;
+    color: var(--color-text-fade);
+}
+
+.ts-system-cloud-diff-label {
+    font-family: var(--display-font);
+    color: var(--color-text);
+}
+
+.ts-system-cloud-diff-value {
+    color: var(--color-text-muted);
+}
+
+.ts-system-cloud-diff-value.is-better {
+    color: rgba(143, 209, 79, 0.95);
+    font-weight: 600;
+}
+
+.ts-system-cloud-diff-value.is-worse {
+    color: rgba(199, 74, 61, 0.85);
+}
+
+.ts-system-cloud-diff-value.is-different {
+    color: rgba(242, 193, 78, 0.95);
+    font-weight: 600;
+}
+
 .ts-action-row.ts-action-stack {
     flex-direction: column;
     align-items: stretch;

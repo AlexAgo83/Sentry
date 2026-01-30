@@ -19,6 +19,7 @@ type SidePanelSwitcherProps = {
     labels?: Partial<SidePanelSwitcherLabels>;
     useInventoryMenu?: boolean;
     inventoryOrder?: "inventory-first" | "equipment-first";
+    badges?: Partial<Record<keyof SidePanelSwitcherLabels, string>>;
 };
 
 export const SidePanelSwitcher = memo(({
@@ -31,7 +32,8 @@ export const SidePanelSwitcher = memo(({
     className,
     labels,
     useInventoryMenu = false,
-    inventoryOrder = "inventory-first"
+    inventoryOrder = "inventory-first",
+    badges
 }: SidePanelSwitcherProps) => {
     const resolvedLabels: SidePanelSwitcherLabels = {
         action: labels?.action ?? "Action",
@@ -143,12 +145,14 @@ export const SidePanelSwitcher = memo(({
         onClick: () => void;
     }) => {
         const label = resolvedLabels[props.id];
+        const badge = badges?.[props.id];
+        const ariaLabel = badge ? `${label} (${badge})` : label;
         return (
             <button
                 type="button"
                 role="tab"
                 aria-selected={props.isSelected}
-                aria-label={label}
+                aria-label={ariaLabel}
                 title={label}
                 className={`ts-chip ts-focusable${props.isSelected ? " is-active" : ""}`}
                 onClick={props.onClick}
@@ -157,6 +161,9 @@ export const SidePanelSwitcher = memo(({
                     <TabIcon kind={props.id} />
                 </span>
                 <span className="ts-chip-text">{label}</span>
+                {badge ? (
+                    <span className="ts-chip-badge" aria-hidden="true">{badge}</span>
+                ) : null}
             </button>
         );
     };
@@ -182,6 +189,9 @@ export const SidePanelSwitcher = memo(({
                             <TabIcon kind="inventory" />
                         </span>
                         <span className="ts-chip-text">{resolvedLabels.inventory}</span>
+                        {badges?.inventory ? (
+                            <span className="ts-chip-badge" aria-hidden="true">{badges.inventory}</span>
+                        ) : null}
                     </button>
                     {isInventoryMenuOpen ? (
                         <div className="ts-bank-menu-popover" role="menu" aria-label="Bank panels">
@@ -198,6 +208,9 @@ export const SidePanelSwitcher = memo(({
                                     <TabIcon kind="inventory" />
                                 </span>
                                 <span className="ts-bank-menu-text">Inventory</span>
+                                {badges?.inventory ? (
+                                    <span className="ts-bank-menu-badge" aria-hidden="true">{badges.inventory}</span>
+                                ) : null}
                             </button>
                             <button
                                 type="button"
@@ -212,6 +225,9 @@ export const SidePanelSwitcher = memo(({
                                     <TabIcon kind="equipment" />
                                 </span>
                                 <span className="ts-bank-menu-text">Equipment</span>
+                                {badges?.equipment ? (
+                                    <span className="ts-bank-menu-badge" aria-hidden="true">{badges.equipment}</span>
+                                ) : null}
                             </button>
                             <button
                                 type="button"
@@ -226,6 +242,9 @@ export const SidePanelSwitcher = memo(({
                                     <TabIcon kind="shop" />
                                 </span>
                                 <span className="ts-bank-menu-text">Shop</span>
+                                {badges?.shop ? (
+                                    <span className="ts-bank-menu-badge" aria-hidden="true">{badges.shop}</span>
+                                ) : null}
                             </button>
                         </div>
                     ) : null}

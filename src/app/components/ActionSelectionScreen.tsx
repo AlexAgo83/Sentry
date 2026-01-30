@@ -6,8 +6,9 @@ import { InterruptIcon } from "../ui/interruptIcon";
 import { BackIcon } from "../ui/backIcon";
 import { SkillIcon } from "../ui/skillIcons";
 import { getSkillIconColor } from "../ui/skillColors";
-import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
+import { formatItemListEntries, formatItemListEntriesFull, getItemListEntries } from "../ui/itemFormatters";
 import { ItemIcon } from "../ui/itemIcon";
+import { formatNumberCompact } from "../ui/numberFormatters";
 
 type ItemEntry = {
     id: string;
@@ -28,9 +29,12 @@ type ActionSelectionScreenProps = {
     pendingConsumptionEntries: ItemEntry[];
     pendingProductionEntries: ItemEntry[];
     pendingSpeedBonusLabel: string;
+    pendingSpeedBonusTooltip: string;
     pendingActionDurationLabel: string;
     pendingActionXpLabel: string;
     pendingXpBonusLabel: string;
+    pendingXpBonusTooltip: string;
+    pendingStunTimeLabel: string | null;
     missingItemsLabel: string;
     canStartAction: boolean;
     canStopAction: boolean;
@@ -54,9 +58,12 @@ export const ActionSelectionScreen = memo(({
     pendingConsumptionEntries,
     pendingProductionEntries,
     pendingSpeedBonusLabel,
+    pendingSpeedBonusTooltip,
     pendingActionDurationLabel,
     pendingActionXpLabel,
     pendingXpBonusLabel,
+    pendingXpBonusTooltip,
+    pendingStunTimeLabel,
     missingItemsLabel,
     canStartAction,
     canStopAction,
@@ -74,11 +81,12 @@ export const ActionSelectionScreen = memo(({
         if (entries.length === 0) {
             return fallbackLabel;
         }
+        const fullLabel = formatItemListEntriesFull(entries);
         return (
-            <span className="ts-item-inline-list">
+            <span className="ts-item-inline-list" title={fullLabel}>
                 {entries.map((entry, index) => (
                     <span key={entry.id} className="ts-item-inline">
-                        {entry.amount} {entry.name}
+                        {formatNumberCompact(entry.amount)} {entry.name}
                         <ItemIcon itemId={entry.id} tone={tone} />
                         {index < entries.length - 1 ? ", " : null}
                     </span>
@@ -218,6 +226,12 @@ export const ActionSelectionScreen = memo(({
                                 const productionLabel = productionEntries.length > 0
                                     ? formatItemListEntries(productionEntries)
                                     : "None";
+                                const consumptionFullLabel = consumptionEntries.length > 0
+                                    ? formatItemListEntriesFull(consumptionEntries)
+                                    : consumptionLabel;
+                                const productionFullLabel = productionEntries.length > 0
+                                    ? formatItemListEntriesFull(productionEntries)
+                                    : productionLabel;
                                 return (
                                     <label key={recipeDef.id} className="ts-choice">
                                         <input
@@ -242,10 +256,10 @@ export const ActionSelectionScreen = memo(({
                                                         <span className="ts-choice-detail-label">Consumes</span>
                                                         <span className="ts-choice-detail-value">
                                                             {consumptionEntries.length > 0 ? (
-                                                                <span className="ts-item-inline-list">
+                                                                <span className="ts-item-inline-list" title={consumptionFullLabel}>
                                                                     {consumptionEntries.map((entry, index) => (
                                                                         <span key={entry.id} className="ts-item-inline">
-                                                                            {entry.amount} {entry.name}
+                                                                            {formatNumberCompact(entry.amount)} {entry.name}
                                                                             <ItemIcon itemId={entry.id} tone="consume" />
                                                                             {index < consumptionEntries.length - 1 ? ", " : null}
                                                                         </span>
@@ -258,10 +272,10 @@ export const ActionSelectionScreen = memo(({
                                                         <span className="ts-choice-detail-label">Produces</span>
                                                         <span className="ts-choice-detail-value">
                                                             {productionEntries.length > 0 ? (
-                                                                <span className="ts-item-inline-list">
+                                                                <span className="ts-item-inline-list" title={productionFullLabel}>
                                                                     {productionEntries.map((entry, index) => (
                                                                         <span key={entry.id} className="ts-item-inline">
-                                                                            {entry.amount} {entry.name}
+                                                                            {formatNumberCompact(entry.amount)} {entry.name}
                                                                             <ItemIcon itemId={entry.id} tone="produce" />
                                                                             {index < productionEntries.length - 1 ? ", " : null}
                                                                         </span>
@@ -299,7 +313,9 @@ export const ActionSelectionScreen = memo(({
                 </div>
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">Speed bonus</span>
-                    <span className="ts-action-summary-value">{pendingSpeedBonusLabel}</span>
+                    <span className="ts-action-summary-value" title={pendingSpeedBonusTooltip}>
+                        {pendingSpeedBonusLabel}
+                    </span>
                 </div>
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">XP per action</span>
@@ -307,8 +323,16 @@ export const ActionSelectionScreen = memo(({
                 </div>
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">XP bonus</span>
-                    <span className="ts-action-summary-value">{pendingXpBonusLabel}</span>
+                    <span className="ts-action-summary-value" title={pendingXpBonusTooltip}>
+                        {pendingXpBonusLabel}
+                    </span>
                 </div>
+                {pendingStunTimeLabel ? (
+                    <div className="ts-action-summary-row">
+                        <span className="ts-action-summary-label">Stun time</span>
+                        <span className="ts-action-summary-value">{pendingStunTimeLabel}</span>
+                    </div>
+                ) : null}
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">Consumes</span>
                     <span className="ts-action-summary-value">

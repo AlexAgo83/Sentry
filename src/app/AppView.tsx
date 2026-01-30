@@ -17,6 +17,7 @@ export interface AppViewProps {
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
+    hasNewInventoryItems: boolean;
     roster: ReactNode;
     actionPanel: ReactNode;
     statsPanel: ReactNode;
@@ -62,6 +63,7 @@ export const AppView = (props: AppViewProps) => {
         onShowInventory,
         onShowEquipment,
         onShowShop,
+        hasNewInventoryItems,
         roster,
         actionPanel,
         statsPanel,
@@ -88,12 +90,13 @@ export const AppView = (props: AppViewProps) => {
                                 active={activeSidePanel}
                                 onShowAction={onShowAction}
                                 onShowStats={onShowStats}
-                                onShowInventory={onShowInventory}
-                                onShowEquipment={onShowEquipment}
-                                onShowShop={onShowShop}
-                                className="ts-topbar-switcher"
-                                inventoryOrder="equipment-first"
-                                labels={{
+                        onShowInventory={onShowInventory}
+                        onShowEquipment={onShowEquipment}
+                        onShowShop={onShowShop}
+                        badges={hasNewInventoryItems ? { inventory: "New" } : undefined}
+                        className="ts-topbar-switcher"
+                        inventoryOrder="equipment-first"
+                        labels={{
                                     action: "Action",
                                     stats: "Stats",
                                     inventory: "Inv",
@@ -182,6 +185,7 @@ export const AppView = (props: AppViewProps) => {
                         onShowInventory={onShowInventory}
                         onShowEquipment={onShowEquipment}
                         onShowShop={onShowShop}
+                        badges={hasNewInventoryItems ? { inventory: "New" } : undefined}
                         className="ts-bottombar-switcher"
                         useInventoryMenu
                         labels={{

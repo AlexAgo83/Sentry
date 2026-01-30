@@ -7,6 +7,8 @@ const bcrypt = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
 
 const MAX_SAVE_BYTES = 2 * 1024 * 1024;
+const AUTH_RATE_LIMIT_MAX = 20;
+const AUTH_RATE_LIMIT_WINDOW_MS = 60 * 1000;
 
 const buildConfig = () => {
     const ACCESS_TTL_MINUTES = Number(process.env.ACCESS_TOKEN_TTL_MINUTES ?? 15);
@@ -51,6 +53,29 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
 
     app.register(rateLimit, { global: false });
 
+    const createRateLimiter = ({ max, windowMs }) => {
+        const hits = new Map();
+        return async (request, reply) => {
+            const forwardedFor = request.headers["x-forwarded-for"];
+            const forwardedIp = typeof forwardedFor === "string" ? forwardedFor.split(",")[0].trim() : "";
+            const key = forwardedIp || request.ip || "unknown";
+            const now = Date.now();
+            const timestamps = hits.get(key) ?? [];
+            const recent = timestamps.filter((time) => now - time < windowMs);
+            if (recent.length >= max) {
+                reply.code(429).send({ error: "Too many requests." });
+                return;
+            }
+            recent.push(now);
+            hits.set(key, recent);
+        };
+    };
+
+    const authRateLimit = createRateLimiter({
+        max: AUTH_RATE_LIMIT_MAX,
+        windowMs: AUTH_RATE_LIMIT_WINDOW_MS
+    });
+
     app.decorate("authenticate", async (request, reply) => {
         try {
             await request.jwtVerify();
@@ -83,6 +108,7 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
     };
 
     app.post("/api/v1/auth/register", {
+        preHandler: [authRateLimit],
         config: { rateLimit: { max: 20, timeWindow: "1 minute" } }
     }, async (request, reply) => {
         const { email, password } = request.body ?? {};
@@ -117,6 +143,7 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
     });
 
     app.post("/api/v1/auth/login", {
+        preHandler: [authRateLimit],
         config: { rateLimit: { max: 20, timeWindow: "1 minute" } }
     }, async (request, reply) => {
         const { email, password } = request.body ?? {};
@@ -144,7 +171,10 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         reply.send({ accessToken });
     });
 
-    app.post("/api/v1/auth/refresh", async (request, reply) => {
+    app.post("/api/v1/auth/refresh", {
+        preHandler: [authRateLimit],
+        config: { rateLimit: { max: 20, timeWindow: "1 minute" } }
+    }, async (request, reply) => {
         const token = request.cookies.refreshToken;
         if (!token) {
             reply.code(401).send({ error: "Missing refresh token." });

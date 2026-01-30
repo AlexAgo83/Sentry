@@ -19,6 +19,7 @@ type CloudSaveState = {
     warmupRetrySeconds: number | null;
     cloudMeta: CloudSaveMeta | null;
     localMeta: CloudSaveMeta;
+    lastSyncAt: Date | null;
     hasCloudSave: boolean;
     isAvailable: boolean;
     accessToken: string | null;
@@ -75,6 +76,7 @@ export const useCloudSave = () => {
     const [status, setStatus] = useState<CloudSaveState["status"]>("idle");
     const [error, setError] = useState<string | null>(null);
     const [warmupRetrySeconds, setWarmupRetrySeconds] = useState<number | null>(null);
+    const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
     const [isOnline, setIsOnline] = useState(() => (typeof navigator !== "undefined" ? navigator.onLine : true));
     const warmupRetrySignalRef = useRef<(() => void) | null>(null);
     const lastRequestRef = useRef<(() => Promise<void>) | null>(null);
@@ -217,12 +219,13 @@ export const useCloudSave = () => {
         try {
             const response = await withWarmupRetry("idle", () => withRefreshRetry((token) => cloudClient.getLatestSave(token)));
             if (!response) {
-                setHasCloudSave(false);
-                setCloudMeta(null);
-                setCloudPayload(null);
-                setStatus("ready");
-                return;
-            }
+            setHasCloudSave(false);
+            setCloudMeta(null);
+            setCloudPayload(null);
+            setLastSyncAt(new Date());
+            setStatus("ready");
+            return;
+        }
             setHasCloudSave(true);
             setCloudPayload(response.payload);
             setCloudMeta({
@@ -230,6 +233,7 @@ export const useCloudSave = () => {
                 virtualScore: response.meta.virtualScore,
                 appVersion: response.meta.appVersion
             });
+            setLastSyncAt(new Date());
             setStatus("ready");
         } catch (err) {
             applyRequestError(err, "Failed to fetch cloud save.");
@@ -273,6 +277,7 @@ export const useCloudSave = () => {
                 appVersion: result.meta.appVersion
             });
             setHasCloudSave(true);
+            setLastSyncAt(new Date());
             setStatus("ready");
         } catch (err) {
             applyRequestError(err, "Failed to upload cloud save.");
@@ -288,6 +293,7 @@ export const useCloudSave = () => {
         setStatus("idle");
         setError(null);
         setWarmupRetrySeconds(null);
+        setLastSyncAt(null);
     }, []);
 
     useEffect(() => {
@@ -312,6 +318,7 @@ export const useCloudSave = () => {
         warmupRetrySeconds,
         cloudMeta,
         localMeta,
+        lastSyncAt,
         hasCloudSave,
         isAvailable,
         accessToken,

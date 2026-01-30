@@ -2,7 +2,7 @@
 > From version: 0.8.11
 > Understanding: 92%
 > Confidence: 86%
-> Progress: 85%
+> Progress: 100%
 
 # Problem
 We need safe, repeatable tooling to dump and restore the full database for local and Render environments while enforcing schema safety rules.

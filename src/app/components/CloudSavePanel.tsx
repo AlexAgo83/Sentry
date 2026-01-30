@@ -1,5 +1,6 @@
 import { memo } from "react";
 import type { CloudSaveMeta } from "../hooks/useCloudSave";
+import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
 export type CloudSavePanelProps = {
     email: string;
@@ -12,6 +13,7 @@ export type CloudSavePanelProps = {
     hasCloudSave: boolean;
     localMeta: CloudSaveMeta;
     cloudMeta: CloudSaveMeta | null;
+    lastSyncAt: Date | null;
     onEmailChange: (value: string) => void;
     onPasswordChange: (value: string) => void;
     onLogin: () => void;
@@ -23,12 +25,31 @@ export type CloudSavePanelProps = {
     onOverwriteCloud: () => void;
 };
 
-const formatMetaLine = (label: string, meta: CloudSaveMeta | null) => {
+const formatMetaDate = (meta: CloudSaveMeta | null) => {
     if (!meta) {
-        return `${label}: none`;
+        return "none";
     }
-    const dateLabel = meta.updatedAt ? meta.updatedAt.toLocaleString() : "unknown";
-    return `${label}: ${dateLabel} • score ${meta.virtualScore} • v${meta.appVersion}`;
+    return meta.updatedAt ? meta.updatedAt.toLocaleString() : "unknown";
+};
+
+const formatTimeAgo = (date: Date | null): string => {
+    if (!date) {
+        return "Never";
+    }
+    const diffSeconds = Math.max(0, Math.round((Date.now() - date.getTime()) / 1000));
+    if (diffSeconds < 60) {
+        return `${diffSeconds}s ago`;
+    }
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    if (diffMinutes < 60) {
+        return `${diffMinutes}m ago`;
+    }
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+        return `${diffHours}h ago`;
+    }
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
 };
 
 export const CloudSavePanel = memo(({
@@ -42,6 +63,7 @@ export const CloudSavePanel = memo(({
     hasCloudSave,
     localMeta,
     cloudMeta,
+    lastSyncAt,
     onEmailChange,
     onPasswordChange,
     onLogin,
@@ -82,6 +104,21 @@ export const CloudSavePanel = memo(({
         : isAvailable
             ? "is-online"
             : "is-offline";
+    const lastSyncLabel = formatTimeAgo(lastSyncAt);
+    const lastSyncTitle = lastSyncAt ? lastSyncAt.toLocaleString() : "Never";
+    const localDateValue = localMeta.updatedAt?.getTime() ?? null;
+    const cloudDateValue = cloudMeta?.updatedAt?.getTime() ?? null;
+    const dateComparison = localDateValue !== null && cloudDateValue !== null
+        ? Math.sign(localDateValue - cloudDateValue)
+        : 0;
+    const scoreComparison = cloudMeta
+        ? Math.sign(localMeta.virtualScore - cloudMeta.virtualScore)
+        : 0;
+    const versionMismatch = cloudMeta ? localMeta.appVersion !== cloudMeta.appVersion : false;
+    const localScoreLabel = formatNumberCompact(localMeta.virtualScore);
+    const localScoreTitle = formatNumberFull(localMeta.virtualScore);
+    const cloudScoreLabel = cloudMeta ? formatNumberCompact(cloudMeta.virtualScore) : "--";
+    const cloudScoreTitle = cloudMeta ? formatNumberFull(cloudMeta.virtualScore) : "--";
 
     return (
         <div className="ts-system-cloud">
@@ -174,9 +211,46 @@ export const CloudSavePanel = memo(({
             ) : null}
             {isAuthenticated ? (
                 <>
+                    <div className="ts-system-cloud-sync" title={lastSyncTitle}>
+                        Last sync: {lastSyncLabel}
+                    </div>
                     <div className="ts-system-cloud-diff">
-                        <div>{formatMetaLine("Local", localMeta)}</div>
-                        <div>{formatMetaLine("Cloud", cloudMeta)}</div>
+                        <div className="ts-system-cloud-diff-row ts-system-cloud-diff-header">
+                            <span />
+                            <span>Updated</span>
+                            <span>Score</span>
+                            <span>Version</span>
+                        </div>
+                        <div className="ts-system-cloud-diff-row">
+                            <span className="ts-system-cloud-diff-label">Local</span>
+                            <span className={`ts-system-cloud-diff-value${dateComparison > 0 ? " is-better" : dateComparison < 0 ? " is-worse" : ""}`}>
+                                {formatMetaDate(localMeta)}
+                            </span>
+                            <span
+                                className={`ts-system-cloud-diff-value${scoreComparison > 0 ? " is-better" : scoreComparison < 0 ? " is-worse" : ""}`}
+                                title={localScoreTitle}
+                            >
+                                {localScoreLabel}
+                            </span>
+                            <span className={`ts-system-cloud-diff-value${versionMismatch ? " is-different" : ""}`}>
+                                v{localMeta.appVersion}
+                            </span>
+                        </div>
+                        <div className="ts-system-cloud-diff-row">
+                            <span className="ts-system-cloud-diff-label">Cloud</span>
+                            <span className={`ts-system-cloud-diff-value${dateComparison < 0 ? " is-better" : dateComparison > 0 ? " is-worse" : ""}`}>
+                                {formatMetaDate(cloudMeta)}
+                            </span>
+                            <span
+                                className={`ts-system-cloud-diff-value${scoreComparison < 0 ? " is-better" : scoreComparison > 0 ? " is-worse" : ""}`}
+                                title={cloudScoreTitle}
+                            >
+                                {cloudScoreLabel}
+                            </span>
+                            <span className={`ts-system-cloud-diff-value${versionMismatch ? " is-different" : ""}`}>
+                                {cloudMeta ? `v${cloudMeta.appVersion}` : "--"}
+                            </span>
+                        </div>
                     </div>
                     <div className="ts-system-cloud-actions">
                         <button

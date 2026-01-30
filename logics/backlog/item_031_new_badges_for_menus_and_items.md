@@ -2,7 +2,7 @@
 > From version: 0.8.13
 > Understanding: 80%
 > Confidence: 70%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Players miss newly unlocked items/menus without a visual cue.

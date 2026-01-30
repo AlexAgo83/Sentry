@@ -1,7 +1,7 @@
 import { memo } from "react";
 import type { OfflinePlayerSummary, OfflineSummaryState, SkillId } from "../../core/types";
 import { ITEM_DEFINITIONS } from "../../data/definitions";
-import { formatItemDeltaEntries, getItemDeltaEntries } from "../ui/itemFormatters";
+import { formatItemDeltaEntries, formatItemDeltaEntriesFull, getItemDeltaEntries } from "../ui/itemFormatters";
 import { ModalShell } from "./ModalShell";
 
 type OfflineSummaryModalProps = {
@@ -43,6 +43,9 @@ export const OfflineSummaryModal = memo(({
     const summaryLabel = summaryEntries.length > 0
         ? formatItemDeltaEntries(summaryEntries)
         : "None";
+    const summaryLabelFull = summaryEntries.length > 0
+        ? formatItemDeltaEntriesFull(summaryEntries)
+        : summaryLabel;
 
     const awaySeconds = Math.round(summary.durationMs / 1000);
     const processedSeconds = Math.round(summary.processedMs / 1000);
@@ -60,7 +63,9 @@ export const OfflineSummaryModal = memo(({
                 ) : null}
                 <li>Ticks processed: {summary.ticks}</li>
                 <li>Players summarized: {players.length}</li>
-                <li>Inventory changes: {summaryLabel}</li>
+                <li>
+                    Inventory changes: <span title={summaryLabelFull}>{summaryLabel}</span>
+                </li>
             </ul>
             <div className="ts-offline-players">
                 {players.map((player) => {
@@ -77,13 +82,16 @@ export const OfflineSummaryModal = memo(({
                     const itemLabel = itemEntries.length > 0
                         ? formatItemDeltaEntries(itemEntries)
                         : "None";
+                    const itemLabelFull = itemEntries.length > 0
+                        ? formatItemDeltaEntriesFull(itemEntries)
+                        : itemLabel;
 
                     return (
                         <div key={player.playerId} className="ts-offline-player">
                             <div className="ts-offline-name">{player.playerName}</div>
                             <div className="ts-offline-meta">{actionLabel}</div>
                             <div className="ts-offline-gains">
-                                Items: {itemLabel}
+                                Items: <span title={itemLabelFull}>{itemLabel}</span>
                             </div>
                             <div className="ts-offline-gains">
                                 Skill +{formatXp(player.skillXpGained)} XP{skillLevelLabel} - Recipe +{formatXp(player.recipeXpGained)} XP{recipeLevelLabel}

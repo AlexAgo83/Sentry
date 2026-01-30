@@ -167,4 +167,80 @@ describe("cloud API", () => {
 
         await app.close();
     });
+
+    it("rejects unauthorized save access", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        const latest = await app.inject({
+            method: "GET",
+            url: "/api/v1/saves/latest"
+        });
+        expect(latest.statusCode).toBe(401);
+
+        const saveResponse = await app.inject({
+            method: "PUT",
+            url: "/api/v1/saves/latest",
+            payload: {
+                payload: { version: "0.8.11" },
+                virtualScore: 1,
+                appVersion: "0.8.11"
+            }
+        });
+        expect(saveResponse.statusCode).toBe(401);
+
+        await app.close();
+    });
+
+    it("enforces payload size limits", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        const register = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/register",
+            payload: { email: "oversize@example.com", password: "password123" }
+        });
+        const { accessToken } = register.json();
+
+        const oversized = "a".repeat(2 * 1024 * 1024 + 1024);
+        const saveResponse = await app.inject({
+            method: "PUT",
+            url: "/api/v1/saves/latest",
+            headers: { Authorization: `Bearer ${accessToken}` },
+            payload: {
+                payload: { blob: oversized },
+                virtualScore: 1,
+                appVersion: "0.8.11"
+            }
+        });
+        expect(saveResponse.statusCode).toBe(413);
+
+        await app.close();
+    });
+
+    it("rate limits auth endpoints", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        let status = 0;
+        for (let i = 0; i < 21; i += 1) {
+            const response = await app.inject({
+                method: "POST",
+                url: "/api/v1/auth/register",
+                remoteAddress: "127.0.0.1",
+                payload: { email: `limit_${i}@example.com`, password: "password123" }
+            });
+            status = response.statusCode;
+            if (i < 20) {
+                expect(response.statusCode).toBe(200);
+            }
+        }
+        expect(status).toBe(429);
+
+        await app.close();
+    });
 });

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { gameRuntime } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
 import { InventoryIconSprite } from "./ui/inventoryIcons";
@@ -15,6 +15,7 @@ import { AppViewContainer } from "./containers/AppViewContainer";
 import { AppModalsContainer } from "./containers/AppModalsContainer";
 import { useCloseOverlaysOnOfflineSummary } from "./hooks/useCloseOverlaysOnOfflineSummary";
 import { useGameRuntimeLifecycle } from "./hooks/useGameRuntimeLifecycle";
+import { useInventoryNewBadges } from "./hooks/useInventoryNewBadges";
 
 export const AppContainer = () => {
     useRenderCount("AppContainer");
@@ -26,6 +27,7 @@ export const AppContainer = () => {
 
     const version = useGameStore((state) => state.version);
     const offlineSummary = useGameStore((state) => state.offlineSummary);
+    const inventoryItems = useGameStore((state) => state.inventory.items);
 
     const {
         activeSidePanel,
@@ -44,6 +46,19 @@ export const AppContainer = () => {
         openActionSelection,
         closeActionSelection
     } = useAppShellUi();
+
+    const {
+        newItemIds: newInventoryItemIds,
+        hasNewItems: hasNewInventoryItems,
+        markItemSeen: markInventoryItemSeen,
+        markMenuSeen: markInventoryMenuSeen
+    } = useInventoryNewBadges(inventoryItems, version);
+
+    useEffect(() => {
+        if (activeSidePanel === "inventory" || activeSidePanel === "equipment" || activeSidePanel === "shop") {
+            markInventoryMenuSeen();
+        }
+    }, [activeSidePanel, markInventoryMenuSeen]);
 
     const { getSkillLabel, getSkillLabelStrict, getRecipeLabel, getRecipeLabelNonNull } = useAppLabels();
 
@@ -125,6 +140,9 @@ export const AppContainer = () => {
                 onShowInventory={showInventoryPanel}
                 onShowEquipment={showEquipmentPanel}
                 onShowShop={showShopPanel}
+                hasNewInventoryItems={hasNewInventoryItems}
+                newInventoryItemIds={newInventoryItemIds}
+                onMarkInventoryItemSeen={markInventoryItemSeen}
                 onAddPlayer={openRecruit}
                 onChangeAction={handleOpenActionSelection}
                 onCloseActionSelection={closeActionSelection}

@@ -37,7 +37,7 @@ export const ShopPanel = memo(({
     const priceTitle = isRosterMaxed
         ? "Roster cap reached."
         : upcomingCostsLabel
-            ? `Buy for ${formattedRosterSlotFullPrice} gold. Next: ${upcomingCostsLabel}.`
+            ? `Buy for ${formattedRosterSlotFullPrice} gold. Next: ${upcomingCostsFullLabel}.`
             : `Buy for ${formattedRosterSlotFullPrice} gold.`;
 
     return (

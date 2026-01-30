@@ -6,6 +6,7 @@ import { CollapseIcon } from "../ui/collapseIcon";
 import { ChangeIcon } from "../ui/changeIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { ItemIcon } from "../ui/itemIcon";
+import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
 type ItemEntry = {
     id: string;
@@ -22,9 +23,12 @@ type ActionStatusPanelProps = {
     activeConsumptionEntries: ItemEntry[];
     activeProductionEntries: ItemEntry[];
     actionSpeedBonusLabel: string;
+    actionSpeedBonusTooltip: string;
     actionDurationLabel: string;
     actionXpLabel: string;
     actionXpBonusLabel: string;
+    actionXpBonusTooltip: string;
+    stunTimeLabel: string | null;
     resourceHint: string | null;
     progressPercent: number;
     progressStyle: CSSProperties;
@@ -58,9 +62,12 @@ export const ActionStatusPanel = memo(({
     activeConsumptionEntries,
     activeProductionEntries,
     actionSpeedBonusLabel,
+    actionSpeedBonusTooltip,
     actionDurationLabel,
     actionXpLabel,
     actionXpBonusLabel,
+    actionXpBonusTooltip,
+    stunTimeLabel,
     resourceHint,
     progressPercent,
     progressStyle,
@@ -99,11 +106,12 @@ export const ActionStatusPanel = memo(({
         if (entries.length === 0) {
             return fallbackLabel;
         }
+        const fullLabel = entries.map((entry) => `${formatNumberFull(entry.amount)} ${entry.name}`).join(", ");
         return (
-            <span className="ts-item-inline-list">
+            <span className="ts-item-inline-list" title={fullLabel}>
                 {entries.map((entry, index) => (
                     <span key={entry.id} className="ts-item-inline">
-                        {entry.amount} {entry.name}
+                        {formatNumberCompact(entry.amount)} {entry.name}
                         <ItemIcon itemId={entry.id} tone={tone} />
                         {index < entries.length - 1 ? ", " : null}
                     </span>
@@ -177,7 +185,9 @@ export const ActionStatusPanel = memo(({
                     </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Speed bonus</span>
-                        <span className="ts-resource-value">{actionSpeedBonusLabel}</span>
+                        <span className="ts-resource-value" title={actionSpeedBonusTooltip}>
+                            {actionSpeedBonusLabel}
+                        </span>
                     </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">XP per action</span>
@@ -185,8 +195,16 @@ export const ActionStatusPanel = memo(({
                     </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">XP bonus</span>
-                        <span className="ts-resource-value">{actionXpBonusLabel}</span>
+                        <span className="ts-resource-value" title={actionXpBonusTooltip}>
+                            {actionXpBonusLabel}
+                        </span>
                     </div>
+                    {stunTimeLabel ? (
+                        <div className="ts-resource-row">
+                            <span className="ts-resource-label">Stun time</span>
+                            <span className="ts-resource-value">{stunTimeLabel}</span>
+                        </div>
+                    ) : null}
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Consumes</span>
                         <span className="ts-resource-value">

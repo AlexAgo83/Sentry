@@ -65,7 +65,7 @@ describe("App", () => {
             expect(within(rosterPanel).getByRole("button", { name: "Enlist a new hero" })).toBeTruthy();
         }
 
-        await user.click(screen.getByRole("tab", { name: "Inv" }));
+        await user.click(screen.getByRole("tab", { name: /Inv/ }));
 
         const inventoryPanel = screen.getByRole("heading", { name: "Inventory" }).closest("section");
         expect(inventoryPanel).toBeTruthy();
@@ -93,7 +93,7 @@ describe("App", () => {
 
     it("shows focusable inventory controls and usage labels", async () => {
         const { user } = renderApp({ rosterLimit: 3 });
-        const inventoryTab = screen.getByRole("tab", { name: "Inv" });
+        const inventoryTab = screen.getByRole("tab", { name: /Inv/ });
         expect(inventoryTab.className).toContain("ts-focusable");
 
         await user.click(inventoryTab);
@@ -219,7 +219,11 @@ describe("App", () => {
         testStore.dispatch({ type: "setOfflineSummary", summary });
 
         expect(await screen.findByText("Offline recap")).toBeTruthy();
-        expect(screen.getByText(/Inventory changes: \+2 Bones/)).toBeTruthy();
+        expect(screen.getByText((_, element) => (
+            element?.tagName === "LI"
+            && Boolean(element?.textContent?.includes("Inventory changes:"))
+            && Boolean(element?.textContent?.includes("+2 Bones"))
+        ))).toBeTruthy();
 
         await user.click(screen.getByRole("button", { name: "Close" }));
         expect(testStore.getState().offlineSummary).toBeNull();

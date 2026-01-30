@@ -1,3 +1,5 @@
+import { formatNumberCompact, formatNumberFull } from "./numberFormatters";
+
 type ItemDefinition = {
     id: string;
     name: string;
@@ -35,10 +37,27 @@ export const getItemListEntries = (definitions: ItemDefinition[], items?: Record
         .filter((entry) => entry.amount > 0);
 };
 
+const formatSignedAmount = (
+    amount: number,
+    formatter: (value: number) => string,
+    includePlus: boolean
+): string => {
+    const sign = amount < 0 ? "-" : includePlus && amount > 0 ? "+" : "";
+    return `${sign}${formatter(Math.abs(amount))}`;
+};
+
 export const formatItemDeltaEntries = (entries: ItemEntry[]): string => {
-    return entries.map((entry) => `${entry.amount > 0 ? "+" : ""}${entry.amount} ${entry.name}`).join(", ");
+    return entries.map((entry) => `${formatSignedAmount(entry.amount, formatNumberCompact, true)} ${entry.name}`).join(", ");
+};
+
+export const formatItemDeltaEntriesFull = (entries: ItemEntry[]): string => {
+    return entries.map((entry) => `${formatSignedAmount(entry.amount, formatNumberFull, true)} ${entry.name}`).join(", ");
 };
 
 export const formatItemListEntries = (entries: ItemEntry[]): string => {
-    return entries.map((entry) => `${entry.amount} ${entry.name}`).join(", ");
+    return entries.map((entry) => `${formatNumberCompact(entry.amount)} ${entry.name}`).join(", ");
+};
+
+export const formatItemListEntriesFull = (entries: ItemEntry[]): string => {
+    return entries.map((entry) => `${formatNumberFull(entry.amount)} ${entry.name}`).join(", ");
 };

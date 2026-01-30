@@ -59,7 +59,11 @@ describe("Smoke: offline recap modal", () => {
         render(<App />);
 
         expect(await screen.findByText("Offline recap")).toBeTruthy();
-        expect(screen.getByText(/Inventory changes: \+2 Bones/)).toBeTruthy();
+        expect(screen.getByText((_, element) => (
+            element?.tagName === "LI"
+            && Boolean(element.textContent?.includes("Inventory changes:"))
+            && Boolean(element.textContent?.includes("+2 Bones"))
+        ))).toBeTruthy();
         await screen.findByRole("button", { name: "Close" });
     });
 });

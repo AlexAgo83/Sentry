@@ -2,7 +2,7 @@
 > From version: 0.8.13
 > Understanding: 85%
 > Confidence: 75%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Selling large stacks is tedious and unit value is not visible.

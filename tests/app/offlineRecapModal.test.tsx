@@ -60,6 +60,10 @@ describe("App offline recap on startup", () => {
         render(<App />);
 
         expect(await screen.findByText("Offline recap")).toBeTruthy();
-        expect(screen.getByText(/Inventory changes: \+1 Bones/)).toBeTruthy();
+        expect(screen.getByText((_, element) => (
+            element?.tagName === "LI"
+            && Boolean(element.textContent?.includes("Inventory changes:"))
+            && Boolean(element.textContent?.includes("+1 Bones"))
+        ))).toBeTruthy();
     });
 });

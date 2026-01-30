@@ -21,6 +21,7 @@ const baseProps = {
         virtualScore: 140,
         appVersion: "0.8.11"
     },
+    lastSyncAt: null,
     onEmailChange: vi.fn(),
     onPasswordChange: vi.fn(),
     onLogin: vi.fn(),
@@ -35,8 +36,9 @@ const baseProps = {
 describe("CloudSavePanel", () => {
     it("renders local and cloud metadata", () => {
         render(<CloudSavePanel {...baseProps} />);
-        expect(screen.getByText(/Local:/)).toBeTruthy();
-        expect(screen.getByText(/Cloud:/)).toBeTruthy();
+        expect(screen.getByText("Local")).toBeTruthy();
+        expect(screen.getByText("Cloud")).toBeTruthy();
+        expect(screen.getByText(/Last sync:/)).toBeTruthy();
         expect(screen.getByRole("button", { name: "Load cloud save" })).toBeTruthy();
         expect(screen.getByRole("button", { name: "Overwrite cloud with local" })).toBeTruthy();
     });
@@ -51,8 +53,8 @@ describe("CloudSavePanel", () => {
         render(<CloudSavePanel {...baseProps} isAuthenticated={false} />);
         expect(screen.getByRole("button", { name: "Register" })).toBeTruthy();
         expect(screen.getByRole("button", { name: "Login" })).toBeTruthy();
-        expect(screen.queryByText(/Local:/)).toBeNull();
-        expect(screen.queryByText(/Cloud:/)).toBeNull();
+        expect(screen.queryByText("Local")).toBeNull();
+        expect(screen.queryByText("Cloud")).toBeNull();
         expect(screen.queryByRole("button", { name: "Load cloud save" })).toBeNull();
         expect(screen.queryByRole("button", { name: "Overwrite cloud with local" })).toBeNull();
     });

@@ -243,18 +243,24 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
         : null;
     const pendingActionDurationLabel = getActionIntervalLabel(pendingSkill, pendingActionDef);
     const pendingActionXpLabel = getActionXpLabel(pendingActionDef);
-    const pendingSpeedBonusLabel = hasPendingSelection
-        ? (() => {
-            const speedBonusPercent = (effectiveStats.Agility ?? 0) * STAT_PERCENT_PER_POINT * 100;
-            return speedBonusPercent > 0 ? `-${formatBonusPercent(speedBonusPercent)} time` : "None";
-        })()
+    const speedBonusPercent = (effectiveStats.Agility ?? 0) * STAT_PERCENT_PER_POINT * 100;
+    const pendingSpeedBonusLabel = hasPendingSelection && speedBonusPercent > 0
+        ? `-${formatBonusPercent(speedBonusPercent)} time`
         : "None";
-    const pendingXpBonusLabel = hasPendingSelection && pendingActionDef && INTELLECT_SKILLS.has(pendingActionDef.skillId)
-        ? (() => {
-            const xpBonusPercent = (effectiveStats.Intellect ?? 0) * STAT_PERCENT_PER_POINT * 100;
-            return xpBonusPercent > 0 ? `+${formatBonusPercent(xpBonusPercent)} XP` : "None";
-        })()
+    const speedBonusPercentLabel = speedBonusPercent > 0 ? formatBonusPercent(speedBonusPercent) : "0%";
+    const pendingSpeedBonusTooltip = `Agility reduces action time by 1% per point. Current: ${speedBonusPercentLabel}.`;
+    const xpBonusPercent = (effectiveStats.Intellect ?? 0) * STAT_PERCENT_PER_POINT * 100;
+    const xpBonusApplies = Boolean(pendingActionDef && INTELLECT_SKILLS.has(pendingActionDef.skillId));
+    const xpBonusPercentLabel = xpBonusPercent > 0 ? formatBonusPercent(xpBonusPercent) : "0%";
+    const pendingXpBonusLabel = hasPendingSelection && xpBonusApplies && xpBonusPercent > 0
+        ? `+${formatBonusPercent(xpBonusPercent)} XP`
         : "None";
+    const pendingXpBonusTooltip = xpBonusApplies
+        ? `Intellect increases XP by 1% per point. Current: ${xpBonusPercentLabel}.`
+        : "Intellect increases XP by 1% per point (intellect skills only). Current: 0%.";
+    const pendingStunTimeLabel = activePlayer && activePlayer.stamina <= 0 && pendingActionDef?.stunTime
+        ? formatActionDuration(pendingActionDef.stunTime)
+        : null;
 
     const missingItemsLabel = missingItems.length > 0
         ? `Missing: ${missingItems.map((entry) => `${itemNameById[entry.itemId] ?? entry.itemId} x${entry.needed}`).join(", ")}`
@@ -278,9 +284,12 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
             pendingConsumptionEntries={hasPendingSelection ? pendingConsumptionEntries : []}
             pendingProductionEntries={hasPendingSelection ? pendingProductionEntries : []}
             pendingSpeedBonusLabel={pendingSpeedBonusLabel}
+            pendingSpeedBonusTooltip={pendingSpeedBonusTooltip}
             pendingActionDurationLabel={pendingActionDurationLabel}
             pendingActionXpLabel={pendingActionXpLabel}
             pendingXpBonusLabel={pendingXpBonusLabel}
+            pendingXpBonusTooltip={pendingXpBonusTooltip}
+            pendingStunTimeLabel={pendingStunTimeLabel}
             missingItemsLabel={missingItemsLabel}
             canStartAction={canStartAction}
             canStopAction={Boolean(activePlayer.selectedActionId)}

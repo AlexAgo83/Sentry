@@ -20,6 +20,9 @@ type AppViewContainerProps = {
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
+    hasNewInventoryItems: boolean;
+    newInventoryItemIds: string[];
+    onMarkInventoryItemSeen: (itemId: string) => void;
     onAddPlayer: () => void;
     onChangeAction: () => void;
     onCloseActionSelection: () => void;
@@ -40,6 +43,9 @@ export const AppViewContainer = ({
     onShowInventory,
     onShowEquipment,
     onShowShop,
+    hasNewInventoryItems,
+    newInventoryItemIds,
+    onMarkInventoryItemSeen,
     onAddPlayer,
     onChangeAction,
     onCloseActionSelection,
@@ -61,6 +67,7 @@ export const AppViewContainer = ({
                 onShowInventory={onShowInventory}
                 onShowEquipment={onShowEquipment}
                 onShowShop={onShowShop}
+                hasNewInventoryItems={hasNewInventoryItems}
                 roster={(
                     <DevProfiler id="RosterPanel">
                         <RosterContainer
@@ -86,7 +93,10 @@ export const AppViewContainer = ({
                 )}
                 inventoryPanel={(
                     <DevProfiler id="InventoryPanel">
-                        <InventoryPanelContainer />
+                        <InventoryPanelContainer
+                            newItemIds={newInventoryItemIds}
+                            onMarkItemSeen={onMarkInventoryItemSeen}
+                        />
                     </DevProfiler>
                 )}
                 equipmentPanel={(

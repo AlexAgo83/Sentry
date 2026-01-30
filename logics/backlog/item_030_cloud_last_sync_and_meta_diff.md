@@ -2,7 +2,7 @@
 > From version: 0.8.13
 > Understanding: 85%
 > Confidence: 75%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Cloud panel shows Local/Cloud meta lines but lacks “last sync” and an at-a-glance diff.

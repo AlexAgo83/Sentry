@@ -2,7 +2,7 @@
 > From version: 0.8.13
 > Understanding: 85%
 > Confidence: 75%
-> Progress: 40%
+> Progress: 100%
 
 # Context
 Players see bonus labels but not the formulas; stun time is currently implicit.
