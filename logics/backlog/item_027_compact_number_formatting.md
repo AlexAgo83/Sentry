@@ -2,7 +2,7 @@
 > From version: 0.8.13
 > Understanding: 85%
 > Confidence: 75%
-> Progress: 0%
+> Progress: 40%
 
 # Context
 Large gold values and counts become hard to read in shop, inventory, action summaries, and recaps.

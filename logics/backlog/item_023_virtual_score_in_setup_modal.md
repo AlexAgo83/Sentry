@@ -2,7 +2,7 @@
 > From version: 0.8.11
 > Understanding: 94%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Players need a quick, comparable score to help resolve cloud vs local save conflicts. The setup modal is the right place to display it.

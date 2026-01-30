@@ -2,7 +2,7 @@
 > From version: 0.8.11
 > Understanding: 94%
 > Confidence: 88%
-> Progress: 80%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
@@ -14,7 +14,7 @@ Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
 - [x] 4. Add basic rate limiting on auth endpoints.
 - [x] 5. Wire frontend client calls and conflict UI (diff + actions), with offline-first disable behavior.
 - [x] 6. Add backend tests (auth, saves, size limits, security) and frontend conflict UI tests.
-- [ ] FINAL: Update related Logics docs if scope changes.
+- [x] FINAL: Update related Logics docs if scope changes.
 
 # Test plan
 - Backend integration: register/login, refresh, auth-required access, rate limit, payload size limit.
@@ -36,7 +36,7 @@ Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
 - Added Fastify server with auth + save endpoints, Prisma schema, env defaults, and dependencies.
 - Added cloud client + System modal cloud panel for login/register, diff display, load/overwrite, offline disable.
 - Added backend API tests with mocked Prisma and a CloudSavePanel UI test.
-- Validation not run yet.
+- Validation run: npm run tests, npm run lint, npm run typecheck.
 
 # Estimate
 - Size: L

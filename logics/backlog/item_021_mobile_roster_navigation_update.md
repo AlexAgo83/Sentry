@@ -2,7 +2,7 @@
 > From version: 0.8.11
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Mobile navigation should emphasize the roster, but the button is labeled "Stats" and the roster panel can appear outside the intended screen. This is confusing and inconsistent.

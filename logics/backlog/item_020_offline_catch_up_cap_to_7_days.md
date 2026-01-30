@@ -2,7 +2,7 @@
 > From version: 0.8.11
 > Understanding: 96%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Players who stay offline longer than 12 hours lose progress because the runtime only processes 12h of catch-up. We need a longer cap (7 days) while keeping the capped recap messaging.

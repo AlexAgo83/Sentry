@@ -2,7 +2,7 @@
 > From version: 0.8.11
 > Understanding: 94%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Tablets need to be equipable with a dedicated slot and a visible charge mechanic. Today there is no tablet slot and no charge tracking.

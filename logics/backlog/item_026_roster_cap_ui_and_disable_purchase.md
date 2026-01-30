@@ -2,7 +2,7 @@
 > From version: 0.8.13
 > Understanding: 85%
 > Confidence: 75%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Roster size upgrades become confusing once the cap is reached. The UI needs to communicate the cap clearly and stop purchases everywhere.

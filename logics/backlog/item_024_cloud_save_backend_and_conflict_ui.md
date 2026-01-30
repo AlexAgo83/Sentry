@@ -2,7 +2,7 @@
 > From version: 0.8.11
 > Understanding: 92%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 80%
 
 # Problem
 Players need optional cloud saves to sync across devices and recover data. The app must stay offline-first and allow users to choose between local and cloud states with clear diffs.

@@ -2,7 +2,7 @@
 > From version: 0.8.11
 > Understanding: 93%
 > Confidence: 88%
-> Progress: 85%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_025_db_dump_and_reset_utilities.md`
@@ -13,7 +13,7 @@ Derived from `logics/backlog/item_025_db_dump_and_reset_utilities.md`
 - [x] 3. Add dump/restore behaviors (custom dump, optional SQL, dry-run, dump-file, force).
 - [x] 4. Add npm scripts and gitignore for dumps.
 - [x] 5. Add smoke tests (mocked child_process) for CLI parsing and safety paths.
-- [ ] FINAL: Update related Logics docs if scope changes.
+- [x] FINAL: Update related Logics docs if scope changes.
 
 # Test plan
 - Unit: CLI parsing, target selection, schema guard (`schema=sentry`), confirm/force checks.
@@ -34,7 +34,7 @@ Derived from `logics/backlog/item_025_db_dump_and_reset_utilities.md`
 # Report
 - Added dump/restore/reset scripts with schema guards, target selection, SSL handling, and dry-run support.
 - Added npm scripts, gitignore for dumps, env template updates, and utils tests.
-- Validation not run yet.
+- Validation run: npm run tests, npm run lint, dump/reset dry-runs with local DATABASE_URL (schema=sentry).
 
 # Estimate
 - Size: M
