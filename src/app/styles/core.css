@@ -267,7 +267,7 @@
 }
 
 .ts-player-avatar-torso {
-    z-index: 3;
+    z-index: 4;
     background-color: var(--ts-avatar-torso, #5d6a82);
     -webkit-mask-image: url("/assets/hero/base_body_torso.svg");
     mask-image: url("/assets/hero/base_body_torso.svg");
@@ -301,8 +301,22 @@
     pointer-events: none;
 }
 
+.ts-player-avatar-hair {
+    z-index: 3;
+    background-color: var(--ts-avatar-hair-color, #3b2c22);
+    -webkit-mask-image: var(--ts-avatar-hair, url("/assets/hero/hairstyles/hair_01.svg"));
+    mask-image: var(--ts-avatar-hair, url("/assets/hero/hairstyles/hair_01.svg"));
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center var(--ts-avatar-pos-y, 50%);
+    mask-position: center var(--ts-avatar-pos-y, 50%);
+    -webkit-mask-size: 72% auto;
+    mask-size: 72% auto;
+    pointer-events: none;
+}
+
 .ts-player-avatar-hands {
-    z-index: 4;
+    z-index: 5;
     background-color: var(--ts-avatar-skin);
     -webkit-mask-image: url("/assets/hero/base_body_hands.svg");
     mask-image: url("/assets/hero/base_body_hands.svg");
@@ -315,7 +329,7 @@
 }
 
 .ts-player-avatar-feets {
-    z-index: 4;
+    z-index: 5;
     background-color: var(--ts-avatar-skin);
     -webkit-mask-image: url("/assets/hero/base_body_feets.svg");
     mask-image: url("/assets/hero/base_body_feets.svg");

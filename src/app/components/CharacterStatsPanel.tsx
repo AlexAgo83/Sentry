@@ -14,8 +14,6 @@ type CharacterStatsPanelProps = {
     now: number;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
-    onRenameHero: () => void;
-    canRenameHero: boolean;
 };
 
 const resolveSkillLevel = (levels: Partial<Record<SkillId, number>>, skillId: SkillId) => {
@@ -99,9 +97,7 @@ export const CharacterStatsPanel = memo(({
     equipmentMods,
     now,
     isCollapsed,
-    onToggleCollapsed,
-    onRenameHero,
-    canRenameHero
+    onToggleCollapsed
 }: CharacterStatsPanelProps) => {
     const permTotals = accumulateTotals(stats.permanentMods);
     const tempTotals = accumulateTotals(stats.temporaryMods);
@@ -115,15 +111,6 @@ export const CharacterStatsPanel = memo(({
                     <h2 className="ts-panel-title">Stats</h2>
                 </div>
                 <div className="ts-panel-actions ts-panel-actions-inline">
-                    <button
-                        type="button"
-                        className="ts-icon-button ts-panel-action-button ts-focusable"
-                        onClick={onRenameHero}
-                        disabled={!canRenameHero}
-                        aria-label="Rename"
-                    >
-                        Rename
-                    </button>
                     <button
                         type="button"
                         className="ts-collapse-button ts-focusable"

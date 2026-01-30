@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import type { PlayerState } from "../../core/types";
 import { getSkillIconColor } from "../ui/skillColors";
 import { getFaceUrl } from "../ui/heroFaces";
+import { getHairColor, getHairUrl } from "../ui/heroHair";
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
 
@@ -68,7 +69,9 @@ export const RosterPanel = memo(({
                             const skillLevel = currentAction ? currentSkill?.level ?? 0 : 0;
                             const avatarStyle = {
                                 "--ts-avatar-torso": skillColor,
-                                "--ts-avatar-face": `url(\"${getFaceUrl(player.id)}\")`
+                                "--ts-avatar-face": `url(\"${getFaceUrl(player.id)}\")`,
+                                "--ts-avatar-hair": `url(\"${getHairUrl(player.id)}\")`,
+                                "--ts-avatar-hair-color": getHairColor(player.id)
                             } as CSSProperties;
 
                             return (
@@ -82,6 +85,7 @@ export const RosterPanel = memo(({
                                             <span className="ts-player-avatar-layer ts-player-avatar-legs" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-head" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-face" />
+                                            <span className="ts-player-avatar-layer ts-player-avatar-hair" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-torso" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-hands" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-feets" />
@@ -119,6 +123,7 @@ export const RosterPanel = memo(({
                                     <span className="ts-player-avatar-layer ts-player-avatar-legs" />
                                     <span className="ts-player-avatar-layer ts-player-avatar-head" />
                                     <span className="ts-player-avatar-layer ts-player-avatar-face" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-hair" />
                                     <span className="ts-player-avatar-layer ts-player-avatar-torso" />
                                     <span className="ts-player-avatar-layer ts-player-avatar-hands" />
                                     <span className="ts-player-avatar-layer ts-player-avatar-feets" />

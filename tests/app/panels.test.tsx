@@ -207,8 +207,6 @@ describe("panel components", () => {
                 now={0}
                 isCollapsed={false}
                 onToggleCollapsed={onToggleCollapsed}
-                onRenameHero={vi.fn()}
-                canRenameHero={true}
             />
         );
 
@@ -270,8 +268,6 @@ describe("panel components", () => {
                 now={now}
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
-                onRenameHero={vi.fn()}
-                canRenameHero={true}
             />
         );
 
@@ -299,8 +295,6 @@ describe("panel components", () => {
                 now={0}
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
-                onRenameHero={vi.fn()}
-                canRenameHero={true}
             />
         );
 
@@ -329,8 +323,6 @@ describe("panel components", () => {
                 now={0}
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
-                onRenameHero={vi.fn()}
-                canRenameHero={true}
             />
         );
 
