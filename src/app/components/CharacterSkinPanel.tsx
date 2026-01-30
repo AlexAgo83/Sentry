@@ -1,10 +1,11 @@
 import { memo } from "react";
 import type { CSSProperties } from "react";
-import type { SkillId } from "../../core/types";
+import type { PlayerEquipmentState, SkillId } from "../../core/types";
 import { SkillIcon } from "../ui/skillIcons";
 import { getFaceUrlByIndex } from "../ui/heroFaces";
 import { getHairUrlByIndex } from "../ui/heroHair";
 import { CollapseIcon } from "../ui/collapseIcon";
+import { getEquipmentSkinVars } from "../ui/heroEquipmentSkins";
 
 const FaceIcon = () => (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -74,6 +75,7 @@ type CharacterSkinPanelProps = {
     hairIndex: number;
     hairColor: string;
     skinColor: string;
+    equipment: PlayerEquipmentState | null;
     heroName?: string | null;
     isPlaceholder: boolean;
     isCollapsed: boolean;
@@ -95,6 +97,7 @@ export const CharacterSkinPanel = memo(({
     hairIndex,
     hairColor,
     skinColor,
+    equipment,
     heroName,
     isPlaceholder,
     isCollapsed,
@@ -113,7 +116,8 @@ export const CharacterSkinPanel = memo(({
         "--ts-avatar-face": `url("${getFaceUrlByIndex(faceIndex)}")`,
         "--ts-avatar-hair": `url("${getHairUrlByIndex(hairIndex)}")`,
         "--ts-avatar-hair-color": hairColor,
-        "--ts-avatar-skin": skinColor
+        "--ts-avatar-skin": skinColor,
+        ...getEquipmentSkinVars(equipment)
     } as CSSProperties;
     const avatarClassName = `ts-player-avatar ts-player-avatar--large${isPlaceholder ? " is-placeholder" : ""}`;
 
@@ -151,13 +155,19 @@ export const CharacterSkinPanel = memo(({
             {!isCollapsed ? (
                 <div className="ts-skin-panel">
                     <div className={avatarClassName} style={avatarStyle} aria-hidden="true">
+                        <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
                         <span className="ts-player-avatar-layer ts-player-avatar-legs" />
+                        <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
                         <span className="ts-player-avatar-layer ts-player-avatar-head" />
                         <span className="ts-player-avatar-layer ts-player-avatar-face" />
                         <span className="ts-player-avatar-layer ts-player-avatar-hair" />
+                        <span className="ts-player-avatar-layer ts-player-avatar-gear-head" />
                         <span className="ts-player-avatar-layer ts-player-avatar-torso" />
+                        <span className="ts-player-avatar-layer ts-player-avatar-gear-torso" />
                         <span className="ts-player-avatar-layer ts-player-avatar-hands" />
+                        <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
                         <span className="ts-player-avatar-layer ts-player-avatar-feets" />
+                        <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
                         {avatarSkillId ? (
                             <span className="ts-player-avatar-skill">
                                 <SkillIcon skillId={avatarSkillId} color="#0c111c" />

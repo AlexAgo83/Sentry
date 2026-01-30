@@ -61,6 +61,7 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
             hairIndex={hairIndex}
             hairColor={hairColor}
             skinColor={skinColor}
+            equipment={activePlayer?.equipment ?? null}
             heroName={activePlayer?.name ?? null}
             isPlaceholder={!activePlayer}
             isCollapsed={isSkinCollapsed}

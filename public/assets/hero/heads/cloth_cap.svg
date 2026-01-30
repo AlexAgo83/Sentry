@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="364"
+   height="838.16"
+   viewBox="237 109.84 364 838.16"
+   version="1.1"
+   id="svg318"
+   sodipodi:docname="cloth_cap.svg"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview320"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="0.96140433"
+     inkscape:cx="113.37582"
+     inkscape:cy="240.27352"
+     inkscape:window-width="1465"
+     inkscape:window-height="920"
+     inkscape:window-x="47"
+     inkscape:window-y="34"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g324" />
+  <defs
+     id="defs312">
+    <linearGradient
+       id="capShade"
+       x1="237.62729"
+       x2="237.62729"
+       y1="400.9851"
+       y2="543.70861"
+       gradientTransform="scale(1.3592715,0.73568819)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#3b4a5f"
+         id="stop307" />
+      <stop
+         offset="100%"
+         stop-color="#2f3949"
+         id="stop309" />
+    </linearGradient>
+  </defs>
+  <g
+     id="g324"
+     transform="matrix(1.1876551,0,0,1.4146034,-79.335192,-169.91377)">
+    <path
+       d="m 323,360 c 15,-40 59,-65 97,-65 38,0 82,25 97,65 l -7,40 c -28,-10 -60,-14 -90,-14 -30,0 -62,4 -90,14 z"
+       fill="url(#capShade)"
+       id="path314"
+       style="fill:url(#capShade)" />
+    <path
+       d="m 510.49069,411.25818 c -30.26595,-9.4182 -60.39496,-13.83773 -90.38703,-13.25857 -29.99206,0.57915 -59.84719,6.15698 -89.56538,16.73349 l -2.41029,-14.95742 c 31.58072,-15.6138 61.35368,-24.19084 91.34575,-24.76999 29.99207,-0.57915 60.20324,6.83958 92.6056,21.21785 z"
+       fill="#27303b"
+       id="path316"
+       style="image-rendering:auto;fill:#a02c2c"
+       inkscape:label="path316" />
+  </g>
+</svg>

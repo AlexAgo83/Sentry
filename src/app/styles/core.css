@@ -260,9 +260,21 @@
     background-position: center var(--ts-avatar-pos-y, 50%);
 }
 
+.ts-player-avatar-gear-cape {
+    z-index: 0;
+    background-image: var(--ts-avatar-gear-cape, none);
+    background-size: 96% auto;
+}
+
 .ts-player-avatar-legs {
     z-index: 0;
     background-image: url("/assets/hero/base_body_legs.svg");
+    background-size: 92% auto;
+}
+
+.ts-player-avatar-gear-legs {
+    z-index: 0;
+    background-image: var(--ts-avatar-gear-legs, none);
     background-size: 92% auto;
 }
 
@@ -277,6 +289,12 @@
     mask-position: center var(--ts-avatar-pos-y, 50%);
     -webkit-mask-size: 82% auto;
     mask-size: 82% auto;
+}
+
+.ts-player-avatar-gear-torso {
+    z-index: 4;
+    background-image: var(--ts-avatar-gear-torso, none);
+    background-size: 82% auto;
 }
 
 .ts-player-avatar-head {
@@ -313,6 +331,13 @@
     -webkit-mask-size: 72% auto;
     mask-size: 72% auto;
     pointer-events: none;
+    opacity: var(--ts-avatar-hair-opacity, 1);
+}
+
+.ts-player-avatar-gear-head {
+    z-index: 7;
+    background-image: var(--ts-avatar-gear-head, none);
+    background-size: 76% auto;
 }
 
 .ts-player-avatar-hands {
@@ -328,6 +353,12 @@
     mask-size: 92% auto;
 }
 
+.ts-player-avatar-gear-hands {
+    z-index: 6;
+    background-image: var(--ts-avatar-gear-hands, none);
+    background-size: 92% auto;
+}
+
 .ts-player-avatar-feets {
     z-index: 5;
     background-color: var(--ts-avatar-skin);
@@ -339,6 +370,12 @@
     mask-position: center var(--ts-avatar-pos-y, 50%);
     -webkit-mask-size: 92% auto;
     mask-size: 92% auto;
+}
+
+.ts-player-avatar-gear-feets {
+    z-index: 6;
+    background-image: var(--ts-avatar-gear-feets, none);
+    background-size: 92% auto;
 }
 
 .ts-player-avatar-skill {
