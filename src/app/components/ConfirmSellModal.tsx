@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { ModalShell } from "./ModalShell";
+import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
 type ConfirmSellModalProps = {
     isOpen: boolean;
@@ -22,10 +23,16 @@ export const ConfirmSellModal = memo(({
         return null;
     }
 
+    const formattedCount = formatNumberCompact(count);
+    const formattedCountFull = formatNumberFull(count);
+    const formattedGoldGain = formatNumberCompact(goldGain);
+    const formattedGoldGainFull = formatNumberFull(goldGain);
+
     return (
         <ModalShell kicker="Inventory" title="Confirm sale" onClose={onCancel} closeLabel="Cancel">
             <p className="ts-modal-copy">
-                Sell <strong>x{count}</strong> {itemName} for <strong>+{goldGain} gold</strong>?
+                Sell <strong title={`x${formattedCountFull}`}>x{formattedCount}</strong> {itemName} for{" "}
+                <strong title={`+${formattedGoldGainFull} gold`}>+{formattedGoldGain} gold</strong>?
             </p>
             <p className="ts-modal-copy ts-modal-copy-muted">
                 This can’t be undone.
@@ -44,4 +51,3 @@ export const ConfirmSellModal = memo(({
 });
 
 ConfirmSellModal.displayName = "ConfirmSellModal";
-
