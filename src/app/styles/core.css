@@ -243,6 +243,8 @@
     --ts-avatar-skill-size: 18px;
     --ts-avatar-skill-top: 60%;
     --ts-avatar-pos-y: 50%;
+    --ts-avatar-outline-top: rgba(242, 193, 78, 0.45);
+    --ts-avatar-outline-bottom: rgba(6, 9, 16, 0.55);
     border-radius: 12px;
     border: 1px solid rgba(93, 217, 193, 0.4);
     background:
@@ -258,6 +260,9 @@
     inset: 0;
     background-repeat: no-repeat;
     background-position: center var(--ts-avatar-pos-y, 50%);
+    filter:
+        drop-shadow(0 -1px 3px var(--ts-avatar-outline-top))
+        drop-shadow(0 2px 4px var(--ts-avatar-outline-bottom));
 }
 
 .ts-player-avatar-gear-cape {
