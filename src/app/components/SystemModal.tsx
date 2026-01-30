@@ -21,8 +21,8 @@ type SystemModalProps = {
     onClearCrashReports: () => void;
     onExportSave: () => void;
     onImportSave: () => void;
-    onSimulateOffline: () => void;
     onResetSave: () => void;
+    onOpenDevTools: () => void;
     onClose: () => void;
     cloudPanel?: ReactNode;
 };
@@ -46,8 +46,8 @@ export const SystemModal = memo(({
     onClearCrashReports,
     onExportSave,
     onImportSave,
-    onSimulateOffline,
     onResetSave,
+    onOpenDevTools,
     onClose,
     cloudPanel = null
 }: SystemModalProps) => {
@@ -87,15 +87,17 @@ export const SystemModal = memo(({
                     )}
                 </li>
             </ul>
-            <div className="ts-action-row ts-system-actions">
-                <button
-                    type="button"
-                    className="generic-field button ts-simulate ts-focusable"
-                    onClick={onSimulateOffline}
-                >
-                    Simulate +30 min
-                </button>
-            </div>
+            {import.meta.env.DEV ? (
+                <div className="ts-action-row ts-system-actions">
+                    <button
+                        type="button"
+                        className="generic-field button ts-focusable"
+                        onClick={onOpenDevTools}
+                    >
+                        Dev tools
+                    </button>
+                </div>
+            ) : null}
             <div className="ts-action-row ts-system-actions">
                 <button
                     type="button"

@@ -13,8 +13,8 @@ export interface SystemModalContainerProps {
     onClearCrashReports: () => void;
     onExportSave: () => void;
     onImportSave: () => void;
-    onSimulateOffline: () => void;
     onResetSave: () => void;
+    onOpenDevTools: () => void;
     onClose: () => void;
 }
 
@@ -52,8 +52,8 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
             onClearCrashReports={props.onClearCrashReports}
             onExportSave={props.onExportSave}
             onImportSave={props.onImportSave}
-            onSimulateOffline={props.onSimulateOffline}
             onResetSave={props.onResetSave}
+            onOpenDevTools={props.onOpenDevTools}
             onClose={props.onClose}
             cloudPanel={<CloudSavePanelContainer />}
         />

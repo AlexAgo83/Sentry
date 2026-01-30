@@ -20,6 +20,7 @@ type AppModalsContainerProps = {
     onSimulateOffline: () => void;
     onResetSave: () => void;
     onCloseSystem: () => void;
+    onOpenDevTools: () => void;
     onCloseOfflineSummary: () => void;
     offlineSummary: OfflineSummaryState | null;
     swUpdate: SwUpdateAvailableDetail | null;
@@ -58,6 +59,7 @@ export const AppModalsContainer = ({
     onSimulateOffline,
     onResetSave,
     onCloseSystem,
+    onOpenDevTools,
     onCloseOfflineSummary,
     offlineSummary,
     swUpdate,
@@ -118,13 +120,13 @@ export const AppModalsContainer = ({
                     onClearCrashReports={onClearCrashReports}
                     onExportSave={onExportSave}
                     onImportSave={onImportSave}
-                    onSimulateOffline={onSimulateOffline}
                     onResetSave={onResetSave}
+                    onOpenDevTools={onOpenDevTools}
                     onClose={onCloseSystem}
                 />
             ) : null}
             {import.meta.env.DEV && isDevToolsOpen ? (
-                <DevToolsModal onClose={onCloseDevTools} />
+                <DevToolsModal onClose={onCloseDevTools} onSimulateOffline={onSimulateOffline} />
             ) : null}
             {offlineSummary ? (
                 <OfflineSummaryModal

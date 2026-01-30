@@ -132,7 +132,6 @@ export const AppContainer = () => {
             <AppViewContainer
                 version={version}
                 onOpenSystem={openSystem}
-                onOpenDevTools={openDevTools}
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={showActionPanel}
@@ -162,6 +161,7 @@ export const AppContainer = () => {
                 onSimulateOffline={handleSimulateOffline}
                 onResetSave={resetSave}
                 onCloseSystem={closeSystem}
+                onOpenDevTools={openDevTools}
                 onCloseOfflineSummary={closeOfflineSummary}
                 offlineSummary={offlineSummary}
                 swUpdate={swUpdate}

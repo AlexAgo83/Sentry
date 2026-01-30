@@ -10,10 +10,11 @@ import {
 } from "../dev/renderDebug";
 
 type DevToolsModalProps = {
+    onSimulateOffline: () => void;
     onClose: () => void;
 };
 
-export const DevToolsModal = memo(({ onClose }: DevToolsModalProps) => {
+export const DevToolsModal = memo(({ onSimulateOffline, onClose }: DevToolsModalProps) => {
     const [isRenderCountsEnabled, setIsRenderCountsEnabled] = useState(() => (
         import.meta.env.DEV ? isDebugEnabled(RENDER_COUNTS_ENABLE_KEY) : false
     ));
@@ -48,6 +49,15 @@ export const DevToolsModal = memo(({ onClose }: DevToolsModalProps) => {
                 <li>renderCounts: {isRenderCountsEnabled ? "on" : "off"}</li>
                 <li>profiler: {isProfilerEnabled ? "on" : "off"}</li>
             </ul>
+            <div className="ts-action-row ts-system-actions ts-devtools-actions">
+                <button
+                    type="button"
+                    className="generic-field button ts-devtools-button ts-focusable"
+                    onClick={onSimulateOffline}
+                >
+                    Simulate +30 min
+                </button>
+            </div>
             <div className="ts-action-row ts-system-actions ts-action-stack ts-devtools-actions">
                 <button
                     type="button"
@@ -88,4 +98,3 @@ export const DevToolsModal = memo(({ onClose }: DevToolsModalProps) => {
 });
 
 DevToolsModal.displayName = "DevToolsModal";
-

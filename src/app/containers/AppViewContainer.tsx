@@ -12,7 +12,6 @@ import { DevProfiler } from "../dev/renderDebug";
 type AppViewContainerProps = {
     version: string;
     onOpenSystem: () => void;
-    onOpenDevTools: () => void;
     activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
@@ -35,7 +34,6 @@ type AppViewContainerProps = {
 export const AppViewContainer = ({
     version,
     onOpenSystem,
-    onOpenDevTools,
     activeScreen,
     activeSidePanel,
     onShowAction,
@@ -59,7 +57,6 @@ export const AppViewContainer = ({
             <AppView
                 version={version}
                 onOpenSystem={onOpenSystem}
-                onOpenDevTools={onOpenDevTools}
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={onShowAction}

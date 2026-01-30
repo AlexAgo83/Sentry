@@ -9,7 +9,6 @@ export type AppActiveScreen = "main" | "actionSelection";
 export interface AppViewProps {
     version: string;
     onOpenSystem: () => void;
-    onOpenDevTools: () => void;
     activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
@@ -55,7 +54,6 @@ export const AppView = (props: AppViewProps) => {
     const {
         version,
         onOpenSystem,
-        onOpenDevTools,
         activeScreen,
         activeSidePanel,
         onShowAction,
@@ -125,25 +123,6 @@ export const AppView = (props: AppViewProps) => {
                             </span>
                             <span>{version}</span>
                         </button>
-                        {import.meta.env.DEV ? (
-                            <button
-                                type="button"
-                                className="app-version-tag app-version-button ts-focusable"
-                                onClick={onOpenDevTools}
-                                aria-label="Open dev tools"
-                            >
-                                <span className="app-version-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M10.5 6.5l7 7m-10 1l3-3m6-6l2-2m-1.5 1.5l1 1m-10.5 10.5l1 1m-2-2l2-2"
-                                        />
-                                    </svg>
-                                </span>
-                                <span>Dev</span>
-                            </button>
-                        ) : null}
                     </div>
                 </div>
             </header>
