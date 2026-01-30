@@ -10,9 +10,11 @@
 
 .ts-stats-layout {
     display: grid;
-    grid-template-columns: minmax(160px, 220px) minmax(0, 1fr) minmax(160px, 220px);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--m4);
     padding: 0;
+    align-items: start;
+    align-content: start;
 }
 
 .ts-stats-column {
@@ -41,6 +43,8 @@
     width: 140px;
     height: auto;
     aspect-ratio: 364 / 839;
+    --ts-avatar-skill-size: 32px;
+    --ts-avatar-skill-top: 56%;
     border-radius: 18px;
     border-color: rgba(93, 217, 193, 0.5);
     box-shadow:
@@ -273,11 +277,7 @@
     display: inline-flex;
     align-items: center;
     gap: var(--m1);
-    padding: var(--m1) var(--m2);
     margin-right: var(--m2);
-    border-radius: 999px;
-    border: 1px solid rgba(242, 193, 78, 0.35);
-    background: rgba(242, 193, 78, 0.1);
     font-size: var(--text-xs-size);
     font-family: var(--display-font);
     color: var(--color-primary);

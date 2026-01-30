@@ -10,6 +10,7 @@ type CharacterStatsPanelProps = {
     skills: SkillDefinition[];
     skillLevels: Partial<Record<SkillId, number>>;
     avatarColor: string;
+    avatarSkillId: SkillId | null;
     stats: PlayerStatsState;
     effectiveStats: Record<StatId, number>;
     equipmentMods: StatModifier[];
@@ -98,6 +99,7 @@ export const CharacterStatsPanel = memo(({
     skills,
     skillLevels,
     avatarColor,
+    avatarSkillId,
     stats,
     equipmentMods,
     now,
@@ -154,6 +156,11 @@ export const CharacterStatsPanel = memo(({
                                     <span className="ts-player-avatar-layer ts-player-avatar-torso" />
                                     <span className="ts-player-avatar-layer ts-player-avatar-hands" />
                                     <span className="ts-player-avatar-layer ts-player-avatar-feets" />
+                                    {avatarSkillId ? (
+                                        <span className="ts-player-avatar-skill">
+                                            <SkillIcon skillId={avatarSkillId} color="#0c111c" />
+                                        </span>
+                                    ) : null}
                                 </div>
                                 <div className="ts-skin-caption">Hero skin</div>
                             </div>

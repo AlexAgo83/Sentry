@@ -38,6 +38,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
             skills={SKILL_DEFINITIONS}
             skillLevels={skillLevels}
             avatarColor={avatarColor}
+            avatarSkillId={activePlayer?.selectedActionId ?? null}
             stats={statsState}
             effectiveStats={effectiveStats}
             equipmentMods={equipmentMods}
