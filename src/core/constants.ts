@@ -13,7 +13,7 @@ export const MIN_ACTION_INTERVAL_MS = 500;
 export const MIN_STAMINA_COST = 1;
 export const DEFAULT_STAMINA_REGEN = 1;
 export const DEFAULT_ROSTER_LIMIT = 1;
-export const ROSTER_SLOT_PRICE = 100;
+export const ROSTER_SLOT_COST_MULTIPLIER = 10;
 
 export const LOOP_INTERVAL = 250;
 export const OFFLINE_INTERVAL = 500;
