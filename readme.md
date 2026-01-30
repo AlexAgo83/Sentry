@@ -9,8 +9,11 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 * Multi-player roster with skills, recipes, and actions.
 * Offline catch-up and recap summary on return.
 * Local persistence via localStorage adapter.
+* Cloud saves with conflict UI (date/score/version), last sync, and warmup handling.
 * PWA support (manifest + service worker).
 * Modern fantasy UI shell with performance telemetry.
+* Inventory QoL: compact numbers, sell all, unit value, and new item badges.
+* Action summary tooltips (speed/XP formulas) + explicit stun time display.
 
 ## Tech Stack
 
@@ -28,6 +31,12 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 * Lightweight store (subscribe/dispatch): `src/store/gameStore.ts`.
 * Persistence + save migrations: `src/adapters/persistence/*`, `src/core/state.ts`.
 
+### Backend (optional)
+
+* Fastify API server (email/password auth + JWT).
+* Prisma ORM + Postgres for cloud save storage.
+* Rate limiting and payload size enforcement.
+
 ### Testing & quality
 
 * Vitest + Testing Library + jsdom (unit + UI tests).
@@ -42,8 +51,11 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 * `src/data`: Definitions for skills, recipes, and actions.
 * `src/store`: Lightweight store for the game state.
 * `src/adapters`: Persistence adapters (localStorage).
+* `backend`: Fastify API server for cloud saves.
+* `prisma`: Prisma schema and migrations.
 * `tests`: Vitest test suite (unit + UI smoke tests).
 * `scripts`: Local helper scripts (e.g. `scripts/run-tests.js`).
+* `scripts/db`: DB dump/restore/reset utilities.
 * `styles`: Global styles shared by the UI.
 * `public`: PWA assets (manifest, service worker, icons).
 * `logics`: Product workflow and planning artifacts.
@@ -70,6 +82,31 @@ Codex should load project-specific instructions from `logics/instructions.md`.
    - Local dev: `npm install`
 3. Start the dev server: `npm run dev`
 
+### Backend setup (optional)
+
+1. Ensure Postgres is available and Prisma is generated:
+   - `npm run prisma:generate`
+   - `npm run prisma:migrate`
+2. Set backend env vars (see below).
+3. Start the API server: `npm run backend:dev`
+
+### Environment variables
+
+App (Vite):
+* `VITE_API_BASE`: Cloud API base URL (e.g. `http://localhost:8787`).
+
+Backend:
+* `JWT_SECRET`: JWT signing secret (required).
+* `COOKIE_SECRET`: Cookie signing secret (defaults to `JWT_SECRET`).
+* `DATABASE_URL`: Postgres URL (must include `?schema=sentry`).
+* `ACCESS_TOKEN_TTL_MINUTES`: Access token TTL (default 15).
+* `REFRESH_TOKEN_TTL_DAYS`: Refresh token TTL (default 30).
+
+DB utilities:
+* `DATABASE_URL_LOCAL`, `DATABASE_URL_RENDER`: Override per target.
+* `PGSSL_DISABLE=1`: Disable SSL for local (not allowed for render).
+* `SCHEMA_RESET_FORCE=1`: Required for render resets with `db:reset:dump`.
+
 ## Scripts
 
 * `npm run dev`: Start the Vite dev server with debug logging.
@@ -82,6 +119,12 @@ Codex should load project-specific instructions from `logics/instructions.md`.
 * `npm run coverage:ci`: Run coverage with CI config (same thresholds as tests).
 * `npm run lint`: Run ESLint on `src` and `tests`.
 * `npm audit --audit-level=moderate`: Check for vulnerabilities (CI fails on moderate+).
+* `npm run backend:dev`: Start the Fastify cloud API server.
+* `npm run prisma:generate`: Generate Prisma client.
+* `npm run prisma:migrate`: Run Prisma migrations.
+* `npm run db:dump`: Dump DB (custom format) to `scripts/db/dumps/`.
+* `npm run db:restore`: Restore from a dump (`--dump-file` required).
+* `npm run db:reset:dump`: Reset schema and restore from a dump (`--confirm` required).
 
 ## Testing & Coverage
 
