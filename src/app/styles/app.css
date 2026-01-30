@@ -74,6 +74,12 @@
     gap: var(--m5);
 }
 
+.ts-panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m3);
+}
+
 .ts-inventory-panel {
     grid-column: 2;
     height: max-content;
@@ -367,6 +373,23 @@
 
 .ts-action-row.ts-system-actions {
     justify-content: flex-end;
+    padding: 0 var(--m7);
+}
+
+.ts-list + .ts-action-row.ts-system-actions {
+    margin-top: var(--m7);
+}
+
+.ts-action-row.ts-system-actions + .ts-action-row.ts-system-actions {
+    margin-top: var(--m4);
+}
+
+.ts-action-row.ts-system-actions + .ts-panel-body {
+    margin-top: var(--m7);
+}
+
+.ts-panel-body + .ts-system-cloud {
+    margin-top: var(--m8);
 }
 
 .ts-system-footer {
@@ -386,10 +409,10 @@
 }
 
 .ts-system-cloud-header {
-    font-size: var(--text-s-size);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-text-fade);
+    margin: var(--m2) 0 0;
+    font-size: calc(var(--text-xl-size) + var(--m2));
+    font-family: var(--display-font);
+    color: var(--color-primary);
 }
 
 .ts-system-cloud-form {
@@ -413,13 +436,15 @@
 .ts-system-cloud-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--m3);
+    gap: var(--m4);
     justify-content: flex-start;
+    padding: 0 var(--m7);
 }
 
 .ts-system-cloud-status {
     font-size: var(--text-xs-size);
     color: var(--color-text);
+    margin-top: var(--m2);
 }
 
 .ts-system-cloud-error {
@@ -593,6 +618,8 @@
 .ts-shop-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    grid-auto-rows: max-content;
+    align-content: start;
     gap: var(--m4);
     padding: var(--m2);
 }
@@ -602,7 +629,8 @@
     background: radial-gradient(circle at 25% 20%, rgba(93, 217, 193, 0.08), rgba(12, 18, 32, 0.9));
     border-radius: 16px;
     padding: var(--m4);
-    min-height: 120px;
+    min-height: 110px;
+    aspect-ratio: 5 / 3;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1912,6 +1940,15 @@
         display: inline-flex;
     }
 
+    .app-bottom-bar .ts-bank-menu-popover {
+        position: fixed;
+        left: auto;
+        right: var(--m8);
+        bottom: calc(var(--m28) + env(safe-area-inset-bottom));
+        transform: none;
+        width: min(240px, calc(100vw - var(--m8) - var(--m8)));
+    }
+
     .ts-panel-header {
         flex-direction: row;
         flex-wrap: wrap;
@@ -1963,10 +2000,15 @@
         flex-direction: column;
         align-items: stretch;
         gap: var(--m4);
+        padding: 0 var(--m4);
     }
 
     .ts-system-cloud-actions .generic-field.button {
         width: 100%;
+    }
+
+    .ts-action-row.ts-system-actions {
+        padding: 0 var(--m4);
     }
 
     .ts-panel-actions-inline {

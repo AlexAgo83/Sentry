@@ -18,6 +18,7 @@ type SidePanelSwitcherProps = {
     className?: string;
     labels?: Partial<SidePanelSwitcherLabels>;
     useInventoryMenu?: boolean;
+    inventoryOrder?: "inventory-first" | "equipment-first";
 };
 
 export const SidePanelSwitcher = memo(({
@@ -29,7 +30,8 @@ export const SidePanelSwitcher = memo(({
     onShowShop,
     className,
     labels,
-    useInventoryMenu = false
+    useInventoryMenu = false,
+    inventoryOrder = "inventory-first"
 }: SidePanelSwitcherProps) => {
     const resolvedLabels: SidePanelSwitcherLabels = {
         action: labels?.action ?? "Action",
@@ -230,8 +232,17 @@ export const SidePanelSwitcher = memo(({
                 </div>
             ) : (
                 <>
-                    <TabButton id="inventory" isSelected={active === "inventory"} onClick={onShowInventory} />
-                    <TabButton id="equipment" isSelected={active === "equipment"} onClick={onShowEquipment} />
+                    {inventoryOrder === "equipment-first" ? (
+                        <>
+                            <TabButton id="equipment" isSelected={active === "equipment"} onClick={onShowEquipment} />
+                            <TabButton id="inventory" isSelected={active === "inventory"} onClick={onShowInventory} />
+                        </>
+                    ) : (
+                        <>
+                            <TabButton id="inventory" isSelected={active === "inventory"} onClick={onShowInventory} />
+                            <TabButton id="equipment" isSelected={active === "equipment"} onClick={onShowEquipment} />
+                        </>
+                    )}
                     <TabButton id="shop" isSelected={active === "shop"} onClick={onShowShop} />
                 </>
             )}

@@ -92,10 +92,11 @@ export const AppView = (props: AppViewProps) => {
                                 onShowEquipment={onShowEquipment}
                                 onShowShop={onShowShop}
                                 className="ts-topbar-switcher"
+                                inventoryOrder="equipment-first"
                                 labels={{
                                     action: "Action",
                                     stats: "Stats",
-                                    inventory: "Bank",
+                                    inventory: "Inv",
                                     equipment: "Equip",
                                     shop: "Shop"
                                 }}
