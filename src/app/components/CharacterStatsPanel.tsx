@@ -1,5 +1,4 @@
 import { memo } from "react";
-import type { CSSProperties } from "react";
 import type { PlayerStatsState, SkillDefinition, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { SkillIcon } from "../ui/skillIcons";
@@ -9,8 +8,6 @@ import { getSkillIconColor } from "../ui/skillColors";
 type CharacterStatsPanelProps = {
     skills: SkillDefinition[];
     skillLevels: Partial<Record<SkillId, number>>;
-    avatarColor: string;
-    avatarSkillId: SkillId | null;
     stats: PlayerStatsState;
     effectiveStats: Record<StatId, number>;
     equipmentMods: StatModifier[];
@@ -98,8 +95,6 @@ const formatTimeLeft = (ms: number): string => {
 export const CharacterStatsPanel = memo(({
     skills,
     skillLevels,
-    avatarColor,
-    avatarSkillId,
     stats,
     equipmentMods,
     now,
@@ -112,13 +107,9 @@ export const CharacterStatsPanel = memo(({
     const tempTotals = accumulateTotals(stats.temporaryMods);
     const gearTotals = equipmentMods.length > 0 ? accumulateTotals(equipmentMods) : buildStatTotals();
     const tempMods = stats.temporaryMods;
-    const avatarStyle = {
-        "--ts-avatar-torso": avatarColor
-    } as CSSProperties;
-    const avatarClassName = `ts-player-avatar ts-player-avatar--large${canRenameHero ? "" : " is-placeholder"}`;
 
     return (
-        <section className="generic-panel ts-panel">
+        <section className="generic-panel ts-panel ts-panel-stats">
             <div className="ts-panel-header">
                 <div className="ts-panel-heading">
                     <h2 className="ts-panel-title">Stats</h2>
@@ -148,23 +139,6 @@ export const CharacterStatsPanel = memo(({
             {!isCollapsed ? (
                 <>
                     <div className="ts-stats-layout">
-                        <div className="ts-stats-column">
-                            <div className="ts-skin-panel">
-                                <div className={avatarClassName} style={avatarStyle} aria-hidden="true">
-                                    <span className="ts-player-avatar-layer ts-player-avatar-legs" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-head" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-torso" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-hands" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-feets" />
-                                    {avatarSkillId ? (
-                                        <span className="ts-player-avatar-skill">
-                                            <SkillIcon skillId={avatarSkillId} color="#0c111c" />
-                                        </span>
-                                    ) : null}
-                                </div>
-                                <div className="ts-skin-caption">Hero skin</div>
-                            </div>
-                        </div>
                         <div className="ts-stats-column ts-stats-skills">
                             <div className="ts-stat-grid">
                                 {skills.map((skill) => {

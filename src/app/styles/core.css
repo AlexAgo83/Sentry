@@ -242,6 +242,7 @@
     --ts-avatar-skin: #d8c2a3;
     --ts-avatar-skill-size: 18px;
     --ts-avatar-skill-top: 60%;
+    --ts-avatar-pos-y: 50%;
     border-radius: 12px;
     border: 1px solid rgba(93, 217, 193, 0.4);
     background:
@@ -256,7 +257,7 @@
     position: absolute;
     inset: 0;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: center var(--ts-avatar-pos-y, 50%);
 }
 
 .ts-player-avatar-legs {
@@ -272,8 +273,8 @@
     mask-image: url("/assets/hero/base_body_torso.svg");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
+    -webkit-mask-position: center var(--ts-avatar-pos-y, 50%);
+    mask-position: center var(--ts-avatar-pos-y, 50%);
     -webkit-mask-size: 82% auto;
     mask-size: 82% auto;
 }
@@ -285,8 +286,8 @@
     mask-image: url("/assets/hero/base_body_head.svg");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
+    -webkit-mask-position: center var(--ts-avatar-pos-y, 50%);
+    mask-position: center var(--ts-avatar-pos-y, 50%);
     -webkit-mask-size: 72% auto;
     mask-size: 72% auto;
 }
@@ -298,8 +299,8 @@
     mask-image: url("/assets/hero/base_body_hands.svg");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
+    -webkit-mask-position: center var(--ts-avatar-pos-y, 50%);
+    mask-position: center var(--ts-avatar-pos-y, 50%);
     -webkit-mask-size: 92% auto;
     mask-size: 92% auto;
 }
@@ -311,8 +312,8 @@
     mask-image: url("/assets/hero/base_body_feets.svg");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
+    -webkit-mask-position: center var(--ts-avatar-pos-y, 50%);
+    mask-position: center var(--ts-avatar-pos-y, 50%);
     -webkit-mask-size: 92% auto;
     mask-size: 92% auto;
 }

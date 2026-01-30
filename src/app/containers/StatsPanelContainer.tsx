@@ -7,6 +7,7 @@ import { useGameStore } from "../hooks/useGameStore";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { CharacterStatsPanel } from "../components/CharacterStatsPanel";
+import { CharacterSkinPanel } from "../components/CharacterSkinPanel";
 import { getSkillIconColor } from "../ui/skillColors";
 
 type StatsPanelContainerProps = {
@@ -34,19 +35,24 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
     }, {}), [activePlayer]);
 
     return (
-        <CharacterStatsPanel
-            skills={SKILL_DEFINITIONS}
-            skillLevels={skillLevels}
-            avatarColor={avatarColor}
-            avatarSkillId={activePlayer?.selectedActionId ?? null}
-            stats={statsState}
-            effectiveStats={effectiveStats}
-            equipmentMods={equipmentMods}
-            now={now}
-            isCollapsed={isCollapsed}
-            onToggleCollapsed={() => setCollapsed((value) => !value)}
-            onRenameHero={onRenameHero}
-            canRenameHero={Boolean(activePlayer)}
-        />
+        <>
+            <CharacterSkinPanel
+                avatarColor={avatarColor}
+                avatarSkillId={activePlayer?.selectedActionId ?? null}
+                isPlaceholder={!activePlayer}
+            />
+            <CharacterStatsPanel
+                skills={SKILL_DEFINITIONS}
+                skillLevels={skillLevels}
+                stats={statsState}
+                effectiveStats={effectiveStats}
+                equipmentMods={equipmentMods}
+                now={now}
+                isCollapsed={isCollapsed}
+                onToggleCollapsed={() => setCollapsed((value) => !value)}
+                onRenameHero={onRenameHero}
+                canRenameHero={Boolean(activePlayer)}
+            />
+        </>
     );
 };
