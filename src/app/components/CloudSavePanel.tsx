@@ -76,10 +76,19 @@ export const CloudSavePanel = memo(({
         return null;
     })();
     const isErrorMessage = Boolean(error) && status !== "warming";
+    const badgeLabel = status === "warming" ? "Warming" : isAvailable ? "Online" : "Offline";
+    const badgeTone = status === "warming"
+        ? "is-warming"
+        : isAvailable
+            ? "is-online"
+            : "is-offline";
 
     return (
         <div className="ts-system-cloud">
-            <div className="ts-system-cloud-header">Cloud save</div>
+            <div className="ts-system-cloud-header">
+                <span>Cloud save</span>
+                <span className={`ts-system-cloud-badge ${badgeTone}`}>{badgeLabel}</span>
+            </div>
             {!isAuthenticated ? (
                 <div className="ts-system-cloud-form">
                     <label className="ts-system-cloud-field">

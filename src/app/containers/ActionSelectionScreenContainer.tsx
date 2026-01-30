@@ -73,6 +73,14 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
         return Number.isInteger(value) ? String(value) : value.toFixed(1);
     }, []);
 
+    const formatBonusPercent = useCallback((value: number): string => {
+        if (!Number.isFinite(value) || value <= 0) {
+            return "0";
+        }
+        const label = value >= 10 ? value.toFixed(0) : value.toFixed(1);
+        return `${label}%`;
+    }, []);
+
     const getActionIntervalLabel = useCallback((
         skill: SkillState | null,
         actionDef: ActionDefinition | null
@@ -235,6 +243,18 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
         : null;
     const pendingActionDurationLabel = getActionIntervalLabel(pendingSkill, pendingActionDef);
     const pendingActionXpLabel = getActionXpLabel(pendingActionDef);
+    const pendingSpeedBonusLabel = hasPendingSelection
+        ? (() => {
+            const speedBonusPercent = (effectiveStats.Agility ?? 0) * STAT_PERCENT_PER_POINT * 100;
+            return speedBonusPercent > 0 ? `-${formatBonusPercent(speedBonusPercent)} time` : "None";
+        })()
+        : "None";
+    const pendingXpBonusLabel = hasPendingSelection && pendingActionDef && INTELLECT_SKILLS.has(pendingActionDef.skillId)
+        ? (() => {
+            const xpBonusPercent = (effectiveStats.Intellect ?? 0) * STAT_PERCENT_PER_POINT * 100;
+            return xpBonusPercent > 0 ? `+${formatBonusPercent(xpBonusPercent)} XP` : "None";
+        })()
+        : "None";
 
     const missingItemsLabel = missingItems.length > 0
         ? `Missing: ${missingItems.map((entry) => `${itemNameById[entry.itemId] ?? entry.itemId} x${entry.needed}`).join(", ")}`
@@ -257,8 +277,10 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
             pendingProductionLabel={pendingProductionLabel}
             pendingConsumptionEntries={hasPendingSelection ? pendingConsumptionEntries : []}
             pendingProductionEntries={hasPendingSelection ? pendingProductionEntries : []}
+            pendingSpeedBonusLabel={pendingSpeedBonusLabel}
             pendingActionDurationLabel={pendingActionDurationLabel}
             pendingActionXpLabel={pendingActionXpLabel}
+            pendingXpBonusLabel={pendingXpBonusLabel}
             missingItemsLabel={missingItemsLabel}
             canStartAction={canStartAction}
             canStopAction={Boolean(activePlayer.selectedActionId)}

@@ -127,6 +127,20 @@
     color: var(--color-text-muted);
 }
 
+.ts-shop-tile-next {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
+}
+
+.ts-shop-tile-warning {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(242, 120, 120, 0.9);
+}
+
 .ts-shop-tile-title {
     font-size: var(--text-s-size);
     letter-spacing: 0.14em;

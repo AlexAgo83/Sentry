@@ -21,8 +21,10 @@ type ActionStatusPanelProps = {
     activeProductionLabel: string;
     activeConsumptionEntries: ItemEntry[];
     activeProductionEntries: ItemEntry[];
+    actionSpeedBonusLabel: string;
     actionDurationLabel: string;
     actionXpLabel: string;
+    actionXpBonusLabel: string;
     resourceHint: string | null;
     progressPercent: number;
     progressStyle: CSSProperties;
@@ -55,8 +57,10 @@ export const ActionStatusPanel = memo(({
     activeProductionLabel,
     activeConsumptionEntries,
     activeProductionEntries,
+    actionSpeedBonusLabel,
     actionDurationLabel,
     actionXpLabel,
+    actionXpBonusLabel,
     resourceHint,
     progressPercent,
     progressStyle,
@@ -172,8 +176,16 @@ export const ActionStatusPanel = memo(({
                         <span className="ts-resource-value">{actionDurationLabel}</span>
                     </div>
                     <div className="ts-resource-row">
+                        <span className="ts-resource-label">Speed bonus</span>
+                        <span className="ts-resource-value">{actionSpeedBonusLabel}</span>
+                    </div>
+                    <div className="ts-resource-row">
                         <span className="ts-resource-label">XP per action</span>
                         <span className="ts-resource-value">{actionXpLabel}</span>
+                    </div>
+                    <div className="ts-resource-row">
+                        <span className="ts-resource-label">XP bonus</span>
+                        <span className="ts-resource-value">{actionXpBonusLabel}</span>
                     </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Consumes</span>

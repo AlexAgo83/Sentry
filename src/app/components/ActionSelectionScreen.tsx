@@ -27,8 +27,10 @@ type ActionSelectionScreenProps = {
     pendingProductionLabel: string;
     pendingConsumptionEntries: ItemEntry[];
     pendingProductionEntries: ItemEntry[];
+    pendingSpeedBonusLabel: string;
     pendingActionDurationLabel: string;
     pendingActionXpLabel: string;
+    pendingXpBonusLabel: string;
     missingItemsLabel: string;
     canStartAction: boolean;
     canStopAction: boolean;
@@ -51,8 +53,10 @@ export const ActionSelectionScreen = memo(({
     pendingProductionLabel,
     pendingConsumptionEntries,
     pendingProductionEntries,
+    pendingSpeedBonusLabel,
     pendingActionDurationLabel,
     pendingActionXpLabel,
+    pendingXpBonusLabel,
     missingItemsLabel,
     canStartAction,
     canStopAction,
@@ -294,8 +298,16 @@ export const ActionSelectionScreen = memo(({
                     <span className="ts-action-summary-value">{pendingActionDurationLabel}</span>
                 </div>
                 <div className="ts-action-summary-row">
+                    <span className="ts-action-summary-label">Speed bonus</span>
+                    <span className="ts-action-summary-value">{pendingSpeedBonusLabel}</span>
+                </div>
+                <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">XP per action</span>
                     <span className="ts-action-summary-value">{pendingActionXpLabel}</span>
+                </div>
+                <div className="ts-action-summary-row">
+                    <span className="ts-action-summary-label">XP bonus</span>
+                    <span className="ts-action-summary-value">{pendingXpBonusLabel}</span>
                 </div>
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">Consumes</span>

@@ -3,6 +3,7 @@ import { InventoryControls } from "./InventoryControls";
 import { getEquipmentDefinition } from "../../data/equipment";
 import { InventoryIcon, type InventoryIconId } from "../ui/inventoryIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
+import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
 export type InventorySort = "Name" | "Count";
 
@@ -101,6 +102,13 @@ export const InventoryPanel = memo(({
 
     const maxSellQuantity = Math.max(1, selectedItem?.count ?? 1);
     const clampedSellQuantity = Math.min(Math.max(1, sellQuantity), maxSellQuantity);
+    const formattedSellGoldGain = formatNumberCompact(sellGoldGain);
+    const formattedSellGoldGainFull = formatNumberFull(sellGoldGain);
+    const formattedSelectedCount = selectedItem ? formatNumberCompact(selectedItem.count) : "--";
+    const formattedSelectedCountFull = selectedItem ? formatNumberFull(selectedItem.count) : "--";
+    const formattedMaxSellQuantity = formatNumberCompact(maxSellQuantity);
+    const formattedMaxSellQuantityFull = formatNumberFull(maxSellQuantity);
+    const formattedClampedSellQuantity = formatNumberCompact(clampedSellQuantity);
     return (
         <section className="generic-panel ts-panel ts-inventory-panel">
             <div className="ts-panel-header">
@@ -194,7 +202,7 @@ export const InventoryPanel = memo(({
                                             Sell
                                             {canSellSelected ? (
                                                 <span className="ts-inventory-sell-button-gain" aria-hidden="true">
-                                                    +{sellGoldGain}g
+                                                    +{formattedSellGoldGain}g
                                                 </span>
                                             ) : null}
                                         </button>
@@ -210,7 +218,9 @@ export const InventoryPanel = memo(({
                             ) : null}
                         </div>
                         <div className="ts-inventory-focus-count">
-                            Count: {selectedItem ? selectedItem.count : "--"}
+                            <span title={selectedItem ? formattedSelectedCountFull : undefined}>
+                                Count: {formattedSelectedCount}
+                            </span>
                         </div>
                         {selectionHint ? (
                             <div className="ts-inventory-selection-hint">{selectionHint}</div>
@@ -263,12 +273,15 @@ export const InventoryPanel = memo(({
                                         disabled={!canSellSelected}
                                         aria-label="Sell quantity"
                                     />
-                                    <span className="ts-inventory-sell-value">
-                                        x{clampedSellQuantity} / {maxSellQuantity}
+                                    <span
+                                        className="ts-inventory-sell-value"
+                                        title={`x${formattedClampedSellQuantity} / ${formattedMaxSellQuantityFull}`}
+                                    >
+                                        x{formattedClampedSellQuantity} / {formattedMaxSellQuantity}
                                     </span>
                                     {canSellSelected ? (
-                                        <span className="ts-inventory-sell-gain" aria-label={`Gain ${sellGoldGain} gold`}>
-                                            +{sellGoldGain}g
+                                        <span className="ts-inventory-sell-gain" aria-label={`Gain ${formattedSellGoldGainFull} gold`}>
+                                            +{formattedSellGoldGain}g
                                         </span>
                                     ) : null}
                                 </div>

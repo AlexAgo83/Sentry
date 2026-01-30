@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { CollapseIcon } from "../ui/collapseIcon";
+import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
 type ShopPanelProps = {
     isCollapsed: boolean;
@@ -25,37 +26,13 @@ export const ShopPanel = memo(({
     onBuyRosterSlot
 }: ShopPanelProps) => {
     const canBuyRosterSlot = !isRosterMaxed && gold >= rosterSlotPrice;
-    const formatGoldFull = (value: number): string => {
-        if (!Number.isFinite(value)) {
-            return "0";
-        }
-        return Math.max(0, Math.floor(value)).toLocaleString();
-    };
-    const formatGoldCompact = (value: number): string => {
-        if (!Number.isFinite(value)) {
-            return "0";
-        }
-        const safeValue = Math.max(0, value);
-        const units = [
-            { threshold: 1e12, suffix: "T" },
-            { threshold: 1e9, suffix: "B" },
-            { threshold: 1e6, suffix: "M" },
-            { threshold: 1e3, suffix: "K" }
-        ];
-        for (const unit of units) {
-            if (safeValue >= unit.threshold) {
-                const scaled = safeValue / unit.threshold;
-                const decimals = scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2;
-                const trimmed = scaled.toFixed(decimals).replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
-                return `${trimmed}${unit.suffix}`;
-            }
-        }
-        return String(Math.round(safeValue));
-    };
-    const formattedRosterSlotPrice = formatGoldCompact(rosterSlotPrice);
-    const formattedRosterSlotFullPrice = formatGoldFull(rosterSlotPrice);
+    const formattedRosterSlotPrice = formatNumberCompact(rosterSlotPrice);
+    const formattedRosterSlotFullPrice = formatNumberFull(rosterSlotPrice);
     const upcomingCostsLabel = rosterSlotUpcomingCosts.length > 0
-        ? rosterSlotUpcomingCosts.map((cost) => formatGoldCompact(cost)).join(" / ")
+        ? rosterSlotUpcomingCosts.map((cost) => formatNumberCompact(cost)).join(" / ")
+        : "";
+    const upcomingCostsFullLabel = rosterSlotUpcomingCosts.length > 0
+        ? rosterSlotUpcomingCosts.map((cost) => formatNumberFull(cost)).join(" / ")
         : "";
     const priceTitle = isRosterMaxed
         ? "Roster cap reached."
@@ -105,6 +82,14 @@ export const ShopPanel = memo(({
                                 {isRosterMaxed ? "Max" : "Buy"}
                             </button>
                         </div>
+                        {!isRosterMaxed && upcomingCostsLabel ? (
+                            <div className="ts-shop-tile-next" title={`Next: ${upcomingCostsFullLabel} gold`}>
+                                Next: {upcomingCostsLabel} gold
+                            </div>
+                        ) : null}
+                        {isRosterMaxed ? (
+                            <div className="ts-shop-tile-warning">Roster cap reached.</div>
+                        ) : null}
                     </div>
                 </div>
             ) : null}

@@ -40,6 +40,10 @@
     font-size: calc(var(--text-xl-size) + var(--m2));
     font-family: var(--display-font);
     color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m3);
 }
 
 .ts-system-cloud-form {
@@ -72,6 +76,35 @@
     font-size: var(--text-xs-size);
     color: var(--color-text);
     margin-top: var(--m2);
+}
+
+.ts-system-cloud-badge {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: var(--m1) var(--m4);
+    border-radius: 999px;
+    border: 1px solid rgba(93, 217, 193, 0.35);
+    color: var(--color-text);
+    background: rgba(12, 18, 32, 0.7);
+}
+
+.ts-system-cloud-badge.is-online {
+    border-color: rgba(143, 209, 79, 0.55);
+    color: rgba(143, 209, 79, 0.95);
+    background: rgba(143, 209, 79, 0.12);
+}
+
+.ts-system-cloud-badge.is-offline {
+    border-color: rgba(199, 74, 61, 0.55);
+    color: rgba(199, 74, 61, 0.95);
+    background: rgba(199, 74, 61, 0.12);
+}
+
+.ts-system-cloud-badge.is-warming {
+    border-color: rgba(242, 193, 78, 0.6);
+    color: rgba(242, 193, 78, 0.95);
+    background: rgba(242, 193, 78, 0.12);
 }
 
 .ts-system-cloud-error {
@@ -155,4 +188,3 @@
     background: linear-gradient(140deg, rgba(242, 193, 78, 0.9), rgba(198, 129, 48, 0.85));
     color: #1b1405;
 }
-
