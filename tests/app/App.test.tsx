@@ -24,9 +24,18 @@ vi.mock("../../src/app/game", () => ({
     }
 }));
 
-const buildState = (options?: { food?: number; rosterLimit?: number }) => {
-    const state = createInitialGameState("0.4.0");
-    state.players["2"] = createPlayerState("2", "Mara");
+const buildState = (options?: {
+    food?: number;
+    rosterLimit?: number;
+    seedHero?: boolean;
+    addSecondHero?: boolean;
+}) => {
+    const seedHero = options?.seedHero ?? true;
+    const addSecondHero = options?.addSecondHero ?? true;
+    const state = createInitialGameState("0.4.0", { seedHero });
+    if (addSecondHero) {
+        state.players["2"] = createPlayerState("2", "Mara");
+    }
     if (options?.rosterLimit !== undefined) {
         state.rosterLimit = options.rosterLimit;
     }
@@ -36,7 +45,12 @@ const buildState = (options?: { food?: number; rosterLimit?: number }) => {
     return state;
 };
 
-const renderApp = (options?: { food?: number; rosterLimit?: number }) => {
+const renderApp = (options?: {
+    food?: number;
+    rosterLimit?: number;
+    seedHero?: boolean;
+    addSecondHero?: boolean;
+}) => {
     testStore = createGameStore(buildState(options));
     testRuntime = {
         start: vi.fn(),
@@ -89,6 +103,16 @@ describe("App", () => {
         // Switch back to action
         await user.click(screen.getByRole("tab", { name: "Action" }));
         expect(screen.getByRole("heading", { name: "Action" })).toBeTruthy();
+    });
+
+    it("forces onboarding when no heroes exist", async () => {
+        const { user } = renderApp({ seedHero: false, addSecondHero: false });
+        expect(screen.getByRole("heading", { name: "Create your hero" })).toBeTruthy();
+
+        await user.type(screen.getByLabelText("Hero name"), "Nova");
+        await user.click(screen.getByRole("button", { name: "Create hero" }));
+
+        expect(await screen.findByRole("group", { name: "Select skill" })).toBeTruthy();
     });
 
     it("shows focusable inventory controls and usage labels", async () => {
@@ -231,15 +255,33 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Open system telemetry" }));
         const systemDialog = await screen.findByRole("dialog");
 
-        await user.click(within(systemDialog).getByRole("button", { name: "Simulate +30 min" }));
-        expect(testRuntime.simulateOffline).toHaveBeenCalledWith(30 * 60 * 1000);
+        const devToolsButton = within(systemDialog).queryByRole("button", { name: "Dev tools" });
+        if (devToolsButton) {
+            await user.click(devToolsButton);
+            const devDialog = (await screen.findAllByRole("dialog")).at(-1);
+            if (!devDialog) {
+                throw new Error("Dev tools dialog not found");
+            }
+            await user.click(within(devDialog).getByRole("button", { name: "Simulate +30 min" }));
+            expect(testRuntime.simulateOffline).toHaveBeenCalledWith(30 * 60 * 1000);
+            await user.click(within(devDialog).getByRole("button", { name: "Close" }));
+        }
+
+        await user.click(screen.getByRole("button", { name: "Open system telemetry" }));
+        const systemDialogAgain = await screen.findByRole("dialog");
+
+        await user.click(within(systemDialogAgain).getByRole("button", { name: "Local save" }));
+        const localDialog = (await screen.findAllByRole("dialog")).at(-1);
+        if (!localDialog) {
+            throw new Error("Local save dialog not found");
+        }
 
         const confirmSpy = vi.spyOn(window, "confirm");
         confirmSpy.mockReturnValueOnce(false).mockReturnValueOnce(true);
 
-        await user.click(within(systemDialog).getByRole("button", { name: "Reset save" }));
+        await user.click(within(localDialog).getByRole("button", { name: "Reset save" }));
         expect(testRuntime.reset).not.toHaveBeenCalled();
-        await user.click(within(systemDialog).getByRole("button", { name: "Reset save" }));
+        await user.click(within(localDialog).getByRole("button", { name: "Reset save" }));
         expect(testRuntime.reset).toHaveBeenCalled();
     });
 

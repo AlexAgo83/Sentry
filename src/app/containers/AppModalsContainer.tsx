@@ -7,6 +7,9 @@ import { OfflineSummaryModal } from "../components/OfflineSummaryModal";
 import { SafeModeModal } from "../components/SafeModeModal";
 import { ServiceWorkerUpdateModal } from "../components/ServiceWorkerUpdateModal";
 import { DevToolsModal } from "../components/DevToolsModal";
+import { LocalSaveModal } from "../components/LocalSaveModal";
+import { CloudSaveModal } from "../components/CloudSaveModal";
+import { OnboardingHeroModal } from "../components/OnboardingHeroModal";
 import { SystemModalContainer } from "./SystemModalContainer";
 
 type AppModalsContainerProps = {
@@ -21,6 +24,16 @@ type AppModalsContainerProps = {
     onResetSave: () => void;
     onCloseSystem: () => void;
     onOpenDevTools: () => void;
+    onOpenLocalSave: () => void;
+    onOpenCloudSave: () => void;
+    isLocalSaveOpen: boolean;
+    onCloseLocalSave: () => void;
+    isCloudSaveOpen: boolean;
+    onCloseCloudSave: () => void;
+    isOnboardingOpen: boolean;
+    onboardingHeroName: string;
+    onOnboardingHeroNameChange: (value: string) => void;
+    onCreateOnboardingHero: () => void;
     onCloseOfflineSummary: () => void;
     offlineSummary: OfflineSummaryState | null;
     swUpdate: SwUpdateAvailableDetail | null;
@@ -60,6 +73,16 @@ export const AppModalsContainer = ({
     onResetSave,
     onCloseSystem,
     onOpenDevTools,
+    onOpenLocalSave,
+    onOpenCloudSave,
+    isLocalSaveOpen,
+    onCloseLocalSave,
+    isCloudSaveOpen,
+    onCloseCloudSave,
+    isOnboardingOpen,
+    onboardingHeroName,
+    onOnboardingHeroNameChange,
+    onCreateOnboardingHero,
     onCloseOfflineSummary,
     offlineSummary,
     swUpdate,
@@ -88,6 +111,14 @@ export const AppModalsContainer = ({
 }: AppModalsContainerProps) => {
     return (
         <>
+            {isOnboardingOpen ? (
+                <OnboardingHeroModal
+                    name={onboardingHeroName}
+                    isSubmitDisabled={onboardingHeroName.trim().length === 0}
+                    onNameChange={onOnboardingHeroNameChange}
+                    onSubmit={onCreateOnboardingHero}
+                />
+            ) : null}
             {isRecruitOpen ? (
                 <HeroNameModal
                     kicker="Recruit"
@@ -118,12 +149,22 @@ export const AppModalsContainer = ({
                     getSkillLabel={getSkillLabel}
                     crashReports={crashReports}
                     onClearCrashReports={onClearCrashReports}
+                    onOpenDevTools={onOpenDevTools}
+                    onOpenLocalSave={onOpenLocalSave}
+                    onOpenCloudSave={onOpenCloudSave}
+                    onClose={onCloseSystem}
+                />
+            ) : null}
+            {isLocalSaveOpen ? (
+                <LocalSaveModal
                     onExportSave={onExportSave}
                     onImportSave={onImportSave}
                     onResetSave={onResetSave}
-                    onOpenDevTools={onOpenDevTools}
-                    onClose={onCloseSystem}
+                    onClose={onCloseLocalSave}
                 />
+            ) : null}
+            {isCloudSaveOpen ? (
+                <CloudSaveModal onClose={onCloseCloudSave} />
             ) : null}
             {import.meta.env.DEV && isDevToolsOpen ? (
                 <DevToolsModal onClose={onCloseDevTools} onSimulateOffline={onSimulateOffline} />

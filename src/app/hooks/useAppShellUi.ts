@@ -7,9 +7,13 @@ export const useAppShellUi = () => {
     const [returnSidePanel, setReturnSidePanel] = useState<AppActiveSidePanel>("action");
     const [isSystemOpen, setSystemOpen] = useState(false);
     const [isDevToolsOpen, setDevToolsOpen] = useState(false);
+    const [isLocalSaveOpen, setLocalSaveOpen] = useState(false);
+    const [isCloudSaveOpen, setCloudSaveOpen] = useState(false);
 
     const openSystem = useCallback(() => {
         setDevToolsOpen(false);
+        setLocalSaveOpen(false);
+        setCloudSaveOpen(false);
         setSystemOpen(true);
     }, []);
     const closeSystem = useCallback(() => setSystemOpen(false), []);
@@ -19,9 +23,27 @@ export const useAppShellUi = () => {
             return;
         }
         setSystemOpen(false);
+        setLocalSaveOpen(false);
+        setCloudSaveOpen(false);
         setDevToolsOpen(true);
     }, []);
     const closeDevTools = useCallback(() => setDevToolsOpen(false), []);
+
+    const openLocalSave = useCallback(() => {
+        setSystemOpen(false);
+        setDevToolsOpen(false);
+        setCloudSaveOpen(false);
+        setLocalSaveOpen(true);
+    }, []);
+    const closeLocalSave = useCallback(() => setLocalSaveOpen(false), []);
+
+    const openCloudSave = useCallback(() => {
+        setSystemOpen(false);
+        setDevToolsOpen(false);
+        setLocalSaveOpen(false);
+        setCloudSaveOpen(true);
+    }, []);
+    const closeCloudSave = useCallback(() => setCloudSaveOpen(false), []);
 
     const openActionSelection = useCallback(() => {
         setReturnSidePanel(activeSidePanel);
@@ -67,6 +89,12 @@ export const useAppShellUi = () => {
         isDevToolsOpen,
         openDevTools,
         closeDevTools,
+        isLocalSaveOpen,
+        openLocalSave,
+        closeLocalSave,
+        isCloudSaveOpen,
+        openCloudSave,
+        closeCloudSave,
         openActionSelection,
         closeActionSelection,
     };

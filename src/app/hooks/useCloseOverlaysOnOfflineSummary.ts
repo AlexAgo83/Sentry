@@ -7,6 +7,8 @@ type UseCloseOverlaysOnOfflineSummaryOptions = {
     closeAllHeroNameModals: () => void;
     closeSystem: () => void;
     closeDevTools: () => void;
+    closeLocalSave: () => void;
+    closeCloudSave: () => void;
 };
 
 export const useCloseOverlaysOnOfflineSummary = ({
@@ -15,6 +17,8 @@ export const useCloseOverlaysOnOfflineSummary = ({
     closeAllHeroNameModals,
     closeSystem,
     closeDevTools,
+    closeLocalSave,
+    closeCloudSave,
 }: UseCloseOverlaysOnOfflineSummaryOptions) => {
     useEffect(() => {
         if (!offlineSummary) {
@@ -24,5 +28,15 @@ export const useCloseOverlaysOnOfflineSummary = ({
         closeAllHeroNameModals();
         closeSystem();
         closeDevTools();
-    }, [closeActionSelection, closeAllHeroNameModals, closeDevTools, closeSystem, offlineSummary]);
+        closeLocalSave();
+        closeCloudSave();
+    }, [
+        closeActionSelection,
+        closeAllHeroNameModals,
+        closeDevTools,
+        closeSystem,
+        closeLocalSave,
+        closeCloudSave,
+        offlineSummary
+    ]);
 };

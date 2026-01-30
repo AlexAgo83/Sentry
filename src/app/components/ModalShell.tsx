@@ -9,6 +9,7 @@ type ModalShellProps = {
     onClose: () => void;
     children: ReactNode;
     closeLabel?: string;
+    showClose?: boolean;
     onBackdropClick?: () => void;
     onEscape?: () => void;
 };
@@ -19,6 +20,7 @@ export const ModalShell = memo(({
     onClose,
     children,
     closeLabel = "Close",
+    showClose = true,
     onBackdropClick,
     onEscape
 }: ModalShellProps) => {
@@ -56,13 +58,15 @@ export const ModalShell = memo(({
                         <p className="ts-modal-kicker">{kicker}</p>
                         <h2 className="ts-modal-title">{title}</h2>
                     </div>
-                    <button
-                        type="button"
-                        className="ts-modal-close ts-focusable"
-                        onClick={onClose}
-                    >
-                        {closeLabel}
-                    </button>
+                    {showClose ? (
+                        <button
+                            type="button"
+                            className="ts-modal-close ts-focusable"
+                            onClick={onClose}
+                        >
+                            {closeLabel}
+                        </button>
+                    ) : null}
                 </div>
                 <div className="ts-modal-body">
                     {children}

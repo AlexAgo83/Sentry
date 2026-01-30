@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from "react";
+import { memo } from "react";
 import { ModalShell } from "./ModalShell";
 import type { CrashReport } from "../../observability/crashReporter";
 
@@ -19,12 +19,10 @@ type SystemModalProps = {
     activeActionLabel: string;
     crashReports: CrashReport[];
     onClearCrashReports: () => void;
-    onExportSave: () => void;
-    onImportSave: () => void;
-    onResetSave: () => void;
     onOpenDevTools: () => void;
+    onOpenLocalSave: () => void;
+    onOpenCloudSave: () => void;
     onClose: () => void;
-    cloudPanel?: ReactNode;
 };
 
 export const SystemModal = memo(({
@@ -44,12 +42,10 @@ export const SystemModal = memo(({
     activeActionLabel,
     crashReports,
     onClearCrashReports,
-    onExportSave,
-    onImportSave,
-    onResetSave,
     onOpenDevTools,
+    onOpenLocalSave,
+    onOpenCloudSave,
     onClose,
-    cloudPanel = null
 }: SystemModalProps) => {
     const formatMs = (value: number, options?: { decimals?: number; plus?: boolean }) => {
         const decimals = options?.decimals ?? 0;
@@ -87,6 +83,29 @@ export const SystemModal = memo(({
                     )}
                 </li>
             </ul>
+            <div className="ts-system-entry-list">
+                <div className="ts-system-entry">
+                    <div className="ts-action-row">
+                        <button
+                            type="button"
+                            className="generic-field button ts-focusable"
+                            onClick={onOpenLocalSave}
+                        >
+                            Local save
+                        </button>
+                        <button
+                            type="button"
+                            className="generic-field button ts-focusable"
+                            onClick={onOpenCloudSave}
+                        >
+                            Cloud save
+                        </button>
+                    </div>
+                    <span className="ts-system-helper">
+                        Export, import, reset, or sync your save data.
+                    </span>
+                </div>
+            </div>
             {import.meta.env.DEV ? (
                 <div className="ts-action-row ts-system-actions">
                     <button
@@ -98,31 +117,6 @@ export const SystemModal = memo(({
                     </button>
                 </div>
             ) : null}
-            <div className="ts-action-row ts-system-actions">
-                <button
-                    type="button"
-                    className="generic-field button ts-focusable"
-                    onClick={onExportSave}
-                >
-                    Export save
-                </button>
-                <button
-                    type="button"
-                    className="generic-field button ts-focusable"
-                    onClick={onImportSave}
-                >
-                    Import save
-                </button>
-            </div>
-            <div className="ts-action-row ts-system-actions">
-                <button
-                    type="button"
-                    className="generic-field button ts-reset ts-focusable"
-                    onClick={onResetSave}
-                >
-                    Reset save
-                </button>
-            </div>
             {crashReports.length > 0 ? (
                 <div className="ts-panel-body">
                     <ul className="ts-list ts-crash-list">
@@ -143,7 +137,6 @@ export const SystemModal = memo(({
                     </div>
                 </div>
             ) : null}
-            {cloudPanel}
         </ModalShell>
     );
 });

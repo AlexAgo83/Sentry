@@ -106,7 +106,7 @@ export class GameRuntime {
     };
 
     reset = () => {
-        const initialState = createInitialGameState(this.version);
+        const initialState = createInitialGameState(this.version, { seedHero: false });
         const save = toGameSave(initialState);
         this.persist({ force: true, save });
         this.store.dispatch({ type: "hydrate", save, version: this.version });

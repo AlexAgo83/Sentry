@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from "react";
-import { gameRuntime } from "./game";
+import { useCallback, useEffect, useState } from "react";
+import { gameRuntime, gameStore } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
 import { InventoryIconSprite } from "./ui/inventoryIcons";
 import { useCrashReportsState } from "./hooks/useCrashReportsState";
@@ -28,6 +28,7 @@ export const AppContainer = () => {
     const version = useGameStore((state) => state.version);
     const offlineSummary = useGameStore((state) => state.offlineSummary);
     const inventoryItems = useGameStore((state) => state.inventory.items);
+    const playerCount = useGameStore((state) => Object.keys(state.players).length);
 
     const {
         activeSidePanel,
@@ -43,9 +44,18 @@ export const AppContainer = () => {
         isDevToolsOpen,
         openDevTools,
         closeDevTools,
+        isLocalSaveOpen,
+        openLocalSave,
+        closeLocalSave,
+        isCloudSaveOpen,
+        openCloudSave,
+        closeCloudSave,
         openActionSelection,
         closeActionSelection
     } = useAppShellUi();
+
+    const [onboardingHeroName, setOnboardingHeroName] = useState("");
+    const isOnboardingOpen = playerCount === 0;
 
     const {
         newItemIds: newInventoryItemIds,
@@ -87,12 +97,44 @@ export const AppContainer = () => {
         closeAllHeroNameModals,
         closeSystem,
         closeDevTools,
+        closeLocalSave,
+        closeCloudSave,
     });
+
+    useEffect(() => {
+        if (!isOnboardingOpen) {
+            return;
+        }
+        closeActionSelection();
+        closeAllHeroNameModals();
+        closeSystem();
+        closeDevTools();
+        closeLocalSave();
+        closeCloudSave();
+    }, [
+        closeActionSelection,
+        closeAllHeroNameModals,
+        closeCloudSave,
+        closeDevTools,
+        closeLocalSave,
+        closeSystem,
+        isOnboardingOpen
+    ]);
 
     const handleOpenActionSelection = useCallback(() => {
         closeAllHeroNameModals();
         openActionSelection();
     }, [closeAllHeroNameModals, openActionSelection]);
+
+    const handleCreateOnboardingHero = useCallback(() => {
+        const trimmed = onboardingHeroName.trim().slice(0, 20);
+        if (!trimmed) {
+            return;
+        }
+        gameStore.dispatch({ type: "addPlayer", name: trimmed });
+        setOnboardingHeroName("");
+        openActionSelection();
+    }, [onboardingHeroName, openActionSelection]);
 
     const handleSimulateOffline = useCallback(() => {
         gameRuntime.simulateOffline(30 * 60 * 1000);
@@ -118,6 +160,9 @@ export const AppContainer = () => {
     const isAnyModalOpen = Boolean(
         isSystemOpen
         || isDevToolsOpen
+        || isLocalSaveOpen
+        || isCloudSaveOpen
+        || isOnboardingOpen
         || isRecruitOpen
         || isRenameOpen
         || offlineSummary
@@ -162,6 +207,16 @@ export const AppContainer = () => {
                 onResetSave={resetSave}
                 onCloseSystem={closeSystem}
                 onOpenDevTools={openDevTools}
+                onOpenLocalSave={openLocalSave}
+                onOpenCloudSave={openCloudSave}
+                isLocalSaveOpen={isLocalSaveOpen}
+                onCloseLocalSave={closeLocalSave}
+                isCloudSaveOpen={isCloudSaveOpen}
+                onCloseCloudSave={closeCloudSave}
+                isOnboardingOpen={isOnboardingOpen}
+                onboardingHeroName={onboardingHeroName}
+                onOnboardingHeroNameChange={setOnboardingHeroName}
+                onCreateOnboardingHero={handleCreateOnboardingHero}
                 onCloseOfflineSummary={closeOfflineSummary}
                 offlineSummary={offlineSummary}
                 swUpdate={swUpdate}

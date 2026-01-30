@@ -20,10 +20,9 @@ const baseProps = () => ({
     activeActionLabel: "none",
     crashReports: [] as CrashReport[],
     onClearCrashReports: vi.fn(),
-    onExportSave: vi.fn(),
-    onImportSave: vi.fn(),
-    onSimulateOffline: vi.fn(),
-    onResetSave: vi.fn(),
+    onOpenDevTools: vi.fn(),
+    onOpenLocalSave: vi.fn(),
+    onOpenCloudSave: vi.fn(),
     onClose: vi.fn()
 });
 
@@ -39,17 +38,17 @@ describe("SystemModal", () => {
         expect(screen.getByText("1970-01-01T00:00:00.123Z")).toBeTruthy();
         expect(screen.getByText("Virtual score: 128")).toBeTruthy();
 
-        fireEvent.click(screen.getByRole("button", { name: "Simulate +30 min" }));
-        expect(props.onSimulateOffline).toHaveBeenCalledTimes(1);
+        fireEvent.click(screen.getByRole("button", { name: "Local save" }));
+        expect(props.onOpenLocalSave).toHaveBeenCalledTimes(1);
 
-        fireEvent.click(screen.getByRole("button", { name: "Export save" }));
-        expect(props.onExportSave).toHaveBeenCalledTimes(1);
+        fireEvent.click(screen.getByRole("button", { name: "Cloud save" }));
+        expect(props.onOpenCloudSave).toHaveBeenCalledTimes(1);
 
-        fireEvent.click(screen.getByRole("button", { name: "Import save" }));
-        expect(props.onImportSave).toHaveBeenCalledTimes(1);
-
-        fireEvent.click(screen.getByRole("button", { name: "Reset save" }));
-        expect(props.onResetSave).toHaveBeenCalledTimes(1);
+        const devButton = screen.queryByRole("button", { name: "Dev tools" });
+        if (devButton) {
+            fireEvent.click(devButton);
+            expect(props.onOpenDevTools).toHaveBeenCalledTimes(1);
+        }
     });
 
     it("shows crash report preview and clears", () => {

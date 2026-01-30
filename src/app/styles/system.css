@@ -15,8 +15,36 @@
     margin-top: var(--m7);
 }
 
+.ts-list + .ts-system-entry-list {
+    margin-top: var(--m7);
+}
+
+.ts-system-entry-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m5);
+}
+
+.ts-system-entry {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+    padding: 0 var(--m7);
+}
+
+.ts-system-helper {
+    font-size: var(--text-xs-size);
+    color: var(--color-text-muted);
+}
+
 .ts-panel-body + .ts-system-cloud {
     margin-top: var(--m8);
+}
+
+.ts-system-cloud-modal .ts-system-cloud {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
 }
 
 .ts-system-footer {

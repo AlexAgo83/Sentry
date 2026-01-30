@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import type { CrashReport } from "../../observability/crashReporter";
 import type { SkillId } from "../../core/types";
 import { SystemModal } from "../components/SystemModal";
-import { CloudSavePanelContainer } from "./CloudSavePanelContainer";
 import { useGameStore } from "../hooks/useGameStore";
 import { selectActivePlayer, selectVirtualScore } from "../selectors/gameSelectors";
 
@@ -11,10 +10,9 @@ export interface SystemModalContainerProps {
     getSkillLabel: (skillId: SkillId | "") => string;
     crashReports: CrashReport[];
     onClearCrashReports: () => void;
-    onExportSave: () => void;
-    onImportSave: () => void;
-    onResetSave: () => void;
     onOpenDevTools: () => void;
+    onOpenLocalSave: () => void;
+    onOpenCloudSave: () => void;
     onClose: () => void;
 }
 
@@ -50,12 +48,10 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
                 : "none"}
             crashReports={props.crashReports}
             onClearCrashReports={props.onClearCrashReports}
-            onExportSave={props.onExportSave}
-            onImportSave={props.onImportSave}
-            onResetSave={props.onResetSave}
             onOpenDevTools={props.onOpenDevTools}
+            onOpenLocalSave={props.onOpenLocalSave}
+            onOpenCloudSave={props.onOpenCloudSave}
             onClose={props.onClose}
-            cloudPanel={<CloudSavePanelContainer />}
         />
     );
 };

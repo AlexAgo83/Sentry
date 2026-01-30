@@ -132,13 +132,18 @@ export const getNextPlayerId = (players: Record<PlayerId, PlayerState>): PlayerI
     return String(nextId);
 };
 
-export const createInitialGameState = (version: string): GameState => {
+type InitialGameStateOptions = {
+    seedHero?: boolean;
+};
+
+export const createInitialGameState = (version: string, options: InitialGameStateOptions = {}): GameState => {
+    const seedHero = options.seedHero ?? true;
     const playerId: PlayerId = "1";
-    const player = createPlayerState(playerId);
+    const player = seedHero ? createPlayerState(playerId) : null;
     return {
         version,
-        players: { [playerId]: player },
-        activePlayerId: playerId,
+        players: player ? { [playerId]: player } : {},
+        activePlayerId: player ? playerId : null,
         rosterLimit: DEFAULT_ROSTER_LIMIT,
         inventory: createInventoryState(DEFAULT_GOLD),
         loop: {
@@ -203,7 +208,7 @@ const resolveInventory = (
 };
 
 export const hydrateGameState = (version: string, save?: GameSave | null): GameState => {
-    const baseState = createInitialGameState(version);
+    const baseState = createInitialGameState(version, { seedHero: false });
     if (!save) {
         return baseState;
     }
