@@ -8,4 +8,3 @@ export {
     getRecipeUnlockLevel,
     isRecipeUnlocked
 } from "./definitions/recipes";
-export { resolveRecipeId } from "./definitions/legacy";

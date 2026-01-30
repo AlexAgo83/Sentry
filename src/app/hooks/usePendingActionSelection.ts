@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { ActionDefinition, ItemDelta, PlayerState, RecipeDefinition, SkillId, SkillState } from "../../core/types";
-import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked, resolveRecipeId } from "../../data/definitions";
+import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../../data/definitions";
 
 type MissingItem = {
     itemId: string;
@@ -80,8 +80,7 @@ export const usePendingActionSelection = ({
     const isRunningSelection = Boolean(activePlayer?.selectedActionId)
         && pendingSkillId === activeSkillId
         && Boolean(pendingRecipeId)
-        && resolveRecipeId(activeSkillId as SkillId, pendingRecipeId)
-            === resolveRecipeId(activeSkillId as SkillId, activeRecipeId);
+        && pendingRecipeId === activeRecipeId;
     const canStartAction = Boolean(
         activePlayer
         && pendingSkillId

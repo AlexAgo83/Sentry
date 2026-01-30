@@ -1,5 +1,4 @@
 import type { ItemDelta, RecipeDefinition, RecipeId, SkillId } from "../../core/types";
-import { resolveRecipeId } from "./legacy";
 
 const unlockTier = (level: number) => level;
 
@@ -811,8 +810,7 @@ const RECIPE_BY_ID = RECIPE_DEFINITIONS.reduce<Record<RecipeId, RecipeDefinition
 }, {} as Record<RecipeId, RecipeDefinition>);
 
 export const getRecipeDefinition = (skillId: SkillId, recipeId: RecipeId): RecipeDefinition | undefined => {
-    const resolvedId = resolveRecipeId(skillId, recipeId);
-    return RECIPES_BY_SKILL[skillId]?.find((recipe) => recipe.id === resolvedId);
+    return RECIPES_BY_SKILL[skillId]?.find((recipe) => recipe.id === recipeId);
 };
 
 export const getRecipeDefinitionById = (recipeId: RecipeId): RecipeDefinition | undefined => {

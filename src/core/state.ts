@@ -23,7 +23,7 @@ import {
     RECIPE_MAX_LEVEL,
     SKILL_MAX_LEVEL
 } from "./constants";
-import { SKILL_DEFINITIONS, getRecipesForSkill, resolveRecipeId } from "../data/definitions";
+import { SKILL_DEFINITIONS, getRecipesForSkill } from "../data/definitions";
 import { createPlayerStatsState, normalizePlayerStats } from "./stats";
 import { createPlayerEquipmentState, normalizePlayerEquipment } from "./equipment";
 
@@ -67,8 +67,7 @@ const createSkillState = (id: SkillId): SkillState => {
 
 const mergeRecipes = (skillId: SkillId, savedRecipes: Record<string, RecipeState> | undefined) => {
     const normalizedSaved = Object.values(savedRecipes ?? {}).reduce<Record<string, RecipeState>>((acc, recipe) => {
-        const resolvedId = resolveRecipeId(skillId, recipe.id);
-        acc[resolvedId] = { ...recipe, id: resolvedId };
+        acc[recipe.id] = { ...recipe };
         return acc;
     }, {});
     return getRecipesForSkill(skillId).reduce<Record<string, RecipeState>>((acc, recipe) => {
@@ -81,9 +80,7 @@ const normalizeSkillState = (skillId: SkillId, savedSkill?: SkillState): SkillSt
     const fallback = createSkillState(skillId);
     const baseSkill = savedSkill ?? fallback;
     const mergedRecipes = mergeRecipes(skillId, savedSkill?.recipes);
-    const selectedRecipeId = savedSkill?.selectedRecipeId
-        ? resolveRecipeId(skillId, savedSkill.selectedRecipeId)
-        : null;
+    const selectedRecipeId = savedSkill?.selectedRecipeId ?? null;
     const resolvedSelected = selectedRecipeId && mergedRecipes[selectedRecipeId] ? selectedRecipeId : null;
 
     return {

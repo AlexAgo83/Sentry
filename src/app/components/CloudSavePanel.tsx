@@ -5,7 +5,7 @@ export type CloudSavePanelProps = {
     email: string;
     password: string;
     isAuthenticated: boolean;
-    status: "idle" | "authenticating" | "ready" | "error" | "offline";
+    status: "idle" | "authenticating" | "ready" | "error" | "offline" | "warming";
     error: string | null;
     isAvailable: boolean;
     hasCloudSave: boolean;
@@ -48,8 +48,27 @@ export const CloudSavePanel = memo(({
     onLoadCloud,
     onOverwriteCloud
 }: CloudSavePanelProps) => {
-    const disabled = !isAvailable || status === "authenticating";
+    const disabled = !isAvailable || status === "authenticating" || status === "warming";
     const authDisabled = disabled || !isAuthenticated;
+    const statusMessage = (() => {
+        if (!isAvailable) {
+            return "Cloud sync unavailable (missing API base or offline).";
+        }
+        if (status === "authenticating") {
+            return "Authenticating…";
+        }
+        if (status === "warming") {
+            return error ?? "Cloud backend is waking up…";
+        }
+        if (error) {
+            return error;
+        }
+        if (isAuthenticated) {
+            return hasCloudSave ? "Cloud save available." : "No cloud save found.";
+        }
+        return null;
+    })();
+    const isErrorMessage = Boolean(error) && status !== "warming";
 
     return (
         <div className="ts-system-cloud">
@@ -117,21 +136,17 @@ export const CloudSavePanel = memo(({
                     </button>
                 </div>
             )}
+            {statusMessage ? (
+                <div className="ts-system-cloud-status">
+                    {isErrorMessage ? (
+                        <span className="ts-system-cloud-error">{statusMessage}</span>
+                    ) : (
+                        <span>{statusMessage}</span>
+                    )}
+                </div>
+            ) : null}
             {isAuthenticated ? (
                 <>
-                    <div className="ts-system-cloud-status">
-                        {!isAvailable ? (
-                            <span>Cloud sync unavailable (missing API base or offline).</span>
-                        ) : status === "authenticating" ? (
-                            <span>Authenticating…</span>
-                        ) : error ? (
-                            <span className="ts-system-cloud-error">{error}</span>
-                        ) : hasCloudSave ? (
-                            <span>Cloud save available.</span>
-                        ) : (
-                            <span>No cloud save found.</span>
-                        )}
-                    </div>
                     <div className="ts-system-cloud-diff">
                         <div>{formatMetaLine("Local", localMeta)}</div>
                         <div>{formatMetaLine("Cloud", cloudMeta)}</div>

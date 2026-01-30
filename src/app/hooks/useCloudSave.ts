@@ -14,7 +14,7 @@ export type CloudSaveMeta = {
 };
 
 type CloudSaveState = {
-    status: "idle" | "authenticating" | "ready" | "error" | "offline";
+    status: "idle" | "authenticating" | "ready" | "error" | "offline" | "warming";
     error: string | null;
     cloudMeta: CloudSaveMeta | null;
     localMeta: CloudSaveMeta;
@@ -45,6 +45,25 @@ const buildLocalMeta = (virtualScore: number, appVersion: string): CloudSaveMeta
 };
 
 const isUnauthorizedError = (err: unknown) => err instanceof CloudApiError && err.status === 401;
+const WARMUP_RETRY_DELAYS_MS = [1000, 2000, 4000];
+
+const isWarmupError = (err: unknown) => {
+    if (err instanceof CloudApiError) {
+        return [502, 503, 504].includes(err.status);
+    }
+    if (err instanceof TypeError) {
+        return err.message.toLowerCase().includes("fetch");
+    }
+    return false;
+};
+
+const warmupMessage = (seconds?: number) => (
+    seconds
+        ? `Cloud backend is waking up… retrying in ${seconds}s.`
+        : "Cloud backend is still waking up. Please retry in a moment."
+);
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export const useCloudSave = () => {
     const virtualScore = useGameStore(selectVirtualScore);
@@ -73,6 +92,36 @@ export const useCloudSave = () => {
 
     const localMeta = useMemo(() => buildLocalMeta(virtualScore, appVersion), [virtualScore, appVersion]);
     const isAvailable = Boolean(cloudClient.getApiBase()) && isOnline;
+    const applyRequestError = useCallback((err: unknown, fallback: string) => {
+        if (isWarmupError(err)) {
+            setStatus("warming");
+            setError(warmupMessage());
+            return;
+        }
+        setStatus("error");
+        setError(err instanceof Error ? err.message : fallback);
+    }, []);
+
+    const withWarmupRetry = useCallback(async <T,>(
+        statusOnStart: CloudSaveState["status"],
+        action: () => Promise<T>
+    ): Promise<T> => {
+        for (let attempt = 0; attempt <= WARMUP_RETRY_DELAYS_MS.length; attempt += 1) {
+            setStatus(statusOnStart);
+            try {
+                return await action();
+            } catch (err) {
+                if (!isWarmupError(err) || attempt === WARMUP_RETRY_DELAYS_MS.length) {
+                    throw err;
+                }
+                const waitMs = WARMUP_RETRY_DELAYS_MS[attempt];
+                setStatus("warming");
+                setError(warmupMessage(Math.round(waitMs / 1000)));
+                await sleep(waitMs);
+            }
+        }
+        throw new Error("Warmup retry exhausted.");
+    }, []);
 
     const authenticate = useCallback(async (mode: "login" | "register", email: string, password: string) => {
         if (!isAvailable) {
@@ -80,19 +129,19 @@ export const useCloudSave = () => {
             setError("Cloud sync is unavailable.");
             return;
         }
-        setStatus("authenticating");
         setError(null);
         try {
-            const token = mode === "register"
-                ? await cloudClient.register(email, password)
-                : await cloudClient.login(email, password);
+            const token = await withWarmupRetry("authenticating", () => (
+                mode === "register"
+                    ? cloudClient.register(email, password)
+                    : cloudClient.login(email, password)
+            ));
             setAccessToken(token);
             setStatus("ready");
         } catch (err) {
-            setStatus("error");
-            setError(err instanceof Error ? err.message : "Authentication failed.");
+            applyRequestError(err, "Authentication failed.");
         }
-    }, [isAvailable]);
+    }, [applyRequestError, isAvailable, withWarmupRetry]);
 
     const refreshToken = useCallback(async () => {
         if (!isAvailable) {
@@ -100,18 +149,18 @@ export const useCloudSave = () => {
             setError("Cloud sync is unavailable.");
             return null;
         }
+        setError(null);
         try {
-            const token = await cloudClient.refresh();
+            const token = await withWarmupRetry("authenticating", () => cloudClient.refresh());
             setAccessToken(token);
             return token;
         } catch (err) {
             cloudClient.clearAccessToken();
             setAccessToken(null);
-            setStatus("error");
-            setError(err instanceof Error ? err.message : "Refresh failed.");
+            applyRequestError(err, "Refresh failed.");
             return null;
         }
-    }, [isAvailable]);
+    }, [applyRequestError, isAvailable, withWarmupRetry]);
 
     const withRefreshRetry = useCallback(async <T,>(action: (token: string | null) => Promise<T>): Promise<T> => {
         const token = accessToken ?? (await refreshToken());
@@ -135,10 +184,9 @@ export const useCloudSave = () => {
             setError("Cloud sync is unavailable.");
             return;
         }
-        setStatus("idle");
         setError(null);
         try {
-            const response = await withRefreshRetry((token) => cloudClient.getLatestSave(token));
+            const response = await withWarmupRetry("idle", () => withRefreshRetry((token) => cloudClient.getLatestSave(token)));
             if (!response) {
                 setHasCloudSave(false);
                 setCloudMeta(null);
@@ -155,10 +203,9 @@ export const useCloudSave = () => {
             });
             setStatus("ready");
         } catch (err) {
-            setStatus("error");
-            setError(err instanceof Error ? err.message : "Failed to fetch cloud save.");
+            applyRequestError(err, "Failed to fetch cloud save.");
         }
-    }, [isAvailable, withRefreshRetry]);
+    }, [applyRequestError, isAvailable, withRefreshRetry, withWarmupRetry]);
 
     useEffect(() => {
         if (!isAvailable || !accessToken) {
@@ -181,14 +228,15 @@ export const useCloudSave = () => {
             setError("Cloud sync is unavailable.");
             return;
         }
+        setError(null);
         try {
             const payload = toGameSave(gameStore.getState());
-            const result = await withRefreshRetry((token) => cloudClient.putLatestSave(
+            const result = await withWarmupRetry("idle", () => withRefreshRetry((token) => cloudClient.putLatestSave(
                 token,
                 payload,
                 virtualScore,
                 appVersion
-            ));
+            )));
             setCloudMeta({
                 updatedAt: toDateOrNull(result.meta.updatedAt),
                 virtualScore: result.meta.virtualScore,
@@ -197,10 +245,9 @@ export const useCloudSave = () => {
             setHasCloudSave(true);
             setStatus("ready");
         } catch (err) {
-            setStatus("error");
-            setError(err instanceof Error ? err.message : "Failed to upload cloud save.");
+            applyRequestError(err, "Failed to upload cloud save.");
         }
-    }, [appVersion, isAvailable, virtualScore, withRefreshRetry]);
+    }, [appVersion, applyRequestError, isAvailable, virtualScore, withRefreshRetry, withWarmupRetry]);
 
     const logout = useCallback(() => {
         cloudClient.clearAccessToken();
