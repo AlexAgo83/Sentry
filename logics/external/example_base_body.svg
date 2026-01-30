@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="768" viewBox="0 0 512 768" fill="none">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0" y1="80" x2="0" y2="700" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4b4b4b"/>
+      <stop offset="1" stop-color="#2f2f2f"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="768" fill="#000"/>
+
+  <!-- Shadow -->
+  <ellipse cx="256" cy="628" rx="120" ry="22" fill="#2b2b2b" opacity="0.85"/>
+
+  <!-- Head + ears -->
+  <circle cx="256" cy="170" r="70" fill="url(#bodyGrad)"/>
+  <circle cx="182" cy="182" r="32" fill="url(#bodyGrad)"/>
+  <circle cx="330" cy="182" r="32" fill="url(#bodyGrad)"/>
+
+  <!-- Neck/upper torso -->
+  <rect x="214" y="220" width="84" height="64" rx="32" fill="url(#bodyGrad)"/>
+
+  <!-- Torso -->
+  <rect x="188" y="260" width="136" height="190" rx="68" fill="url(#bodyGrad)"/>
+
+  <!-- Arms -->
+  <rect x="124" y="300" width="64" height="170" rx="32" fill="url(#bodyGrad)"/>
+  <rect x="324" y="300" width="64" height="170" rx="32" fill="url(#bodyGrad)"/>
+
+  <!-- Hands -->
+  <circle cx="136" cy="470" r="26" fill="url(#bodyGrad)"/>
+  <circle cx="376" cy="470" r="26" fill="url(#bodyGrad)"/>
+
+  <!-- Legs -->
+  <rect x="198" y="430" width="64" height="170" rx="32" fill="url(#bodyGrad)"/>
+  <rect x="250" y="430" width="64" height="170" rx="32" fill="url(#bodyGrad)"/>
+
+  <!-- Feet -->
+  <ellipse cx="214" cy="612" rx="38" ry="20" fill="url(#bodyGrad)"/>
+  <ellipse cx="298" cy="612" rx="38" ry="20" fill="url(#bodyGrad)"/>
+</svg>

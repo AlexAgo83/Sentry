@@ -122,7 +122,7 @@ describe("OfflineSummaryModal", () => {
             element?.tagName === "LI"
             && Boolean(element.textContent?.includes("Inventory changes:"))
             && Boolean(element.textContent?.includes("+1 Bones"))
-        ))).toBeTruthy();
+        ) ?? false)).toBeTruthy();
         expect(screen.getByText("Action HuntingLabel - Recipe RecipeLabel")).toBeTruthy();
         expect(screen.getByText("Action HuntingLabel")).toBeTruthy();
         expect(screen.getByText("No action running")).toBeTruthy();
@@ -130,12 +130,12 @@ describe("OfflineSummaryModal", () => {
             element?.classList?.contains("ts-offline-gains")
             && Boolean(element.textContent?.includes("Items:"))
             && Boolean(element.textContent?.includes("+2 Bones"))
-        ))).toBeTruthy();
+        ) ?? false)).toBeTruthy();
         expect(screen.getAllByText((_, element) => (
             element?.classList?.contains("ts-offline-gains")
             && Boolean(element.textContent?.includes("Items:"))
             && Boolean(element.textContent?.includes("None"))
-        )).length).toBe(2);
+        ) ?? false).length).toBe(2);
         expect(screen.getByText(/- \+2 Lv/)).toBeTruthy();
         expect(screen.getByText(/- \+1 Lv/)).toBeTruthy();
         expect(screen.getByText(/Skill \+0 XP/)).toBeTruthy();

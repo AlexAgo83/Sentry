@@ -11,7 +11,6 @@ describe("AppView (mobile bottom bar)", () => {
             <AppView
                 version="0.0.0"
                 onOpenSystem={() => {}}
-                onOpenDevTools={() => {}}
                 activeScreen="main"
                 activeSidePanel="action"
                 onShowAction={() => {}}
@@ -19,6 +18,7 @@ describe("AppView (mobile bottom bar)", () => {
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
                 onShowShop={() => {}}
+                hasNewInventoryItems={false}
                 roster={<div />}
                 actionPanel={<div />}
                 statsPanel={<div />}
