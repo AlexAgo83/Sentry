@@ -200,6 +200,7 @@ describe("App", () => {
         ).toBe(true);
 
         await user.click(screen.getByRole("tab", { name: "Stats" }));
+        await user.click(screen.getByRole("button", { name: "Enable edit" }));
         await user.click(screen.getByRole("button", { name: "Rename" }));
         const renameInput = screen.getByLabelText("Hero name") as HTMLInputElement;
         await user.clear(renameInput);

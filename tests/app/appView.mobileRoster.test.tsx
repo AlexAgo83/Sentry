@@ -11,6 +11,7 @@ const renderAppView = (props: Partial<Parameters<typeof AppView>[0]> = {}) => {
             activeSidePanel="action"
             onShowAction={() => {}}
             onShowStats={() => {}}
+            onShowRoster={() => {}}
             onShowInventory={() => {}}
             onShowEquipment={() => {}}
             onShowShop={() => {}}
@@ -34,19 +35,20 @@ describe("AppView (mobile roster)", () => {
         expect(screen.getByRole("tab", { name: "Roster" })).toBeTruthy();
     });
 
-    it("hides roster on mobile when not in the stats screen", () => {
+    it("hides roster on mobile unless the roster screen is active", () => {
         Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
-        const { rerender } = renderAppView({ activeSidePanel: "action" });
+        const { rerender } = renderAppView({ activeScreen: "main", activeSidePanel: "action" });
         expect(screen.queryByText("Roster Panel Content")).toBeNull();
 
         rerender(
             <AppView
                 version="0.0.0"
                 onOpenSystem={() => {}}
-                activeScreen="main"
-                activeSidePanel="stats"
+                activeScreen="roster"
+                activeSidePanel="action"
                 onShowAction={() => {}}
                 onShowStats={() => {}}
+                onShowRoster={() => {}}
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
                 onShowShop={() => {}}

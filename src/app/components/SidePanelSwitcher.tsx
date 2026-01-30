@@ -9,8 +9,10 @@ type SidePanelSwitcherLabels = {
     shop: string;
 };
 
+type TabIconKind = keyof SidePanelSwitcherLabels | "hero";
+
 type TabIconProps = {
-    kind: keyof SidePanelSwitcherLabels;
+    kind: TabIconKind;
 };
 
 const TabIcon = ({ kind }: TabIconProps) => {

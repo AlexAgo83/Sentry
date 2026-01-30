@@ -73,8 +73,8 @@ export const RosterPanel = memo(({
                             const skinColor = player.appearance?.skinColor ?? getSkinColor(player.id);
                             const avatarStyle = {
                                 "--ts-avatar-torso": skillColor,
-                                "--ts-avatar-face": `url(\"${getFaceUrlByIndex(faceIndex)}\")`,
-                                "--ts-avatar-hair": `url(\"${getHairUrlByIndex(hairIndex)}\")`,
+                                "--ts-avatar-face": `url("${getFaceUrlByIndex(faceIndex)}")`,
+                                "--ts-avatar-hair": `url("${getHairUrlByIndex(hairIndex)}")`,
                                 "--ts-avatar-hair-color": hairColor,
                                 "--ts-avatar-skin": skinColor
                             } as CSSProperties;

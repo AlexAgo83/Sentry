@@ -73,6 +73,20 @@ export const ActionSelectionScreen = memo(({
     onStopAction,
     onBack
 }: ActionSelectionScreenProps) => {
+    const currentActionId = activePlayer.selectedActionId ?? "";
+    const currentRecipeId = currentActionId ? activePlayer.skills[currentActionId]?.selectedRecipeId ?? "" : "";
+    const isSameRecipeSelected = Boolean(
+        pendingSkillId &&
+        pendingRecipeId &&
+        pendingSkillId === currentActionId &&
+        pendingRecipeId === currentRecipeId
+    );
+    const startActionClassName = [
+        "ts-collapse-button",
+        "ts-focusable",
+        "ts-action-start",
+        canStartAction ? (isSameRecipeSelected ? "is-ready-same" : "is-ready-new") : ""
+    ].filter(Boolean).join(" ");
     const renderItemSummary = (
         entries: ItemEntry[],
         fallbackLabel: string,
@@ -104,7 +118,7 @@ export const ActionSelectionScreen = memo(({
             <div className="ts-panel-actions ts-panel-actions-inline">
                 <button
                     type="button"
-                    className="ts-collapse-button ts-focusable"
+                    className={startActionClassName}
                     onClick={onStartAction}
                     disabled={!canStartAction}
                     aria-label="Start action"
@@ -116,7 +130,7 @@ export const ActionSelectionScreen = memo(({
                 </button>
                 <button
                     type="button"
-                    className="ts-collapse-button ts-focusable"
+                    className={`ts-collapse-button ts-focusable ts-action-stop${canStopAction ? " is-ready-stop" : ""}`}
                     onClick={onStopAction}
                     disabled={!canStopAction}
                     aria-label="Interrupt"
@@ -154,11 +168,7 @@ export const ActionSelectionScreen = memo(({
                                 onChange={() => onSkillSelect("")}
                             />
                             <div className="ts-choice-card ts-skill-choice">
-                                <div
-                                    className="ts-choice-icon"
-                                    style={{ borderColor: getSkillIconColor("") }}
-                                    aria-hidden="true"
-                                >
+                                <div className="ts-choice-icon" aria-hidden="true">
                                     <SkillIcon skillId="" color={getSkillIconColor("")} />
                                 </div>
                                 <div className="ts-choice-copy">
@@ -181,7 +191,7 @@ export const ActionSelectionScreen = memo(({
                                         onChange={() => onSkillSelect(skill.id)}
                                     />
                                     <div className="ts-choice-card ts-skill-choice">
-                                        <div className="ts-choice-icon" style={{ borderColor: skillColor }} aria-hidden="true">
+                                        <div className="ts-choice-icon" aria-hidden="true">
                                             <SkillIcon skillId={skill.id} color={skillColor} />
                                         </div>
                                         <div className="ts-choice-copy">

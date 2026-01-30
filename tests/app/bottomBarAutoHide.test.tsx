@@ -15,6 +15,7 @@ describe("AppView (mobile bottom bar)", () => {
                 activeSidePanel="action"
                 onShowAction={() => {}}
                 onShowStats={() => {}}
+                onShowRoster={() => {}}
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
                 onShowShop={() => {}}
