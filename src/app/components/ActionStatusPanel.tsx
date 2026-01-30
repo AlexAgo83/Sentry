@@ -5,6 +5,13 @@ import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { ChangeIcon } from "../ui/changeIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
+import { ItemIcon } from "../ui/itemIcon";
+
+type ItemEntry = {
+    id: string;
+    name: string;
+    amount: number;
+};
 
 type ActionStatusPanelProps = {
     activeSkillId: SkillId | "";
@@ -12,6 +19,8 @@ type ActionStatusPanelProps = {
     activeRecipeLabel: string;
     activeConsumptionLabel: string;
     activeProductionLabel: string;
+    activeConsumptionEntries: ItemEntry[];
+    activeProductionEntries: ItemEntry[];
     actionDurationLabel: string;
     actionXpLabel: string;
     resourceHint: string | null;
@@ -44,6 +53,8 @@ export const ActionStatusPanel = memo(({
     activeRecipeLabel,
     activeConsumptionLabel,
     activeProductionLabel,
+    activeConsumptionEntries,
+    activeProductionEntries,
     actionDurationLabel,
     actionXpLabel,
     resourceHint,
@@ -74,6 +85,27 @@ export const ActionStatusPanel = memo(({
             return "0";
         }
         return String(Math.round(value));
+    };
+
+    const renderItemSummary = (
+        entries: ItemEntry[],
+        fallbackLabel: string,
+        tone: "consume" | "produce"
+    ) => {
+        if (entries.length === 0) {
+            return fallbackLabel;
+        }
+        return (
+            <span className="ts-item-inline-list">
+                {entries.map((entry, index) => (
+                    <span key={entry.id} className="ts-item-inline">
+                        {entry.amount} {entry.name}
+                        <ItemIcon itemId={entry.id} tone={tone} />
+                        {index < entries.length - 1 ? ", " : null}
+                    </span>
+                ))}
+            </span>
+        );
     };
 
     return (
@@ -145,11 +177,15 @@ export const ActionStatusPanel = memo(({
                     </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Consumes</span>
-                        <span className="ts-resource-value">{activeConsumptionLabel}</span>
+                        <span className="ts-resource-value">
+                            {renderItemSummary(activeConsumptionEntries, activeConsumptionLabel, "consume")}
+                        </span>
                     </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Produces</span>
-                        <span className="ts-resource-value">{activeProductionLabel}</span>
+                        <span className="ts-resource-value">
+                            {renderItemSummary(activeProductionEntries, activeProductionLabel, "produce")}
+                        </span>
                     </div>
                     {resourceHint ? (
                         <div className="ts-resource-hint">{resourceHint}</div>
