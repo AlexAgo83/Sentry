@@ -62,6 +62,9 @@ export const useAppShellUi = () => {
         setActiveScreen("main");
         setActiveSidePanel("stats");
     }, []);
+    const showRosterScreen = useCallback(() => {
+        setActiveScreen("roster");
+    }, []);
     const showInventoryPanel = useCallback(() => {
         setActiveScreen("main");
         setActiveSidePanel("inventory");
@@ -80,6 +83,7 @@ export const useAppShellUi = () => {
         activeScreen,
         showActionPanel,
         showStatsPanel,
+        showRosterScreen,
         showInventoryPanel,
         showEquipmentPanel,
         showShopPanel,

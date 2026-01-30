@@ -16,6 +16,7 @@ type AppViewContainerProps = {
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
     onShowStats: () => void;
+    onShowRoster: () => void;
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
@@ -38,6 +39,7 @@ export const AppViewContainer = ({
     activeSidePanel,
     onShowAction,
     onShowStats,
+    onShowRoster,
     onShowInventory,
     onShowEquipment,
     onShowShop,
@@ -61,6 +63,7 @@ export const AppViewContainer = ({
                 activeSidePanel={activeSidePanel}
                 onShowAction={onShowAction}
                 onShowStats={onShowStats}
+                onShowRoster={onShowRoster}
                 onShowInventory={onShowInventory}
                 onShowEquipment={onShowEquipment}
                 onShowShop={onShowShop}
@@ -78,6 +81,7 @@ export const AppViewContainer = ({
                     <DevProfiler id="ActionPanel">
                         <ActionPanelContainer
                             onChangeAction={onChangeAction}
+                            onRenameHero={onRenameHero}
                             getSkillLabel={getSkillLabel}
                             getRecipeLabel={getRecipeLabel}
                         />
@@ -98,7 +102,7 @@ export const AppViewContainer = ({
                 )}
                 equipmentPanel={(
                     <DevProfiler id="EquipmentPanel">
-                        <EquipmentPanelContainer />
+                        <EquipmentPanelContainer onRenameHero={onRenameHero} />
                     </DevProfiler>
                 )}
                 shopPanel={(

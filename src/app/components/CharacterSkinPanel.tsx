@@ -126,14 +126,6 @@ export const CharacterSkinPanel = memo(({
                 <div className="ts-panel-actions ts-panel-actions-inline">
                     <button
                         type="button"
-                        className="ts-icon-button ts-panel-action-button ts-focusable"
-                        onClick={onRenameHero}
-                        disabled={!canRenameHero}
-                    >
-                        Rename
-                    </button>
-                    <button
-                        type="button"
                         className={`ts-icon-button ts-focusable${isEditMode ? " is-active" : ""}`}
                         onClick={onToggleEditMode}
                         disabled={!canRenameHero}
@@ -172,54 +164,64 @@ export const CharacterSkinPanel = memo(({
                             </span>
                     ) : null}
                 </div>
-                {isEditMode ? (
-                    <div className="ts-skin-overlay-actions">
-                        <button
-                            type="button"
-                            className="ts-icon-button ts-focusable"
-                            onClick={onNextFace}
-                            disabled={!canRenameHero}
-                            aria-label="Next face"
-                        >
-                            <span className="ts-skin-action-icon">
-                                <FaceIcon />
-                            </span>
-                        </button>
-                        <span className="ts-color-picker">
-                            <input
-                                type="color"
-                                className="ts-icon-button ts-hair-color-input"
-                                value={skinColor}
-                                onChange={(event) => onSkinColorChange(event.target.value)}
+                <div className="ts-skin-overlay-actions">
+                    {isEditMode ? (
+                        <>
+                            <button
+                                type="button"
+                                className="ts-icon-button ts-panel-action-button ts-focusable"
+                                onClick={onRenameHero}
                                 disabled={!canRenameHero}
-                                aria-label="Skin color"
-                            />
-                            <span className="ts-skin-color-label">F</span>
-                        </span>
-                        <button
-                            type="button"
-                            className="ts-icon-button ts-focusable"
-                            onClick={onNextHair}
-                            disabled={!canRenameHero}
-                            aria-label="Next hair"
-                        >
-                            <span className="ts-skin-action-icon">
-                                <HairIcon />
-                            </span>
-                        </button>
-                        <span className="ts-color-picker">
-                            <input
-                                type="color"
-                                className="ts-icon-button ts-hair-color-input"
-                                value={hairColor}
-                                onChange={(event) => onHairColorChange(event.target.value)}
+                            >
+                                Rename
+                            </button>
+                            <button
+                                type="button"
+                                className="ts-icon-button ts-focusable"
+                                onClick={onNextFace}
                                 disabled={!canRenameHero}
-                                aria-label="Hair color"
-                            />
-                            <span className="ts-skin-color-label">H</span>
-                        </span>
-                    </div>
-                ) : null}
+                                aria-label="Next face"
+                            >
+                                <span className="ts-skin-action-icon">
+                                    <FaceIcon />
+                                </span>
+                            </button>
+                            <span className="ts-color-picker">
+                                <input
+                                    type="color"
+                                    className="ts-icon-button ts-hair-color-input"
+                                    value={skinColor}
+                                    onChange={(event) => onSkinColorChange(event.target.value)}
+                                    disabled={!canRenameHero}
+                                    aria-label="Skin color"
+                                />
+                                <span className="ts-skin-color-label">F</span>
+                            </span>
+                            <button
+                                type="button"
+                                className="ts-icon-button ts-focusable"
+                                onClick={onNextHair}
+                                disabled={!canRenameHero}
+                                aria-label="Next hair"
+                            >
+                                <span className="ts-skin-action-icon">
+                                    <HairIcon />
+                                </span>
+                            </button>
+                            <span className="ts-color-picker">
+                                <input
+                                    type="color"
+                                    className="ts-icon-button ts-hair-color-input"
+                                    value={hairColor}
+                                    onChange={(event) => onHairColorChange(event.target.value)}
+                                    disabled={!canRenameHero}
+                                    aria-label="Hair color"
+                                />
+                                <span className="ts-skin-color-label">H</span>
+                            </span>
+                        </>
+                    ) : null}
+                </div>
             </div>
         ) : null}
     </section>

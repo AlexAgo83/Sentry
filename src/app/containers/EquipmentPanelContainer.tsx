@@ -7,8 +7,13 @@ import { useGameStore } from "../hooks/useGameStore";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { EquipmentPanel } from "../components/EquipmentPanel";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
+import { HeroSkinPanelContainer } from "./HeroSkinPanelContainer";
 
-export const EquipmentPanelContainer = () => {
+type EquipmentPanelContainerProps = {
+    onRenameHero: () => void;
+};
+
+export const EquipmentPanelContainer = ({ onRenameHero }: EquipmentPanelContainerProps) => {
     const activePlayer = useGameStore(selectActivePlayer);
     const inventoryItems = useGameStore((state) => state.inventory.items);
     const [isEquipmentCollapsed, setEquipmentCollapsed] = usePersistedCollapse("equipment", false);
@@ -36,15 +41,17 @@ export const EquipmentPanelContainer = () => {
     }, [activePlayer]);
 
     return (
-        <EquipmentPanel
-            isCollapsed={isEquipmentCollapsed}
-            onToggleCollapsed={() => setEquipmentCollapsed((value) => !value)}
-            equipment={activePlayer?.equipment ?? createPlayerEquipmentState()}
-            inventoryItems={inventoryItems}
-            definitions={EQUIPMENT_DEFINITIONS}
-            onEquipItem={handleEquipItem}
-            onUnequipSlot={handleUnequipSlot}
-        />
+        <>
+            <HeroSkinPanelContainer onRenameHero={onRenameHero} />
+            <EquipmentPanel
+                isCollapsed={isEquipmentCollapsed}
+                onToggleCollapsed={() => setEquipmentCollapsed((value) => !value)}
+                equipment={activePlayer?.equipment ?? createPlayerEquipmentState()}
+                inventoryItems={inventoryItems}
+                definitions={EQUIPMENT_DEFINITIONS}
+                onEquipItem={handleEquipItem}
+                onUnequipSlot={handleUnequipSlot}
+            />
+        </>
     );
 };
-

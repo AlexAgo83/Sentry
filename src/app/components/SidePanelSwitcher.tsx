@@ -3,6 +3,7 @@ import { memo, useEffect, useRef, useState } from "react";
 type SidePanelSwitcherLabels = {
     action: string;
     stats: string;
+    roster: string;
     inventory: string;
     equipment: string;
     shop: string;
@@ -28,6 +29,22 @@ const TabIcon = ({ kind }: TabIconProps) => {
             return (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 20V10m6 10V4m6 16v-7m4 7H2" />
+                </svg>
+            );
+        case "roster":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <circle cx="8" cy="9" r="3" />
+                    <circle cx="16" cy="9" r="3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 20c1.5-3 3.5-4.5 5-4.5s3.5 1.5 5 4.5" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 20c1.5-3 3.5-4.5 5-4.5s3.5 1.5 5 4.5" />
+                </svg>
+            );
+        case "hero":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <circle cx="12" cy="9" r="4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 20c2.5-4 5.5-6 7.5-6s5 2 7.5 6" />
                 </svg>
             );
         case "inventory":
@@ -105,42 +122,60 @@ TabButton.displayName = "TabButton";
 
 type SidePanelSwitcherProps = {
     active: "action" | "stats" | "inventory" | "equipment" | "shop";
+    isRosterActive?: boolean;
     onShowAction: () => void;
     onShowStats: () => void;
+    onShowRoster?: () => void;
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
     className?: string;
     labels?: Partial<SidePanelSwitcherLabels>;
     useInventoryMenu?: boolean;
+    useHeroMenu?: boolean;
+    showRosterButton?: boolean;
+    heroLabel?: string;
+    heroIncludesEquipment?: boolean;
     inventoryOrder?: "inventory-first" | "equipment-first";
     badges?: Partial<Record<keyof SidePanelSwitcherLabels, string>>;
 };
 
 export const SidePanelSwitcher = memo(({
     active,
+    isRosterActive,
     onShowAction,
     onShowStats,
+    onShowRoster,
     onShowInventory,
     onShowEquipment,
     onShowShop,
     className,
     labels,
     useInventoryMenu = false,
+    useHeroMenu = false,
+    showRosterButton = false,
+    heroLabel,
+    heroIncludesEquipment = false,
     inventoryOrder = "inventory-first",
     badges
 }: SidePanelSwitcherProps) => {
     const resolvedLabels: SidePanelSwitcherLabels = {
         action: labels?.action ?? "Action",
         stats: labels?.stats ?? "Stats",
+        roster: labels?.roster ?? "Roster",
         inventory: labels?.inventory ?? "Bank",
         equipment: labels?.equipment ?? "Equip",
         shop: labels?.shop ?? "Shop"
     };
 
     const [isInventoryMenuOpen, setInventoryMenuOpen] = useState(false);
+    const [isHeroMenuOpen, setHeroMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
-    const isInventorySelected = active === "inventory" || active === "equipment" || active === "shop";
+    const heroMenuRef = useRef<HTMLDivElement | null>(null);
+    const shouldShowEquipmentInHero = useHeroMenu && heroIncludesEquipment;
+    const isInventorySelected = !isRosterActive && (active === "inventory" || (!shouldShowEquipmentInHero && active === "equipment") || active === "shop");
+    const isHeroSelected = !isRosterActive && (active === "action" || active === "stats" || (shouldShowEquipmentInHero && active === "equipment"));
+    const resolvedHeroLabel = heroLabel ?? "Hero";
 
     useEffect(() => {
         if (!useInventoryMenu || !isInventoryMenuOpen) {
@@ -174,24 +209,139 @@ export const SidePanelSwitcher = memo(({
         setInventoryMenuOpen(false);
     }, [active, useInventoryMenu]);
 
-    const rootClassName = `ts-panel-switcher${useInventoryMenu ? " ts-panel-switcher--inventory-menu" : ""}${className ? ` ${className}` : ""}`;
+    useEffect(() => {
+        if (!useHeroMenu || !isHeroMenuOpen) {
+            return;
+        }
+        const handlePointerDown = (event: PointerEvent) => {
+            if (!heroMenuRef.current) {
+                return;
+            }
+            if (event.target instanceof Node && !heroMenuRef.current.contains(event.target)) {
+                setHeroMenuOpen(false);
+            }
+        };
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setHeroMenuOpen(false);
+            }
+        };
+        window.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [useHeroMenu, isHeroMenuOpen]);
+
+    useEffect(() => {
+        if (!useHeroMenu) {
+            return;
+        }
+        setHeroMenuOpen(false);
+    }, [active, useHeroMenu]);
+
+    const rootClassName = `ts-panel-switcher${useInventoryMenu ? " ts-panel-switcher--inventory-menu" : ""}${useHeroMenu ? " ts-panel-switcher--hero-menu" : ""}${showRosterButton ? " ts-panel-switcher--roster" : ""}${className ? ` ${className}` : ""}`;
 
     return (
         <div className={rootClassName} role="tablist" aria-label="Main panels">
-            <TabButton
-                id="action"
-                label={resolvedLabels.action}
-                badge={badges?.action}
-                isSelected={active === "action"}
-                onClick={onShowAction}
-            />
-            <TabButton
-                id="stats"
-                label={resolvedLabels.stats}
-                badge={badges?.stats}
-                isSelected={active === "stats"}
-                onClick={onShowStats}
-            />
+            {showRosterButton ? (
+                <TabButton
+                    id="roster"
+                    label={resolvedLabels.roster}
+                    badge={badges?.roster}
+                    isSelected={Boolean(isRosterActive)}
+                    onClick={onShowRoster ?? (() => {})}
+                />
+            ) : null}
+            {useHeroMenu ? (
+                <div className="ts-panel-switcher-item ts-bank-menu ts-hero-menu" ref={heroMenuRef}>
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={isHeroSelected}
+                        aria-label={resolvedHeroLabel}
+                        aria-haspopup="menu"
+                        aria-expanded={isHeroMenuOpen}
+                        title={resolvedHeroLabel}
+                        className={`ts-chip ts-focusable${isHeroSelected ? " is-active" : ""}`}
+                        onClick={() => setHeroMenuOpen((prev) => !prev)}
+                    >
+                        <span className="ts-chip-icon" aria-hidden="true">
+                            <TabIcon kind="hero" />
+                        </span>
+                        <span className="ts-chip-text">{resolvedHeroLabel}</span>
+                    </button>
+                    {isHeroMenuOpen ? (
+                        <div className="ts-bank-menu-popover" role="menu" aria-label="Hero panels">
+                            {shouldShowEquipmentInHero ? (
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={`ts-bank-menu-item${active === "equipment" ? " is-active" : ""}`}
+                                    onClick={() => {
+                                        setHeroMenuOpen(false);
+                                        onShowEquipment();
+                                    }}
+                                >
+                                    <span className="ts-bank-menu-icon" aria-hidden="true">
+                                        <TabIcon kind="equipment" />
+                                    </span>
+                                    <span className="ts-bank-menu-text">{resolvedLabels.equipment}</span>
+                                    {badges?.equipment ? (
+                                        <span className="ts-bank-menu-badge" aria-hidden="true">{badges.equipment}</span>
+                                    ) : null}
+                                </button>
+                            ) : null}
+                            <button
+                                type="button"
+                                role="menuitem"
+                                className={`ts-bank-menu-item${active === "action" ? " is-active" : ""}`}
+                                onClick={() => {
+                                    setHeroMenuOpen(false);
+                                    onShowAction();
+                                }}
+                            >
+                                <span className="ts-bank-menu-icon" aria-hidden="true">
+                                    <TabIcon kind="action" />
+                                </span>
+                                <span className="ts-bank-menu-text">{resolvedLabels.action}</span>
+                            </button>
+                            <button
+                                type="button"
+                                role="menuitem"
+                                className={`ts-bank-menu-item${active === "stats" ? " is-active" : ""}`}
+                                onClick={() => {
+                                    setHeroMenuOpen(false);
+                                    onShowStats();
+                                }}
+                            >
+                                <span className="ts-bank-menu-icon" aria-hidden="true">
+                                    <TabIcon kind="stats" />
+                                </span>
+                                <span className="ts-bank-menu-text">{resolvedLabels.stats}</span>
+                            </button>
+                        </div>
+                    ) : null}
+                </div>
+            ) : (
+                <>
+                    <TabButton
+                        id="action"
+                        label={resolvedLabels.action}
+                        badge={badges?.action}
+                        isSelected={active === "action"}
+                        onClick={onShowAction}
+                    />
+                    <TabButton
+                        id="stats"
+                        label={resolvedLabels.stats}
+                        badge={badges?.stats}
+                        isSelected={active === "stats"}
+                        onClick={onShowStats}
+                    />
+                </>
+            )}
             {useInventoryMenu ? (
                 <div className="ts-panel-switcher-item ts-bank-menu" ref={menuRef}>
                     <button
@@ -218,40 +368,6 @@ export const SidePanelSwitcher = memo(({
                             <button
                                 type="button"
                                 role="menuitem"
-                                className={`ts-bank-menu-item${active === "inventory" ? " is-active" : ""}`}
-                                onClick={() => {
-                                    setInventoryMenuOpen(false);
-                                    onShowInventory();
-                                }}
-                            >
-                                <span className="ts-bank-menu-icon" aria-hidden="true">
-                                    <TabIcon kind="inventory" />
-                                </span>
-                                <span className="ts-bank-menu-text">Inventory</span>
-                                {badges?.inventory ? (
-                                    <span className="ts-bank-menu-badge" aria-hidden="true">{badges.inventory}</span>
-                                ) : null}
-                            </button>
-                            <button
-                                type="button"
-                                role="menuitem"
-                                className={`ts-bank-menu-item${active === "equipment" ? " is-active" : ""}`}
-                                onClick={() => {
-                                    setInventoryMenuOpen(false);
-                                    onShowEquipment();
-                                }}
-                            >
-                                <span className="ts-bank-menu-icon" aria-hidden="true">
-                                    <TabIcon kind="equipment" />
-                                </span>
-                                <span className="ts-bank-menu-text">Equipment</span>
-                                {badges?.equipment ? (
-                                    <span className="ts-bank-menu-badge" aria-hidden="true">{badges.equipment}</span>
-                                ) : null}
-                            </button>
-                            <button
-                                type="button"
-                                role="menuitem"
                                 className={`ts-bank-menu-item${active === "shop" ? " is-active" : ""}`}
                                 onClick={() => {
                                     setInventoryMenuOpen(false);
@@ -264,6 +380,42 @@ export const SidePanelSwitcher = memo(({
                                 <span className="ts-bank-menu-text">Shop</span>
                                 {badges?.shop ? (
                                     <span className="ts-bank-menu-badge" aria-hidden="true">{badges.shop}</span>
+                                ) : null}
+                            </button>
+                            {!shouldShowEquipmentInHero ? (
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={`ts-bank-menu-item${active === "equipment" ? " is-active" : ""}`}
+                                    onClick={() => {
+                                        setInventoryMenuOpen(false);
+                                        onShowEquipment();
+                                    }}
+                                >
+                                    <span className="ts-bank-menu-icon" aria-hidden="true">
+                                        <TabIcon kind="equipment" />
+                                    </span>
+                                    <span className="ts-bank-menu-text">Equipment</span>
+                                    {badges?.equipment ? (
+                                        <span className="ts-bank-menu-badge" aria-hidden="true">{badges.equipment}</span>
+                                    ) : null}
+                                </button>
+                            ) : null}
+                            <button
+                                type="button"
+                                role="menuitem"
+                                className={`ts-bank-menu-item${active === "inventory" ? " is-active" : ""}`}
+                                onClick={() => {
+                                    setInventoryMenuOpen(false);
+                                    onShowInventory();
+                                }}
+                            >
+                                <span className="ts-bank-menu-icon" aria-hidden="true">
+                                    <TabIcon kind="inventory" />
+                                </span>
+                                <span className="ts-bank-menu-text">Inventory</span>
+                                {badges?.inventory ? (
+                                    <span className="ts-bank-menu-badge" aria-hidden="true">{badges.inventory}</span>
                                 ) : null}
                             </button>
                         </div>

@@ -35,6 +35,7 @@ export const AppContainer = () => {
         activeScreen,
         showActionPanel,
         showStatsPanel,
+        showRosterScreen,
         showInventoryPanel,
         showEquipmentPanel,
         showShopPanel,
@@ -181,6 +182,7 @@ export const AppContainer = () => {
                 activeSidePanel={activeSidePanel}
                 onShowAction={showActionPanel}
                 onShowStats={showStatsPanel}
+                onShowRoster={showRosterScreen}
                 onShowInventory={showInventoryPanel}
                 onShowEquipment={showEquipmentPanel}
                 onShowShop={showShopPanel}

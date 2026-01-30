@@ -12,9 +12,11 @@ import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters"
 import { ActionStatusPanel } from "../components/ActionStatusPanel";
 import { getSkillIconColor } from "../ui/skillColors";
 import { gameStore } from "../game";
+import { HeroSkinPanelContainer } from "./HeroSkinPanelContainer";
 
 type ActionPanelContainerProps = {
     onChangeAction: () => void;
+    onRenameHero: () => void;
     getSkillLabel: (skillId: SkillId) => string;
     getRecipeLabel: (skillId: SkillId, recipeId: string | null) => string;
 };
@@ -29,6 +31,7 @@ const INTELLECT_SKILLS = new Set<SkillId>([
 
 export const ActionPanelContainer = ({
     onChangeAction,
+    onRenameHero,
     getSkillLabel,
     getRecipeLabel
 }: ActionPanelContainerProps) => {
@@ -157,43 +160,46 @@ export const ActionPanelContainer = ({
     }, [activePlayer]);
 
     return (
-        <ActionStatusPanel
-            activeSkillId={activeSkillId as SkillId | ""}
-            activeSkillName={activeSkillName}
-            activeRecipeLabel={activeRecipeLabel}
-            activeConsumptionLabel={activeConsumptionLabel}
-            activeProductionLabel={activeProductionLabel}
-            activeConsumptionEntries={hasActiveRecipeSelection ? activeConsumptionEntries : []}
-            activeProductionEntries={hasActiveRecipeSelection ? activeProductionEntries : []}
-            actionSpeedBonusLabel={actionSpeedBonusLabel}
-            actionSpeedBonusTooltip={actionSpeedBonusTooltip}
-            actionDurationLabel={actionIntervalLabel}
-            actionXpLabel={actionXpLabel}
-            actionXpBonusLabel={actionXpBonusLabel}
-            actionXpBonusTooltip={actionXpBonusTooltip}
-            stunTimeLabel={stunTimeLabel}
-            resourceHint={resourceHint}
-            progressPercent={progressPercent}
-            progressStyle={progressStyle}
-            staminaStyle={staminaStyle}
-            skillStyle={skillStyle}
-            recipeStyle={recipeStyle}
-            staminaCurrent={activePlayer?.stamina ?? 0}
-            staminaMax={activePlayer?.staminaMax ?? 0}
-            activeSkillLevel={activeSkill?.level ?? 0}
-            activeSkillXp={activeSkill?.xp ?? 0}
-            activeSkillXpNext={activeSkill?.xpNext ?? 0}
-            activeRecipeLevel={activeRecipe?.level ?? 0}
-            activeRecipeXp={activeRecipe?.xp ?? 0}
-            activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
-            isStunned={isStunned}
-            skillIconColor={skillIconColor}
-            isCollapsed={isCollapsed}
-            onToggleCollapsed={() => setCollapsed((value) => !value)}
-            onChangeAction={onChangeAction}
-            canChangeAction={Boolean(activePlayer)}
-            onInterruptAction={handleInterruptAction}
-            canInterruptAction={canInterruptAction}
-        />
+        <>
+            <HeroSkinPanelContainer onRenameHero={onRenameHero} />
+            <ActionStatusPanel
+                activeSkillId={activeSkillId as SkillId | ""}
+                activeSkillName={activeSkillName}
+                activeRecipeLabel={activeRecipeLabel}
+                activeConsumptionLabel={activeConsumptionLabel}
+                activeProductionLabel={activeProductionLabel}
+                activeConsumptionEntries={hasActiveRecipeSelection ? activeConsumptionEntries : []}
+                activeProductionEntries={hasActiveRecipeSelection ? activeProductionEntries : []}
+                actionSpeedBonusLabel={actionSpeedBonusLabel}
+                actionSpeedBonusTooltip={actionSpeedBonusTooltip}
+                actionDurationLabel={actionIntervalLabel}
+                actionXpLabel={actionXpLabel}
+                actionXpBonusLabel={actionXpBonusLabel}
+                actionXpBonusTooltip={actionXpBonusTooltip}
+                stunTimeLabel={stunTimeLabel}
+                resourceHint={resourceHint}
+                progressPercent={progressPercent}
+                progressStyle={progressStyle}
+                staminaStyle={staminaStyle}
+                skillStyle={skillStyle}
+                recipeStyle={recipeStyle}
+                staminaCurrent={activePlayer?.stamina ?? 0}
+                staminaMax={activePlayer?.staminaMax ?? 0}
+                activeSkillLevel={activeSkill?.level ?? 0}
+                activeSkillXp={activeSkill?.xp ?? 0}
+                activeSkillXpNext={activeSkill?.xpNext ?? 0}
+                activeRecipeLevel={activeRecipe?.level ?? 0}
+                activeRecipeXp={activeRecipe?.xp ?? 0}
+                activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
+                isStunned={isStunned}
+                skillIconColor={skillIconColor}
+                isCollapsed={isCollapsed}
+                onToggleCollapsed={() => setCollapsed((value) => !value)}
+                onChangeAction={onChangeAction}
+                canChangeAction={Boolean(activePlayer)}
+                onInterruptAction={handleInterruptAction}
+                canInterruptAction={canInterruptAction}
+            />
+        </>
     );
 };

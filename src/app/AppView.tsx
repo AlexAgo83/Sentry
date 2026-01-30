@@ -4,7 +4,7 @@ import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
 import { useRenderCount } from "./dev/renderDebug";
 
 export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment" | "shop";
-export type AppActiveScreen = "main" | "actionSelection";
+export type AppActiveScreen = "main" | "actionSelection" | "roster";
 
 export interface AppViewProps {
     version: string;
@@ -13,6 +13,7 @@ export interface AppViewProps {
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
     onShowStats: () => void;
+    onShowRoster: () => void;
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
@@ -58,6 +59,7 @@ export const AppView = (props: AppViewProps) => {
         activeSidePanel,
         onShowAction,
         onShowStats,
+        onShowRoster,
         onShowInventory,
         onShowEquipment,
         onShowShop,
@@ -71,7 +73,8 @@ export const AppView = (props: AppViewProps) => {
         actionSelectionScreen,
     } = props;
 
-    const showRoster = !isMobile || (activeScreen === "main" && activeSidePanel === "stats");
+    const showRoster = !isMobile || activeScreen === "roster";
+    const showMainStack = !isMobile || activeScreen !== "roster";
 
     return (
         <>
@@ -128,29 +131,31 @@ export const AppView = (props: AppViewProps) => {
             </header>
             <main className="app-layout generic-global ts-layout">
                 {showRoster ? roster : null}
-                <div className="ts-main-stack">
-                    {activeScreen === "actionSelection"
-                        ? actionSelectionScreen
-                        : (
-                            <>
-                                {activeSidePanel === "action" ? (
-                                    actionPanel
-                                ) : null}
-                                {activeSidePanel === "stats" ? (
-                                    statsPanel
-                                ) : null}
-                                {activeSidePanel === "inventory" ? (
-                                    inventoryPanel
-                                ) : null}
-                                {activeSidePanel === "equipment" ? (
-                                    equipmentPanel
-                                ) : null}
-                                {activeSidePanel === "shop" ? (
-                                    shopPanel
-                                ) : null}
-                            </>
-                        )}
-                </div>
+                {showMainStack ? (
+                    <div className="ts-main-stack">
+                        {activeScreen === "actionSelection"
+                            ? actionSelectionScreen
+                            : (
+                                <>
+                                    {activeSidePanel === "action" ? (
+                                        actionPanel
+                                    ) : null}
+                                    {activeSidePanel === "stats" ? (
+                                        statsPanel
+                                    ) : null}
+                                    {activeSidePanel === "inventory" ? (
+                                        inventoryPanel
+                                    ) : null}
+                                    {activeSidePanel === "equipment" ? (
+                                        equipmentPanel
+                                    ) : null}
+                                    {activeSidePanel === "shop" ? (
+                                        shopPanel
+                                    ) : null}
+                                </>
+                            )}
+                    </div>
+                ) : null}
             </main>
             {isMobile ? (
                 <nav
@@ -159,6 +164,8 @@ export const AppView = (props: AppViewProps) => {
                 >
                     <SidePanelSwitcher
                         active={activeSidePanel}
+                        isRosterActive={activeScreen === "roster"}
+                        onShowRoster={onShowRoster}
                         onShowAction={onShowAction}
                         onShowStats={onShowStats}
                         onShowInventory={onShowInventory}
@@ -167,9 +174,14 @@ export const AppView = (props: AppViewProps) => {
                         badges={hasNewInventoryItems ? { inventory: "New" } : undefined}
                         className="ts-bottombar-switcher"
                         useInventoryMenu
+                        useHeroMenu
+                        showRosterButton
+                        heroIncludesEquipment
+                        heroLabel="Hero"
                         labels={{
                             action: "Act",
-                            stats: "Roster",
+                            stats: "Stats",
+                            roster: "Roster",
                             inventory: "Bank",
                             equipment: "Equip",
                             shop: "Shop"
