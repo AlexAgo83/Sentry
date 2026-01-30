@@ -1,4 +1,5 @@
 import { memo } from "react";
+import type { CSSProperties } from "react";
 import type { PlayerState } from "../../core/types";
 import { getSkillIconColor } from "../ui/skillColors";
 import { SkillIcon } from "../ui/skillIcons";
@@ -64,6 +65,9 @@ export const RosterPanel = memo(({
                             const metaLabel = recipeLabel ?? "No recipe";
                             const skillColor = getSkillIconColor(currentAction);
                             const skillLevel = currentAction ? currentSkill?.level ?? 0 : 0;
+                            const avatarStyle = {
+                                "--ts-avatar-torso": skillColor
+                            } as CSSProperties;
 
                             return (
                                 <div
@@ -71,9 +75,18 @@ export const RosterPanel = memo(({
                                     className={`ts-player-card ${player.id === activePlayerId ? "is-active" : ""}`}
                                     onClick={() => onSetActivePlayer(player.id)}
                                 >
-                                    <div className="ts-player-info">
-                                        <span className="ts-player-name">{player.name}</span>
-                                        <span className="ts-player-meta">{metaLabel}</span>
+                                    <div className="ts-player-main">
+                                        <div className="ts-player-avatar" style={avatarStyle} aria-hidden="true">
+                                            <span className="ts-player-avatar-layer ts-player-avatar-legs" />
+                                            <span className="ts-player-avatar-layer ts-player-avatar-head" />
+                                            <span className="ts-player-avatar-layer ts-player-avatar-torso" />
+                                            <span className="ts-player-avatar-layer ts-player-avatar-hands" />
+                                            <span className="ts-player-avatar-layer ts-player-avatar-feets" />
+                                        </div>
+                                        <div className="ts-player-info">
+                                            <span className="ts-player-name">{player.name}</span>
+                                            <span className="ts-player-meta">{metaLabel}</span>
+                                        </div>
                                     </div>
                                     {actionLabel ? (
                                         <div className="ts-player-skill">
@@ -98,9 +111,18 @@ export const RosterPanel = memo(({
                             aria-label="Enlist a new hero"
                             title={!canAddPlayer ? "Roster limit reached" : undefined}
                         >
-                            <div className="ts-player-info">
-                                <span className="ts-player-name">Enlist a new hero</span>
-                                <span className="ts-player-meta">Recruit a character</span>
+                            <div className="ts-player-main">
+                                <div className="ts-player-avatar is-placeholder" aria-hidden="true">
+                                    <span className="ts-player-avatar-layer ts-player-avatar-legs" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-head" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-torso" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-hands" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-feets" />
+                                </div>
+                                <div className="ts-player-info">
+                                    <span className="ts-player-name">Enlist a new hero</span>
+                                    <span className="ts-player-meta">Recruit a character</span>
+                                </div>
                             </div>
                             <div className="ts-player-skill" aria-hidden="true">
                                 <span className="ts-player-skill-label">+</span>

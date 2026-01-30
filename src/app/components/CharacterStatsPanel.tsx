@@ -1,31 +1,15 @@
 import { memo } from "react";
+import type { CSSProperties } from "react";
 import type { PlayerStatsState, SkillDefinition, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
-
-const resolveSkillLevel = (levels: Partial<Record<SkillId, number>>, skillId: SkillId) => {
-    return levels[skillId] ?? 0;
-};
-
-const SKILL_COLORS: Record<SkillId, string> = {
-    Combat: "#f2c14e",
-    Hunting: "#5dd9c1",
-    Cooking: "#f07f4f",
-    Excavation: "#9aa7c3",
-    MetalWork: "#c68130",
-    Alchemy: "#7fd1b9",
-    Herbalism: "#8ac926",
-    Tailoring: "#f4d35e",
-    Fishing: "#4cc9f0",
-    Carpentry: "#c97c5d",
-    Leatherworking: "#a26769",
-    Invocation: "#6f93ff"
-};
+import { getSkillIconColor } from "../ui/skillColors";
 
 type CharacterStatsPanelProps = {
     skills: SkillDefinition[];
     skillLevels: Partial<Record<SkillId, number>>;
+    avatarColor: string;
     stats: PlayerStatsState;
     effectiveStats: Record<StatId, number>;
     equipmentMods: StatModifier[];
@@ -34,6 +18,10 @@ type CharacterStatsPanelProps = {
     onToggleCollapsed: () => void;
     onRenameHero: () => void;
     canRenameHero: boolean;
+};
+
+const resolveSkillLevel = (levels: Partial<Record<SkillId, number>>, skillId: SkillId) => {
+    return levels[skillId] ?? 0;
 };
 
 type StatRowProps = {
@@ -109,6 +97,7 @@ const formatTimeLeft = (ms: number): string => {
 export const CharacterStatsPanel = memo(({
     skills,
     skillLevels,
+    avatarColor,
     stats,
     equipmentMods,
     now,
@@ -121,6 +110,10 @@ export const CharacterStatsPanel = memo(({
     const tempTotals = accumulateTotals(stats.temporaryMods);
     const gearTotals = equipmentMods.length > 0 ? accumulateTotals(equipmentMods) : buildStatTotals();
     const tempMods = stats.temporaryMods;
+    const avatarStyle = {
+        "--ts-avatar-torso": avatarColor
+    } as CSSProperties;
+    const avatarClassName = `ts-player-avatar ts-player-avatar--large${canRenameHero ? "" : " is-placeholder"}`;
 
     return (
         <section className="generic-panel ts-panel">
@@ -154,10 +147,22 @@ export const CharacterStatsPanel = memo(({
                 <>
                     <div className="ts-stats-layout">
                         <div className="ts-stats-column">
+                            <div className="ts-skin-panel">
+                                <div className={avatarClassName} style={avatarStyle} aria-hidden="true">
+                                    <span className="ts-player-avatar-layer ts-player-avatar-legs" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-head" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-torso" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-hands" />
+                                    <span className="ts-player-avatar-layer ts-player-avatar-feets" />
+                                </div>
+                                <div className="ts-skin-caption">Hero skin</div>
+                            </div>
+                        </div>
+                        <div className="ts-stats-column ts-stats-skills">
                             <div className="ts-stat-grid">
                                 {skills.map((skill) => {
                                     const level = resolveSkillLevel(skillLevels, skill.id);
-                                    const color = SKILL_COLORS[skill.id];
+                                    const color = getSkillIconColor(skill.id);
                                     return <StatRow key={skill.id} skill={skill} level={level} color={color} />;
                                 })}
                             </div>

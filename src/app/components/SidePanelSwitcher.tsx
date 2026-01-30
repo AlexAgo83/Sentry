@@ -8,6 +8,101 @@ type SidePanelSwitcherLabels = {
     shop: string;
 };
 
+type TabIconProps = {
+    kind: keyof SidePanelSwitcherLabels;
+};
+
+const TabIcon = ({ kind }: TabIconProps) => {
+    switch (kind) {
+        case "action":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 2L4 14h7l-1 8 10-14h-7l0-6z"
+                    />
+                </svg>
+            );
+        case "stats":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 20V10m6 10V4m6 16v-7m4 7H2" />
+                </svg>
+            );
+        case "inventory":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M7 8V7a5 5 0 0 1 10 0v1m-12 0h14l-1 13H6L5 8z"
+                    />
+                </svg>
+            );
+        case "equipment":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 2l7 4v6c0 5-3 9-7 10C8 21 5 17 5 12V6l7-4z"
+                    />
+                </svg>
+            );
+        case "shop":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 7h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 7z"
+                    />
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8 7V5a4 4 0 0 1 8 0v2"
+                    />
+                </svg>
+            );
+        default:
+            return null;
+    }
+};
+
+type TabButtonProps = {
+    id: keyof SidePanelSwitcherLabels;
+    label: string;
+    badge?: string;
+    isSelected: boolean;
+    onClick: () => void;
+};
+
+const TabButton = memo(({ id, label, badge, isSelected, onClick }: TabButtonProps) => {
+    const ariaLabel = badge ? `${label} (${badge})` : label;
+    return (
+        <button
+            type="button"
+            role="tab"
+            aria-selected={isSelected}
+            aria-label={ariaLabel}
+            title={label}
+            className={`ts-chip ts-focusable${isSelected ? " is-active" : ""}`}
+            onClick={onClick}
+        >
+            <span className="ts-chip-icon" aria-hidden="true">
+                <TabIcon kind={id} />
+            </span>
+            <span className="ts-chip-text">{label}</span>
+            {badge ? (
+                <span className="ts-chip-badge" aria-hidden="true">{badge}</span>
+            ) : null}
+        </button>
+    );
+});
+
+TabButton.displayName = "TabButton";
+
 type SidePanelSwitcherProps = {
     active: "action" | "stats" | "inventory" | "equipment" | "shop";
     onShowAction: () => void;
@@ -81,97 +176,22 @@ export const SidePanelSwitcher = memo(({
 
     const rootClassName = `ts-panel-switcher${useInventoryMenu ? " ts-panel-switcher--inventory-menu" : ""}${className ? ` ${className}` : ""}`;
 
-    const TabIcon = ({ kind }: { kind: keyof SidePanelSwitcherLabels }) => {
-        switch (kind) {
-            case "action":
-                return (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13 2L4 14h7l-1 8 10-14h-7l0-6z"
-                        />
-                    </svg>
-                );
-            case "stats":
-                return (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 20V10m6 10V4m6 16v-7m4 7H2" />
-                    </svg>
-                );
-            case "inventory":
-                return (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M7 8V7a5 5 0 0 1 10 0v1m-12 0h14l-1 13H6L5 8z"
-                        />
-                    </svg>
-                );
-            case "equipment":
-                return (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 2l7 4v6c0 5-3 9-7 10C8 21 5 17 5 12V6l7-4z"
-                        />
-                    </svg>
-                );
-            case "shop":
-                return (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M4 7h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 7z"
-                        />
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M8 7V5a4 4 0 0 1 8 0v2"
-                        />
-                    </svg>
-                );
-            default:
-                return null;
-        }
-    };
-
-    const TabButton = (props: {
-        id: keyof SidePanelSwitcherLabels;
-        isSelected: boolean;
-        onClick: () => void;
-    }) => {
-        const label = resolvedLabels[props.id];
-        const badge = badges?.[props.id];
-        const ariaLabel = badge ? `${label} (${badge})` : label;
-        return (
-            <button
-                type="button"
-                role="tab"
-                aria-selected={props.isSelected}
-                aria-label={ariaLabel}
-                title={label}
-                className={`ts-chip ts-focusable${props.isSelected ? " is-active" : ""}`}
-                onClick={props.onClick}
-            >
-                <span className="ts-chip-icon" aria-hidden="true">
-                    <TabIcon kind={props.id} />
-                </span>
-                <span className="ts-chip-text">{label}</span>
-                {badge ? (
-                    <span className="ts-chip-badge" aria-hidden="true">{badge}</span>
-                ) : null}
-            </button>
-        );
-    };
-
     return (
         <div className={rootClassName} role="tablist" aria-label="Main panels">
-            <TabButton id="action" isSelected={active === "action"} onClick={onShowAction} />
-            <TabButton id="stats" isSelected={active === "stats"} onClick={onShowStats} />
+            <TabButton
+                id="action"
+                label={resolvedLabels.action}
+                badge={badges?.action}
+                isSelected={active === "action"}
+                onClick={onShowAction}
+            />
+            <TabButton
+                id="stats"
+                label={resolvedLabels.stats}
+                badge={badges?.stats}
+                isSelected={active === "stats"}
+                onClick={onShowStats}
+            />
             {useInventoryMenu ? (
                 <div className="ts-panel-switcher-item ts-bank-menu" ref={menuRef}>
                     <button
@@ -253,16 +273,46 @@ export const SidePanelSwitcher = memo(({
                 <>
                     {inventoryOrder === "equipment-first" ? (
                         <>
-                            <TabButton id="equipment" isSelected={active === "equipment"} onClick={onShowEquipment} />
-                            <TabButton id="inventory" isSelected={active === "inventory"} onClick={onShowInventory} />
+                            <TabButton
+                                id="equipment"
+                                label={resolvedLabels.equipment}
+                                badge={badges?.equipment}
+                                isSelected={active === "equipment"}
+                                onClick={onShowEquipment}
+                            />
+                            <TabButton
+                                id="inventory"
+                                label={resolvedLabels.inventory}
+                                badge={badges?.inventory}
+                                isSelected={active === "inventory"}
+                                onClick={onShowInventory}
+                            />
                         </>
                     ) : (
                         <>
-                            <TabButton id="inventory" isSelected={active === "inventory"} onClick={onShowInventory} />
-                            <TabButton id="equipment" isSelected={active === "equipment"} onClick={onShowEquipment} />
+                            <TabButton
+                                id="inventory"
+                                label={resolvedLabels.inventory}
+                                badge={badges?.inventory}
+                                isSelected={active === "inventory"}
+                                onClick={onShowInventory}
+                            />
+                            <TabButton
+                                id="equipment"
+                                label={resolvedLabels.equipment}
+                                badge={badges?.equipment}
+                                isSelected={active === "equipment"}
+                                onClick={onShowEquipment}
+                            />
                         </>
                     )}
-                    <TabButton id="shop" isSelected={active === "shop"} onClick={onShowShop} />
+                    <TabButton
+                        id="shop"
+                        label={resolvedLabels.shop}
+                        badge={badges?.shop}
+                        isSelected={active === "shop"}
+                        onClick={onShowShop}
+                    />
                 </>
             )}
         </div>

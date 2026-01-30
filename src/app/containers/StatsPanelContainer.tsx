@@ -7,6 +7,7 @@ import { useGameStore } from "../hooks/useGameStore";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { CharacterStatsPanel } from "../components/CharacterStatsPanel";
+import { getSkillIconColor } from "../ui/skillColors";
 
 type StatsPanelContainerProps = {
     onRenameHero: () => void;
@@ -26,6 +27,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
         : null;
     const statsState = statsSnapshot?.stats ?? createPlayerStatsState();
     const effectiveStats = statsSnapshot?.effective ?? computeEffectiveStats(statsState, equipmentMods);
+    const avatarColor = getSkillIconColor(activePlayer?.selectedActionId);
     const skillLevels = useMemo(() => SKILL_DEFINITIONS.reduce<Partial<Record<SkillId, number>>>((acc, skill) => {
         acc[skill.id] = activePlayer?.skills[skill.id]?.level ?? 0;
         return acc;
@@ -35,6 +37,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
         <CharacterStatsPanel
             skills={SKILL_DEFINITIONS}
             skillLevels={skillLevels}
+            avatarColor={avatarColor}
             stats={statsState}
             effectiveStats={effectiveStats}
             equipmentMods={equipmentMods}

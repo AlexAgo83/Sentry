@@ -229,6 +229,100 @@
     gap: var(--m1);
 }
 
+.ts-player-main {
+    display: flex;
+    align-items: center;
+    gap: var(--m4);
+}
+
+.ts-player-avatar {
+    width: 52px;
+    height: 52px;
+    position: relative;
+    --ts-avatar-skin: #d8c2a3;
+    border-radius: 12px;
+    border: 1px solid rgba(93, 217, 193, 0.4);
+    background:
+        radial-gradient(circle at 30% 30%, rgba(93, 217, 193, 0.25), rgba(12, 18, 32, 0)),
+        rgba(8, 12, 22, 0.7);
+    box-shadow: inset 0 0 0 1px rgba(242, 193, 78, 0.15);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.ts-player-avatar-layer {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.ts-player-avatar-legs {
+    z-index: 0;
+    background-image: url("/assets/hero/base_body_legs.svg");
+    background-size: 92% auto;
+}
+
+.ts-player-avatar-torso {
+    z-index: 2;
+    background-color: var(--ts-avatar-torso, #5d6a82);
+    -webkit-mask-image: url("/assets/hero/base_body_torso.svg");
+    mask-image: url("/assets/hero/base_body_torso.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 82% auto;
+    mask-size: 82% auto;
+}
+
+.ts-player-avatar-head {
+    z-index: 1;
+    background-color: var(--ts-avatar-skin);
+    -webkit-mask-image: url("/assets/hero/base_body_head.svg");
+    mask-image: url("/assets/hero/base_body_head.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 72% auto;
+    mask-size: 72% auto;
+}
+
+.ts-player-avatar-hands {
+    z-index: 3;
+    background-color: var(--ts-avatar-skin);
+    -webkit-mask-image: url("/assets/hero/base_body_hands.svg");
+    mask-image: url("/assets/hero/base_body_hands.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 92% auto;
+    mask-size: 92% auto;
+}
+
+.ts-player-avatar-feets {
+    z-index: 3;
+    background-color: var(--ts-avatar-skin);
+    -webkit-mask-image: url("/assets/hero/base_body_feets.svg");
+    mask-image: url("/assets/hero/base_body_feets.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 92% auto;
+    mask-size: 92% auto;
+}
+
+.ts-player-avatar.is-placeholder {
+    opacity: 0.35;
+}
+
+.ts-player-avatar.is-placeholder .ts-player-avatar-layer {
+    opacity: 0;
+}
+
 .ts-player-name {
     font-weight: 600;
 }
