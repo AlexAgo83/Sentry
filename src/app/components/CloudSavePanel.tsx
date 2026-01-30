@@ -7,6 +7,7 @@ export type CloudSavePanelProps = {
     isAuthenticated: boolean;
     status: "idle" | "authenticating" | "ready" | "error" | "offline" | "warming";
     error: string | null;
+    warmupRetrySeconds: number | null;
     isAvailable: boolean;
     hasCloudSave: boolean;
     localMeta: CloudSaveMeta;
@@ -16,6 +17,7 @@ export type CloudSavePanelProps = {
     onLogin: () => void;
     onRegister: () => void;
     onRefresh: () => void;
+    onWarmupRetryNow: () => void;
     onLogout: () => void;
     onLoadCloud: () => void;
     onOverwriteCloud: () => void;
@@ -35,6 +37,7 @@ export const CloudSavePanel = memo(({
     isAuthenticated,
     status,
     error,
+    warmupRetrySeconds,
     isAvailable,
     hasCloudSave,
     localMeta,
@@ -44,12 +47,16 @@ export const CloudSavePanel = memo(({
     onLogin,
     onRegister,
     onRefresh,
+    onWarmupRetryNow,
     onLogout,
     onLoadCloud,
     onOverwriteCloud
 }: CloudSavePanelProps) => {
     const disabled = !isAvailable || status === "authenticating" || status === "warming";
     const authDisabled = disabled || !isAuthenticated;
+    const warmupLabel = warmupRetrySeconds && warmupRetrySeconds > 0
+        ? `Cloud backend is waking up… retrying in ${warmupRetrySeconds}s.`
+        : error ?? "Cloud backend is waking up…";
     const statusMessage = (() => {
         if (!isAvailable) {
             return "Cloud sync unavailable (missing API base or offline).";
@@ -58,7 +65,7 @@ export const CloudSavePanel = memo(({
             return "Authenticating…";
         }
         if (status === "warming") {
-            return error ?? "Cloud backend is waking up…";
+            return warmupLabel;
         }
         if (error) {
             return error;
@@ -143,6 +150,17 @@ export const CloudSavePanel = memo(({
                     ) : (
                         <span>{statusMessage}</span>
                     )}
+                </div>
+            ) : null}
+            {status === "warming" ? (
+                <div className="ts-system-cloud-actions">
+                    <button
+                        type="button"
+                        className="generic-field button ts-focusable"
+                        onClick={onWarmupRetryNow}
+                    >
+                        Retry now
+                    </button>
                 </div>
             ) : null}
             {isAuthenticated ? (

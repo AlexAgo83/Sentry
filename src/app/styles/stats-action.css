@@ -118,6 +118,15 @@
     aspect-ratio: auto;
 }
 
+.ts-shop-tile.is-maxed {
+    border-color: rgba(93, 217, 193, 0.2);
+    opacity: 0.7;
+}
+
+.ts-shop-tile.is-maxed .ts-shop-tile-price {
+    color: var(--color-text-muted);
+}
+
 .ts-shop-tile-title {
     font-size: var(--text-s-size);
     letter-spacing: 0.14em;

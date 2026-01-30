@@ -131,7 +131,12 @@ describe("App", () => {
             expect(within(summary).getByText("Roaming")).toBeTruthy();
             expect(within(summary).getByText("Frontline Clash")).toBeTruthy();
             expect(within(summary).getByText("1 Food")).toBeTruthy();
-            expect(within(summary).getByText("1 Gold, 1 Bones")).toBeTruthy();
+            const inlineItems = within(summary).getAllByText((_, node) => (
+                Boolean(node?.classList?.contains("ts-item-inline"))
+            ));
+            const inlineText = inlineItems.map((node) => node.textContent ?? "");
+            expect(inlineText.some((text) => text.includes("1 Gold"))).toBe(true);
+            expect(inlineText.some((text) => text.includes("1 Bones"))).toBe(true);
         }
 
         const missingHint = screen.getByText(/Missing: Food x1/);

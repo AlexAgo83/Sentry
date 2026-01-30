@@ -14,6 +14,7 @@ export const CloudSavePanelContainer = () => {
             isAuthenticated={Boolean(cloud.accessToken)}
             status={cloud.status}
             error={cloud.error}
+            warmupRetrySeconds={cloud.warmupRetrySeconds}
             isAvailable={cloud.isAvailable}
             hasCloudSave={cloud.hasCloudSave}
             localMeta={cloud.localMeta}
@@ -23,6 +24,7 @@ export const CloudSavePanelContainer = () => {
             onLogin={() => cloud.authenticate("login", email, password)}
             onRegister={() => cloud.authenticate("register", email, password)}
             onRefresh={cloud.refreshCloud}
+            onWarmupRetryNow={cloud.retryWarmupNow}
             onLogout={cloud.logout}
             onLoadCloud={cloud.loadCloud}
             onOverwriteCloud={cloud.overwriteCloud}

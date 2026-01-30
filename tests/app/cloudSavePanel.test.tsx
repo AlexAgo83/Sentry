@@ -8,6 +8,7 @@ const baseProps = {
     isAuthenticated: true,
     status: "ready" as const,
     error: null,
+    warmupRetrySeconds: null,
     isAvailable: true,
     hasCloudSave: true,
     localMeta: {
@@ -25,6 +26,7 @@ const baseProps = {
     onLogin: vi.fn(),
     onRegister: vi.fn(),
     onRefresh: vi.fn(),
+    onWarmupRetryNow: vi.fn(),
     onLogout: vi.fn(),
     onLoadCloud: vi.fn(),
     onOverwriteCloud: vi.fn()

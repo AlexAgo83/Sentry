@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toGameSave } from "../../core/serialization";
 import { parseSaveEnvelopeMeta } from "../../adapters/persistence/saveEnvelope";
 import { readRawSave } from "../../adapters/persistence/localStorageKeys";
@@ -16,6 +16,7 @@ export type CloudSaveMeta = {
 type CloudSaveState = {
     status: "idle" | "authenticating" | "ready" | "error" | "offline" | "warming";
     error: string | null;
+    warmupRetrySeconds: number | null;
     cloudMeta: CloudSaveMeta | null;
     localMeta: CloudSaveMeta;
     hasCloudSave: boolean;
@@ -63,7 +64,6 @@ const warmupMessage = (seconds?: number) => (
         : "Cloud backend is still waking up. Please retry in a moment."
 );
 
-const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export const useCloudSave = () => {
     const virtualScore = useGameStore(selectVirtualScore);
@@ -74,7 +74,10 @@ export const useCloudSave = () => {
     const [hasCloudSave, setHasCloudSave] = useState(false);
     const [status, setStatus] = useState<CloudSaveState["status"]>("idle");
     const [error, setError] = useState<string | null>(null);
+    const [warmupRetrySeconds, setWarmupRetrySeconds] = useState<number | null>(null);
     const [isOnline, setIsOnline] = useState(() => (typeof navigator !== "undefined" ? navigator.onLine : true));
+    const warmupRetrySignalRef = useRef<(() => void) | null>(null);
+    const lastRequestRef = useRef<(() => Promise<void>) | null>(null);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -92,10 +95,21 @@ export const useCloudSave = () => {
 
     const localMeta = useMemo(() => buildLocalMeta(virtualScore, appVersion), [virtualScore, appVersion]);
     const isAvailable = Boolean(cloudClient.getApiBase()) && isOnline;
+    const retryWarmupNow = useCallback(() => {
+        if (warmupRetrySignalRef.current) {
+            warmupRetrySignalRef.current();
+            return;
+        }
+        const lastRequest = lastRequestRef.current;
+        if (lastRequest) {
+            void lastRequest();
+        }
+    }, []);
     const applyRequestError = useCallback((err: unknown, fallback: string) => {
         if (isWarmupError(err)) {
             setStatus("warming");
             setError(warmupMessage());
+            setWarmupRetrySeconds(null);
             return;
         }
         setStatus("error");
@@ -107,23 +121,37 @@ export const useCloudSave = () => {
         action: () => Promise<T>
     ): Promise<T> => {
         for (let attempt = 0; attempt <= WARMUP_RETRY_DELAYS_MS.length; attempt += 1) {
+            setWarmupRetrySeconds(null);
             setStatus(statusOnStart);
             try {
+                warmupRetrySignalRef.current = null;
                 return await action();
             } catch (err) {
                 if (!isWarmupError(err) || attempt === WARMUP_RETRY_DELAYS_MS.length) {
+                    warmupRetrySignalRef.current = null;
+                    setWarmupRetrySeconds(null);
                     throw err;
                 }
                 const waitMs = WARMUP_RETRY_DELAYS_MS[attempt];
+                const waitSeconds = Math.max(1, Math.round(waitMs / 1000));
                 setStatus("warming");
-                setError(warmupMessage(Math.round(waitMs / 1000)));
-                await sleep(waitMs);
+                setError(warmupMessage(waitSeconds));
+                setWarmupRetrySeconds(waitSeconds);
+                await new Promise<void>((resolve) => {
+                    const timeout = setTimeout(resolve, waitMs);
+                    warmupRetrySignalRef.current = () => {
+                        clearTimeout(timeout);
+                        resolve();
+                    };
+                });
+                warmupRetrySignalRef.current = null;
             }
         }
         throw new Error("Warmup retry exhausted.");
     }, []);
 
     const authenticate = useCallback(async (mode: "login" | "register", email: string, password: string) => {
+        lastRequestRef.current = () => authenticate(mode, email, password);
         if (!isAvailable) {
             setStatus("offline");
             setError("Cloud sync is unavailable.");
@@ -179,6 +207,7 @@ export const useCloudSave = () => {
     }, [accessToken, refreshToken]);
 
     const refreshCloud = useCallback(async () => {
+        lastRequestRef.current = refreshCloud;
         if (!isAvailable) {
             setStatus("offline");
             setError("Cloud sync is unavailable.");
@@ -223,6 +252,7 @@ export const useCloudSave = () => {
     }, [cloudPayload]);
 
     const overwriteCloud = useCallback(async () => {
+        lastRequestRef.current = overwriteCloud;
         if (!isAvailable) {
             setStatus("offline");
             setError("Cloud sync is unavailable.");
@@ -257,11 +287,29 @@ export const useCloudSave = () => {
         setHasCloudSave(false);
         setStatus("idle");
         setError(null);
+        setWarmupRetrySeconds(null);
     }, []);
+
+    useEffect(() => {
+        if (status !== "warming") {
+            if (warmupRetrySeconds !== null) {
+                setWarmupRetrySeconds(null);
+            }
+            return;
+        }
+        if (warmupRetrySeconds === null || warmupRetrySeconds <= 0) {
+            return;
+        }
+        const timeout = setTimeout(() => {
+            setWarmupRetrySeconds((prev) => (prev && prev > 0 ? prev - 1 : prev));
+        }, 1000);
+        return () => clearTimeout(timeout);
+    }, [status, warmupRetrySeconds]);
 
     return {
         status,
         error,
+        warmupRetrySeconds,
         cloudMeta,
         localMeta,
         hasCloudSave,
@@ -271,12 +319,14 @@ export const useCloudSave = () => {
         refreshCloud,
         loadCloud,
         overwriteCloud,
-        logout
+        logout,
+        retryWarmupNow
     } satisfies CloudSaveState & {
         authenticate: (mode: "login" | "register", email: string, password: string) => Promise<void>;
         refreshCloud: () => Promise<void>;
         loadCloud: () => Promise<void>;
         overwriteCloud: () => Promise<void>;
         logout: () => void;
+        retryWarmupNow: () => void;
     };
 };

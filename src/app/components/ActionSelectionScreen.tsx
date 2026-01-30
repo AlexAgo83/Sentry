@@ -9,6 +9,12 @@ import { getSkillIconColor } from "../ui/skillColors";
 import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
 import { ItemIcon } from "../ui/itemIcon";
 
+type ItemEntry = {
+    id: string;
+    name: string;
+    amount: number;
+};
+
 type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
     skills: SkillDefinition[];
@@ -19,6 +25,8 @@ type ActionSelectionScreenProps = {
     pendingRecipeLabel: string;
     pendingConsumptionLabel: string;
     pendingProductionLabel: string;
+    pendingConsumptionEntries: ItemEntry[];
+    pendingProductionEntries: ItemEntry[];
     pendingActionDurationLabel: string;
     pendingActionXpLabel: string;
     missingItemsLabel: string;
@@ -41,6 +49,8 @@ export const ActionSelectionScreen = memo(({
     pendingRecipeLabel,
     pendingConsumptionLabel,
     pendingProductionLabel,
+    pendingConsumptionEntries,
+    pendingProductionEntries,
     pendingActionDurationLabel,
     pendingActionXpLabel,
     missingItemsLabel,
@@ -51,8 +61,30 @@ export const ActionSelectionScreen = memo(({
     onStartAction,
     onStopAction,
     onBack
-}: ActionSelectionScreenProps) => (
-    <section className="generic-panel ts-panel">
+}: ActionSelectionScreenProps) => {
+    const renderItemSummary = (
+        entries: ItemEntry[],
+        fallbackLabel: string,
+        tone: "consume" | "produce"
+    ) => {
+        if (entries.length === 0) {
+            return fallbackLabel;
+        }
+        return (
+            <span className="ts-item-inline-list">
+                {entries.map((entry, index) => (
+                    <span key={entry.id} className="ts-item-inline">
+                        {entry.amount} {entry.name}
+                        <ItemIcon itemId={entry.id} tone={tone} />
+                        {index < entries.length - 1 ? ", " : null}
+                    </span>
+                ))}
+            </span>
+        );
+    };
+
+    return (
+        <section className="generic-panel ts-panel">
         <div className="ts-panel-header">
             <div className="ts-panel-heading">
                 <h2 className="ts-panel-title">Action</h2>
@@ -267,11 +299,15 @@ export const ActionSelectionScreen = memo(({
                 </div>
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">Consumes</span>
-                    <span className="ts-action-summary-value">{pendingConsumptionLabel}</span>
+                    <span className="ts-action-summary-value">
+                        {renderItemSummary(pendingConsumptionEntries, pendingConsumptionLabel, "consume")}
+                    </span>
                 </div>
                 <div className="ts-action-summary-row">
                     <span className="ts-action-summary-label">Produces</span>
-                    <span className="ts-action-summary-value">{pendingProductionLabel}</span>
+                    <span className="ts-action-summary-value">
+                        {renderItemSummary(pendingProductionEntries, pendingProductionLabel, "produce")}
+                    </span>
                 </div>
             </div>
             {missingItemsLabel ? (
@@ -279,6 +315,7 @@ export const ActionSelectionScreen = memo(({
             ) : null}
         </div>
     </section>
-));
+    );
+});
 
 ActionSelectionScreen.displayName = "ActionSelectionScreen";
