@@ -5,6 +5,7 @@ import { createInitialGameState } from "../../src/core/state";
 describe("gameStore", () => {
     it("dispatches actions and notifies subscribers", () => {
         const initial = createInitialGameState("0.4.0");
+        initial.rosterLimit = 2;
         const store = createGameStore(initial);
         const listener = vi.fn();
         const unsubscribe = store.subscribe(listener);

@@ -27,6 +27,7 @@ describe("panel components", () => {
             <RosterPanel
                 players={buildRosterPlayers()}
                 activePlayerId="1"
+                rosterLimit={3}
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
                 onSetActivePlayer={onSetActivePlayer}

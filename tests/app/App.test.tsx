@@ -24,16 +24,19 @@ vi.mock("../../src/app/game", () => ({
     }
 }));
 
-const buildState = (options?: { food?: number }) => {
+const buildState = (options?: { food?: number; rosterLimit?: number }) => {
     const state = createInitialGameState("0.4.0");
     state.players["2"] = createPlayerState("2", "Mara");
+    if (options?.rosterLimit !== undefined) {
+        state.rosterLimit = options.rosterLimit;
+    }
     state.inventory.items.food = options?.food ?? state.inventory.items.food ?? 0;
     state.inventory.items.meat = 2;
     state.inventory.items.bones = 1;
     return state;
 };
 
-const renderApp = (options?: { food?: number }) => {
+const renderApp = (options?: { food?: number; rosterLimit?: number }) => {
     testStore = createGameStore(buildState(options));
     testRuntime = {
         start: vi.fn(),
@@ -52,7 +55,7 @@ describe("App", () => {
     });
 
     it("renders roster and toggles inventory panel", async () => {
-        const { user } = renderApp();
+        const { user } = renderApp({ rosterLimit: 3 });
         expect(screen.getByText("Roster")).toBeTruthy();
         const rosterPanel = screen.getByText("Roster").closest("section");
         expect(rosterPanel).toBeTruthy();
@@ -62,7 +65,7 @@ describe("App", () => {
             expect(within(rosterPanel).getByRole("button", { name: "Enlist a new hero" })).toBeTruthy();
         }
 
-        await user.click(screen.getByRole("tab", { name: "Bank" }));
+        await user.click(screen.getByRole("tab", { name: "Inv" }));
 
         const inventoryPanel = screen.getByRole("heading", { name: "Inventory" }).closest("section");
         expect(inventoryPanel).toBeTruthy();
@@ -89,8 +92,8 @@ describe("App", () => {
     });
 
     it("shows focusable inventory controls and usage labels", async () => {
-        const { user } = renderApp();
-        const inventoryTab = screen.getByRole("tab", { name: "Bank" });
+        const { user } = renderApp({ rosterLimit: 3 });
+        const inventoryTab = screen.getByRole("tab", { name: "Inv" });
         expect(inventoryTab.className).toContain("ts-focusable");
 
         await user.click(inventoryTab);
@@ -156,7 +159,7 @@ describe("App", () => {
     });
 
     it("recruits and renames heroes, escape closes modal", async () => {
-        const { user } = renderApp();
+        const { user } = renderApp({ rosterLimit: 3 });
 
         await user.click(screen.getByRole("button", { name: "Enlist a new hero" }));
         const nameInput = screen.getByLabelText("Hero name") as HTMLInputElement;

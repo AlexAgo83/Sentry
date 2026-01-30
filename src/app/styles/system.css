@@ -1,0 +1,158 @@
+.ts-action-row.ts-system-actions {
+    justify-content: flex-end;
+    padding: 0 var(--m7);
+}
+
+.ts-list + .ts-action-row.ts-system-actions {
+    margin-top: var(--m7);
+}
+
+.ts-action-row.ts-system-actions + .ts-action-row.ts-system-actions {
+    margin-top: var(--m4);
+}
+
+.ts-action-row.ts-system-actions + .ts-panel-body {
+    margin-top: var(--m7);
+}
+
+.ts-panel-body + .ts-system-cloud {
+    margin-top: var(--m8);
+}
+
+.ts-system-footer {
+    margin-top: var(--m5);
+    text-align: right;
+    font-size: var(--text-xs-size);
+    color: var(--color-text-muted);
+}
+
+.ts-system-cloud {
+    margin-top: var(--m6);
+    padding-top: var(--m5);
+    border-top: 1px solid rgba(93, 217, 193, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+}
+
+.ts-system-cloud-header {
+    margin: var(--m2) 0 0;
+    font-size: calc(var(--text-xl-size) + var(--m2));
+    font-family: var(--display-font);
+    color: var(--color-primary);
+}
+
+.ts-system-cloud-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m3);
+}
+
+.ts-system-cloud-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+    font-size: var(--text-xs-size);
+    color: var(--color-text-muted);
+}
+
+.ts-system-cloud-input {
+    width: 100%;
+}
+
+.ts-system-cloud-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--m4);
+    justify-content: flex-start;
+    padding: 0 var(--m7);
+}
+
+.ts-system-cloud-status {
+    font-size: var(--text-xs-size);
+    color: var(--color-text);
+    margin-top: var(--m2);
+}
+
+.ts-system-cloud-error {
+    color: rgba(242, 120, 120, 0.9);
+}
+
+.ts-system-cloud-diff {
+    display: grid;
+    gap: var(--m2);
+    font-size: var(--text-xs-size);
+    color: var(--color-text-muted);
+}
+
+.ts-action-row.ts-action-stack {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.ts-action-row.ts-action-stack .generic-field.button {
+    width: 100%;
+}
+
+.ts-devtools-actions {
+    margin-top: var(--m4);
+}
+
+.ts-crash-list {
+    gap: var(--m2);
+    font-size: var(--text-s-size);
+}
+
+.ts-crash-list li {
+    padding-left: var(--m7);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.ts-crash-actions {
+    margin-top: var(--m7);
+}
+
+.generic-field.button.ts-devtools-button {
+    border: 1px solid rgba(93, 217, 193, 0.28);
+    background: rgba(12, 18, 32, 0.78);
+    color: var(--color-text);
+    border-radius: 14px;
+    padding: var(--m2) var(--m6);
+    font-weight: 600;
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.14em;
+    box-shadow: none;
+    transform: none;
+}
+
+.generic-field.button.ts-devtools-button:hover:not(:disabled) {
+    border-color: rgba(242, 193, 78, 0.55);
+    background: rgba(21, 28, 46, 0.85);
+    color: var(--color-primary);
+    box-shadow: none;
+    transform: translateY(-1px);
+}
+
+.generic-field.button.ts-devtools-button:disabled,
+.generic-field.button.ts-devtools-button[disabled] {
+    border-color: rgba(93, 217, 193, 0.14);
+    background: rgba(12, 18, 32, 0.5);
+    color: rgba(243, 239, 228, 0.35);
+    transform: none;
+    box-shadow: none;
+}
+
+.generic-field.button.ts-reset {
+    border: 1px solid rgba(199, 74, 61, 0.6);
+    background: linear-gradient(140deg, rgba(199, 74, 61, 0.9), rgba(118, 23, 31, 0.9));
+    color: #f6e5e2;
+}
+
+.generic-field.button.ts-reset:hover {
+    border-color: rgba(242, 193, 78, 0.6);
+    background: linear-gradient(140deg, rgba(242, 193, 78, 0.9), rgba(198, 129, 48, 0.85));
+    color: #1b1405;
+}
+

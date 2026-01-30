@@ -1,0 +1,223 @@
+.generic-field.panel.progress-row.ts-progress-stamina::after {
+    background: linear-gradient(90deg, rgba(125, 199, 255, 0.4), rgba(79, 168, 255, 0.55));
+}
+
+.generic-field.panel.progress-row.ts-progress-skill::after {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.4), rgba(91, 191, 62, 0.55));
+}
+
+.generic-field.panel.progress-row.ts-progress-recipe::after {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.4), rgba(91, 191, 62, 0.55));
+}
+
+.generic-field.panel.progress-row.ts-progress-action.is-stunned::after {
+    background: linear-gradient(90deg, rgba(199, 74, 61, 0.6), rgba(118, 23, 31, 0.8));
+}
+
+progress.generic-field.progress.ts-progress-stamina {
+    accent-color: #7dc7ff;
+}
+
+progress.generic-field.progress.ts-progress-stamina::-webkit-progress-value {
+    background: linear-gradient(90deg, rgba(125, 199, 255, 0.95), rgba(79, 168, 255, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-stamina::-moz-progress-bar {
+    background: linear-gradient(90deg, rgba(125, 199, 255, 0.95), rgba(79, 168, 255, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-skill {
+    accent-color: #8fd14f;
+}
+
+progress.generic-field.progress.ts-progress-skill::-webkit-progress-value {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.95), rgba(91, 191, 62, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-skill::-moz-progress-bar {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.95), rgba(91, 191, 62, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-recipe {
+    accent-color: #8fd14f;
+}
+
+progress.generic-field.progress.ts-progress-recipe::-webkit-progress-value {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.95), rgba(91, 191, 62, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-recipe::-moz-progress-bar {
+    background: linear-gradient(90deg, rgba(143, 209, 79, 0.95), rgba(91, 191, 62, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-action.is-stunned::-webkit-progress-value {
+    background: linear-gradient(90deg, rgba(199, 74, 61, 0.95), rgba(118, 23, 31, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar {
+    background: linear-gradient(90deg, rgba(199, 74, 61, 0.95), rgba(118, 23, 31, 0.95));
+}
+
+.ts-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+}
+
+.ts-list li {
+    position: relative;
+    padding-left: var(--m8);
+}
+
+.ts-list li::before {
+    content: "-";
+    position: absolute;
+    left: 0;
+    color: var(--color-secondary);
+}
+
+
+.ts-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(9, 12, 24, 0.72);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--m12);
+    z-index: 2000;
+}
+
+.ts-modal {
+    width: min(560px, 100%);
+    background: linear-gradient(160deg, rgba(18, 25, 40, 0.96), rgba(10, 15, 26, 0.98));
+    border: 1px solid rgba(242, 193, 78, 0.25);
+    border-radius: calc(var(--border-radius-harmonized) + 4px);
+    box-shadow: 0 24px 60px -40px rgba(0, 0, 0, 0.8);
+    padding: var(--m12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m7);
+    max-height: calc(100vh - (2 * var(--m12)));
+    max-height: calc(100dvh - (2 * var(--m12)));
+    overflow: hidden;
+}
+
+.ts-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m7);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 0 calc(var(--m2) * -1);
+    padding: 0 var(--m2);
+}
+
+.ts-modal-copy {
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+.ts-modal-copy-muted {
+    color: var(--color-text-fade);
+}
+
+.ts-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--m4);
+}
+
+.ts-offline-players {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: var(--m2);
+}
+
+.ts-offline-players::-webkit-scrollbar {
+    width: var(--m2);
+}
+
+.ts-offline-players::-webkit-scrollbar-track {
+    background: rgba(21, 28, 46, 0.8);
+}
+
+.ts-offline-players::-webkit-scrollbar-thumb {
+    background: rgba(93, 217, 193, 0.6);
+}
+
+.ts-offline-players::-webkit-scrollbar-thumb:hover {
+    background: rgba(242, 193, 78, 0.8);
+}
+
+.ts-offline-player {
+    padding: var(--m4) var(--m5);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px solid rgba(242, 193, 78, 0.18);
+    background: rgba(12, 18, 32, 0.85);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+}
+
+.ts-offline-name {
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.ts-offline-meta {
+    font-size: var(--text-s-size);
+    color: var(--color-text-fade);
+}
+
+.ts-offline-gains {
+    font-size: var(--text-s-size);
+    color: var(--color-text);
+}
+
+.ts-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--m8);
+}
+
+.ts-modal-kicker {
+    margin: 0;
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: var(--color-secondary);
+}
+
+.ts-modal-title {
+    margin: var(--m2) 0 0;
+    font-size: calc(var(--text-xl-size) + var(--m2));
+    font-family: var(--display-font);
+    color: var(--color-primary);
+}
+
+.ts-modal-close {
+    border: 1px solid rgba(242, 193, 78, 0.25);
+    background: rgba(21, 28, 46, 0.8);
+    color: var(--color-text);
+    padding: var(--m2) var(--m7);
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: var(--text-xs-size);
+}
+
+.ts-modal-close:hover {
+    border-color: rgba(93, 217, 193, 0.7);
+}

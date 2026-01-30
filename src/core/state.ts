@@ -14,6 +14,7 @@ import {
     DEFAULT_GOLD,
     DEFAULT_HP_MAX,
     DEFAULT_RECIPE_XP_NEXT,
+    DEFAULT_ROSTER_LIMIT,
     DEFAULT_SKILL_XP_NEXT,
     DEFAULT_STAMINA_MAX,
     LOOP_INTERVAL,
@@ -141,6 +142,7 @@ export const createInitialGameState = (version: string): GameState => {
         version,
         players: { [playerId]: player },
         activePlayerId: playerId,
+        rosterLimit: DEFAULT_ROSTER_LIMIT,
         inventory: createInventoryState(DEFAULT_GOLD),
         loop: {
             lastTick: null,
@@ -228,12 +230,17 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
     const inventory = save.inventory || Object.keys(rawPlayers).length > 0
         ? resolveInventory(save.inventory, rawPlayers)
         : baseState.inventory;
+    const resolvedRosterLimit = Number.isFinite(save.rosterLimit)
+        ? Math.max(1, Math.floor(save.rosterLimit ?? baseState.rosterLimit))
+        : baseState.rosterLimit;
+    const rosterLimit = Math.max(resolvedRosterLimit, playerIds.length);
 
     return {
         ...baseState,
         version,
         players: Object.keys(players).length > 0 ? players : baseState.players,
         activePlayerId,
+        rosterLimit,
         inventory,
         loop: {
             ...baseState.loop,

@@ -18,11 +18,13 @@ describe("AppView (mobile bottom bar)", () => {
                 onShowStats={() => {}}
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
+                onShowShop={() => {}}
                 roster={<div />}
                 actionPanel={<div />}
                 statsPanel={<div />}
                 inventoryPanel={<div />}
                 equipmentPanel={<div />}
+                shopPanel={<div />}
                 actionSelectionScreen={<div />}
             />
         );

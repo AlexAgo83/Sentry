@@ -6,7 +6,7 @@ import {
     hydrateGameState,
     sanitizePlayerName
 } from "./state";
-import { RESTED_DURATION_MS, RESTED_ENDURANCE_FLAT } from "./constants";
+import { RESTED_DURATION_MS, RESTED_ENDURANCE_FLAT, ROSTER_SLOT_PRICE } from "./constants";
 import {
     ActionId,
     EquipmentSlotId,
@@ -38,6 +38,7 @@ export type GameAction =
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
     | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null }
     | { type: "sellItem"; itemId: ItemId; count: number }
+    | { type: "purchaseRosterSlot" }
     | { type: "equipItem"; playerId: PlayerId; itemId: ItemId }
     | { type: "unequipItem"; playerId: PlayerId; slot: EquipmentSlotId };
 
@@ -115,6 +116,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 activePlayerId: action.playerId
             };
         case "addPlayer": {
+            const rosterCount = Object.keys(state.players).length;
+            if (rosterCount >= state.rosterLimit) {
+                return state;
+            }
             const nextId = getNextPlayerId(state.players);
             const nextPlayer = createPlayerState(nextId, action.name);
             return {
@@ -214,6 +219,27 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 inventory: {
                     ...state.inventory,
                     items: nextItems
+                }
+            };
+        }
+        case "purchaseRosterSlot": {
+            const cost = Math.max(0, Math.floor(ROSTER_SLOT_PRICE));
+            if (!Number.isFinite(cost) || cost <= 0) {
+                return state;
+            }
+            const gold = state.inventory.items.gold ?? 0;
+            if (gold < cost) {
+                return state;
+            }
+            return {
+                ...state,
+                rosterLimit: Math.max(1, Math.floor(state.rosterLimit) + 1),
+                inventory: {
+                    ...state.inventory,
+                    items: {
+                        ...state.inventory.items,
+                        gold: gold - cost
+                    }
                 }
             };
         }

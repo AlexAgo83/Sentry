@@ -20,12 +20,14 @@ export const RosterContainer = ({
     const [isCollapsed, setCollapsed] = usePersistedCollapse("roster", false);
     const activePlayerId = useGameStore((state) => state.activePlayerId);
     const playersById = useGameStore((state) => state.players);
+    const rosterLimit = useGameStore((state) => state.rosterLimit);
     const players = useMemo(() => selectPlayersSortedFromPlayers(playersById), [playersById]);
 
     return (
         <RosterPanel
             players={players}
             activePlayerId={activePlayerId}
+            rosterLimit={rosterLimit}
             isCollapsed={isCollapsed}
             onToggleCollapsed={() => setCollapsed((value) => !value)}
             onSetActivePlayer={(playerId) => gameStore.dispatch({ type: "setActivePlayer", playerId })}

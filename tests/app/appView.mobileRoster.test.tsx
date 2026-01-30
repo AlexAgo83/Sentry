@@ -14,11 +14,13 @@ const renderAppView = (props: Partial<Parameters<typeof AppView>[0]> = {}) => {
             onShowStats={() => {}}
             onShowInventory={() => {}}
             onShowEquipment={() => {}}
+            onShowShop={() => {}}
             roster={<section><h2>Roster Panel Content</h2></section>}
             actionPanel={<div />}
             statsPanel={<div />}
             inventoryPanel={<div />}
             equipmentPanel={<div />}
+            shopPanel={<div />}
             actionSelectionScreen={<div />}
             {...props}
         />
@@ -48,11 +50,13 @@ describe("AppView (mobile roster)", () => {
                 onShowStats={() => {}}
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
+                onShowShop={() => {}}
                 roster={<section><h2>Roster Panel Content</h2></section>}
                 actionPanel={<div />}
                 statsPanel={<div />}
                 inventoryPanel={<div />}
                 equipmentPanel={<div />}
+                shopPanel={<div />}
                 actionSelectionScreen={<div />}
             />
         );

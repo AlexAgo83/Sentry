@@ -124,6 +124,7 @@ export interface GameState {
     version: string;
     players: Record<PlayerId, PlayerState>;
     activePlayerId: PlayerId | null;
+    rosterLimit: number;
     inventory: InventoryState;
     loop: LoopState;
     perf: PerformanceState;
@@ -208,5 +209,6 @@ export interface GameSave {
     lastHiddenAt?: number | null;
     activePlayerId?: PlayerId | null;
     players: Record<PlayerId, PlayerSaveState>;
+    rosterLimit?: number;
     inventory?: InventoryState;
 }

@@ -9,6 +9,7 @@ export const toGameSave = (state: GameState): GameSave => {
         lastHiddenAt: state.loop.lastHiddenAt,
         activePlayerId: state.activePlayerId,
         players: stripRuntimeFields(state.players),
+        rosterLimit: state.rosterLimit,
         inventory: state.inventory
     };
 };

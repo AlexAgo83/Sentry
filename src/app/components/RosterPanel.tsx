@@ -7,6 +7,7 @@ import { CollapseIcon } from "../ui/collapseIcon";
 type RosterPanelProps = {
     players: PlayerState[];
     activePlayerId: string | null;
+    rosterLimit: number;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
     onSetActivePlayer: (playerId: string) => void;
@@ -18,6 +19,7 @@ type RosterPanelProps = {
 export const RosterPanel = memo(({
     players,
     activePlayerId,
+    rosterLimit,
     isCollapsed,
     onToggleCollapsed,
     onSetActivePlayer,
@@ -25,10 +27,16 @@ export const RosterPanel = memo(({
     getSkillLabel,
     getRecipeLabel
 }: RosterPanelProps) => {
+    const rosterCount = players.length;
+    const canAddPlayer = rosterCount < rosterLimit;
+
     return (
         <section className="generic-panel ts-panel">
             <div className="ts-panel-header">
-                <h2 className="ts-panel-title">Roster</h2>
+                <div className="ts-panel-heading">
+                    <h2 className="ts-panel-title">Roster</h2>
+                    <span className="ts-panel-counter">{rosterCount}/{rosterLimit}</span>
+                </div>
                 <div className="ts-panel-actions ts-panel-actions-inline">
                     <button
                         type="button"
@@ -83,9 +91,12 @@ export const RosterPanel = memo(({
                         })}
                         <button
                             type="button"
-                            className="ts-player-card ts-player-card-add ts-focusable"
+                            className={`ts-player-card ts-player-card-add ts-focusable${canAddPlayer ? "" : " is-disabled"}`}
                             onClick={onAddPlayer}
+                            disabled={!canAddPlayer}
+                            aria-disabled={!canAddPlayer}
                             aria-label="Enlist a new hero"
+                            title={!canAddPlayer ? "Roster limit reached" : undefined}
                         >
                             <div className="ts-player-info">
                                 <span className="ts-player-name">Enlist a new hero</span>

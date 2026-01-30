@@ -22,6 +22,14 @@ const toNonNegativeNullableNumber = (value: unknown): number | null => {
     return numeric >= 0 ? numeric : null;
 };
 
+const normalizeRosterLimit = (value: unknown, minimum = 1): number => {
+    const numeric = toNonNegativeNullableNumber(value);
+    if (numeric === null) {
+        return Math.max(1, Math.floor(minimum));
+    }
+    return Math.max(1, Math.floor(minimum), Math.floor(numeric));
+};
+
 const toNullableString = (value: unknown): string | null => {
     if (typeof value !== "string") {
         return null;
@@ -125,6 +133,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
         : playerIds.length > 0
             ? playerIds[0]
             : null;
+    const rosterLimit = normalizeRosterLimit(input.rosterLimit, playerIds.length);
 
     const migrated = schemaVersion !== LATEST_SAVE_SCHEMA_VERSION;
 
@@ -138,6 +147,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             lastHiddenAt,
             activePlayerId,
             players,
+            rosterLimit,
             inventory: finalInventory,
         }
     };

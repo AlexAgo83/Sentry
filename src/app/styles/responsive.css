@@ -1,0 +1,236 @@
+@media (max-width: 900px) {
+    .ts-layout {
+        display: flex;
+        flex-direction: column;
+        gap: var(--m8);
+    }
+
+    .ts-inventory-panel {
+        grid-column: auto;
+    }
+
+    .ts-equipment-panel {
+        grid-column: auto;
+    }
+
+    .ts-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ts-layout > * {
+        grid-column: auto;
+    }
+
+    .ts-inventory-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
+
+    .ts-inventory-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: var(--m2) var(--m1);
+    }
+
+    .ts-inventory-meta {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .ts-inventory-focus {
+        margin-top: 12px;
+    }
+
+    .ts-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ts-layout > * {
+        grid-column: auto;
+    }
+
+    .ts-main-stack {
+        grid-column: 1 / -1;
+        width: 100%;
+        gap: var(--m8);
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 720px) {
+    .ts-action-selection-layout {
+        grid-template-columns: 1fr;
+        row-gap: var(--m8);
+    }
+
+    .ts-skill-picker {
+        flex-direction: column;
+    }
+
+    .ts-recipe-picker {
+        grid-template-columns: 1fr;
+    }
+
+    .app-bottom-bar .ts-panel-switcher {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--m2);
+        margin: 0;
+    }
+
+    .app-bottom-bar .ts-panel-switcher.ts-panel-switcher--inventory-menu {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .app-layout {
+        padding-bottom: calc(var(--m28) + var(--m10) + env(safe-area-inset-bottom));
+    }
+
+    .ts-inventory-controls {
+        gap: var(--m2);
+    }
+
+    .ts-filter-row {
+        align-items: center;
+        gap: var(--m2);
+        flex-wrap: nowrap;
+        grid-column: 1;
+        grid-row: auto;
+        justify-content: flex-start;
+    }
+
+    .ts-filter-tabs {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: var(--m2);
+    }
+
+    .app-bottom-bar .ts-chip {
+        min-width: 0;
+        width: 100%;
+        padding: 10px 8px;
+        flex-direction: column;
+        gap: var(--m1);
+    }
+
+    .app-bottom-bar .ts-chip + .ts-chip {
+        margin-left: 0;
+    }
+
+    .app-bottom-bar .ts-chip-icon {
+        display: inline-flex;
+    }
+
+    .app-bottom-bar .ts-bank-menu-popover {
+        position: fixed;
+        left: auto;
+        right: var(--m8);
+        bottom: calc(var(--m28) + env(safe-area-inset-bottom));
+        transform: none;
+        width: min(240px, calc(100vw - var(--m8) - var(--m8)));
+    }
+
+    .ts-panel-header {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--m2);
+    }
+
+    progress.generic-field.progress {
+        display: none;
+    }
+
+    .ts-equipment-slot {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ts-equipment-slot-actions {
+        width: 100%;
+        justify-content: stretch;
+        grid-template-columns: 1fr;
+    }
+
+    .generic-field.input.ts-equipment-select {
+        width: 100%;
+    }
+
+    .ts-stats-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ts-panel-meta {
+        margin-left: 0;
+        order: 2;
+    }
+
+    .ts-panel-actions {
+        align-self: center;
+        margin-left: auto;
+        order: 3;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .ts-system-cloud {
+        gap: var(--m5);
+    }
+
+    .ts-system-cloud-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--m4);
+        padding: 0 var(--m4);
+    }
+
+    .ts-system-cloud-actions .generic-field.button {
+        width: 100%;
+    }
+
+    .ts-action-row.ts-system-actions {
+        padding: 0 var(--m4);
+    }
+
+    .ts-panel-actions-inline {
+        width: auto;
+    }
+
+    .ts-collapse-button {
+        margin-left: 0;
+        order: 0;
+    }
+
+    .ts-collapse-button {
+        position: relative;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+    }
+
+    .ts-collapse-button .ts-collapse-label {
+        opacity: 1;
+        pointer-events: auto;
+        position: static;
+    }
+
+    .ts-collapse-button::after {
+        content: none;
+    }
+}
+
+@media (max-width: 980px) and (min-width: 721px) {
+    .ts-panel-switcher.ts-topbar-switcher .ts-chip-icon {
+        display: inline-flex;
+    }
+
+    .ts-panel-switcher.ts-topbar-switcher .ts-chip-text {
+        display: none;
+    }
+
+    .ts-panel-switcher.ts-topbar-switcher .ts-chip {
+        min-width: 44px;
+        padding: 10px 10px;
+    }
+}
