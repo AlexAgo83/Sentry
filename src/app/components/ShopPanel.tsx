@@ -10,14 +10,6 @@ type ShopPanelProps = {
     onBuyRosterSlot: () => void;
 };
 
-const PLACEHOLDER_TILES = [
-    "Placeholder bundle",
-    "Placeholder upgrade",
-    "Placeholder pack",
-    "Placeholder offer",
-    "Placeholder slot"
-];
-
 export const ShopPanel = memo(({
     isCollapsed,
     onToggleCollapsed,
@@ -27,6 +19,9 @@ export const ShopPanel = memo(({
     onBuyRosterSlot
 }: ShopPanelProps) => {
     const canBuyRosterSlot = gold >= rosterSlotPrice;
+    const formattedRosterSlotPrice = Number.isFinite(rosterSlotPrice)
+        ? Math.max(0, Math.floor(rosterSlotPrice)).toLocaleString()
+        : "0";
 
     return (
         <section className="generic-panel ts-panel ts-shop-panel">
@@ -44,31 +39,27 @@ export const ShopPanel = memo(({
                 </button>
             </div>
             {!isCollapsed ? (
-                <div className="ts-shop-grid">
+                <div className="ts-shop-grid is-single">
                     <div className="ts-shop-tile">
                         <div className="ts-shop-tile-title">Roster slot</div>
                         <div className="ts-shop-tile-subtitle">+1 max hero</div>
                         <div className="ts-shop-tile-meta">Current cap: {rosterLimit}</div>
                         <div className="ts-shop-tile-footer">
-                            <span className="ts-shop-tile-price">{rosterSlotPrice} gold</span>
+                            <span className="ts-shop-tile-price">{formattedRosterSlotPrice} gold</span>
                             <button
                                 type="button"
                                 className="generic-field button ts-shop-buy ts-focusable"
                                 onClick={onBuyRosterSlot}
                                 disabled={!canBuyRosterSlot}
                                 aria-disabled={!canBuyRosterSlot}
-                                title={!canBuyRosterSlot ? "Not enough gold" : `Buy for ${rosterSlotPrice} gold`}
+                                title={!canBuyRosterSlot
+                                    ? "Not enough gold"
+                                    : `Buy for ${formattedRosterSlotPrice} gold`}
                             >
                                 Buy
                             </button>
                         </div>
                     </div>
-                    {PLACEHOLDER_TILES.map((label) => (
-                        <div key={label} className="ts-shop-tile">
-                            <div className="ts-shop-tile-title">{label}</div>
-                            <div className="ts-shop-tile-subtitle">Coming soon</div>
-                        </div>
-                    ))}
                 </div>
             ) : null}
         </section>

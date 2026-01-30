@@ -6,7 +6,8 @@ import {
     hydrateGameState,
     sanitizePlayerName
 } from "./state";
-import { RESTED_DURATION_MS, RESTED_ENDURANCE_FLAT, ROSTER_SLOT_COST_MULTIPLIER } from "./constants";
+import { RESTED_DURATION_MS, RESTED_ENDURANCE_FLAT } from "./constants";
+import { getRosterSlotCost } from "./economy";
 import {
     ActionId,
     EquipmentSlotId,
@@ -223,8 +224,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             };
         }
         case "purchaseRosterSlot": {
-            const baseLimit = Number.isFinite(state.rosterLimit) ? Math.max(1, Math.floor(state.rosterLimit)) : 1;
-            const cost = Math.max(1, baseLimit) * Math.max(1, Math.floor(ROSTER_SLOT_COST_MULTIPLIER));
+            const cost = getRosterSlotCost(state.rosterLimit);
             if (!Number.isFinite(cost) || cost <= 0) {
                 return state;
             }

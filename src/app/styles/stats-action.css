@@ -93,6 +93,11 @@
     padding: var(--m2);
 }
 
+.ts-shop-grid.is-single {
+    grid-template-columns: minmax(0, 320px);
+    justify-content: start;
+}
+
 .ts-shop-tile {
     border: 1px solid rgba(242, 193, 78, 0.22);
     background: radial-gradient(circle at 25% 20%, rgba(93, 217, 193, 0.08), rgba(12, 18, 32, 0.9));
@@ -107,6 +112,10 @@
     box-shadow:
         inset 0 0 0 1px rgba(15, 21, 36, 0.45),
         0 12px 24px -20px rgba(0, 0, 0, 0.7);
+}
+
+.ts-shop-grid.is-single .ts-shop-tile {
+    aspect-ratio: auto;
 }
 
 .ts-shop-tile-title {

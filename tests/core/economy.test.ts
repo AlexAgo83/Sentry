@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getSellGoldGain, getSellValuePerItem } from "../../src/core/economy";
+import { getRosterSlotCost, getSellGoldGain, getSellValuePerItem } from "../../src/core/economy";
 
 describe("economy", () => {
     it("returns zero sell value for gold", () => {
@@ -18,5 +18,12 @@ describe("economy", () => {
         expect(clothCapValue).toBeGreaterThan(0);
         expect(bladeValue).toBeGreaterThan(clothCapValue);
     });
-});
 
+    it("scales roster slot costs exponentially from a higher base", () => {
+        expect(getRosterSlotCost(1)).toBe(10000);
+        expect(getRosterSlotCost(2)).toBe(50000);
+        expect(getRosterSlotCost(3)).toBe(250000);
+        expect(getRosterSlotCost(4)).toBe(1250000);
+        expect(getRosterSlotCost(5)).toBe(6250000);
+    });
+});

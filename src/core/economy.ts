@@ -1,5 +1,6 @@
 import type { ItemId } from "./types";
 import { getEquipmentDefinition } from "../data/equipment";
+import { ROSTER_SLOT_COST_BASE, ROSTER_SLOT_COST_GROWTH } from "./constants";
 
 const BASE_SELL_VALUES: Partial<Record<ItemId, number>> = {
     meat: 1,
@@ -50,3 +51,15 @@ export const getSellGoldGain = (itemId: ItemId, count: number): number => {
     return getSellValuePerItem(itemId) * safeCount;
 };
 
+export const getRosterSlotCost = (rosterLimit: number): number => {
+    const safeLimit = Number.isFinite(rosterLimit) ? Math.max(1, Math.floor(rosterLimit)) : 1;
+    const base = Math.max(1, Math.floor(ROSTER_SLOT_COST_BASE));
+    const growth = Number.isFinite(ROSTER_SLOT_COST_GROWTH)
+        ? Math.max(1, ROSTER_SLOT_COST_GROWTH)
+        : 1;
+    const rawCost = base * (growth ** (safeLimit - 1));
+    if (!Number.isFinite(rawCost) || rawCost <= 0) {
+        return base;
+    }
+    return Math.max(1, Math.round(rawCost));
+};
