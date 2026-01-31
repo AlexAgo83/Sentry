@@ -5,9 +5,13 @@ export const useCrashReportsState = () => {
     const [crashReports, setCrashReports] = useState(() => readCrashReports());
 
     useEffect(() => {
-        return onCrashReportsUpdated(() => {
+        const handleUpdate = () => {
             setCrashReports(readCrashReports());
-        });
+        };
+        const unsubscribe = onCrashReportsUpdated(handleUpdate);
+        // Catch any reports recorded before the listener was attached.
+        handleUpdate();
+        return unsubscribe;
     }, []);
 
     const handleClearCrashReports = useCallback(() => {
