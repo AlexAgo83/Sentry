@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { gameRuntime, gameStore } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
-import { InventoryIconSprite } from "./ui/inventoryIcons";
 import { useCrashReportsState } from "./hooks/useCrashReportsState";
 import { useSafeModeState } from "./hooks/useSafeModeState";
 import { useServiceWorkerUpdatePrompt } from "./hooks/useServiceWorkerUpdatePrompt";
@@ -181,7 +180,6 @@ export const AppContainer = () => {
     return (
         <div className={`app-shell${isAnyModalOpen ? " is-modal-open" : ""}`}>
             <EnsureSelectedRecipeEffect />
-            <InventoryIconSprite />
             {persistence.disabled ? (
                 <div className="ts-persistence-banner" role="status">
                     <div className="ts-persistence-banner-content">

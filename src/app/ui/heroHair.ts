@@ -37,7 +37,7 @@ export const normalizeHairIndex = (index: number): number => {
 
 export const getHairUrlByIndex = (index: number): string => {
     const normalized = normalizeHairIndex(index);
-    return `/assets/hero/hairstyles/hair_${String(normalized).padStart(2, "0")}.svg`;
+    return `/img/hero/hairstyles/hair_${String(normalized).padStart(2, "0")}.svg`;
 };
 
 export const getHairUrl = (seed?: string | number | null): string => {

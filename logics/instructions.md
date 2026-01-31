@@ -90,6 +90,7 @@ These are the available skills under `logics/skills/`:
 * `logics-uiux-designer`: Propose UI/UX improvements and produce handoff artifacts (spec/backlog/tasks).
   - `python3 logics/skills/logics-uiux-designer/scripts/logics_uiux.py new --title \"...\"`
 * `logics-mcp-chrome-devtools`: Install/configure Chrome DevTools MCP and drive a local app for visual validation.
+* `logics-mcp-terminal`: Install/configure Terminal MCP and run shell commands via MCP.
 
 Use these commands to validate changes (start with the most relevant ones):
 * `npm run lint`: Run ESLint on `src/**/*.{ts,tsx}` and `tests/**/*.{ts,tsx}`.

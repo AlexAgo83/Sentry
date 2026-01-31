@@ -2,7 +2,7 @@
 > From version: 0.8.18
 > Understanding: 92%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_045_externalize_inline_svg_icon_payloads.md`
@@ -23,3 +23,5 @@ Current state: SVGs are still inline in `src/app/ui/inventoryIcons.tsx` and `src
 - npm run bundle:check
 
 # Report
+- Status: Done. Inventory + skill SVGs moved to per-file assets under `public/img/icons`, icon components now load external symbols, sprite removed, and SW precaches icon files for offline.
+- Validation: Not run (suggest `npm run lint`, `npm run test:ci`, `npm run build`, `npm run bundle:check`).

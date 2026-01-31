@@ -714,13 +714,6 @@
     color: var(--color-primary);
 }
 
-.ts-inventory-sprite {
-    position: absolute;
-    width: 0;
-    height: 0;
-    overflow: hidden;
-}
-
 .generic-field.button.ts-inventory-clear {
     width: auto;
     padding: var(--m2) var(--m5);

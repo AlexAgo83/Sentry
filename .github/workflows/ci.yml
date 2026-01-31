@@ -30,6 +30,10 @@ jobs:
         run: npm run test:ci
       - name: Coverage (CI config)
         run: npm run coverage:ci
+      - name: Playwright browsers
+        run: npx playwright install --with-deps
+      - name: E2E smoke tests
+        run: npm run test:e2e
       - name: Audit (fail on moderate+)
         run: |
           npm audit --audit-level=moderate

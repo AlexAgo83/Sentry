@@ -141,6 +141,7 @@ export const CloudSavePanel = memo(({
                             onChange={(event) => onEmailChange(event.currentTarget.value)}
                             placeholder="you@example.com"
                             disabled={disabled}
+                            data-testid="cloud-email"
                         />
                     </label>
                     <label className="ts-system-cloud-field">
@@ -152,6 +153,7 @@ export const CloudSavePanel = memo(({
                             onChange={(event) => onPasswordChange(event.currentTarget.value)}
                             placeholder="••••••"
                             disabled={disabled}
+                            data-testid="cloud-password"
                         />
                     </label>
                     <div className="ts-system-cloud-actions">
@@ -160,6 +162,7 @@ export const CloudSavePanel = memo(({
                             className="generic-field button ts-focusable"
                             onClick={onRegister}
                             disabled={disabled}
+                            data-testid="cloud-register"
                         >
                             Register
                         </button>
@@ -168,6 +171,7 @@ export const CloudSavePanel = memo(({
                             className="generic-field button ts-focusable"
                             onClick={onLogin}
                             disabled={disabled}
+                            data-testid="cloud-login"
                         >
                             Login
                         </button>
@@ -180,6 +184,7 @@ export const CloudSavePanel = memo(({
                         className="generic-field button ts-focusable"
                         onClick={onLogout}
                         disabled={disabled}
+                        data-testid="cloud-logout"
                     >
                         Logout
                     </button>
@@ -188,6 +193,7 @@ export const CloudSavePanel = memo(({
                         className="generic-field button ts-focusable"
                         onClick={onRefresh}
                         disabled={authDisabled}
+                        data-testid="cloud-refresh"
                     >
                         Check cloud
                     </button>
@@ -208,6 +214,7 @@ export const CloudSavePanel = memo(({
                         type="button"
                         className="generic-field button ts-focusable"
                         onClick={onWarmupRetryNow}
+                        data-testid="cloud-retry"
                     >
                         Retry now
                     </button>
@@ -219,7 +226,10 @@ export const CloudSavePanel = memo(({
                         Last sync: {lastSyncLabel}
                     </div>
                     <div className="ts-system-cloud-diff">
-                        <div className="ts-system-cloud-diff-row ts-system-cloud-diff-header">
+                        <div
+                            className="ts-system-cloud-diff-row ts-system-cloud-diff-header"
+                            data-testid="cloud-diff-header"
+                        >
                             <span />
                             <span>Updated</span>
                             <span>Score</span>
@@ -262,6 +272,7 @@ export const CloudSavePanel = memo(({
                             className="generic-field button ts-focusable"
                             onClick={onLoadCloud}
                             disabled={disabled || !hasCloudSave}
+                            data-testid="cloud-load"
                         >
                             Load cloud save
                         </button>
@@ -270,6 +281,7 @@ export const CloudSavePanel = memo(({
                             className="generic-field button ts-focusable"
                             onClick={onOverwriteCloud}
                             disabled={disabled}
+                            data-testid="cloud-overwrite"
                         >
                             Overwrite cloud with local
                         </button>

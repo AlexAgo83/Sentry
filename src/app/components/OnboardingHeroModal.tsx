@@ -37,6 +37,7 @@ export const OnboardingHeroModal = memo(({
                 <input
                     id="onboarding-hero-name"
                     className="generic-field input ts-input ts-focusable"
+                    data-testid="onboarding-hero-name"
                     value={name}
                     onChange={(event) => onNameChange(event.target.value)}
                     maxLength={20}
@@ -48,6 +49,7 @@ export const OnboardingHeroModal = memo(({
                         type="submit"
                         className="generic-field button ts-focusable"
                         disabled={isSubmitDisabled}
+                        data-testid="onboarding-create-hero"
                     >
                         Create hero
                     </button>

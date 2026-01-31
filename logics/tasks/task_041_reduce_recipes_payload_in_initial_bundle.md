@@ -2,7 +2,7 @@
 > From version: 0.8.18
 > Understanding: 90%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_046_reduce_recipes_payload_in_initial_bundle.md`
@@ -23,3 +23,5 @@ Current state: recipes are bundled statically (see `src/data/definitions/recipes
 - npm run bundle:check
 
 # Report
+- Status: Done. Recipes are split via dynamic imports in `src/data/definitions/recipes/index.ts`, Vite manifest enabled, and service worker now precaches recipe chunks via manifest lookup.
+- Validation: Not run (suggest `npm run lint`, `npm run test:ci`, `npm run build`, `npm run bundle:check`).

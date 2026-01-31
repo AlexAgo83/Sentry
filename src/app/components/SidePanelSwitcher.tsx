@@ -128,6 +128,7 @@ const TabButton = memo(({ id, label, badge, isSelected, onClick }: TabButtonProp
             title={label}
             className={`ts-chip ts-focusable${isSelected ? " is-active" : ""}`}
             onClick={onClick}
+            data-testid={`tab-${id}`}
         >
             <span className="ts-chip-icon" aria-hidden="true">
                 <TabIcon kind={iconKind} />

@@ -16,6 +16,7 @@ export default defineConfig({
     plugins: [react()],
     build: {
         outDir: 'dist',
+        manifest: true,
         rollupOptions: {
             input: [
                 './index.html'

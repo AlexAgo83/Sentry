@@ -90,6 +90,7 @@ export const SystemModal = memo(({
                             type="button"
                             className="generic-field button ts-focusable"
                             onClick={onOpenLocalSave}
+                            data-testid="open-local-save"
                         >
                             Local save
                         </button>
@@ -97,6 +98,7 @@ export const SystemModal = memo(({
                             type="button"
                             className="generic-field button ts-focusable"
                             onClick={onOpenCloudSave}
+                            data-testid="open-cloud-save"
                         >
                             Cloud save
                         </button>

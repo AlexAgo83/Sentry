@@ -1,7 +1,77 @@
 const CACHE_VERSION = new URL(self.location.href).searchParams.get("v") || "dev";
 const CACHE_PREFIX = "sentry-runtime-";
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
-const CORE_ASSETS = ["/", "/index.html", "/manifest.webmanifest", "/icon.svg"];
+const INVENTORY_ICON_ASSETS = [
+    "/img/icons/inventory/apprentice_staff.svg",
+    "/img/icons/inventory/armor.svg",
+    "/img/icons/inventory/artifact.svg",
+    "/img/icons/inventory/bones.svg",
+    "/img/icons/inventory/cloth.svg",
+    "/img/icons/inventory/cloth_cap.svg",
+    "/img/icons/inventory/crystal.svg",
+    "/img/icons/inventory/elixir.svg",
+    "/img/icons/inventory/fish.svg",
+    "/img/icons/inventory/food.svg",
+    "/img/icons/inventory/furniture.svg",
+    "/img/icons/inventory/garment.svg",
+    "/img/icons/inventory/generic.svg",
+    "/img/icons/inventory/gold.svg",
+    "/img/icons/inventory/herbs.svg",
+    "/img/icons/inventory/ingot.svg",
+    "/img/icons/inventory/invocation_tablet.svg",
+    "/img/icons/inventory/leather.svg",
+    "/img/icons/inventory/leather_gloves.svg",
+    "/img/icons/inventory/linen_tunic.svg",
+    "/img/icons/inventory/meat.svg",
+    "/img/icons/inventory/ore.svg",
+    "/img/icons/inventory/potion.svg",
+    "/img/icons/inventory/rusty_blade.svg",
+    "/img/icons/inventory/signet_ring.svg",
+    "/img/icons/inventory/simple_boots.svg",
+    "/img/icons/inventory/simple_bow.svg",
+    "/img/icons/inventory/slot_amulet.svg",
+    "/img/icons/inventory/slot_cape.svg",
+    "/img/icons/inventory/slot_feet.svg",
+    "/img/icons/inventory/slot_hands.svg",
+    "/img/icons/inventory/slot_head.svg",
+    "/img/icons/inventory/slot_legs.svg",
+    "/img/icons/inventory/slot_ring.svg",
+    "/img/icons/inventory/slot_tablet.svg",
+    "/img/icons/inventory/slot_torso.svg",
+    "/img/icons/inventory/slot_weapon.svg",
+    "/img/icons/inventory/stone.svg",
+    "/img/icons/inventory/tonic.svg",
+    "/img/icons/inventory/tools.svg",
+    "/img/icons/inventory/traveler_cape.svg",
+    "/img/icons/inventory/warding_amulet.svg",
+    "/img/icons/inventory/wood.svg",
+    "/img/icons/inventory/worn_trousers.svg"
+];
+
+const SKILL_ICON_ASSETS = [
+    "/img/icons/skills/Alchemy.svg",
+    "/img/icons/skills/Carpentry.svg",
+    "/img/icons/skills/Combat.svg",
+    "/img/icons/skills/Cooking.svg",
+    "/img/icons/skills/Excavation.svg",
+    "/img/icons/skills/Fishing.svg",
+    "/img/icons/skills/Herbalism.svg",
+    "/img/icons/skills/Hunting.svg",
+    "/img/icons/skills/Invocation.svg",
+    "/img/icons/skills/Leatherworking.svg",
+    "/img/icons/skills/MetalWork.svg",
+    "/img/icons/skills/Tailoring.svg",
+    "/img/icons/skills/default.svg"
+];
+
+const CORE_ASSETS = [
+    "/",
+    "/index.html",
+    "/manifest.webmanifest",
+    "/icon.svg",
+    ...INVENTORY_ICON_ASSETS,
+    ...SKILL_ICON_ASSETS
+];
 const INDEX_URL = "/index.html";
 
 const isSameOrigin = (request) => request.url.startsWith(self.location.origin);
@@ -15,9 +85,40 @@ self.addEventListener("message", (event) => {
 });
 
 self.addEventListener("install", (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
-    );
+    event.waitUntil((async () => {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.addAll(CORE_ASSETS);
+        try {
+            const response = await fetch("/manifest.json", { cache: "no-store" });
+            if (!response.ok) {
+                return;
+            }
+            const manifest = await response.json();
+            const entryKeys = Object.keys(manifest).filter((key) =>
+                key.startsWith("src/data/definitions/recipes/")
+            );
+            if (entryKeys.length === 0) {
+                return;
+            }
+            const files = new Set();
+            const visit = (key) => {
+                const entry = manifest[key];
+                if (!entry) {
+                    return;
+                }
+                if (entry.file) {
+                    files.add(`/${entry.file}`);
+                }
+                (entry.imports || []).forEach(visit);
+            };
+            entryKeys.forEach(visit);
+            if (files.size > 0) {
+                await cache.addAll([...files]);
+            }
+        } catch {
+            // Manifest not available (dev) or fetch failed.
+        }
+    })());
     self.skipWaiting();
 });
 

@@ -119,6 +119,7 @@ export const AppView = (props: AppViewProps) => {
                             className="app-version-tag app-version-button ts-focusable"
                             onClick={onOpenSystem}
                             aria-label="Open system telemetry"
+                            data-testid="open-system-telemetry"
                         >
                             <span className="app-version-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

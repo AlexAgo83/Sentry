@@ -66,6 +66,7 @@ const InventorySlot = memo(({ item, isSelected, onSelect }: InventorySlotProps) 
             aria-label={`${item.name} x${formattedCountFull}`}
             title={`${item.name} x${formattedCountFull}`}
             onClick={onSelect}
+            data-testid={`inventory-slot-${item.id}`}
         >
             <InventoryIcon iconId={item.iconId} />
             {item.isNew ? (
@@ -203,6 +204,7 @@ export const InventoryPanel = memo(({
                                                 className="generic-field button ts-inventory-sell ts-focusable"
                                                 onClick={onSellSelected}
                                                 disabled={!canSellSelected}
+                                                data-testid="inventory-sell"
                                             >
                                                 Sell
                                             </button>
@@ -214,6 +216,7 @@ export const InventoryPanel = memo(({
                                                 className="generic-field button ts-inventory-sell ts-focusable"
                                                 onClick={onSellSelected}
                                                 disabled={!canSellSelected}
+                                                data-testid="inventory-sell"
                                             >
                                                 Sell
                                                 {canSellSelected ? (
@@ -227,6 +230,7 @@ export const InventoryPanel = memo(({
                                                     type="button"
                                                     className="generic-field button ts-inventory-sell ts-focusable"
                                                     onClick={onSellAll}
+                                                    data-testid="inventory-sell-all"
                                                 >
                                                     Sell all
                                                 </button>
@@ -237,6 +241,7 @@ export const InventoryPanel = memo(({
                                         type="button"
                                         className="generic-field button ts-inventory-clear ts-focusable"
                                         onClick={onClearSelection}
+                                        data-testid="inventory-clear-selection"
                                     >
                                         Clear
                                     </button>
@@ -307,6 +312,7 @@ export const InventoryPanel = memo(({
                                         onChange={(event) => onSellQuantityChange(Number(event.currentTarget.value))}
                                         disabled={!canSellSelected}
                                         aria-label="Sell quantity"
+                                        data-testid="inventory-sell-quantity"
                                     />
                                     <span
                                         className="ts-inventory-sell-value"

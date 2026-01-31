@@ -36,7 +36,7 @@ export const RosterPanel = memo(({
     const canAddPlayer = rosterCount < rosterLimit;
 
     return (
-        <section className="generic-panel ts-panel">
+        <section className="generic-panel ts-panel" data-testid="roster-panel">
             <div className="ts-panel-header">
                 <div className="ts-panel-heading">
                     <h2 className="ts-panel-title">Roster</h2>
@@ -88,6 +88,7 @@ export const RosterPanel = memo(({
                                     key={player.id}
                                     className={`ts-player-card ${player.id === activePlayerId ? "is-active" : ""}`}
                                     onClick={() => onSetActivePlayer(player.id)}
+                                    data-testid={`roster-player-${player.id}`}
                                 >
                                     <div className="ts-player-main">
                                     <Avatar style={avatarStyle} />

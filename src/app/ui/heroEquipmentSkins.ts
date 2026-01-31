@@ -3,12 +3,12 @@ import type { ItemId, PlayerEquipmentState } from "../../core/types";
 type EquipmentSkinMap = Partial<Record<ItemId, string>>;
 
 const EQUIPMENT_SKIN_URLS: EquipmentSkinMap = {
-    traveler_cape: "/assets/hero/capes/traveler_cape.svg",
-    leather_gloves: "/assets/hero/hands/leather_gloves.svg",
-    cloth_cap: "/assets/hero/heads/cloth_cap.svg",
-    simple_boots: "/assets/hero/feets/simple_boots.svg",
-    linen_tunic: "/assets/hero/torsos/linen_tunic.svg",
-    worn_trousers: "/assets/hero/legs/worn_trousers.svg"
+    traveler_cape: "/img/hero/capes/traveler_cape.svg",
+    leather_gloves: "/img/hero/hands/leather_gloves.svg",
+    cloth_cap: "/img/hero/heads/cloth_cap.svg",
+    simple_boots: "/img/hero/feets/simple_boots.svg",
+    linen_tunic: "/img/hero/torsos/linen_tunic.svg",
+    worn_trousers: "/img/hero/legs/worn_trousers.svg"
 };
 
 type AvatarSkinVars = Record<string, string>;

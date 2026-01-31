@@ -40,6 +40,7 @@ export type GameAction =
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
     | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null }
     | { type: "updateAppearance"; playerId: PlayerId; appearance: { faceIndex?: number; hairIndex?: number; hairColor?: string; skinColor?: string; showHelmet?: boolean } }
+    | { type: "debugAddItem"; itemId: ItemId; count: number }
     | { type: "sellItem"; itemId: ItemId; count: number }
     | { type: "purchaseRosterSlot" }
     | { type: "equipItem"; playerId: PlayerId; itemId: ItemId }
@@ -208,6 +209,26 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             }
                         },
                         actionProgress: createActionProgress()
+                    }
+                }
+            };
+        }
+        case "debugAddItem": {
+            if (!import.meta.env.DEV && !import.meta.env.VITE_E2E) {
+                return state;
+            }
+            const safeCount = Number.isFinite(action.count) ? Math.max(0, Math.floor(action.count)) : 0;
+            if (safeCount <= 0) {
+                return state;
+            }
+            const current = state.inventory.items[action.itemId] ?? 0;
+            return {
+                ...state,
+                inventory: {
+                    ...state.inventory,
+                    items: {
+                        ...state.inventory.items,
+                        [action.itemId]: current + safeCount
                     }
                 }
             };

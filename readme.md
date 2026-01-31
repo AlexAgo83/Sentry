@@ -40,6 +40,7 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 ### Testing & quality
 
 * Vitest + Testing Library + jsdom (unit + UI tests).
+* Playwright (E2E smoke tests).
 * Coverage via `@vitest/coverage-v8` (HTML report in `coverage/`).
 * `jest-axe` accessibility smoke checks.
 * ESLint + TypeScript typecheck.
@@ -69,6 +70,7 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 
 Codex should load project-specific instructions from `logics/instructions.md`.
 For browser-based UI validation, use the Logics skill at `logics/skills/logics-mcp-chrome-devtools/`.
+For terminal access via MCP, use `logics/skills/logics-mcp-terminal/`.
 
 ## Setup
 
@@ -116,6 +118,7 @@ DB utilities:
 * `npm run preview`: Preview the production build.
 * `npm run tests`: Run the test suite with Vitest (respects `TEST_TIMEOUT_MS`, `VITEST_STRICT`, `VITEST_LOG_CONSOLE`, `CI`).
 * `npm run test:ci`: Run tests with strict CI config (`vitest.ci.mjs`, bail=1, coverage thresholds enforced).
+* `npm run test:e2e`: Run Playwright E2E smoke tests (starts the dev server).
 * `npm run coverage`: Run coverage with local config.
 * `npm run coverage:ci`: Run coverage with CI config (same thresholds as tests).
 * `npm run lint`: Run ESLint on `src` and `tests`.

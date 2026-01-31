@@ -42,6 +42,7 @@ export const ConfirmSellModal = memo(({
                     type="button"
                     className="generic-field button ts-inventory-sell ts-focusable"
                     onClick={onConfirm}
+                    data-testid="inventory-confirm-sell"
                 >
                     Sell
                 </button>

@@ -1,16 +1,32 @@
 import type { RecipeDefinition, RecipeId, SkillId } from "../../../core/types";
-import { alchemyRecipes } from "./alchemy";
-import { carpentryRecipes } from "./carpentry";
-import { combatRecipes } from "./combat";
-import { cookingRecipes } from "./cooking";
-import { excavationRecipes } from "./excavation";
-import { fishingRecipes } from "./fishing";
-import { herbalismRecipes } from "./herbalism";
-import { huntingRecipes } from "./hunting";
-import { invocationRecipes } from "./invocation";
-import { leatherworkingRecipes } from "./leatherworking";
-import { metalworkRecipes } from "./metalwork";
-import { tailoringRecipes } from "./tailoring";
+
+const [
+    { alchemyRecipes },
+    { carpentryRecipes },
+    { combatRecipes },
+    { cookingRecipes },
+    { excavationRecipes },
+    { fishingRecipes },
+    { herbalismRecipes },
+    { huntingRecipes },
+    { invocationRecipes },
+    { leatherworkingRecipes },
+    { metalworkRecipes },
+    { tailoringRecipes }
+] = await Promise.all([
+    import("./alchemy"),
+    import("./carpentry"),
+    import("./combat"),
+    import("./cooking"),
+    import("./excavation"),
+    import("./fishing"),
+    import("./herbalism"),
+    import("./hunting"),
+    import("./invocation"),
+    import("./leatherworking"),
+    import("./metalwork"),
+    import("./tailoring")
+]);
 
 const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
     Combat: combatRecipes,
