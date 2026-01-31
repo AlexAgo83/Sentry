@@ -206,12 +206,10 @@ export const ActionStatusPanel = memo(({
                             {actionXpBonusLabel}
                         </span>
                     </div>
-                    {stunTimeLabel ? (
-                        <div className="ts-resource-row">
-                            <span className="ts-resource-label">Stun time</span>
-                            <span className="ts-resource-value">{stunTimeLabel}</span>
-                        </div>
-                    ) : null}
+                    <div className="ts-resource-row">
+                        <span className="ts-resource-label">Stun time</span>
+                        <span className="ts-resource-value">{stunTimeLabel ?? "None"}</span>
+                    </div>
                     <div className="ts-resource-row">
                         <span className="ts-resource-label">Consumes</span>
                         <span className="ts-resource-value">

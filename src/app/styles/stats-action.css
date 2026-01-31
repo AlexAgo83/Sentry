@@ -921,3 +921,10 @@
     color: var(--color-primary);
     font-family: var(--display-font);
 }
+
+.ts-choice-xp {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
+}

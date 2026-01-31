@@ -225,7 +225,12 @@ export const ActionSelectionScreen = memo(({
                         </label>
                         {skills.map((skill) => {
                             const skillLevel = activePlayer?.skills[skill.id]?.level ?? 0;
+                            const skillXp = activePlayer?.skills[skill.id]?.xp ?? 0;
+                            const skillXpNext = activePlayer?.skills[skill.id]?.xpNext ?? 0;
                             const skillColor = getSkillIconColor(skill.id);
+                            const xpCurrent = Number.isFinite(skillXp) ? Math.round(skillXp) : 0;
+                            const xpNextValue = Number.isFinite(skillXpNext) ? Math.round(skillXpNext) : 0;
+                            const xpLabel = `XP ${xpCurrent}/${xpNextValue}`;
                             return (
                                 <label key={skill.id} className="ts-choice">
                                     <input
@@ -242,10 +247,10 @@ export const ActionSelectionScreen = memo(({
                                         </div>
                                         <div className="ts-choice-copy">
                                             <div className="ts-choice-title">{skill.name}</div>
-                                            <div className="ts-choice-subtitle">Skill level</div>
                                         </div>
                                         <div className="ts-choice-meta">
                                             <div className="ts-choice-level">Lv {skillLevel}</div>
+                                            <div className="ts-choice-xp">{xpLabel}</div>
                                         </div>
                                     </div>
                                 </label>
@@ -286,12 +291,10 @@ export const ActionSelectionScreen = memo(({
                                 {pendingXpBonusLabel}
                             </span>
                         </div>
-                        {pendingStunTimeLabel ? (
-                            <div className="ts-action-summary-row">
-                                <span className="ts-action-summary-label">Stun time</span>
-                                <span className="ts-action-summary-value">{pendingStunTimeLabel}</span>
-                            </div>
-                        ) : null}
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">Stun time</span>
+                            <span className="ts-action-summary-value">{pendingStunTimeLabel ?? "None"}</span>
+                        </div>
                         <div className="ts-action-summary-row">
                             <span className="ts-action-summary-label">Consumes</span>
                             <span className="ts-action-summary-value">
