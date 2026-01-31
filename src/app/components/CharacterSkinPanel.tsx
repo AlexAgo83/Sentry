@@ -68,6 +68,20 @@ const EditOffIcon = () => (
     </svg>
 );
 
+const RenameIcon = () => (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path
+            d="M7 4h7l5 5v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+        />
+        <path d="M14 4v5h5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M9 12h6M9 15h6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+);
+
 type CharacterSkinPanelProps = {
     avatarColor: string;
     avatarSkillId: SkillId | null;
@@ -179,15 +193,19 @@ export const CharacterSkinPanel = memo(({
                         <>
                             <button
                                 type="button"
-                                className="ts-icon-button ts-panel-action-button ts-focusable"
+                                className="ts-icon-button ts-panel-action-button ts-focusable ts-skin-rename-button"
                                 onClick={onRenameHero}
                                 disabled={!canRenameHero}
+                                aria-label="Rename"
                             >
-                                Rename
+                                <span className="ts-skin-action-icon">
+                                    <RenameIcon />
+                                </span>
+                                <span className="ts-skin-action-label">Rename</span>
                             </button>
                             <button
                                 type="button"
-                                className="ts-icon-button ts-focusable"
+                                className="ts-icon-button ts-focusable ts-skin-cycle-button"
                                 onClick={onNextFace}
                                 disabled={!canRenameHero}
                                 aria-label="Next face"
@@ -195,6 +213,7 @@ export const CharacterSkinPanel = memo(({
                                 <span className="ts-skin-action-icon">
                                     <FaceIcon />
                                 </span>
+                                <span className="ts-skin-action-label">Face</span>
                             </button>
                             <span className="ts-color-picker">
                                 <input
@@ -209,7 +228,7 @@ export const CharacterSkinPanel = memo(({
                             </span>
                             <button
                                 type="button"
-                                className="ts-icon-button ts-focusable"
+                                className="ts-icon-button ts-focusable ts-skin-cycle-button"
                                 onClick={onNextHair}
                                 disabled={!canRenameHero}
                                 aria-label="Next hair"
@@ -217,6 +236,7 @@ export const CharacterSkinPanel = memo(({
                                 <span className="ts-skin-action-icon">
                                     <HairIcon />
                                 </span>
+                                <span className="ts-skin-action-label">Hair</span>
                             </button>
                             <span className="ts-color-picker">
                                 <input

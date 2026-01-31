@@ -69,6 +69,25 @@
     display: block;
 }
 
+.ts-skin-cycle-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m2);
+}
+
+.ts-skin-action-label {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding-right: var(--m2);
+}
+
+.ts-skin-rename-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m2);
+}
+
 .ts-icon-button.is-active {
     border-color: rgba(242, 193, 78, 0.7);
     color: var(--color-primary);

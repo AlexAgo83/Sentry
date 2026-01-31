@@ -56,6 +56,22 @@
         display: flex;
         flex-direction: column;
     }
+
+    .ts-skin-cycle-button .ts-skin-action-label {
+        display: none;
+    }
+
+    .ts-skin-rename-button .ts-skin-action-label {
+        display: none;
+    }
+
+    .ts-skin-cycle-button,
+    .ts-skin-rename-button {
+        padding-left: var(--m3);
+        padding-right: var(--m3);
+        min-width: 44px;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 720px) {
