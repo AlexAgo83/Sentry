@@ -7,10 +7,13 @@
 # Context
 - Implements `logics/backlog/item_035_quests_screen.md`.
 - Adds a Quests screen with shop-like layout and milestone quests for equipables + skills.
+- Quests are shared across heroes (account-wide), not per-character.
+- System should stay extensible for future quest types (lore, exploration, collections, etc.).
 
 # Plan
 - [ ] 1. Data definitions: create quests list from equipable recipes + skills (static file, deterministic order).
 - [ ] 2. Progress logic: compute craft count + skill level completion, including progress text.
+  - Ensure progress/completion is shared across heroes.
 - [ ] 3. Rewards: apply gold formula and surface it on each quest card.
 - [ ] 4. Screen UI: build Quests screen with Shop layout + quest cells (fade completed).
 - [ ] 5. Sorting: active quests first, completed last (keep all visible).

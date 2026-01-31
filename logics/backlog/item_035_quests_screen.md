@@ -18,6 +18,8 @@ Promoted from `logics/request/req_014_quests_screen.md`
   - One quest per skill (complete when skill level >= 10).
 - Rewards: grant gold per quest.
 - Completed quests are non-repeatable and visually faded.
+- Quests are shared across heroes (account-wide), not per-character.
+- Quest system should be extensible to support future condition types (lore, exploration, collections, etc.).
 - Out:
 - Daily/weekly quests.
 - Quest chains/story text/NPCs.
@@ -35,6 +37,7 @@ Promoted from `logics/request/req_014_quests_screen.md`
 - Completed quests are faded (remain visible) and do not repeat.
 - Completed quests are listed after active ones.
 - Progress text is shown for each quest (crafted 7/10, Lv 8/10).
+- Quest progress/completion is shared across heroes.
 
 # Priority
 - Impact: Medium (long-term goals + retention).
@@ -51,8 +54,9 @@ Promoted from `logics/request/req_014_quests_screen.md`
   - Two sections: Skill Quests and Craft Quests.
   - Completed quests are faded to ~55% opacity and kept visible at the bottom.
   - Show progress text on every quest card.
+  - Quests are account-wide/shared between heroes.
 
 # Data/implementation notes
-- Quest definitions are static, derived from the current skills list and equipable recipes.
+- Quest definitions are static (data-driven), derived from the current skills list and equipable recipes.
 - Use existing selectors for skill levels and craft counts; default to 0 if missing.
 - No backend sync or persistence beyond current save state.

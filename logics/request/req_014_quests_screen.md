@@ -13,6 +13,8 @@
   - **One quest per skill**: complete when the skill reaches **level 10**.
 - Rewards: each quest grants **gold**.
 - Completed quests are **non-repeatable** and **fade** in the list.
+- Quests are **account-wide/shared across heroes** (not per-character).
+- Quest system should be **extensible** to support future condition types (lore, exploration, collections, etc.).
 
 # Goals
 - Give players clear, collectible milestones without new complex systems.
@@ -20,7 +22,7 @@
 - Make completion state obvious without removing context.
 
 # Scope detail (decisions)
-- Quests are **static definitions** derived from:
+- Quests are **static definitions** (data-driven) derived from:
   - Equipable items list.
   - Skills list.
 - Completion conditions:
@@ -32,7 +34,7 @@
 
 # UX suggestions (best)
 - Layout mirrors Shop:
-  - Title + count (e.g., “Quests (12/24)”).
+  - Title + count (e.g., “Quests (12/24)”).  
   - List of quest cards similar to shop items (icon + title + description + reward).
 - Card states:
   - **Active:** normal contrast.
