@@ -19,6 +19,7 @@ describe("AppView (mobile bottom bar)", () => {
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
                 onShowShop={() => {}}
+                onShowQuests={() => {}}
                 hasNewInventoryItems={false}
                 roster={<div />}
                 actionPanel={<div />}
@@ -26,6 +27,7 @@ describe("AppView (mobile bottom bar)", () => {
                 inventoryPanel={<div />}
                 equipmentPanel={<div />}
                 shopPanel={<div />}
+                questsPanel={<div />}
                 actionSelectionScreen={<div />}
             />
         );

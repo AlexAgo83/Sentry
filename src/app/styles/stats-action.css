@@ -260,6 +260,26 @@
     justify-content: start;
 }
 
+.ts-quests-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+    padding: var(--m2);
+}
+
+.ts-quest-section-title {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
+    padding: 0 var(--m2);
+}
+
+.ts-quest-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    padding: var(--m2);
+}
+
 .ts-shop-tile {
     border: 1px solid rgba(242, 193, 78, 0.22);
     background: radial-gradient(circle at 25% 20%, rgba(93, 217, 193, 0.08), rgba(12, 18, 32, 0.9));
@@ -283,6 +303,10 @@
 .ts-shop-tile.is-maxed {
     border-color: rgba(93, 217, 193, 0.2);
     opacity: 0.7;
+}
+
+.ts-quest-tile.is-completed {
+    opacity: 0.55;
 }
 
 .ts-shop-tile.is-maxed .ts-shop-tile-price {
@@ -329,6 +353,13 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--m2);
+}
+
+.ts-quest-complete {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
 }
 
 .ts-shop-tile-price {

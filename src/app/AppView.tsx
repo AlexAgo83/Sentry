@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
 import { useRenderCount } from "./dev/renderDebug";
 
-export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment" | "shop";
+export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment" | "shop" | "quests";
 export type AppActiveScreen = "main" | "actionSelection" | "roster";
 
 export interface AppViewProps {
@@ -17,6 +17,7 @@ export interface AppViewProps {
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
+    onShowQuests: () => void;
     hasNewInventoryItems: boolean;
     roster: ReactNode;
     actionPanel: ReactNode;
@@ -24,6 +25,7 @@ export interface AppViewProps {
     inventoryPanel: ReactNode;
     equipmentPanel: ReactNode;
     shopPanel: ReactNode;
+    questsPanel: ReactNode;
     actionSelectionScreen: ReactNode;
 }
 
@@ -63,6 +65,7 @@ export const AppView = (props: AppViewProps) => {
         onShowInventory,
         onShowEquipment,
         onShowShop,
+        onShowQuests,
         hasNewInventoryItems,
         roster,
         actionPanel,
@@ -70,6 +73,7 @@ export const AppView = (props: AppViewProps) => {
         inventoryPanel,
         equipmentPanel,
         shopPanel,
+        questsPanel,
         actionSelectionScreen,
     } = props;
 
@@ -91,18 +95,20 @@ export const AppView = (props: AppViewProps) => {
                                 active={activeSidePanel}
                                 onShowAction={onShowAction}
                                 onShowStats={onShowStats}
-                        onShowInventory={onShowInventory}
-                        onShowEquipment={onShowEquipment}
-                        onShowShop={onShowShop}
-                        badges={hasNewInventoryItems ? { inventory: "New" } : undefined}
-                        className="ts-topbar-switcher"
-                        inventoryOrder="equipment-first"
-                        labels={{
+                                onShowInventory={onShowInventory}
+                                onShowEquipment={onShowEquipment}
+                                onShowShop={onShowShop}
+                                onShowQuests={onShowQuests}
+                                badges={hasNewInventoryItems ? { inventory: "New" } : undefined}
+                                className="ts-topbar-switcher"
+                                inventoryOrder="equipment-first"
+                                labels={{
                                     action: "Action",
                                     stats: "Stats",
                                     inventory: "Inv",
                                     equipment: "Equip",
-                                    shop: "Shop"
+                                    shop: "Shop",
+                                    quests: "Quests"
                                 }}
                             />
                         ) : null}
@@ -152,6 +158,9 @@ export const AppView = (props: AppViewProps) => {
                                     {activeSidePanel === "shop" ? (
                                         shopPanel
                                     ) : null}
+                                    {activeSidePanel === "quests" ? (
+                                        questsPanel
+                                    ) : null}
                                 </>
                             )}
                     </div>
@@ -171,6 +180,7 @@ export const AppView = (props: AppViewProps) => {
                         onShowInventory={onShowInventory}
                         onShowEquipment={onShowEquipment}
                         onShowShop={onShowShop}
+                        onShowQuests={onShowQuests}
                         badges={hasNewInventoryItems ? { inventory: "New" } : undefined}
                         className="ts-bottombar-switcher"
                         useInventoryMenu
@@ -184,7 +194,8 @@ export const AppView = (props: AppViewProps) => {
                             roster: "Roster",
                             inventory: "Travel",
                             equipment: "Equip",
-                            shop: "Shop"
+                            shop: "Shop",
+                            quests: "Quests"
                         }}
                     />
                 </nav>

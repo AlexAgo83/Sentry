@@ -7,6 +7,7 @@ type SidePanelSwitcherLabels = {
     inventory: string;
     equipment: string;
     shop: string;
+    quests: string;
 };
 
 type TabIconKind = keyof SidePanelSwitcherLabels | "hero" | "travel";
@@ -67,6 +68,14 @@ const TabIcon = ({ kind }: TabIconProps) => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h3" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12h3" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9l3 6l-6-3z" />
+                </svg>
+            );
+        case "quests":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 4h7l3 3v13H7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 4v3h3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" />
                 </svg>
             );
         case "equipment":
@@ -134,7 +143,7 @@ const TabButton = memo(({ id, label, badge, isSelected, onClick }: TabButtonProp
 TabButton.displayName = "TabButton";
 
 type SidePanelSwitcherProps = {
-    active: "action" | "stats" | "inventory" | "equipment" | "shop";
+    active: "action" | "stats" | "inventory" | "equipment" | "shop" | "quests";
     isRosterActive?: boolean;
     onShowAction: () => void;
     onShowStats: () => void;
@@ -142,6 +151,7 @@ type SidePanelSwitcherProps = {
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
+    onShowQuests: () => void;
     className?: string;
     labels?: Partial<SidePanelSwitcherLabels>;
     useInventoryMenu?: boolean;
@@ -162,6 +172,7 @@ export const SidePanelSwitcher = memo(({
     onShowInventory,
     onShowEquipment,
     onShowShop,
+    onShowQuests,
     className,
     labels,
     useInventoryMenu = false,
@@ -178,7 +189,8 @@ export const SidePanelSwitcher = memo(({
         roster: labels?.roster ?? "Roster",
         inventory: labels?.inventory ?? "Bank",
         equipment: labels?.equipment ?? "Equip",
-        shop: labels?.shop ?? "Shop"
+        shop: labels?.shop ?? "Shop",
+        quests: labels?.quests ?? "Quests"
     };
 
     const [isInventoryMenuOpen, setInventoryMenuOpen] = useState(false);
@@ -186,7 +198,12 @@ export const SidePanelSwitcher = memo(({
     const menuRef = useRef<HTMLDivElement | null>(null);
     const heroMenuRef = useRef<HTMLDivElement | null>(null);
     const shouldShowEquipmentInHero = useHeroMenu && heroIncludesEquipment;
-    const isInventorySelected = !isRosterActive && (active === "inventory" || (!shouldShowEquipmentInHero && active === "equipment") || active === "shop");
+    const isInventorySelected = !isRosterActive && (
+        active === "inventory"
+        || (!shouldShowEquipmentInHero && active === "equipment")
+        || active === "shop"
+        || active === "quests"
+    );
     const isHeroSelected = !isRosterActive && (active === "action" || active === "stats" || (shouldShowEquipmentInHero && active === "equipment"));
     const resolvedHeroLabel = heroLabel ?? "Hero";
     const inventoryIconKind: TabIconKind =
@@ -397,6 +414,20 @@ export const SidePanelSwitcher = memo(({
                                     <span className="ts-bank-menu-badge" aria-hidden="true">{badges.shop}</span>
                                 ) : null}
                             </button>
+                            <button
+                                type="button"
+                                role="menuitem"
+                                className={`ts-bank-menu-item${active === "quests" ? " is-active" : ""}`}
+                                onClick={() => {
+                                    setInventoryMenuOpen(false);
+                                    onShowQuests();
+                                }}
+                            >
+                                <span className="ts-bank-menu-icon" aria-hidden="true">
+                                    <TabIcon kind="quests" />
+                                </span>
+                                <span className="ts-bank-menu-text">{resolvedLabels.quests}</span>
+                            </button>
                             {!shouldShowEquipmentInHero ? (
                                 <button
                                     type="button"
@@ -479,6 +510,13 @@ export const SidePanelSwitcher = memo(({
                         badge={badges?.shop}
                         isSelected={active === "shop"}
                         onClick={onShowShop}
+                    />
+                    <TabButton
+                        id="quests"
+                        label={resolvedLabels.quests}
+                        badge={badges?.quests}
+                        isSelected={active === "quests"}
+                        onClick={onShowQuests}
                     />
                 </>
             )}

@@ -15,6 +15,7 @@ export type SkillId =
 export type ActionId = SkillId;
 export type RecipeId = string;
 export type ItemId = string;
+export type QuestId = string;
 export type StatId = "Strength" | "Agility" | "Endurance" | "Intellect" | "Luck";
 export type EquipmentSlotId =
     | "Head"
@@ -70,6 +71,11 @@ export interface InventoryState {
 
 export interface ItemDelta {
     [key: ItemId]: number;
+}
+
+export interface QuestProgressState {
+    craftCounts: Record<ItemId, number>;
+    completed: Record<QuestId, boolean>;
 }
 
 export interface RecipeState {
@@ -132,6 +138,7 @@ export interface GameState {
     activePlayerId: PlayerId | null;
     rosterLimit: number;
     inventory: InventoryState;
+    quests: QuestProgressState;
     loop: LoopState;
     perf: PerformanceState;
     offlineSummary: OfflineSummaryState | null;
@@ -217,4 +224,5 @@ export interface GameSave {
     players: Record<PlayerId, PlayerSaveState>;
     rosterLimit?: number;
     inventory?: InventoryState;
+    quests?: QuestProgressState;
 }

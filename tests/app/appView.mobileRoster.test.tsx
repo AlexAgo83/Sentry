@@ -15,6 +15,7 @@ const renderAppView = (props: Partial<Parameters<typeof AppView>[0]> = {}) => {
             onShowInventory={() => {}}
             onShowEquipment={() => {}}
             onShowShop={() => {}}
+            onShowQuests={() => {}}
             hasNewInventoryItems={false}
             roster={<section><h2>Roster Panel Content</h2></section>}
             actionPanel={<div />}
@@ -22,6 +23,7 @@ const renderAppView = (props: Partial<Parameters<typeof AppView>[0]> = {}) => {
             inventoryPanel={<div />}
             equipmentPanel={<div />}
             shopPanel={<div />}
+            questsPanel={<div />}
             actionSelectionScreen={<div />}
             {...props}
         />
@@ -52,6 +54,7 @@ describe("AppView (mobile roster)", () => {
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
                 onShowShop={() => {}}
+                onShowQuests={() => {}}
                 hasNewInventoryItems={false}
                 roster={<section><h2>Roster Panel Content</h2></section>}
                 actionPanel={<div />}
@@ -59,6 +62,7 @@ describe("AppView (mobile roster)", () => {
                 inventoryPanel={<div />}
                 equipmentPanel={<div />}
                 shopPanel={<div />}
+                questsPanel={<div />}
                 actionSelectionScreen={<div />}
             />
         );

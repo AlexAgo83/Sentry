@@ -1,5 +1,6 @@
 import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
 import { getEquipmentModifiers } from "../data/equipment";
+import { QUEST_CRAFT_ITEM_IDS, QUEST_DEFINITIONS, getQuestProgress, getSharedSkillLevels } from "../data/quests";
 import { createActionProgress } from "./state";
 import {
     DEFAULT_STAMINA_MAX,
@@ -308,10 +309,38 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         playerItemDeltas
     };
 
+    const nextCraftCounts = { ...state.quests.craftCounts };
+    Object.entries(totalItemDeltas).forEach(([itemId, amount]) => {
+        if (!QUEST_CRAFT_ITEM_IDS.has(itemId) || amount <= 0) {
+            return;
+        }
+        nextCraftCounts[itemId] = (nextCraftCounts[itemId] ?? 0) + amount;
+    });
+
+    const sharedSkillLevels = getSharedSkillLevels(players);
+    const nextCompleted = { ...state.quests.completed };
+    let questGoldReward = 0;
+
+    QUEST_DEFINITIONS.forEach((quest) => {
+        const progress = getQuestProgress(quest, nextCraftCounts, sharedSkillLevels);
+        if (progress.isComplete && !nextCompleted[quest.id]) {
+            nextCompleted[quest.id] = true;
+            questGoldReward += quest.rewardGold;
+        }
+    });
+
+    if (questGoldReward > 0) {
+        inventory = applyItemDelta(inventory, { gold: questGoldReward }, 1, totalItemDeltas);
+    }
+
     return {
         ...state,
         players,
         inventory,
+        quests: {
+            craftCounts: nextCraftCounts,
+            completed: nextCompleted
+        },
         loop: {
             ...state.loop,
             lastTick: timestamp

@@ -1,4 +1,10 @@
-import type { GameSave, InventoryState, PlayerId, PlayerSaveState } from "../../core/types";
+import type {
+    GameSave,
+    InventoryState,
+    PlayerId,
+    PlayerSaveState,
+    QuestProgressState
+} from "../../core/types";
 
 export const LATEST_SAVE_SCHEMA_VERSION = 1;
 
@@ -54,6 +60,28 @@ const normalizeInventory = (value: unknown): InventoryState | undefined => {
         }
     });
     return { items: next };
+};
+
+const normalizeQuests = (value: unknown): QuestProgressState | undefined => {
+    if (!isObject(value)) {
+        return undefined;
+    }
+    const craftCountsRaw = isObject(value.craftCounts) ? value.craftCounts : {};
+    const completedRaw = isObject(value.completed) ? value.completed : {};
+    const craftCounts: Record<string, number> = {};
+    Object.entries(craftCountsRaw).forEach(([key, amount]) => {
+        const numeric = typeof amount === "number" ? amount : Number(amount);
+        if (Number.isFinite(numeric)) {
+            craftCounts[key] = Math.max(0, Math.floor(numeric));
+        }
+    });
+    const completed: Record<string, boolean> = {};
+    Object.entries(completedRaw).forEach(([key, value]) => {
+        if (typeof value === "boolean") {
+            completed[key] = value;
+        }
+    });
+    return { craftCounts, completed };
 };
 
 const legacyGoldFromPlayers = (players: Record<PlayerId, PlayerSaveState>): number => {
@@ -136,6 +164,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
     const rosterLimit = normalizeRosterLimit(input.rosterLimit, playerIds.length);
 
     const migrated = schemaVersion !== LATEST_SAVE_SCHEMA_VERSION;
+    const quests = normalizeQuests(input.quests);
 
     return {
         ok: true,
@@ -149,6 +178,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             players,
             rosterLimit,
             inventory: finalInventory,
+            ...(quests ? { quests } : {})
         }
     };
 };

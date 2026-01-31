@@ -77,6 +77,10 @@ export const useAppShellUi = () => {
         setActiveScreen("main");
         setActiveSidePanel("shop");
     }, []);
+    const showQuestsPanel = useCallback(() => {
+        setActiveScreen("main");
+        setActiveSidePanel("quests");
+    }, []);
 
     return {
         activeSidePanel,
@@ -87,6 +91,7 @@ export const useAppShellUi = () => {
         showInventoryPanel,
         showEquipmentPanel,
         showShopPanel,
+        showQuestsPanel,
         isSystemOpen,
         openSystem,
         closeSystem,

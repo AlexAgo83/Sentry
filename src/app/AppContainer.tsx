@@ -39,6 +39,7 @@ export const AppContainer = () => {
         showInventoryPanel,
         showEquipmentPanel,
         showShopPanel,
+        showQuestsPanel,
         isSystemOpen,
         openSystem,
         closeSystem,
@@ -66,7 +67,12 @@ export const AppContainer = () => {
     } = useInventoryNewBadges(inventoryItems, version);
 
     useEffect(() => {
-        if (activeSidePanel === "inventory" || activeSidePanel === "equipment" || activeSidePanel === "shop") {
+        if (
+            activeSidePanel === "inventory"
+            || activeSidePanel === "equipment"
+            || activeSidePanel === "shop"
+            || activeSidePanel === "quests"
+        ) {
             markInventoryMenuSeen();
         }
     }, [activeSidePanel, markInventoryMenuSeen]);
@@ -186,6 +192,7 @@ export const AppContainer = () => {
                 onShowInventory={showInventoryPanel}
                 onShowEquipment={showEquipmentPanel}
                 onShowShop={showShopPanel}
+                onShowQuests={showQuestsPanel}
                 hasNewInventoryItems={hasNewInventoryItems}
                 newInventoryItemIds={newInventoryItemIds}
                 onMarkInventoryItemSeen={markInventoryItemSeen}

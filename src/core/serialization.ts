@@ -10,6 +10,7 @@ export const toGameSave = (state: GameState): GameSave => {
         activePlayerId: state.activePlayerId,
         players: stripRuntimeFields(state.players),
         rosterLimit: state.rosterLimit,
-        inventory: state.inventory
+        inventory: state.inventory,
+        quests: state.quests
     };
 };

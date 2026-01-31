@@ -6,6 +6,7 @@ import {
     PlayerId,
     PlayerSaveState,
     PlayerState,
+    QuestProgressState,
     RecipeState,
     SkillId,
     SkillState
@@ -37,6 +38,16 @@ const createInventoryState = (gold: number): InventoryState => ({
     items: {
         gold
     }
+});
+
+const createQuestProgressState = (): QuestProgressState => ({
+    craftCounts: {},
+    completed: {}
+});
+
+const normalizeQuestProgressState = (quests?: QuestProgressState | null): QuestProgressState => ({
+    craftCounts: quests?.craftCounts ?? {},
+    completed: quests?.completed ?? {}
 });
 
 const createRecipeState = (id: string): RecipeState => ({
@@ -146,6 +157,7 @@ export const createInitialGameState = (version: string, options: InitialGameStat
         activePlayerId: player ? playerId : null,
         rosterLimit: DEFAULT_ROSTER_LIMIT,
         inventory: createInventoryState(DEFAULT_GOLD),
+        quests: createQuestProgressState(),
         loop: {
             lastTick: null,
             lastHiddenAt: null,
@@ -244,6 +256,7 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         activePlayerId,
         rosterLimit,
         inventory,
+        quests: normalizeQuestProgressState(save.quests),
         loop: {
             ...baseState.loop,
             lastTick: save.lastTick ?? baseState.loop.lastTick,

@@ -2,7 +2,7 @@
 > From version: 0.8.17
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Promoted from `logics/request/req_014_quests_screen.md`

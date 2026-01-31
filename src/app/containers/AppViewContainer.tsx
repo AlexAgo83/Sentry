@@ -7,6 +7,7 @@ import { InventoryPanelContainer } from "./InventoryPanelContainer";
 import { RosterContainer } from "./RosterContainer";
 import { ShopPanelContainer } from "./ShopPanelContainer";
 import { StatsPanelContainer } from "./StatsPanelContainer";
+import { QuestsPanelContainer } from "./QuestsPanelContainer";
 import { DevProfiler } from "../dev/renderDebug";
 
 type AppViewContainerProps = {
@@ -20,6 +21,7 @@ type AppViewContainerProps = {
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
+    onShowQuests: () => void;
     hasNewInventoryItems: boolean;
     newInventoryItemIds: string[];
     onMarkInventoryItemSeen: (itemId: string) => void;
@@ -43,6 +45,7 @@ export const AppViewContainer = ({
     onShowInventory,
     onShowEquipment,
     onShowShop,
+    onShowQuests,
     hasNewInventoryItems,
     newInventoryItemIds,
     onMarkInventoryItemSeen,
@@ -67,6 +70,7 @@ export const AppViewContainer = ({
                 onShowInventory={onShowInventory}
                 onShowEquipment={onShowEquipment}
                 onShowShop={onShowShop}
+                onShowQuests={onShowQuests}
                 hasNewInventoryItems={hasNewInventoryItems}
                 roster={(
                     <DevProfiler id="RosterPanel">
@@ -108,6 +112,11 @@ export const AppViewContainer = ({
                 shopPanel={(
                     <DevProfiler id="ShopPanel">
                         <ShopPanelContainer />
+                    </DevProfiler>
+                )}
+                questsPanel={(
+                    <DevProfiler id="QuestsPanel">
+                        <QuestsPanelContainer />
                     </DevProfiler>
                 )}
                 actionSelectionScreen={(
