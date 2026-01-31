@@ -9,7 +9,7 @@ type SidePanelSwitcherLabels = {
     shop: string;
 };
 
-type TabIconKind = keyof SidePanelSwitcherLabels | "hero";
+type TabIconKind = keyof SidePanelSwitcherLabels | "hero" | "travel";
 
 type TabIconProps = {
     kind: TabIconKind;
@@ -52,11 +52,21 @@ const TabIcon = ({ kind }: TabIconProps) => {
         case "inventory":
             return (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M7 8V7a5 5 0 0 1 10 0v1m-12 0h14l-1 13H6L5 8z"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 8l2-3h8l2 3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 12v3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 12h3" />
+                </svg>
+            );
+        case "travel":
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <circle cx="12" cy="12" r="8" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12h3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9l3 6l-6-3z" />
                 </svg>
             );
         case "equipment":
@@ -99,6 +109,7 @@ type TabButtonProps = {
 
 const TabButton = memo(({ id, label, badge, isSelected, onClick }: TabButtonProps) => {
     const ariaLabel = badge ? `${label} (${badge})` : label;
+    const iconKind: TabIconKind = id === "inventory" && label.toLowerCase() === "travel" ? "travel" : id;
     return (
         <button
             type="button"
@@ -110,7 +121,7 @@ const TabButton = memo(({ id, label, badge, isSelected, onClick }: TabButtonProp
             onClick={onClick}
         >
             <span className="ts-chip-icon" aria-hidden="true">
-                <TabIcon kind={id} />
+                <TabIcon kind={iconKind} />
             </span>
             <span className="ts-chip-text">{label}</span>
             {badge ? (
@@ -178,6 +189,8 @@ export const SidePanelSwitcher = memo(({
     const isInventorySelected = !isRosterActive && (active === "inventory" || (!shouldShowEquipmentInHero && active === "equipment") || active === "shop");
     const isHeroSelected = !isRosterActive && (active === "action" || active === "stats" || (shouldShowEquipmentInHero && active === "equipment"));
     const resolvedHeroLabel = heroLabel ?? "Hero";
+    const inventoryIconKind: TabIconKind =
+        resolvedLabels.inventory.toLowerCase() === "travel" ? "travel" : "inventory";
 
     useEffect(() => {
         if (!useInventoryMenu || !isInventoryMenuOpen) {
@@ -358,7 +371,7 @@ export const SidePanelSwitcher = memo(({
                         onClick={() => setInventoryMenuOpen((prev) => !prev)}
                     >
                         <span className="ts-chip-icon" aria-hidden="true">
-                            <TabIcon kind="inventory" />
+                            <TabIcon kind={inventoryIconKind} />
                         </span>
                         <span className="ts-chip-text">{resolvedLabels.inventory}</span>
                         {badges?.inventory ? (

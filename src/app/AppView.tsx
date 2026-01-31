@@ -182,7 +182,7 @@ export const AppView = (props: AppViewProps) => {
                             action: "Act",
                             stats: "Stats",
                             roster: "Roster",
-                            inventory: "Bank",
+                            inventory: "Travel",
                             equipment: "Equip",
                             shop: "Shop"
                         }}
