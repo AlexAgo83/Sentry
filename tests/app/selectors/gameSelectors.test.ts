@@ -49,29 +49,49 @@ describe("app gameSelectors", () => {
         expect(selectDriftLabel(state)).toBe("-100");
     });
 
-    it("selectVirtualScore sums all player skill levels", () => {
+    it("selectVirtualScore combines skill progress, recipes, and quest completion", () => {
         const state = createInitialGameState("test");
         const player2 = createPlayerState("2");
         state.players[player2.id] = player2;
-        const baseCombat1 = state.players["1"].skills.Combat.level;
-        const baseCooking1 = state.players["1"].skills.Cooking.level;
-        const baseCombat2 = state.players["2"].skills.Combat.level;
-        const baseFishing2 = state.players["2"].skills.Fishing.level;
-        const baseScore = Object.values(state.players).reduce((total, player) => {
-            return total + Object.values(player.skills).reduce((sum, skill) => sum + skill.level, 0);
-        }, 0);
+        const baseCombat1 = state.players["1"].skills.Combat;
+        const baseCooking1 = state.players["1"].skills.Cooking;
+        const baseCombat2 = state.players["2"].skills.Combat;
+        const baseScore = (() => {
+            const questCount = Object.values(state.quests.completed).filter(Boolean).length;
+            const questScore = questCount * 5;
+            const skillScore = Object.values(state.players).reduce((total, player) => {
+                return total + Object.values(player.skills).reduce((sum, skill) => {
+                    const xpNext = Number.isFinite(skill.xpNext) && skill.xpNext > 0 ? skill.xpNext : 0;
+                    const xpProgress = xpNext > 0 ? Math.min(1, Math.max(0, skill.xp / xpNext)) : 0;
+                    const recipeScore = Object.values(skill.recipes).reduce((recipeSum, recipe) => {
+                        return recipeSum + recipe.level * 0.25;
+                    }, 0);
+                    return sum + skill.level + xpProgress + recipeScore;
+                }, 0);
+            }, 0);
+            return skillScore + questScore;
+        })();
 
-        state.players["1"].skills.Combat.level = 3;
-        state.players["1"].skills.Cooking.level = 2;
-        state.players["2"].skills.Combat.level = 5;
-        state.players["2"].skills.Fishing.level = 1;
+        state.players["1"].skills.Combat.level = baseCombat1.level + 2;
+        state.players["1"].skills.Combat.xp = 50;
+        state.players["1"].skills.Combat.xpNext = 100;
+        state.players["1"].skills.Cooking.level = baseCooking1.level + 1;
+        const cookingRecipeId = Object.keys(state.players["1"].skills.Cooking.recipes)[0];
+        state.players["1"].skills.Cooking.recipes[cookingRecipeId].level += 3;
 
-        const expected =
-            baseScore +
-            (3 - baseCombat1) +
-            (2 - baseCooking1) +
-            (5 - baseCombat2) +
-            (1 - baseFishing2);
+        state.players["2"].skills.Combat.level = baseCombat2.level + 4;
+        state.players["2"].skills.Combat.xp = 10;
+        state.players["2"].skills.Combat.xpNext = 10;
+
+        state.quests.completed["quest-alpha"] = true;
+        state.quests.completed["quest-beta"] = true;
+
+        const questScore = 2 * 5;
+        const combat1Delta = 2 + 0.5;
+        const cookingDelta = 1 + 3 * 0.25;
+        const combat2Delta = 4 + 1;
+
+        const expected = Math.round(baseScore + combat1Delta + cookingDelta + combat2Delta + questScore);
 
         expect(selectVirtualScore(state)).toBe(expected);
     });
