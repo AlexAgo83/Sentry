@@ -47,7 +47,8 @@ export default defineConfig({
         },
         exclude: [
             ...configDefaults.exclude,
-            "tests/build.test.ts"
+            "tests/build.test.ts",
+            "tests/e2e/**"
         ]
     }
 });

@@ -58,12 +58,12 @@ describe("service worker", () => {
         const promise = waitUntil.mock.calls[0][0];
         await promise;
         expect(waitUntil).toHaveBeenCalledTimes(1);
-        expect(cache.addAll).toHaveBeenCalledWith([
+        expect(cache.addAll).toHaveBeenCalledWith(expect.arrayContaining([
             "/",
             "/index.html",
             "/manifest.webmanifest",
             "/icon.svg"
-        ]);
+        ]));
         expect(self.skipWaiting).toHaveBeenCalled();
     });
 

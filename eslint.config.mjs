@@ -18,7 +18,9 @@ export default [
             globals: {
                 ...globals.browser,
                 ...globals.node,
-                JSX: "readonly"
+                JSX: "readonly",
+                __APP_VERSION__: "readonly",
+                __ASSETS_PATH__: "readonly"
             }
         },
         plugins: {

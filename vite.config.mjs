@@ -82,6 +82,7 @@ export default defineConfig({
             exclude: [
                 ...configDefaults.exclude,
                 "tests/build.test.ts",
+                "tests/e2e/**",
                 "src/core/types.ts",
                 "src/core/index.ts"
             ]

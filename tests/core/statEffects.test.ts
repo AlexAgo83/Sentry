@@ -3,6 +3,7 @@ import { applyTick } from "../../src/core/loop";
 import { gameReducer } from "../../src/core/reducer";
 import { createInitialGameState } from "../../src/core/state";
 import { DEFAULT_STAMINA_MAX, DEFAULT_STAMINA_REGEN, MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../src/core/constants";
+import * as rng from "../../src/core/rng";
 import { getRecipesForSkill } from "../../src/data/definitions";
 import type { PlayerState } from "../../src/core/types";
 
@@ -211,7 +212,7 @@ describe("stat effects", () => {
             state.players[playerId].skills.Fishing.baseInterval * (1 - 0 * STAT_PERCENT_PER_POINT)
         );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
-        const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
+        const randomSpy = vi.spyOn(rng, "seededRandom").mockReturnValue(0);
         const next = applyTick(state, actionInterval, Date.now());
         randomSpy.mockRestore();
 

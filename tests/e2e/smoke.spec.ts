@@ -34,7 +34,7 @@ test("inventory sell flow", async ({ page }) => {
     await expect(meatSlot).toBeVisible();
     await meatSlot.click();
 
-    await page.getByTestId("inventory-sell").click();
+    await page.getByTestId("inventory-sell-all").click();
     const confirmSell = page.getByTestId("inventory-confirm-sell");
     await expect(confirmSell).toBeVisible();
     await confirmSell.click();
