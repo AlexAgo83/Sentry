@@ -38,7 +38,7 @@ export type GameAction =
     | { type: "renamePlayer"; playerId: PlayerId; name: string }
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
     | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null }
-    | { type: "updateAppearance"; playerId: PlayerId; appearance: { faceIndex?: number; hairIndex?: number; hairColor?: string; skinColor?: string } }
+    | { type: "updateAppearance"; playerId: PlayerId; appearance: { faceIndex?: number; hairIndex?: number; hairColor?: string; skinColor?: string; showHelmet?: boolean } }
     | { type: "sellItem"; itemId: ItemId; count: number }
     | { type: "purchaseRosterSlot" }
     | { type: "equipItem"; playerId: PlayerId; itemId: ItemId }

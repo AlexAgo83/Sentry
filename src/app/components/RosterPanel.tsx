@@ -72,13 +72,14 @@ export const RosterPanel = memo(({
                             const hairIndex = player.appearance?.hairIndex ?? getHairIndex(player.id);
                             const hairColor = player.appearance?.hairColor ?? getHairColor(player.id);
                             const skinColor = player.appearance?.skinColor ?? getSkinColor(player.id);
+                            const showHelmet = player.appearance?.showHelmet ?? true;
                             const avatarStyle = {
                                 "--ts-avatar-torso": skillColor,
                                 "--ts-avatar-face": `url("${getFaceUrlByIndex(faceIndex)}")`,
                                 "--ts-avatar-hair": `url("${getHairUrlByIndex(hairIndex)}")`,
                                 "--ts-avatar-hair-color": hairColor,
                                 "--ts-avatar-skin": skinColor,
-                                ...getEquipmentSkinVars(player.equipment)
+                                ...getEquipmentSkinVars(player.equipment, { showHelmet })
                             } as CSSProperties;
 
                             return (

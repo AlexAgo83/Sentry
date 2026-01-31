@@ -42,6 +42,34 @@ const HairIcon = () => (
     </svg>
 );
 
+const HelmetOnIcon = () => (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path
+            d="M6 12a6 6 0 0 1 12 0v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+        />
+        <path d="M4 12h16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M8.5 8.5h7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+);
+
+const HelmetOffIcon = () => (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path
+            d="M6 12a6 6 0 0 1 12 0v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+        />
+        <path d="M4 12h16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M5 5l14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+);
+
 const EditOnIcon = () => (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path
@@ -89,6 +117,7 @@ type CharacterSkinPanelProps = {
     hairIndex: number;
     hairColor: string;
     skinColor: string;
+    showHelmet: boolean;
     equipment: PlayerEquipmentState | null;
     heroName?: string | null;
     isPlaceholder: boolean;
@@ -102,6 +131,7 @@ type CharacterSkinPanelProps = {
     onToggleCollapsed: () => void;
     onSkinColorChange: (color: string) => void;
     onToggleEditMode: () => void;
+    onToggleHelmet: () => void;
 };
 
 export const CharacterSkinPanel = memo(({
@@ -111,6 +141,7 @@ export const CharacterSkinPanel = memo(({
     hairIndex,
     hairColor,
     skinColor,
+    showHelmet,
     equipment,
     heroName,
     isPlaceholder,
@@ -123,7 +154,8 @@ export const CharacterSkinPanel = memo(({
     onHairColorChange,
     onToggleCollapsed,
     onSkinColorChange,
-    onToggleEditMode
+    onToggleEditMode,
+    onToggleHelmet
 }: CharacterSkinPanelProps) => {
     const avatarStyle = {
         "--ts-avatar-torso": avatarColor,
@@ -131,7 +163,7 @@ export const CharacterSkinPanel = memo(({
         "--ts-avatar-hair": `url("${getHairUrlByIndex(hairIndex)}")`,
         "--ts-avatar-hair-color": hairColor,
         "--ts-avatar-skin": skinColor,
-        ...getEquipmentSkinVars(equipment)
+        ...getEquipmentSkinVars(equipment, { showHelmet })
     } as CSSProperties;
     const avatarClassName = `ts-player-avatar ts-player-avatar--large${isPlaceholder ? " is-placeholder" : ""}`;
 
@@ -249,6 +281,19 @@ export const CharacterSkinPanel = memo(({
                                 />
                                 <span className="ts-skin-color-label">H</span>
                             </span>
+                            <button
+                                type="button"
+                                className={`ts-icon-button ts-focusable ts-skin-cycle-button${showHelmet ? " is-active" : ""}`}
+                                onClick={onToggleHelmet}
+                                disabled={!canRenameHero}
+                                aria-pressed={showHelmet}
+                                aria-label={showHelmet ? "Hide helmet" : "Show helmet"}
+                            >
+                                <span className="ts-skin-action-icon">
+                                    {showHelmet ? <HelmetOnIcon /> : <HelmetOffIcon />}
+                                </span>
+                                <span className="ts-skin-action-label">Helmet</span>
+                            </button>
                         </>
                     ) : null}
                 </div>

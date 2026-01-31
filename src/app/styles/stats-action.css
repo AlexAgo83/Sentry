@@ -73,6 +73,8 @@
     display: inline-flex;
     align-items: center;
     gap: var(--m2);
+    padding-left: var(--m8);
+    padding-right: var(--m8);
 }
 
 .ts-skin-action-label {
@@ -100,7 +102,7 @@
     display: inline-flex;
     align-items: center;
     gap: var(--m2);
-    z-index: 3;
+    z-index: 12;
 }
 
 .ts-hair-color-input {

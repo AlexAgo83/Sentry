@@ -121,6 +121,7 @@ export interface PlayerState {
         hairIndex?: number;
         hairColor?: string;
         skinColor?: string;
+        showHelmet?: boolean;
     };
 }
 

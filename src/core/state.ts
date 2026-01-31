@@ -131,7 +131,10 @@ export const createPlayerState = (id: PlayerId, name?: string): PlayerState => {
         skills,
         selectedActionId: null,
         actionProgress: createActionProgress(),
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        appearance: {
+            showHelmet: true
+        }
     };
 };
 
@@ -189,6 +192,10 @@ const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
     }, {} as Record<SkillId, SkillState>);
     return {
         ...rest,
+        appearance: {
+            showHelmet: true,
+            ...player.appearance
+        },
         stats: normalizePlayerStats(player.stats),
         equipment: normalizePlayerEquipment(player.equipment),
         skills: normalizedSkills,

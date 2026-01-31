@@ -22,6 +22,7 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
     const hairIndex = activePlayer?.appearance?.hairIndex ?? getHairIndex(activePlayerId ?? "default");
     const hairColor = activePlayer?.appearance?.hairColor ?? getHairColor(activePlayerId ?? "default");
     const skinColor = activePlayer?.appearance?.skinColor ?? getSkinColor(activePlayerId ?? "default");
+    const showHelmet = activePlayer?.appearance?.showHelmet ?? true;
 
     const handleNextFace = () => {
         if (!activePlayerId) {
@@ -53,6 +54,13 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
         gameStore.dispatch({ type: "updateAppearance", playerId: activePlayerId, appearance: { skinColor: color } });
     };
 
+    const handleToggleHelmet = () => {
+        if (!activePlayerId) {
+            return;
+        }
+        gameStore.dispatch({ type: "updateAppearance", playerId: activePlayerId, appearance: { showHelmet: !showHelmet } });
+    };
+
     return (
         <CharacterSkinPanel
             avatarColor={avatarColor}
@@ -61,6 +69,7 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
             hairIndex={hairIndex}
             hairColor={hairColor}
             skinColor={skinColor}
+            showHelmet={showHelmet}
             equipment={activePlayer?.equipment ?? null}
             heroName={activePlayer?.name ?? null}
             isPlaceholder={!activePlayer}
@@ -72,6 +81,7 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
             onNextHair={handleNextHair}
             onHairColorChange={handleHairColorChange}
             onSkinColorChange={handleSkinColorChange}
+            onToggleHelmet={handleToggleHelmet}
             onToggleCollapsed={() => setSkinCollapsed((value) => !value)}
             onToggleEditMode={() => setSkinEditMode((value) => !value)}
         />
