@@ -17,6 +17,7 @@ import { selectActivePlayer } from "../selectors/gameSelectors";
 import { usePendingActionSelection } from "../hooks/usePendingActionSelection";
 import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
 import { ActionSelectionScreen } from "../components/ActionSelectionScreen";
+import { HeroSkinPanelContainer } from "./HeroSkinPanelContainer";
 
 const getFirstUnlockedRecipeId = (skillId: SkillId, skillLevel: number): string => {
     return getRecipesForSkill(skillId).find((recipe) => isRecipeUnlocked(recipe, skillLevel))?.id ?? "";
@@ -32,10 +33,15 @@ const INTELLECT_SKILLS = new Set<SkillId>([
 
 type ActionSelectionScreenContainerProps = {
     onBack: () => void;
+    onRenameHero: () => void;
     getSkillLabel: (skillId: SkillId) => string;
 };
 
-export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: ActionSelectionScreenContainerProps) => {
+export const ActionSelectionScreenContainer = ({
+    onBack,
+    onRenameHero,
+    getSkillLabel
+}: ActionSelectionScreenContainerProps) => {
     const activePlayer = useGameStore(selectActivePlayer);
     const inventoryItems = useGameStore((state) => state.inventory.items);
 
@@ -271,33 +277,36 @@ export const ActionSelectionScreenContainer = ({ onBack, getSkillLabel }: Action
     }
 
     return (
-        <ActionSelectionScreen
-            activePlayer={activePlayer}
-            skills={SKILL_DEFINITIONS}
-            pendingSkillId={pendingSkillId}
-            pendingRecipeId={pendingRecipeId}
-            pendingSkill={pendingSkill as SkillState | null}
-            pendingSkillLabel={pendingSkillLabel}
-            pendingRecipeLabel={pendingRecipeLabel}
-            pendingConsumptionLabel={pendingConsumptionLabel}
-            pendingProductionLabel={pendingProductionLabel}
-            pendingConsumptionEntries={hasPendingSelection ? pendingConsumptionEntries : []}
-            pendingProductionEntries={hasPendingSelection ? pendingProductionEntries : []}
-            pendingSpeedBonusLabel={pendingSpeedBonusLabel}
-            pendingSpeedBonusTooltip={pendingSpeedBonusTooltip}
-            pendingActionDurationLabel={pendingActionDurationLabel}
-            pendingActionXpLabel={pendingActionXpLabel}
-            pendingXpBonusLabel={pendingXpBonusLabel}
-            pendingXpBonusTooltip={pendingXpBonusTooltip}
-            pendingStunTimeLabel={pendingStunTimeLabel}
-            missingItemsLabel={missingItemsLabel}
-            canStartAction={canStartAction}
-            canStopAction={Boolean(activePlayer.selectedActionId)}
-            onSkillSelect={handleSkillSelect}
-            onRecipeSelect={handleRecipeSelect}
-            onStartAction={handleStartAction}
-            onStopAction={handleStopAction}
-            onBack={onBack}
-        />
+        <>
+            <HeroSkinPanelContainer onRenameHero={onRenameHero} />
+            <ActionSelectionScreen
+                activePlayer={activePlayer}
+                skills={SKILL_DEFINITIONS}
+                pendingSkillId={pendingSkillId}
+                pendingRecipeId={pendingRecipeId}
+                pendingSkill={pendingSkill as SkillState | null}
+                pendingSkillLabel={pendingSkillLabel}
+                pendingRecipeLabel={pendingRecipeLabel}
+                pendingConsumptionLabel={pendingConsumptionLabel}
+                pendingProductionLabel={pendingProductionLabel}
+                pendingConsumptionEntries={hasPendingSelection ? pendingConsumptionEntries : []}
+                pendingProductionEntries={hasPendingSelection ? pendingProductionEntries : []}
+                pendingSpeedBonusLabel={pendingSpeedBonusLabel}
+                pendingSpeedBonusTooltip={pendingSpeedBonusTooltip}
+                pendingActionDurationLabel={pendingActionDurationLabel}
+                pendingActionXpLabel={pendingActionXpLabel}
+                pendingXpBonusLabel={pendingXpBonusLabel}
+                pendingXpBonusTooltip={pendingXpBonusTooltip}
+                pendingStunTimeLabel={pendingStunTimeLabel}
+                missingItemsLabel={missingItemsLabel}
+                canStartAction={canStartAction}
+                canStopAction={Boolean(activePlayer.selectedActionId)}
+                onSkillSelect={handleSkillSelect}
+                onRecipeSelect={handleRecipeSelect}
+                onStartAction={handleStartAction}
+                onStopAction={handleStopAction}
+                onBack={onBack}
+            />
+        </>
     );
 };

@@ -148,7 +148,7 @@ export const ActionStatusPanel = memo(({
 	                </button>
 	                <button
 	                    type="button"
-	                    className="ts-collapse-button ts-focusable"
+	                    className={`ts-collapse-button ts-focusable ts-action-stop${canInterruptAction ? " is-ready-stop" : ""}`}
 	                    onClick={onInterruptAction}
 	                    disabled={!canInterruptAction}
 	                    aria-label="Interrupt"

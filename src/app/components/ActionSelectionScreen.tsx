@@ -407,7 +407,7 @@ export const ActionSelectionScreen = memo(({
                             })}
                         </div>
                     ) : (
-                        <div className="ts-picker-empty">Choose a skill to see recipes.</div>
+                        <div className="ts-picker-empty ts-picker-empty--pulse">Choose a skill to see recipes.</div>
                     )}
                 </fieldset>
             </div>

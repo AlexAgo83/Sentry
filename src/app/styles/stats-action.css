@@ -569,6 +569,7 @@
     align-items: start;
 }
 
+
 .ts-action-selection-summary-panel {
     margin-top: 0;
     display: flex;
@@ -606,6 +607,22 @@
     font-size: var(--text-xs-size);
     letter-spacing: 0.12em;
     text-transform: uppercase;
+}
+
+.ts-picker-empty--pulse {
+    animation: ts-picker-hint-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes ts-picker-hint-pulse {
+    0% {
+        opacity: 0.45;
+    }
+    50% {
+        opacity: 0.95;
+    }
+    100% {
+        opacity: 0.45;
+    }
 }
 
 .ts-skill-picker {

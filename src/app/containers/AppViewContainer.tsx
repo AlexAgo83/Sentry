@@ -114,6 +114,7 @@ export const AppViewContainer = ({
                     <DevProfiler id="ActionSelectionScreen">
                         <ActionSelectionScreenContainer
                             onBack={onCloseActionSelection}
+                            onRenameHero={onRenameHero}
                             getSkillLabel={getSkillLabel}
                         />
                     </DevProfiler>
