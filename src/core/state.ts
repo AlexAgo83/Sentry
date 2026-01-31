@@ -176,6 +176,11 @@ export const createInitialGameState = (version: string, options: InitialGameStat
             lastOfflineTicks: 0,
             lastOfflineDurationMs: 0
         },
+        persistence: {
+            disabled: false,
+            error: null,
+            lastFailureAt: null
+        },
         offlineSummary: null,
         lastTickSummary: null
     };
@@ -269,6 +274,7 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
             lastTick: save.lastTick ?? baseState.loop.lastTick,
             lastHiddenAt: save.lastHiddenAt ?? baseState.loop.lastHiddenAt
         },
+        persistence: baseState.persistence,
         offlineSummary: null,
         lastTickSummary: null
     };

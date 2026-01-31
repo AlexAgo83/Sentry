@@ -2,7 +2,7 @@
 > From version: 0.8.17
 > Understanding: 93%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Promoted from `logics/request/req_015_technical_review.md`.

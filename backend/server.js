@@ -2,13 +2,17 @@ const fastify = require("fastify");
 const cors = require("@fastify/cors");
 const cookie = require("@fastify/cookie");
 const jwt = require("@fastify/jwt");
-const rateLimit = require("@fastify/rate-limit");
 const bcrypt = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
+const crypto = require("crypto");
+const { SAVE_SCHEMA_V1, validateSavePayload } = require("./saveSchema");
 
 const MAX_SAVE_BYTES = 2 * 1024 * 1024;
 const AUTH_RATE_LIMIT_MAX = 20;
 const AUTH_RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const REFRESH_COOKIE_NAME = "refreshToken";
+const CSRF_COOKIE_NAME = "refreshCsrf";
+const CSRF_HEADER_NAME = "x-csrf-token";
 
 const buildConfig = () => {
     const ACCESS_TTL_MINUTES = Number(process.env.ACCESS_TOKEN_TTL_MINUTES ?? 15);
@@ -51,23 +55,54 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         secret: config.JWT_SECRET
     });
 
-    app.register(rateLimit, { global: false });
+    const resolveClientKey = (request) => {
+        const forwardedFor = request.headers["x-forwarded-for"];
+        const forwardedIp = typeof forwardedFor === "string" ? forwardedFor.split(",")[0].trim() : "";
+        return forwardedIp || request.ip || "unknown";
+    };
+
+    const resolveRouteKey = (request) => {
+        return request.routeOptions?.url || request.routerPath || request.raw?.url || "unknown";
+    };
 
     const createRateLimiter = ({ max, windowMs }) => {
-        const hits = new Map();
         return async (request, reply) => {
-            const forwardedFor = request.headers["x-forwarded-for"];
-            const forwardedIp = typeof forwardedFor === "string" ? forwardedFor.split(",")[0].trim() : "";
-            const key = forwardedIp || request.ip || "unknown";
-            const now = Date.now();
-            const timestamps = hits.get(key) ?? [];
-            const recent = timestamps.filter((time) => now - time < windowMs);
-            if (recent.length >= max) {
-                reply.code(429).send({ error: "Too many requests." });
-                return;
+            const key = resolveClientKey(request);
+            const route = resolveRouteKey(request);
+            const now = new Date();
+            const resetAt = new Date(now.getTime() + windowMs);
+            try {
+                const result = await prisma.$transaction(async (tx) => {
+                    const current = await tx.rateLimit.findUnique({
+                        where: { key_route: { key, route } }
+                    });
+                    if (!current || current.resetAt <= now) {
+                        await tx.rateLimit.upsert({
+                            where: { key_route: { key, route } },
+                            create: { key, route, count: 1, resetAt },
+                            update: { count: 1, resetAt }
+                        });
+                        return { allowed: true, resetAt };
+                    }
+                    if (current.count >= max) {
+                        return { allowed: false, resetAt: current.resetAt };
+                    }
+                    await tx.rateLimit.update({
+                        where: { key_route: { key, route } },
+                        data: { count: { increment: 1 } }
+                    });
+                    return { allowed: true, resetAt: current.resetAt };
+                });
+
+                if (!result.allowed) {
+                    const retryAfter = Math.max(0, Math.ceil((result.resetAt.getTime() - now.getTime()) / 1000));
+                    reply.header("Retry-After", String(retryAfter));
+                    reply.code(429).send({ error: "Too many requests." });
+                    return reply;
+                }
+            } catch (error) {
+                request.log?.warn({ error }, "Rate limit lookup failed.");
             }
-            recent.push(now);
-            hits.set(key, recent);
         };
     };
 
@@ -92,13 +127,13 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         { expiresIn: `${config.ACCESS_TTL_MINUTES}m` }
     );
 
-    const signRefreshToken = (userId) => app.jwt.sign(
-        { sub: userId, type: "refresh" },
+    const signRefreshToken = (userId, tokenId) => app.jwt.sign(
+        { sub: userId, type: "refresh", jti: tokenId },
         { expiresIn: `${config.REFRESH_TTL_DAYS}d` }
     );
 
     const setRefreshCookie = (reply, token) => {
-        reply.setCookie("refreshToken", token, {
+        reply.setCookie(REFRESH_COOKIE_NAME, token, {
             httpOnly: true,
             sameSite: "lax",
             secure: config.isProduction,
@@ -107,9 +142,55 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         });
     };
 
+    const setCsrfCookie = (reply, token) => {
+        reply.setCookie(CSRF_COOKIE_NAME, token, {
+            httpOnly: false,
+            sameSite: "lax",
+            secure: config.isProduction,
+            path: "/",
+            maxAge: config.REFRESH_TTL_DAYS * 24 * 60 * 60
+        });
+    };
+
+    const hashToken = (value) => crypto.createHash("sha256").update(value).digest("hex");
+    const generateTokenId = () => (crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(16).toString("hex"));
+    const generateCsrfToken = () => crypto.randomBytes(16).toString("hex");
+
+    const issueRefreshToken = async (userId) => {
+        const tokenId = generateTokenId();
+        const refreshToken = signRefreshToken(userId, tokenId);
+        const expiresAt = new Date(Date.now() + config.REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000);
+        await prisma.refreshToken.create({
+            data: {
+                userId,
+                tokenHash: hashToken(tokenId),
+                expiresAt
+            }
+        });
+        return refreshToken;
+    };
+
+    const issueAuthTokens = async (userId, reply) => {
+        const accessToken = signAccessToken(userId);
+        const refreshToken = await issueRefreshToken(userId);
+        const csrfToken = generateCsrfToken();
+        setRefreshCookie(reply, refreshToken);
+        setCsrfCookie(reply, csrfToken);
+        return { accessToken };
+    };
+
+    const verifyRefreshCsrf = (request, reply) => {
+        const csrfCookie = request.cookies?.[CSRF_COOKIE_NAME];
+        const csrfHeader = request.headers?.[CSRF_HEADER_NAME];
+        if (!csrfCookie || typeof csrfHeader !== "string" || csrfCookie !== csrfHeader) {
+            reply.code(403).send({ error: "Invalid CSRF token." });
+            return false;
+        }
+        return true;
+    };
+
     app.post("/api/v1/auth/register", {
-        preHandler: [authRateLimit],
-        config: { rateLimit: { max: 20, timeWindow: "1 minute" } }
+        preHandler: [authRateLimit]
     }, async (request, reply) => {
         const { email, password } = request.body ?? {};
         if (typeof email !== "string" || typeof password !== "string") {
@@ -136,15 +217,12 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
             }
         });
 
-        const accessToken = signAccessToken(user.id);
-        const refreshToken = signRefreshToken(user.id);
-        setRefreshCookie(reply, refreshToken);
+        const { accessToken } = await issueAuthTokens(user.id, reply);
         reply.send({ accessToken });
     });
 
     app.post("/api/v1/auth/login", {
-        preHandler: [authRateLimit],
-        config: { rateLimit: { max: 20, timeWindow: "1 minute" } }
+        preHandler: [authRateLimit]
     }, async (request, reply) => {
         const { email, password } = request.body ?? {};
         if (typeof email !== "string" || typeof password !== "string") {
@@ -165,31 +243,46 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
             return;
         }
 
-        const accessToken = signAccessToken(user.id);
-        const refreshToken = signRefreshToken(user.id);
-        setRefreshCookie(reply, refreshToken);
+        const { accessToken } = await issueAuthTokens(user.id, reply);
         reply.send({ accessToken });
     });
 
     app.post("/api/v1/auth/refresh", {
-        preHandler: [authRateLimit],
-        config: { rateLimit: { max: 20, timeWindow: "1 minute" } }
+        preHandler: [authRateLimit]
     }, async (request, reply) => {
-        const token = request.cookies.refreshToken;
+        const token = request.cookies?.[REFRESH_COOKIE_NAME];
         if (!token) {
             reply.code(401).send({ error: "Missing refresh token." });
+            return;
+        }
+        if (!verifyRefreshCsrf(request, reply)) {
             return;
         }
 
         try {
             const payload = await app.jwt.verify(token);
-            if (!payload || payload.type !== "refresh") {
+            if (!payload || payload.type !== "refresh" || !payload.jti) {
                 reply.code(401).send({ error: "Invalid refresh token." });
                 return;
             }
-            const accessToken = signAccessToken(payload.sub);
-            const refreshToken = signRefreshToken(payload.sub);
-            setRefreshCookie(reply, refreshToken);
+            const userId = typeof payload.sub === "string" ? payload.sub : null;
+            if (!userId) {
+                reply.code(401).send({ error: "Invalid refresh token." });
+                return;
+            }
+            const record = await prisma.refreshToken.findUnique({
+                where: { tokenHash: hashToken(payload.jti) }
+            });
+            if (!record || record.revokedAt || record.expiresAt <= new Date() || record.userId !== userId) {
+                reply.code(401).send({ error: "Invalid refresh token." });
+                return;
+            }
+            await prisma.refreshToken.update({
+                where: { tokenHash: hashToken(payload.jti) },
+                data: { revokedAt: new Date() }
+            });
+
+            const { accessToken } = await issueAuthTokens(userId, reply);
             reply.send({ accessToken });
         } catch {
             reply.code(401).send({ error: "Invalid refresh token." });
@@ -227,8 +320,10 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         }
 
         const { payload, virtualScore, appVersion } = request.body ?? {};
-        if (!payload || typeof payload !== "object") {
-            reply.code(400).send({ error: "Invalid save payload." });
+        const validation = validateSavePayload(payload);
+        if (!validation.ok) {
+            request.log?.warn({ reason: validation.error, schema: SAVE_SCHEMA_V1.$id }, "Invalid save payload.");
+            reply.code(400).send({ error: validation.error });
             return;
         }
         if (!Number.isFinite(virtualScore)) {

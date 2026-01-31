@@ -29,6 +29,7 @@ export const AppContainer = () => {
     const offlineSummary = useGameStore((state) => state.offlineSummary);
     const inventoryItems = useGameStore((state) => state.inventory.items);
     const playerCount = useGameStore((state) => Object.keys(state.players).length);
+    const persistence = useGameStore((state) => state.persistence);
 
     const {
         activeSidePanel,
@@ -181,6 +182,30 @@ export const AppContainer = () => {
         <div className={`app-shell${isAnyModalOpen ? " is-modal-open" : ""}`}>
             <EnsureSelectedRecipeEffect />
             <InventoryIconSprite />
+            {persistence.disabled ? (
+                <div className="ts-persistence-banner" role="status">
+                    <div className="ts-persistence-banner-content">
+                        <strong>Saving paused.</strong>
+                        <span>{persistence.error ?? "Local save failed. Please retry."}</span>
+                    </div>
+                    <div className="ts-persistence-banner-actions">
+                        <button
+                            type="button"
+                            className="generic-field button ts-focusable"
+                            onClick={() => gameRuntime.retryPersistence()}
+                        >
+                            Retry save
+                        </button>
+                        <button
+                            type="button"
+                            className="generic-field button ts-focusable"
+                            onClick={exportSave}
+                        >
+                            Export save
+                        </button>
+                    </div>
+                </div>
+            ) : null}
             <AppViewContainer
                 version={version}
                 onOpenSystem={openSystem}

@@ -32,6 +32,7 @@ export type GameAction =
     | { type: "setHiddenAt"; hiddenAt: number | null }
     | { type: "setPerf"; perf: Partial<PerformanceState> }
     | { type: "setOfflineSummary"; summary: OfflineSummaryState | null }
+    | { type: "setPersistenceStatus"; status: Partial<GameState["persistence"]> }
     | { type: "grantRestedBuff"; timestamp: number }
     | { type: "setActivePlayer"; playerId: PlayerId }
     | { type: "addPlayer"; name?: string }
@@ -70,6 +71,14 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             return {
                 ...state,
                 offlineSummary: action.summary
+            };
+        case "setPersistenceStatus":
+            return {
+                ...state,
+                persistence: {
+                    ...state.persistence,
+                    ...action.status
+                }
             };
         case "grantRestedBuff": {
             if (!Number.isFinite(action.timestamp)) {

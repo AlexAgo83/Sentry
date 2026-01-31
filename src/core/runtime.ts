@@ -21,10 +21,13 @@ export class GameRuntime {
     private persistenceFailureCount = 0;
     private persistenceDisabled = false;
     private hasLoggedPersistenceError = false;
+    private persistenceRetryAt: number | null = null;
     private static readonly MAX_CATCH_UP_MS = 500;
     private static readonly MAX_OFFLINE_CATCH_UP_MS = OFFLINE_CAP_MS;
     private static readonly MAX_OFFLINE_STEP_MS = 5000;
     private static readonly PERSIST_INTERVAL_MS = 1500;
+    private static readonly PERSIST_RETRY_BASE_MS = 10000;
+    private static readonly PERSIST_RETRY_MAX_MS = 60000;
     private static readonly DRIFT_EMA_ALPHA = 0.15;
     private static readonly OFFLINE_DEBUG_ENABLE_KEY = "sentry.debug.offline";
     private visibilityHandler?: () => void;
@@ -115,6 +118,10 @@ export class GameRuntime {
     importSave = (save: GameSave) => {
         this.persist({ force: true, save });
         this.store.dispatch({ type: "hydrate", save, version: this.version });
+    };
+
+    retryPersistence = () => {
+        this.persist({ force: true, allowDisabled: true });
     };
 
     private startLoop = () => {
@@ -226,11 +233,13 @@ export class GameRuntime {
         };
     };
 
-    private persist = (options?: { force?: boolean; save?: GameSave }) => {
-        if (this.persistenceDisabled) {
-            return;
-        }
+    private persist = (options?: { force?: boolean; save?: GameSave; allowDisabled?: boolean }) => {
         const now = Date.now();
+        if (this.persistenceDisabled && !options?.allowDisabled) {
+            if (!this.persistenceRetryAt || now < this.persistenceRetryAt) {
+                return;
+            }
+        }
         if (!options?.force && this.lastPersistAt && now - this.lastPersistAt < GameRuntime.PERSIST_INTERVAL_MS) {
             return;
         }
@@ -240,14 +249,32 @@ export class GameRuntime {
             this.lastPersistAt = now;
             this.persistenceFailureCount = 0;
             this.hasLoggedPersistenceError = false;
+            if (this.persistenceDisabled) {
+                this.persistenceDisabled = false;
+                this.persistenceRetryAt = null;
+                this.store.dispatch({
+                    type: "setPersistenceStatus",
+                    status: { disabled: false, error: null, lastFailureAt: null }
+                });
+            }
         } catch (error) {
             this.persistenceFailureCount += 1;
+            const errorMessage = error instanceof Error ? error.message : "Failed to persist save data";
             if (!this.hasLoggedPersistenceError) {
                 console.error("Failed to persist save data", error);
                 this.hasLoggedPersistenceError = true;
             }
             if (this.persistenceFailureCount >= 3) {
                 this.persistenceDisabled = true;
+                const retryDelay = Math.min(
+                    GameRuntime.PERSIST_RETRY_BASE_MS * (2 ** Math.max(0, this.persistenceFailureCount - 3)),
+                    GameRuntime.PERSIST_RETRY_MAX_MS
+                );
+                this.persistenceRetryAt = now + retryDelay;
+                this.store.dispatch({
+                    type: "setPersistenceStatus",
+                    status: { disabled: true, error: errorMessage, lastFailureAt: now }
+                });
             }
         }
     };

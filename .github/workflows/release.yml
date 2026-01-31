@@ -26,6 +26,8 @@ jobs:
 
       - name: Lint
         run: npm run lint
+      - name: Logics doc lint
+        run: python3 logics/skills/logics-doc-linter/scripts/logics_lint.py
 
       - name: Typecheck
         run: npm run typecheck
@@ -40,6 +42,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Bundle budgets
+        run: npm run bundle:check
 
       - name: Package dist
         run: tar -czf "sentry-dist-${{ github.ref_name }}.tgz" dist

@@ -5,6 +5,7 @@ import { getFaceUrlByIndex } from "../ui/heroFaces";
 import { getHairUrlByIndex } from "../ui/heroHair";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { getEquipmentSkinVars } from "../ui/heroEquipmentSkins";
+import { Avatar } from "./Avatar";
 
 const FaceIcon = () => (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -162,8 +163,6 @@ export const CharacterSkinPanel = memo(({
         "--ts-avatar-skin": skinColor,
         ...getEquipmentSkinVars(equipment, { showHelmet })
     } as CSSProperties;
-    const avatarClassName = `ts-player-avatar ts-player-avatar--large${isPlaceholder ? " is-placeholder" : ""}`;
-
     return (
         <section className="generic-panel ts-panel ts-panel-skin">
             <div className="ts-panel-header">
@@ -197,23 +196,11 @@ export const CharacterSkinPanel = memo(({
             </div>
             {!isCollapsed ? (
                 <div className="ts-skin-panel">
-                    <div className={avatarClassName} style={avatarStyle} aria-hidden="true">
-                        <span className="ts-player-avatar-figure">
-                            <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-legs" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-head" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-face" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-hair" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-gear-head" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-torso" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-gear-torso" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-hands" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-feets" />
-                            <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
-                        </span>
-                    </div>
+                    <Avatar
+                        style={avatarStyle}
+                        variant="large"
+                        isPlaceholder={isPlaceholder}
+                    />
                 <div className="ts-skin-overlay-actions">
                     {isEditMode ? (
                         <>

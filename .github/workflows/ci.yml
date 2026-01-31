@@ -20,6 +20,8 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
+      - name: Logics doc lint
+        run: python3 logics/skills/logics-doc-linter/scripts/logics_lint.py
       - name: Typecheck
         run: npm run typecheck
       - name: Typecheck (tests)
@@ -33,5 +35,7 @@ jobs:
           npm audit --audit-level=moderate
       - name: Preview build
         run: npm run build
+      - name: Bundle budgets
+        run: npm run bundle:check
       - name: Smoke (offline recap)
         run: npm run test:ci -- tests/app/offlineRecapModal.test.tsx

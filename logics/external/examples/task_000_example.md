@@ -1,13 +1,13 @@
 ## task_000_example - Example title
-> From version: X.X.X
-> Understanding: ??%
-> Confidence: ??%
-> Progress: ??%
+> From version: 0.0.0
+> Understanding: 0%
+> Confidence: 0%
+> Progress: 0%
 
-# Contexte
-Example contexte
+# Context
+Example context (template only).
 
-# PLAN
+# Plan
 - [x] 1. Sub-task example
 - [ ] 2. Sub-task example
 - [ ] 3. Sub-task example

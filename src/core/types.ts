@@ -142,6 +142,7 @@ export interface GameState {
     quests: QuestProgressState;
     loop: LoopState;
     perf: PerformanceState;
+    persistence: PersistenceState;
     offlineSummary: OfflineSummaryState | null;
     lastTickSummary: TickSummaryState | null;
 }
@@ -188,6 +189,12 @@ export interface PerformanceState {
     driftEmaMs: number;
     lastOfflineTicks: number;
     lastOfflineDurationMs: number;
+}
+
+export interface PersistenceState {
+    disabled: boolean;
+    error: string | null;
+    lastFailureAt: number | null;
 }
 
 export interface OfflinePlayerSummary {

@@ -22,6 +22,7 @@ import {
     SkillId,
     TickSummaryState
 } from "./types";
+import { hashStringToSeed, seededRandom } from "./rng";
 
 const clampProgress = (value: number): number => {
     if (!Number.isFinite(value)) {
@@ -178,6 +179,7 @@ const applyActionTick = (
     let completedCount = 0;
     let shouldStop = false;
 
+    const rareSeed = hashStringToSeed(`${player.id}-${timestamp}-${actionDef.skillId}-${recipe.id}`);
     if (completedActions > 0) {
         for (let i = 0; i < completedActions; i += 1) {
             if (stamina <= 0) {
@@ -196,7 +198,7 @@ const applyActionTick = (
                 nextInventory = applyItemDelta(nextInventory, { gold: goldReward }, 1, itemDeltas);
             }
             nextInventory = applyItemDelta(nextInventory, itemRewards, 1, itemDeltas);
-            if (rareRewards && luckChance > 0 && Math.random() < luckChance) {
+            if (rareRewards && luckChance > 0 && seededRandom(rareSeed + i) < luckChance) {
                 nextInventory = applyItemDelta(nextInventory, rareRewards, 1, itemDeltas);
             }
             stamina -= staminaCost;

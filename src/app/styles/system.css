@@ -198,6 +198,36 @@
     width: 100%;
 }
 
+.ts-persistence-banner {
+    position: sticky;
+    top: calc(var(--m8) + var(--app-topbar-offset));
+    z-index: 55;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m4);
+    margin: 0 var(--m4) var(--m6);
+    padding: var(--m4) var(--m6);
+    border-radius: calc(var(--border-radius-harmonized) - 2px);
+    border: 1px solid rgba(242, 193, 78, 0.45);
+    background: rgba(18, 24, 40, 0.92);
+    color: var(--color-text);
+    box-shadow: 0 10px 20px -18px rgba(0, 0, 0, 0.6);
+}
+
+.ts-persistence-banner-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m1);
+}
+
+.ts-persistence-banner-actions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--m3);
+}
+
 .ts-devtools-actions {
     margin-top: var(--m4);
 }

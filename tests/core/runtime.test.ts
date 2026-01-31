@@ -324,7 +324,48 @@ describe("GameRuntime", () => {
 
         expect(persistence.save).toHaveBeenCalledTimes(3);
         expect(consoleSpy).toHaveBeenCalledTimes(1);
+        expect(store.getState().persistence.disabled).toBe(true);
         console.info("[runtime.test] persistence failures - end");
+    });
+
+    it("recovers persistence after a successful retry", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        let callCount = 0;
+        persistence.save.mockImplementation(() => {
+            callCount += 1;
+            if (callCount <= 3) {
+                throw new Error("Disk full");
+            }
+        });
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        store.dispatch({ type: "tick", deltaMs: 0, timestamp: 1000 });
+
+        let nowValue = 3000;
+        vi.spyOn(Date, "now").mockImplementation(() => {
+            const next = nowValue;
+            nowValue += 2000;
+            return next;
+        });
+
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+        // @ts-expect-error - accessing private tick for coverage
+        runtime.tick();
+
+        expect(store.getState().persistence.disabled).toBe(true);
+
+        runtime.retryPersistence();
+
+        expect(persistence.save).toHaveBeenCalledTimes(4);
+        expect(store.getState().persistence.disabled).toBe(false);
+        expect(store.getState().persistence.error).toBeNull();
     });
 
     it("handles first tick when lastTick is null", () => {

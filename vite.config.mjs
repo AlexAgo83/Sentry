@@ -1,6 +1,7 @@
 import { defineConfig, configDefaults } from "vitest/config";
 import { readFileSync } from "node:fs";
 import react from "@vitejs/plugin-react-swc";
+import { visualizer } from "rollup-plugin-visualizer";
 
 /// <reference types="vitest/config" />
 const pkg = JSON.parse(
@@ -18,6 +19,14 @@ export default defineConfig({
         rollupOptions: {
             input: [
                 './index.html'
+            ],
+            plugins: [
+                visualizer({
+                    filename: "dist/bundle-report.html",
+                    template: "treemap",
+                    gzipSize: true,
+                    brotliSize: true
+                })
             ]
         }
     },

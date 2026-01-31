@@ -12,11 +12,30 @@ const buildMockPrisma = () => {
             appVersion: string;
             createdAt: Date;
             updatedAt: Date;
+        }>,
+        refreshTokens: [] as Array<{
+            id: string;
+            userId: string;
+            tokenHash: string;
+            expiresAt: Date;
+            revokedAt: Date | null;
+            createdAt: Date;
+        }>,
+        rateLimits: [] as Array<{
+            id: string;
+            key: string;
+            route: string;
+            count: number;
+            resetAt: Date;
+            createdAt: Date;
+            updatedAt: Date;
         }>
     };
 
     let userCounter = 1;
     let saveCounter = 1;
+    let refreshCounter = 1;
+    let rateLimitCounter = 1;
 
     const prisma = {
         user: {
@@ -70,21 +89,110 @@ const buildMockPrisma = () => {
                 return save;
             }
         },
+        refreshToken: {
+            findUnique: async ({ where }: { where: { tokenHash?: string; id?: string } }) => {
+                if (where.tokenHash) {
+                    return db.refreshTokens.find((entry) => entry.tokenHash === where.tokenHash) ?? null;
+                }
+                if (where.id) {
+                    return db.refreshTokens.find((entry) => entry.id === where.id) ?? null;
+                }
+                return null;
+            },
+            create: async ({ data }: { data: { userId: string; tokenHash: string; expiresAt: Date } }) => {
+                const record = {
+                    id: `refresh_${refreshCounter++}`,
+                    userId: data.userId,
+                    tokenHash: data.tokenHash,
+                    expiresAt: data.expiresAt,
+                    revokedAt: null,
+                    createdAt: new Date()
+                };
+                db.refreshTokens.push(record);
+                return record;
+            },
+            update: async ({ where, data }: { where: { tokenHash?: string; id?: string }; data: { revokedAt?: Date | null } }) => {
+                const record = where.tokenHash
+                    ? db.refreshTokens.find((entry) => entry.tokenHash === where.tokenHash)
+                    : db.refreshTokens.find((entry) => entry.id === where.id);
+                if (!record) {
+                    throw new Error("Refresh token not found");
+                }
+                if ("revokedAt" in data) {
+                    record.revokedAt = data.revokedAt ?? null;
+                }
+                return record;
+            }
+        },
+        rateLimit: {
+            findUnique: async ({ where }: { where: { key_route: { key: string; route: string } } }) => {
+                const { key, route } = where.key_route;
+                return db.rateLimits.find((entry) => entry.key === key && entry.route === route) ?? null;
+            },
+            upsert: async ({ where, create, update }: {
+                where: { key_route: { key: string; route: string } };
+                create: { key: string; route: string; count: number; resetAt: Date };
+                update: { count: number; resetAt: Date };
+            }) => {
+                const existing = db.rateLimits.find(
+                    (entry) => entry.key === where.key_route.key && entry.route === where.key_route.route
+                );
+                if (existing) {
+                    existing.count = update.count;
+                    existing.resetAt = update.resetAt;
+                    existing.updatedAt = new Date();
+                    return existing;
+                }
+                const record = {
+                    id: `limit_${rateLimitCounter++}`,
+                    key: create.key,
+                    route: create.route,
+                    count: create.count,
+                    resetAt: create.resetAt,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+                db.rateLimits.push(record);
+                return record;
+            },
+            update: async ({ where, data }: { where: { key_route: { key: string; route: string } }; data: { count: { increment: number } } }) => {
+                const record = db.rateLimits.find(
+                    (entry) => entry.key === where.key_route.key && entry.route === where.key_route.route
+                );
+                if (!record) {
+                    throw new Error("Rate limit not found");
+                }
+                record.count += data.count.increment;
+                record.updatedAt = new Date();
+                return record;
+            }
+        },
+        $transaction: async (fn: (client: any) => Promise<any>) => fn(prisma),
         $disconnect: async () => {}
     };
 
     return prisma;
 };
 
-const getCookieHeader = (response: { headers: Record<string, string | string[] | undefined> }) => {
+const getCookiesFromResponse = (response: { headers: Record<string, string | string[] | undefined> }) => {
     const setCookie = response.headers["set-cookie"];
     if (!setCookie) {
-        return "";
+        return {} as Record<string, string>;
     }
-    if (Array.isArray(setCookie)) {
-        return setCookie.map((entry) => entry.split(";")[0]).join("; ");
-    }
-    return setCookie.split(";")[0];
+    const entries = Array.isArray(setCookie) ? setCookie : [setCookie];
+    return entries.reduce<Record<string, string>>((acc, entry) => {
+        const [pair] = entry.split(";");
+        const [name, value] = pair.split("=");
+        if (name && value !== undefined) {
+            acc[name] = value;
+        }
+        return acc;
+    }, {});
+};
+
+const getCookieHeader = (response: { headers: Record<string, string | string[] | undefined> }) => {
+    const cookies = getCookiesFromResponse(response);
+    return Object.entries(cookies).map(([name, value]) => `${name}=${value}`).join("; ");
 };
 
 const loadServer = async () => {
@@ -114,11 +222,12 @@ describe("cloud API", () => {
         const { accessToken } = register.json();
         expect(accessToken).toBeTruthy();
 
+        const cookies = getCookiesFromResponse(register);
         const cookieHeader = getCookieHeader(register);
         const refreshed = await app.inject({
             method: "POST",
             url: "/api/v1/auth/refresh",
-            headers: { cookie: cookieHeader }
+            headers: { cookie: cookieHeader, "x-csrf-token": cookies.refreshCsrf }
         });
         expect(refreshed.statusCode).toBe(200);
         expect(refreshed.json().accessToken).toBeTruthy();
@@ -143,6 +252,47 @@ describe("cloud API", () => {
         });
         expect(latest.statusCode).toBe(200);
         expect(latest.json().meta.appVersion).toBe("0.8.11");
+
+        await app.close();
+    });
+
+    it("rotates refresh tokens and rejects reuse", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        const register = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/register",
+            payload: { email: "rotate@example.com", password: "password123" }
+        });
+        expect(register.statusCode).toBe(200);
+
+        const initialCookies = getCookiesFromResponse(register);
+        const initialCookieHeader = getCookieHeader(register);
+
+        const refreshed = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/refresh",
+            headers: { cookie: initialCookieHeader, "x-csrf-token": initialCookies.refreshCsrf }
+        });
+        expect(refreshed.statusCode).toBe(200);
+
+        const reused = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/refresh",
+            headers: { cookie: initialCookieHeader, "x-csrf-token": initialCookies.refreshCsrf }
+        });
+        expect(reused.statusCode).toBe(401);
+
+        const rotatedCookies = getCookiesFromResponse(refreshed);
+        const rotatedHeader = getCookieHeader(refreshed);
+        const rotated = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/refresh",
+            headers: { cookie: rotatedHeader, "x-csrf-token": rotatedCookies.refreshCsrf }
+        });
+        expect(rotated.statusCode).toBe(200);
 
         await app.close();
     });
@@ -189,6 +339,34 @@ describe("cloud API", () => {
             }
         });
         expect(saveResponse.statusCode).toBe(401);
+
+        await app.close();
+    });
+
+    it("rejects invalid save payloads", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        const register = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/register",
+            payload: { email: "badpayload@example.com", password: "password123" }
+        });
+        const { accessToken } = register.json();
+
+        const saveResponse = await app.inject({
+            method: "PUT",
+            url: "/api/v1/saves/latest",
+            headers: { Authorization: `Bearer ${accessToken}` },
+            payload: {
+                payload: { version: "0.8.11" },
+                virtualScore: 1,
+                appVersion: "0.8.11"
+            }
+        });
+        expect(saveResponse.statusCode).toBe(400);
+        expect(saveResponse.body).toContain("players");
 
         await app.close();
     });

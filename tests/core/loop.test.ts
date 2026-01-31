@@ -8,6 +8,7 @@ import {
     STAT_PERCENT_PER_POINT,
     STAT_MAX_VALUE
 } from "../../src/core/constants";
+import { hashStringToSeed, seededRandom } from "../../src/core/rng";
 import { gameReducer } from "../../src/core/reducer";
 import { createInitialGameState } from "../../src/core/state";
 import { getRecipesForSkill } from "../../src/data/definitions";
@@ -345,9 +346,8 @@ describe("core loop", () => {
         expect(next.players[playerId].actionProgress.progressPercent).toBeLessThan(100);
     });
 
-    it("awards rare fishing drops when luck triggers (deterministic)", () => {
-        vi.spyOn(Math, "random").mockReturnValue(0);
-
+    it("awards rare fishing drops deterministically", () => {
+        const timestamp = 1700000000000;
         const initial = createInitialGameState("0.4.0");
         const playerId = initial.activePlayerId ?? "1";
         let state = gameReducer(initial, {
@@ -384,8 +384,11 @@ describe("core loop", () => {
         );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
 
-        const next = applyTick(state, actionInterval, Date.now());
+        const next = applyTick(state, actionInterval, timestamp);
+        const seed = hashStringToSeed(`${playerId}-${timestamp}-Fishing-${recipeId}`);
+        const roll = seededRandom(seed);
+        const expectedCrystal = roll < 0.25 ? 1 : 0;
         expect(next.inventory.items.fish ?? 0).toBe(1);
-        expect(next.inventory.items.crystal ?? 0).toBe(1);
+        expect(next.inventory.items.crystal ?? 0).toBe(expectedCrystal);
     });
 });

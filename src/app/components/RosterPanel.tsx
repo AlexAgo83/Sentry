@@ -7,6 +7,7 @@ import { getHairColor, getHairIndex, getHairUrlByIndex, getSkinColor } from "../
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { getEquipmentSkinVars } from "../ui/heroEquipmentSkins";
+import { Avatar } from "./Avatar";
 
 type RosterPanelProps = {
     players: PlayerState[];
@@ -89,23 +90,7 @@ export const RosterPanel = memo(({
                                     onClick={() => onSetActivePlayer(player.id)}
                                 >
                                     <div className="ts-player-main">
-                                    <div className="ts-player-avatar" style={avatarStyle} aria-hidden="true">
-                                        <span className="ts-player-avatar-figure">
-                                            <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-legs" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-head" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-face" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-hair" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-gear-head" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-torso" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-gear-torso" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-hands" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-feets" />
-                                            <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
-                                        </span>
-                                    </div>
+                                    <Avatar style={avatarStyle} />
                                         <div className="ts-player-info">
                                             <span className="ts-player-name">{player.name}</span>
                                             <span className="ts-player-meta">{metaLabel}</span>
@@ -135,23 +120,7 @@ export const RosterPanel = memo(({
                             title={!canAddPlayer ? "Roster limit reached" : undefined}
                         >
                             <div className="ts-player-main">
-                                <div className="ts-player-avatar is-placeholder" aria-hidden="true">
-                                    <span className="ts-player-avatar-figure">
-                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-legs" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-head" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-face" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-hair" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-head" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-torso" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-torso" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-hands" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-feets" />
-                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
-                                    </span>
-                                </div>
+                                <Avatar isPlaceholder />
                                 <div className="ts-player-info">
                                     <span className="ts-player-name">Enlist a new hero</span>
                                     <span className="ts-player-meta">Recruit a character</span>

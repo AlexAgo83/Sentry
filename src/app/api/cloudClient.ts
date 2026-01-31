@@ -18,6 +18,7 @@ type CloudSaveMetaResponse = {
 };
 
 const ACCESS_TOKEN_KEY = "sentry.cloud.accessToken";
+const CSRF_COOKIE_NAME = "refreshCsrf";
 
 export class CloudApiError extends Error {
     status: number;
@@ -60,6 +61,14 @@ const saveAccessToken = (token: string | null) => {
 };
 
 const clearAccessToken = () => saveAccessToken(null);
+
+const loadCsrfToken = (): string | null => {
+    if (typeof document === "undefined") {
+        return null;
+    }
+    const match = document.cookie.match(new RegExp(`(?:^|; )${CSRF_COOKIE_NAME}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+};
 
 const requestJson = async <T>(path: string, options: globalThis.RequestInit = {}): Promise<T> => {
     const url = buildUrl(path);
@@ -112,8 +121,10 @@ const login = async (email: string, password: string): Promise<string> => {
 };
 
 const refresh = async (): Promise<string> => {
+    const csrfToken = loadCsrfToken();
     const data = await requestJson<CloudAuthResponse>("/api/v1/auth/refresh", {
-        method: "POST"
+        method: "POST",
+        headers: csrfToken ? { "x-csrf-token": csrfToken } : undefined
     });
     saveAccessToken(data.accessToken);
     return data.accessToken;
