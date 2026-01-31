@@ -64,7 +64,6 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
     return (
         <CharacterSkinPanel
             avatarColor={avatarColor}
-            avatarSkillId={activePlayer?.selectedActionId ?? null}
             faceIndex={faceIndex}
             hairIndex={hairIndex}
             hairColor={hairColor}

@@ -89,7 +89,8 @@ export const RosterPanel = memo(({
                                     onClick={() => onSetActivePlayer(player.id)}
                                 >
                                     <div className="ts-player-main">
-                                        <div className="ts-player-avatar" style={avatarStyle} aria-hidden="true">
+                                    <div className="ts-player-avatar" style={avatarStyle} aria-hidden="true">
+                                        <span className="ts-player-avatar-figure">
                                             <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-legs" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
@@ -103,7 +104,8 @@ export const RosterPanel = memo(({
                                             <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-feets" />
                                             <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
-                                        </div>
+                                        </span>
+                                    </div>
                                         <div className="ts-player-info">
                                             <span className="ts-player-name">{player.name}</span>
                                             <span className="ts-player-meta">{metaLabel}</span>
@@ -134,19 +136,21 @@ export const RosterPanel = memo(({
                         >
                             <div className="ts-player-main">
                                 <div className="ts-player-avatar is-placeholder" aria-hidden="true">
-                                    <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-legs" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-head" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-face" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-hair" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-gear-head" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-torso" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-gear-torso" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-hands" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-feets" />
-                                    <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
+                                    <span className="ts-player-avatar-figure">
+                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-legs" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-head" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-face" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-hair" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-head" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-torso" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-torso" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-hands" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-feets" />
+                                        <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
+                                    </span>
                                 </div>
                                 <div className="ts-player-info">
                                     <span className="ts-player-name">Enlist a new hero</span>

@@ -150,6 +150,8 @@
     width: 140px;
     height: auto;
     aspect-ratio: 364 / 839;
+    --ts-avatar-outline-size: 2px;
+    --ts-avatar-outline-color: rgba(0, 0, 0, 0.85);
     --ts-avatar-skill-size: 32px;
     --ts-avatar-skill-top: 56%;
     --ts-avatar-pos-y: 50%;

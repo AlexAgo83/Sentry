@@ -243,8 +243,8 @@
     --ts-avatar-skill-size: 18px;
     --ts-avatar-skill-top: 60%;
     --ts-avatar-pos-y: 50%;
-    --ts-avatar-outline-top: rgba(93, 217, 193, 0.35);
-    --ts-avatar-outline-bottom: rgba(8, 12, 22, 0.65);
+    --ts-avatar-outline-color: rgba(0, 0, 0, 0.425);
+    --ts-avatar-outline-size: 1px;
     border-radius: 12px;
     border: 1px solid rgba(93, 217, 193, 0.4);
     background:
@@ -253,6 +253,23 @@
     box-shadow: inset 0 0 0 1px rgba(242, 193, 78, 0.15);
     flex-shrink: 0;
     overflow: hidden;
+    isolation: isolate;
+}
+
+.ts-player-avatar-figure {
+    position: absolute;
+    inset: var(--ts-avatar-outline-size);
+    z-index: 0;
+    filter:
+        drop-shadow(var(--ts-avatar-outline-size) 0 0 var(--ts-avatar-outline-color))
+        drop-shadow(calc(var(--ts-avatar-outline-size) * -1) 0 0 var(--ts-avatar-outline-color))
+        drop-shadow(0 var(--ts-avatar-outline-size) 0 var(--ts-avatar-outline-color))
+        drop-shadow(0 calc(var(--ts-avatar-outline-size) * -1) 0 var(--ts-avatar-outline-color))
+        drop-shadow(var(--ts-avatar-outline-size) var(--ts-avatar-outline-size) 0 var(--ts-avatar-outline-color))
+        drop-shadow(calc(var(--ts-avatar-outline-size) * -1) var(--ts-avatar-outline-size) 0 var(--ts-avatar-outline-color))
+        drop-shadow(var(--ts-avatar-outline-size) calc(var(--ts-avatar-outline-size) * -1) 0 var(--ts-avatar-outline-color))
+        drop-shadow(calc(var(--ts-avatar-outline-size) * -1) calc(var(--ts-avatar-outline-size) * -1) 0 var(--ts-avatar-outline-color));
+    pointer-events: none;
 }
 
 .ts-player-avatar-layer {
@@ -260,9 +277,6 @@
     inset: 0;
     background-repeat: no-repeat;
     background-position: center var(--ts-avatar-pos-y, 50%);
-    filter:
-        drop-shadow(0 -1px 3px var(--ts-avatar-outline-top))
-        drop-shadow(0 2px 4px var(--ts-avatar-outline-bottom));
 }
 
 .ts-player-avatar-gear-cape {
@@ -326,7 +340,10 @@
 
 .ts-player-avatar-hair {
     z-index: 3;
-    background-color: var(--ts-avatar-hair-color, #3b2c22);
+    background-image: var(--ts-avatar-hair, url("/assets/hero/hairstyles/hair_01.svg"));
+    background-size: 72% auto;
+    background-repeat: no-repeat;
+    background-position: center var(--ts-avatar-pos-y, 50%);
     -webkit-mask-image: var(--ts-avatar-hair, url("/assets/hero/hairstyles/hair_01.svg"));
     mask-image: var(--ts-avatar-hair, url("/assets/hero/hairstyles/hair_01.svg"));
     -webkit-mask-repeat: no-repeat;
@@ -337,6 +354,16 @@
     mask-size: 72% auto;
     pointer-events: none;
     opacity: var(--ts-avatar-hair-opacity, 1);
+}
+
+.ts-player-avatar-hair::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--ts-avatar-hair-color, #3b2c22);
+    mix-blend-mode: color;
+    opacity: var(--ts-avatar-hair-tint-opacity, 0.85);
+    pointer-events: none;
 }
 
 .ts-player-avatar-gear-head {

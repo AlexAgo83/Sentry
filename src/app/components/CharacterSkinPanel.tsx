@@ -1,7 +1,6 @@
 import { memo } from "react";
 import type { CSSProperties } from "react";
-import type { PlayerEquipmentState, SkillId } from "../../core/types";
-import { SkillIcon } from "../ui/skillIcons";
+import type { PlayerEquipmentState } from "../../core/types";
 import { getFaceUrlByIndex } from "../ui/heroFaces";
 import { getHairUrlByIndex } from "../ui/heroHair";
 import { CollapseIcon } from "../ui/collapseIcon";
@@ -112,7 +111,6 @@ const RenameIcon = () => (
 
 type CharacterSkinPanelProps = {
     avatarColor: string;
-    avatarSkillId: SkillId | null;
     faceIndex: number;
     hairIndex: number;
     hairColor: string;
@@ -136,7 +134,6 @@ type CharacterSkinPanelProps = {
 
 export const CharacterSkinPanel = memo(({
     avatarColor,
-    avatarSkillId,
     faceIndex,
     hairIndex,
     hairColor,
@@ -201,25 +198,22 @@ export const CharacterSkinPanel = memo(({
             {!isCollapsed ? (
                 <div className="ts-skin-panel">
                     <div className={avatarClassName} style={avatarStyle} aria-hidden="true">
-                        <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-legs" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-head" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-face" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-hair" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-gear-head" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-torso" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-gear-torso" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-hands" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-feets" />
-                        <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
-                        {avatarSkillId ? (
-                            <span className="ts-player-avatar-skill">
-                                <SkillIcon skillId={avatarSkillId} color="#0c111c" />
-                            </span>
-                    ) : null}
-                </div>
+                        <span className="ts-player-avatar-figure">
+                            <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-legs" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-head" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-face" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-hair" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-gear-head" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-torso" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-gear-torso" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-hands" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-gear-hands" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-feets" />
+                            <span className="ts-player-avatar-layer ts-player-avatar-gear-feets" />
+                        </span>
+                    </div>
                 <div className="ts-skin-overlay-actions">
                     {isEditMode ? (
                         <>
