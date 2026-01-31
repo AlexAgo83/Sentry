@@ -1,7 +1,7 @@
 ## item_035_quests_screen - Quests screen + milestone quests
 > From version: 0.8.17
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 90%
 > Progress: 0%
 
 # Problem
@@ -33,12 +33,26 @@ Promoted from `logics/request/req_014_quests_screen.md`
   - A quest for each skill with “reach level 10” completion.
 - Each quest shows a gold reward.
 - Completed quests are faded (remain visible) and do not repeat.
+- Completed quests are listed after active ones.
+- Progress text is shown for each quest (crafted 7/10, Lv 8/10).
 
 # Priority
 - Impact: Medium (long-term goals + retention).
 - Urgency: Medium (new UX surface but no blockers).
 
-# Notes
-- Consider showing optional progress text (e.g., “7/10 crafted”, “Lv 8/10”).
-- Define gold reward formula (flat vs scaled) before implementation.
-- Decide if completed quests should be sorted to the bottom.
+# Decisions
+- Rewards:
+  - Skill quests: 100g at level 10 (flat).
+  - Item craft quests: 50g + 10g * recipeLevel (fallback to 50g if level missing).
+- Progress tracking:
+  - Craft count uses successful crafts only.
+  - If a save already meets the requirement, the quest is completed immediately.
+- UI:
+  - Two sections: Skill Quests and Craft Quests.
+  - Completed quests are faded to ~55% opacity and kept visible at the bottom.
+  - Show progress text on every quest card.
+
+# Data/implementation notes
+- Quest definitions are static, derived from the current skills list and equipable recipes.
+- Use existing selectors for skill levels and craft counts; default to 0 if missing.
+- No backend sync or persistence beyond current save state.
