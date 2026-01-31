@@ -6,6 +6,7 @@
 
 # Context
 Derived from `logics/backlog/item_045_externalize_inline_svg_icon_payloads.md`
+Current state: SVGs are still inline in `src/app/ui/inventoryIcons.tsx` and `src/app/ui/skillIcons.tsx`. The chosen direction is SVGs per file (not a single sprite). Must keep offline/PWA behavior via precaching.
 
 # Plan
 - [ ] 1. Audit icon usage and map IDs → file paths (inventory/skills).

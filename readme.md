@@ -68,6 +68,7 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 ## Codex Instructions
 
 Codex should load project-specific instructions from `logics/instructions.md`.
+For browser-based UI validation, use the Logics skill at `logics/skills/logics-mcp-chrome-devtools/`.
 
 ## Setup
 

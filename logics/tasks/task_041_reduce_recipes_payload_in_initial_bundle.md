@@ -6,6 +6,7 @@
 
 # Context
 Derived from `logics/backlog/item_046_reduce_recipes_payload_in_initial_bundle.md`
+Current state: recipes are bundled statically (see `src/data/definitions/recipes/*`). Goal is to reduce initial bundle impact while preserving offline/PWA availability (likely via dynamic per-skill chunks + precache).
 
 # Plan
 - [ ] 1. Choose split strategy (per-skill dynamic import) and define a loader facade.
