@@ -57,8 +57,6 @@ export const ActionPanelContainer = ({
         activeCosts,
         activeRewardsWithGold,
         hasActiveRecipeSelection,
-        progressPercent,
-        progressStyle,
         staminaStyle,
         skillStyle,
         recipeStyle,
@@ -178,8 +176,6 @@ export const ActionPanelContainer = ({
                 actionXpBonusTooltip={actionXpBonusTooltip}
                 stunTimeLabel={stunTimeLabel}
                 resourceHint={resourceHint}
-                progressPercent={progressPercent}
-                progressStyle={progressStyle}
                 staminaStyle={staminaStyle}
                 skillStyle={skillStyle}
                 recipeStyle={recipeStyle}
@@ -191,7 +187,6 @@ export const ActionPanelContainer = ({
                 activeRecipeLevel={activeRecipe?.level ?? 0}
                 activeRecipeXp={activeRecipe?.xp ?? 0}
                 activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
-                isStunned={isStunned}
                 skillIconColor={skillIconColor}
                 isCollapsed={isCollapsed}
                 onToggleCollapsed={() => setCollapsed((value) => !value)}

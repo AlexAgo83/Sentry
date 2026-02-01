@@ -30,8 +30,6 @@ type ActionStatusPanelProps = {
     actionXpBonusTooltip: string;
     stunTimeLabel: string | null;
     resourceHint: string | null;
-    progressPercent: number;
-    progressStyle: CSSProperties;
     staminaStyle: CSSProperties;
     skillStyle: CSSProperties;
     recipeStyle: CSSProperties;
@@ -43,7 +41,6 @@ type ActionStatusPanelProps = {
     activeRecipeLevel: number;
     activeRecipeXp: number;
     activeRecipeXpNext: number;
-    isStunned: boolean;
     skillIconColor: string;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
@@ -69,8 +66,6 @@ export const ActionStatusPanel = memo(({
     actionXpBonusTooltip,
     stunTimeLabel,
     resourceHint,
-    progressPercent,
-    progressStyle,
     staminaStyle,
     skillStyle,
     recipeStyle,
@@ -82,7 +77,6 @@ export const ActionStatusPanel = memo(({
     activeRecipeLevel,
     activeRecipeXp,
     activeRecipeXpNext,
-    isStunned,
     skillIconColor,
     isCollapsed,
     onToggleCollapsed,
@@ -250,36 +244,25 @@ export const ActionStatusPanel = memo(({
                             ) : null}
                         </div>
                         <div
-                            className={`generic-field panel progress-row ts-progress-row ts-progress-action${isStunned ? " is-stunned" : ""}`}
-                            style={progressStyle}
-                        >
-                            <span className="ts-progress-label">
-                                Progress {progressPercent.toFixed(1)}%
-                            </span>
-                        </div>
-                        <div
                             className="generic-field panel progress-row ts-progress-row ts-progress-stamina"
                             style={staminaStyle}
                         >
-                            <span className="ts-progress-label">
-                                Stamina {staminaCurrent}/{staminaMax}
-                            </span>
+                            <span className="ts-progress-label">Stamina</span>
+                            <span className="ts-progress-value">{staminaCurrent}/{staminaMax}</span>
                         </div>
                         <div
                             className="generic-field panel progress-row ts-progress-row ts-progress-skill"
                             style={skillStyle}
                         >
-                            <span className="ts-progress-label">
-                                Skill Lv {activeSkillLevel} - XP {formatXp(activeSkillXp)}/{formatXp(activeSkillXpNext)}
-                            </span>
+                            <span className="ts-progress-label">Skill Lv {activeSkillLevel}</span>
+                            <span className="ts-progress-value">XP {formatXp(activeSkillXp)}/{formatXp(activeSkillXpNext)}</span>
                         </div>
                         <div
                             className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
                             style={recipeStyle}
                         >
-                            <span className="ts-progress-label">
-                                Recipe Lv {activeRecipeLevel} - XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}
-                            </span>
+                            <span className="ts-progress-label">Recipe Lv {activeRecipeLevel}</span>
+                            <span className="ts-progress-value">XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}</span>
                         </div>
                     </>
                 ) : null}

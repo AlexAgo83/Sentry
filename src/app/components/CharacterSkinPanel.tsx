@@ -25,6 +25,8 @@ type CharacterSkinPanelProps = {
     showHelmet: boolean;
     equipment: PlayerEquipmentState | null;
     skillBackgroundUrl?: string | null;
+    progressPercent?: number;
+    isStunned?: boolean;
     heroName?: string | null;
     isPlaceholder: boolean;
     isCollapsed: boolean;
@@ -49,6 +51,8 @@ export const CharacterSkinPanel = memo(({
     showHelmet,
     equipment,
     skillBackgroundUrl,
+    progressPercent = 0,
+    isStunned = false,
     heroName,
     isPlaceholder,
     isCollapsed,
@@ -72,10 +76,13 @@ export const CharacterSkinPanel = memo(({
         ...getEquipmentSkinVars(equipment, { showHelmet })
     } as CSSProperties;
     const panelStyle = {
-        "--ts-skin-background": skillBackgroundUrl ? `url("${skillBackgroundUrl}")` : "none"
+        "--ts-skin-background": skillBackgroundUrl ? `url("${skillBackgroundUrl}")` : "none",
+        "--ts-skin-progress": `${Math.max(0, Math.min(100, progressPercent))}%`,
+        "--ts-skin-progress-color": isStunned ? "rgba(199, 74, 61, 0.8)" : avatarColor
     } as CSSProperties;
     return (
         <section className="generic-panel ts-panel ts-panel-skin" style={panelStyle}>
+            {!isCollapsed ? <span className="ts-skin-progress-ring" aria-hidden="true" /> : null}
             <div className="ts-panel-header">
                 <div className="ts-panel-heading">
                     <h2 className="ts-panel-title">{heroName ?? "Hero Skin"}</h2>

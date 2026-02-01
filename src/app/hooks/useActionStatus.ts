@@ -11,11 +11,9 @@ type ActionStatusState = {
     activeCosts?: ItemDelta;
     activeRewardsWithGold?: ItemDelta;
     hasActiveRecipeSelection: boolean;
-    progressPercent: number;
     staminaPercent: number;
     skillPercent: number;
     recipePercent: number;
-    progressStyle: CSSProperties;
     staminaStyle: CSSProperties;
     skillStyle: CSSProperties;
     recipeStyle: CSSProperties;
@@ -52,8 +50,6 @@ export const useActionStatus = (activePlayer: PlayerState | null): ActionStatusS
             : undefined;
     const hasActiveRecipeSelection = Boolean(activeSkillId && activeRecipeId);
 
-    const progressPercent = activePlayer?.actionProgress.progressPercent ?? 0;
-    const progressStyle = { "--progress": `${progressPercent}%` } as CSSProperties;
     const staminaPercent = activePlayer
         ? Math.max(0, Math.min(100, (activePlayer.stamina / activePlayer.staminaMax) * 100))
         : 0;
@@ -76,11 +72,9 @@ export const useActionStatus = (activePlayer: PlayerState | null): ActionStatusS
         activeCosts,
         activeRewardsWithGold,
         hasActiveRecipeSelection,
-        progressPercent,
         staminaPercent,
         skillPercent,
         recipePercent,
-        progressStyle,
         staminaStyle,
         skillStyle,
         recipeStyle,

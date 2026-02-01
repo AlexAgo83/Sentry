@@ -67,8 +67,6 @@ describe("panel components", () => {
                 actionXpBonusTooltip="XP tooltip"
                 stunTimeLabel={null}
                 resourceHint={null}
-                progressPercent={45}
-                progressStyle={{ "--progress": "45%" } as CSSProperties}
                 staminaStyle={{ "--progress": "80%" } as CSSProperties}
                 skillStyle={{ "--progress": "30%" } as CSSProperties}
                 recipeStyle={{ "--progress": "50%" } as CSSProperties}
@@ -80,7 +78,6 @@ describe("panel components", () => {
                 activeRecipeLevel={1}
                 activeRecipeXp={Number.NaN}
                 activeRecipeXpNext={Number.NaN}
-                isStunned={false}
                 skillIconColor="#f2c14e"
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
@@ -93,14 +90,15 @@ describe("panel components", () => {
 
         expect(screen.getByText("Selected skill")).toBeTruthy();
         expect(screen.getByText("Border Skirmish")).toBeTruthy();
-        expect(screen.getByText("Skill Lv 2 - XP 0/0")).toBeTruthy();
-        expect(screen.getByText("Recipe Lv 1 - XP 0/0")).toBeTruthy();
+        expect(screen.getByText("Skill Lv 2")).toBeTruthy();
+        expect(screen.getByText("Recipe Lv 1")).toBeTruthy();
+        expect(screen.getAllByText("XP 0/0")).toHaveLength(2);
 
         await user.click(screen.getByRole("button", { name: "Change" }));
         expect(onChangeAction).toHaveBeenCalled();
     });
 
-    it("ActionStatusPanel shows resource hints and stunned styling", () => {
+    it("ActionStatusPanel shows resource hints", () => {
         const onInterruptAction = vi.fn();
         render(
             <ActionStatusPanel
@@ -119,8 +117,6 @@ describe("panel components", () => {
                 actionXpBonusTooltip="XP tooltip"
                 stunTimeLabel={null}
                 resourceHint="Missing: Food x1"
-                progressPercent={12.3}
-                progressStyle={{ "--progress": "12%" } as CSSProperties}
                 staminaStyle={{ "--progress": "80%" } as CSSProperties}
                 skillStyle={{ "--progress": "30%" } as CSSProperties}
                 recipeStyle={{ "--progress": "50%" } as CSSProperties}
@@ -132,7 +128,6 @@ describe("panel components", () => {
                 activeRecipeLevel={1}
                 activeRecipeXp={1}
                 activeRecipeXpNext={2}
-                isStunned={true}
                 skillIconColor="#f2c14e"
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
@@ -144,7 +139,6 @@ describe("panel components", () => {
         );
 
         expect(screen.getByText("Missing: Food x1")).toBeTruthy();
-        expect(document.querySelector(".ts-progress-row.ts-progress-action.is-stunned")).toBeTruthy();
     });
 
     it("ActionStatusPanel hides details when collapsed", () => {
@@ -165,8 +159,6 @@ describe("panel components", () => {
                 actionXpBonusTooltip="XP tooltip"
                 stunTimeLabel={null}
                 resourceHint={null}
-                progressPercent={45}
-                progressStyle={{ "--progress": "45%" } as CSSProperties}
                 staminaStyle={{ "--progress": "80%" } as CSSProperties}
                 skillStyle={{ "--progress": "30%" } as CSSProperties}
                 recipeStyle={{ "--progress": "50%" } as CSSProperties}
@@ -178,7 +170,6 @@ describe("panel components", () => {
                 activeRecipeLevel={1}
                 activeRecipeXp={10}
                 activeRecipeXpNext={20}
-                isStunned={false}
                 skillIconColor="#f2c14e"
                 isCollapsed={true}
                 onToggleCollapsed={vi.fn()}

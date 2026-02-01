@@ -51,6 +51,13 @@
     color: var(--color-text);
 }
 
+.ts-progress-value {
+    font-size: var(--text-s-size);
+    color: var(--color-text);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
 .ts-input {
     width: 100%;
 }

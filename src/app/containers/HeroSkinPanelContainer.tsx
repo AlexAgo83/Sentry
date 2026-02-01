@@ -25,6 +25,8 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
     const skinColor = activePlayer?.appearance?.skinColor ?? getSkinColor(activePlayerId ?? "default");
     const showHelmet = activePlayer?.appearance?.showHelmet ?? true;
     const skillBackgroundUrl = getSkillBackgroundUrl(activePlayer?.selectedActionId ?? null);
+    const progressPercent = activePlayer?.actionProgress?.progressPercent ?? 0;
+    const isStunned = Boolean(activePlayer?.selectedActionId) && (activePlayer?.stamina ?? 0) <= 0;
 
     const handleNextFace = () => {
         if (!activePlayerId) {
@@ -73,6 +75,8 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
             showHelmet={showHelmet}
             equipment={activePlayer?.equipment ?? null}
             skillBackgroundUrl={skillBackgroundUrl}
+            progressPercent={progressPercent}
+            isStunned={isStunned}
             heroName={activePlayer?.name ?? null}
             isPlaceholder={!activePlayer}
             isCollapsed={isSkinCollapsed}
