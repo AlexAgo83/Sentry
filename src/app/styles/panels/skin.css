@@ -23,6 +23,11 @@
     box-shadow: inset 0 0 0 1px rgba(242, 193, 78, 0.15);
 }
 
+.ts-panel-skin.is-collapsed::before,
+.ts-panel-skin.is-collapsed::after {
+    content: none;
+}
+
 .ts-panel-skin::before {
     content: "";
     position: absolute;

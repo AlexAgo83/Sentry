@@ -81,7 +81,10 @@ export const CharacterSkinPanel = memo(({
         "--ts-skin-progress-color": isStunned ? "rgba(199, 74, 61, 0.8)" : avatarColor
     } as CSSProperties;
     return (
-        <section className="generic-panel ts-panel ts-panel-skin" style={panelStyle}>
+        <section
+            className={`generic-panel ts-panel ts-panel-skin${isCollapsed ? " is-collapsed" : ""}`}
+            style={panelStyle}
+        >
             {!isCollapsed ? <span className="ts-skin-progress-ring" aria-hidden="true" /> : null}
             <div className="ts-panel-header">
                 <div className="ts-panel-heading">
