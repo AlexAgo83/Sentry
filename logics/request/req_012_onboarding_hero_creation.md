@@ -26,3 +26,4 @@
 
 # Backlog
 - `logics/backlog/item_034_onboarding_hero_creation.md`
+- `logics/backlog/item_050_onboarding_hero_creation.md`

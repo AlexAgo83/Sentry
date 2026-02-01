@@ -1,7 +1,7 @@
-## item_005_inventory - Global inventory and shared gold
+## item_005_inventory - Inventory
 > From version: 0.3.1
-> Understanding: 96%
-> Confidence: 93%
+> Understanding: 92%
+> Confidence: 88%
 > Progress: 100%
 
 # Context
@@ -43,14 +43,15 @@ Introduce a global inventory and item-based production/consumption in the TS rew
 - None (defaults accepted).
 
 # Problem
-Describe the problem and user impact.
+Promoted from `logics/request/req_002_inventory.md`.
+The game needs a global inventory shared across all players, with stackable items and a dedicated UI panel.
 
 # Scope
 - In:
+  - Add a global inventory shared across all players.
+  - Add an inventory side panel, opened via a button under "recruit new hero".
+  - Introduce stackable items with no limits & svg asset; start with Hunting producing meat and Cooking consuming meat to produce food.
 - Out:
-
-# Acceptance criteria
-- Define acceptance criteria
 
 # Priority
 - Impact:

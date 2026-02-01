@@ -15,4 +15,4 @@
 - Shop layout is a stub; real items and pricing will be added later.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_049_shop_screen_entry_and_placeholder_tiles.md`

@@ -1,7 +1,7 @@
-## item_013_qa_feedback_sweep - UI adjustments from QA feedback
-> From version: 0.7.2
-> Understanding: 97%
-> Confidence: 95%
+## item_013_qa_feedback_sweep - QA feedback sweep
+> From version: 0.7.1
+> Understanding: 95%
+> Confidence: 92%
 > Progress: 100%
 
 # Context
@@ -57,14 +57,14 @@ Address QA feedback with small UI adjustments while preserving current behavior.
 - Delivered in `logics/tasks/task_013_qa_feedback_sweep.md`.
 
 # Problem
-Describe the problem and user impact.
+Promoted from `logics/request/req_003_qa_beertime.md`.
+QA feedbacks need to be addressed, including UI/UX improvements for Inventory and System access.
 
 # Scope
 - In:
+  - Remove the Inventory button from the roster if redundant.
+  - Replace the System button by making the version badge clickable, with a gear icon and styled cell.
 - Out:
-
-# Acceptance criteria
-- Define acceptance criteria
 
 # Priority
 - Impact:

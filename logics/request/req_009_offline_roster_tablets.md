@@ -80,4 +80,9 @@
 - None for now; revisit if backend hosting, auth, or tooling constraints change.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_020_offline_catch_up_cap_to_7_days.md`
+- `logics/backlog/item_021_mobile_roster_navigation_update.md`
+- `logics/backlog/item_022_tablet_equipment_slot_and_charges.md`
+- `logics/backlog/item_023_virtual_score_in_setup_modal.md`
+- `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
+- `logics/backlog/item_025_db_dump_and_reset_utilities.md`

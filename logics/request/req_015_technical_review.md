@@ -131,4 +131,12 @@ Produce a deep technical review of the project and capture all findings as a pri
 - Optional: architecture note for save schema + migration policy.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_036_harden_cloud_auth_rate_limiting.md`
+- `logics/backlog/item_037_validate_cloud_save_payloads.md`
+- `logics/backlog/item_038_persistence_failure_ui_alert.md`
+- `logics/backlog/item_039_extract_avatar_component.md`
+- `logics/backlog/item_040_split_recipes_and_panel_css.md`
+- `logics/backlog/item_041_seeded_rng_for_rewards.md`
+- `logics/backlog/item_042_e2e_smoke_suite.md`
+- `logics/backlog/item_043_bundle_perf_budgets.md`
+- `logics/backlog/item_044_logics_hygiene_cleanup.md`

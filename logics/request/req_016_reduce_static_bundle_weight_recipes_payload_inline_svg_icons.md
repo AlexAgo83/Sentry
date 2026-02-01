@@ -15,4 +15,5 @@
 - Any change should preserve existing icon usage APIs and recipe lookups, avoiding gameplay regressions.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_045_externalize_inline_svg_icon_payloads.md`
+- `logics/backlog/item_046_reduce_recipes_payload_in_initial_bundle.md`

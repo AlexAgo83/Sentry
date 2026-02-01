@@ -16,4 +16,4 @@
 - No feature implementation in this request; only analysis + recommendations.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_048_code_quality_review_and_evolution.md`

@@ -1,4 +1,4 @@
-## item_017_action_selection_screen - Action selection as a screen (replace Loadout modal)
+## item_017_action_selection_screen - Replace action selection modal with a dedicated screen
 > From version: 0.8.9
 > Understanding: 90%
 > Confidence: 80%
@@ -27,11 +27,15 @@ Replace the modal with a dedicated **Action Selection** screen that is reachable
 - Delivered in `logics/tasks/task_019_action_selection_screen.md`.
 
 # Problem
-Describe the problem and user impact.
+Promoted from `logics/request/req_005_action_selection_screen.md`.
+The current modal for skill/recipe selection should be replaced by a dedicated Action Selection screen, accessible only via the Change button.
 
 # Scope
 - In:
+  - Replace the modal with a dedicated Action Selection screen.
+  - Ensure the screen is reachable only via the Change button.
 - Out:
+  - Access via top/bottom tab navigation.
 
 # Acceptance criteria
 - Define acceptance criteria

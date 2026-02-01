@@ -65,3 +65,4 @@ Add context and constraints.
 
 # Backlog
 - `logics/backlog/item_035_quests_screen.md`
+- `logics/backlog/item_052_quests_screen.md`

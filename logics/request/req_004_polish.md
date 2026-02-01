@@ -34,4 +34,5 @@ A few good next moves in this repo (based on `logics/backlog/`):
 Add context and constraints.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_016_mobile_bottom_action_bar.md`
+- `logics/backlog/item_013_qa_feedback_sweep.md`

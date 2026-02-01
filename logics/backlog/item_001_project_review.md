@@ -1,7 +1,7 @@
-## item_001_project_review - Full project review
+## item_001_project_review - Review project
 > From version: 0.2.0
 > Understanding: 95%
-> Confidence: 92%
+> Confidence: 90%
 > Progress: 100%
 
 # Context
@@ -30,14 +30,16 @@ Deliver a structured review covering architecture, risks, potential bugs, and te
 - Key fixes applied from review findings.
 
 # Problem
-Describe the problem and user impact.
+Promoted from `logics/request/req_001_project_review.md`.
+The project needs a structured review to assess code quality, architecture, risks, and next steps.
 
 # Scope
 - In:
+  - Review the project and provide a structured assessment.
+  - Identify critical issues, risks, and potential regressions.
+  - Evaluate architecture and maintainability.
+  - Highlight missing tests or weak coverage areas.
 - Out:
-
-# Acceptance criteria
-- Define acceptance criteria
 
 # Priority
 - Impact:
@@ -45,3 +47,4 @@ Describe the problem and user impact.
 
 # Notes
 - Derived from `logics/request/req_001_project_review.md`.
+- Derived from `logics/request/req_004_polish.md`.
