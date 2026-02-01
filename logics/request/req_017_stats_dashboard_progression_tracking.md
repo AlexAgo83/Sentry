@@ -26,3 +26,12 @@
   - Active time: time with a skill running; Idle time: no skill running.
   - Top 5 skills: by total active time within the 7-day window.
   - Tabs: “Progression” (default) and “Character”, remember last tab locally.
+
+# Suggested additions
+- Data model + storage: where 7‑day buckets live in the save payload, retention rules, and any migration/backfill behavior.
+- Aggregation rules: exact XP/Gold delta sources (tick vs action completion) and timezone handling.
+- Edge cases: no data, new user, long offline gaps, clock changes, paused app.
+- Performance constraints: update frequency, recompute points, and payload size guardrails.
+- UI acceptance: explicit card order and mobile priority order; empty‑state copy.
+- Character stats detail: tooltip format, source display (mod origin), rounding rules.
+- Testing/validation: unit tests for rolling window + aggregation, and UI layout checks.

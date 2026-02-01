@@ -1,0 +1,44 @@
+## task_042_stats_dashboard_progression_tracking - Stats dashboard progression tracking
+> From version: 0.8.18
+> Understanding: 94%
+> Confidence: 92%
+> Progress: 0%
+
+# Context
+Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
+
+# Plan
+- [ ] 1. Data model: add rolling 7‑day buckets for XP/Gold + active/idle time + per‑skill active time.
+- [ ] 2. Aggregation: update buckets daily (local midnight), include offline gains, retain last 7 days only.
+- [ ] 3. UI: replace Stats panel with Progression dashboard (cards, split bar, top 5 list, trend chart).
+- [ ] 4. UI: add Character tab with base + perm/temp/gear breakdown and totals.
+- [ ] 5. Mobile layout: stack sections in priority order (cards → split → top list → chart).
+- [ ] 6. Persistence: ensure save payload includes new tracking data (local + cloud).
+- [ ] 7. Tests/QA: add unit tests for bucketing + aggregation; verify UI on mobile + desktop.
+- [ ] FINAL: update related Logics docs if scope changes.
+
+# Validation
+- npm run lint
+- npm run typecheck
+- npm run tests
+- npm run test:ci
+- npm run coverage
+- npm run build
+- npm run test:e2e
+
+# Report
+
+# Notes
+- Mockups: `logics/external/mockup/` (progression + character, mobile + desktop).
+
+# Clarifications
+
+- Define the primary outcome and scope boundaries (in/out). :: In: core deliverables. Out: adjacent features or polish.
+- Define time window and granularity for any trends/rollups. :: Rolling 7-day window, daily buckets, local midnight.
+- Define metric sources and what counts (include offline or background gains?). :: Use deltas, include offline/background gains if applicable.
+- Define active vs inactive time rules (if relevant). :: Active = process/action running. Inactive = no active process.
+- Define mobile vs desktop layout expectations. :: Mobile-first with condensed order; desktop uses a broader dashboard layout.
+- Define persistence and retention. :: Persist in saved state; retain only the last 7 days of data.
+- Define edge cases and empty states. :: No data -> zeros + empty state; new users -> seeded buckets.
+- Define implementation checkpoints. :: Plan: data model -> aggregation -> UI -> QA.
+- Define validation commands. :: Run lint/tests/build relevant to the change.
