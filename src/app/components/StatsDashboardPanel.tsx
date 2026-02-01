@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, type CSSProperties } from "react";
+import { memo, useMemo, useState } from "react";
 import type { PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { SKILL_DEFINITIONS } from "../../data/definitions";
@@ -161,10 +161,6 @@ export const StatsDashboardPanel = memo(({
         () => (equipmentMods.length > 0 ? accumulateTotals(equipmentMods) : buildStatTotals()),
         [equipmentMods]
     );
-
-    const activeRatio = totals.activeMs + totals.idleMs > 0
-        ? totals.activeMs / (totals.activeMs + totals.idleMs)
-        : 0;
 
     const hasTrendData = trend.xpSeries.some((value) => value > 0) || trend.goldSeries.some((value) => value > 0);
 
