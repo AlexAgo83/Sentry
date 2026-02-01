@@ -14,6 +14,7 @@ The `logics` folder defines the product flow:
 * `logics/request`: Incoming requests or ideas.
 * `logics/backlog`: Core product items, possibly promoted from requests.
 * `logics/tasks`: Execution plans derived from backlog items.
+* `logics/external`: Generated artifacts (images/exports) that don't belong in the other Logics folders.
  
 
 ### Backlog → Tasks
