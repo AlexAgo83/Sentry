@@ -2,6 +2,7 @@ import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../d
 import { getEquipmentModifiers } from "../data/equipment";
 import { QUEST_CRAFT_ITEM_IDS, QUEST_DEFINITIONS, getQuestProgress, getSharedSkillLevels } from "../data/quests";
 import { createActionProgress } from "./state";
+import { applyProgressionDelta, createProgressionState } from "./progression";
 import {
     DEFAULT_STAMINA_MAX,
     DEFAULT_STAMINA_REGEN,
@@ -107,7 +108,15 @@ const applyActionTick = (
     inventory: InventoryState,
     deltaMs: number,
     timestamp: number
-): { player: PlayerState; inventory: InventoryState; itemDeltas: ItemDelta } => {
+): {
+    player: PlayerState;
+    inventory: InventoryState;
+    itemDeltas: ItemDelta;
+    xpGained: number;
+    activeMs: number;
+    idleMs: number;
+    skillId: SkillId | null;
+} => {
     const equipmentModifiers = getEquipmentModifiers(player.equipment);
     const { stats: cleanedStats, effective } = resolveEffectiveStats(player.stats, timestamp, equipmentModifiers);
     const staminaMax = Math.ceil(DEFAULT_STAMINA_MAX * (1 + effective.Endurance * STAT_PERCENT_PER_POINT));
@@ -121,32 +130,42 @@ const applyActionTick = (
         stamina
     };
 
+    const idleResult = {
+        player: nextPlayer,
+        inventory,
+        itemDeltas: {},
+        xpGained: 0,
+        activeMs: 0,
+        idleMs: deltaMs,
+        skillId: null
+    };
+
     if (!player.selectedActionId) {
-        return { player: nextPlayer, inventory, itemDeltas: {} };
+        return idleResult;
     }
 
     const actionDef = getActionDefinition(player.selectedActionId);
     if (!actionDef) {
-        return { player: nextPlayer, inventory, itemDeltas: {} };
+        return idleResult;
     }
 
     const skill = player.skills[actionDef.skillId];
     if (!skill) {
-        return { player: nextPlayer, inventory, itemDeltas: {} };
+        return idleResult;
     }
 
     const selectedRecipeId = skill.selectedRecipeId;
     if (!selectedRecipeId) {
-        return { player: nextPlayer, inventory, itemDeltas: {} };
+        return idleResult;
     }
 
     const recipe = skill.recipes[selectedRecipeId];
     if (!recipe) {
-        return { player: nextPlayer, inventory, itemDeltas: {} };
+        return idleResult;
     }
     const recipeDef = getRecipeDefinition(actionDef.skillId, selectedRecipeId);
     if (recipeDef && !isRecipeUnlocked(recipeDef, skill.level)) {
-        return { player: nextPlayer, inventory, itemDeltas: {} };
+        return idleResult;
     }
 
     const intervalMultiplier = 1 - effective.Agility * STAT_PERCENT_PER_POINT;
@@ -154,7 +173,7 @@ const applyActionTick = (
     const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval)
         + (stamina <= 0 ? actionDef.stunTime : 0);
     if (actionInterval <= 0) {
-        return { player: nextPlayer, inventory, itemDeltas: {} };
+        return idleResult;
     }
 
     let currentInterval = player.actionProgress.currentInterval + deltaMs;
@@ -255,6 +274,15 @@ const applyActionTick = (
         }
     };
 
+    const xpPerAction = (actionDef.xpSkill + actionDef.xpRecipe) * xpMultiplier;
+    const xpGained = completedCount * xpPerAction;
+    const activeResultBase = {
+        xpGained,
+        activeMs: deltaMs,
+        idleMs: 0,
+        skillId: actionDef.skillId
+    };
+
     if (shouldStop) {
         const updatedPlayer = applyTabletCharges(nextPlayer, completedCount);
         return {
@@ -265,7 +293,8 @@ const applyActionTick = (
                 actionProgress: createActionProgress()
             },
             inventory: nextInventory,
-            itemDeltas
+            itemDeltas,
+            ...activeResultBase
         };
     }
 
@@ -282,7 +311,8 @@ const applyActionTick = (
             }
         },
         inventory: nextInventory,
-        itemDeltas
+        itemDeltas,
+        ...activeResultBase
     };
 };
 
@@ -292,12 +322,38 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
     let inventory = state.inventory;
     const totalItemDeltas: ItemDelta = {};
     const playerItemDeltas: Record<PlayerId, ItemDelta> = {};
+    let totalXpGained = 0;
+    let totalActiveMs = 0;
+    let totalIdleMs = 0;
+    const skillActiveMs: Partial<Record<SkillId, number>> = {};
 
     sortedIds.forEach((id) => {
         const player = state.players[id];
         const result = applyActionTick(player, inventory, deltaMs, timestamp);
-        players[id] = result.player;
+        const playerSkillActiveMs: Partial<Record<SkillId, number>> = {};
+        if (result.skillId && result.activeMs > 0) {
+            playerSkillActiveMs[result.skillId] = result.activeMs;
+        }
+        const playerProgression = applyProgressionDelta(
+            player.progression ?? createProgressionState(timestamp),
+            {
+                xp: result.xpGained,
+                gold: result.itemDeltas.gold ?? 0,
+                activeMs: result.activeMs,
+                idleMs: result.idleMs,
+                skillActiveMs: playerSkillActiveMs
+            },
+            timestamp
+        );
+        players[id] = { ...result.player, progression: playerProgression };
         inventory = result.inventory;
+        totalXpGained += result.xpGained;
+        totalActiveMs += result.activeMs;
+        totalIdleMs += result.idleMs;
+        if (result.skillId && result.activeMs > 0) {
+            const current = skillActiveMs[result.skillId] ?? 0;
+            skillActiveMs[result.skillId] = current + result.activeMs;
+        }
         if (Object.keys(result.itemDeltas).length > 0) {
             playerItemDeltas[id] = result.itemDeltas;
             Object.entries(result.itemDeltas).forEach(([itemId, amount]) => {
@@ -335,6 +391,19 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         inventory = applyItemDelta(inventory, { gold: questGoldReward }, 1, totalItemDeltas);
     }
 
+    const goldDelta = totalItemDeltas.gold ?? 0;
+    const progression = applyProgressionDelta(
+        state.progression ?? createProgressionState(timestamp),
+        {
+            xp: totalXpGained,
+            gold: goldDelta,
+            activeMs: totalActiveMs,
+            idleMs: totalIdleMs,
+            skillActiveMs
+        },
+        timestamp
+    );
+
     return {
         ...state,
         players,
@@ -347,6 +416,7 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
             ...state.loop,
             lastTick: timestamp
         },
+        progression,
         lastTickSummary
     };
 };

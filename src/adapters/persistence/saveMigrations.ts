@@ -5,6 +5,8 @@ import type {
     PlayerSaveState,
     QuestProgressState
 } from "../../core/types";
+import type { ProgressionState } from "../../core/types";
+import { normalizeProgressionState } from "../../core/progression";
 
 export const LATEST_SAVE_SCHEMA_VERSION = 1;
 
@@ -98,7 +100,7 @@ const legacyGoldFromPlayers = (players: Record<PlayerId, PlayerSaveState>): numb
     }, 0);
 };
 
-const sanitizePlayers = (rawPlayers: unknown): Record<PlayerId, PlayerSaveState> => {
+const sanitizePlayers = (rawPlayers: unknown, now: number): Record<PlayerId, PlayerSaveState> => {
     if (!isObject(rawPlayers)) {
         return {};
     }
@@ -108,10 +110,18 @@ const sanitizePlayers = (rawPlayers: unknown): Record<PlayerId, PlayerSaveState>
             return;
         }
         const name = toNullableString(value.name) ?? `Player_${id}`;
+        const rawProgression = (value as { progression?: unknown }).progression;
+        const progression = normalizeProgressionState(
+            isObject(rawProgression)
+                ? (rawProgression as unknown as ProgressionState)
+                : undefined,
+            now
+        );
         next[id] = {
             ...(value as unknown as PlayerSaveState),
             id,
             name,
+            progression
         };
     });
     return next;
@@ -131,7 +141,8 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
         return { ok: false, reason: "Save version is missing." };
     }
 
-    const players = sanitizePlayers(input.players);
+    const now = Date.now();
+    const players = sanitizePlayers(input.players, now);
     if (Object.keys(players).length === 0) {
         return { ok: false, reason: "Save has no valid players." };
     }
@@ -165,6 +176,10 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
 
     const migrated = schemaVersion !== LATEST_SAVE_SCHEMA_VERSION;
     const quests = normalizeQuests(input.quests);
+    const progressionInput = isObject(input.progression)
+        ? input.progression as unknown as ProgressionState
+        : undefined;
+    const progression = normalizeProgressionState(progressionInput, now);
 
     return {
         ok: true,
@@ -178,7 +193,8 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             players,
             rosterLimit,
             inventory: finalInventory,
-            ...(quests ? { quests } : {})
+            ...(quests ? { quests } : {}),
+            progression
         }
     };
 };

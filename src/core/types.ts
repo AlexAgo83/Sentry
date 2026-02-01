@@ -113,6 +113,7 @@ export interface PlayerState {
     stats: PlayerStatsState;
     equipment: PlayerEquipmentState;
     skills: Record<SkillId, SkillState>;
+    progression: ProgressionState;
     selectedActionId: ActionId | null;
     actionProgress: ActionProgressState;
     createdAt: number;
@@ -133,6 +134,19 @@ export interface LoopState {
     offlineThreshold: number;
 }
 
+export interface ProgressionBucket {
+    dayKey: string;
+    xp: number;
+    gold: number;
+    activeMs: number;
+    idleMs: number;
+    skillActiveMs: Partial<Record<SkillId, number>>;
+}
+
+export interface ProgressionState {
+    buckets: ProgressionBucket[];
+}
+
 export interface GameState {
     version: string;
     players: Record<PlayerId, PlayerState>;
@@ -141,6 +155,7 @@ export interface GameState {
     inventory: InventoryState;
     quests: QuestProgressState;
     loop: LoopState;
+    progression: ProgressionState;
     perf: PerformanceState;
     persistence: PersistenceState;
     offlineSummary: OfflineSummaryState | null;
@@ -233,4 +248,5 @@ export interface GameSave {
     rosterLimit?: number;
     inventory?: InventoryState;
     quests?: QuestProgressState;
+    progression?: ProgressionState;
 }

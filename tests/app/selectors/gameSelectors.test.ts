@@ -6,6 +6,7 @@ import {
     selectDriftLabel,
     selectPlayersSorted,
     selectPlayersSortedFromPlayers,
+    selectHeroVirtualScore,
     selectTickRateLabel,
     selectVirtualScore
 } from "../../../src/app/selectors/gameSelectors";
@@ -94,5 +95,37 @@ describe("app gameSelectors", () => {
         const expected = Math.round(baseScore + combat1Delta + cookingDelta + combat2Delta + questScore);
 
         expect(selectVirtualScore(state)).toBe(expected);
+    });
+
+    it("selectHeroVirtualScore uses only the active hero skills", () => {
+        const state = createInitialGameState("test");
+        const player2 = createPlayerState("2");
+        state.players[player2.id] = player2;
+        state.activePlayerId = "1";
+
+        state.players["1"].skills.Combat.level += 2;
+        state.players["1"].skills.Combat.xp = 25;
+        state.players["1"].skills.Combat.xpNext = 100;
+        const cookingRecipeId = Object.keys(state.players["1"].skills.Cooking.recipes)[0];
+        state.players["1"].skills.Cooking.recipes[cookingRecipeId].level += 4;
+
+        state.players["2"].skills.Combat.level += 5;
+        state.players["2"].skills.Combat.xp = 100;
+        state.players["2"].skills.Combat.xpNext = 100;
+
+        state.quests.completed["quest-alpha"] = true;
+
+        const expected = (() => {
+            return Object.values(state.players["1"].skills).reduce((sum, skill) => {
+                const xpNext = Number.isFinite(skill.xpNext) && skill.xpNext > 0 ? skill.xpNext : 0;
+                const xpProgress = xpNext > 0 ? Math.min(1, Math.max(0, skill.xp / xpNext)) : 0;
+                const recipeScore = Object.values(skill.recipes).reduce((recipeSum, recipe) => {
+                    return recipeSum + recipe.level * 0.25;
+                }, 0);
+                return sum + skill.level + xpProgress + recipeScore;
+            }, 0);
+        })();
+
+        expect(selectHeroVirtualScore(state)).toBe(Math.round(expected));
     });
 });

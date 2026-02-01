@@ -11,6 +11,7 @@ export const toGameSave = (state: GameState): GameSave => {
         players: stripRuntimeFields(state.players),
         rosterLimit: state.rosterLimit,
         inventory: state.inventory,
-        quests: state.quests
+        quests: state.quests,
+        progression: state.progression
     };
 };

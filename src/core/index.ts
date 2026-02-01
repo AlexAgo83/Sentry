@@ -16,6 +16,8 @@ export type {
     PlayerState,
     PlayerStatsState,
     PerformanceState,
+    ProgressionBucket,
+    ProgressionState,
     OfflinePlayerSummary,
     OfflineSummaryState,
     EquipmentStatModifier,

@@ -12,7 +12,8 @@ const SAVE_SCHEMA_V1 = {
         players: { type: "object" },
         rosterLimit: { type: "number" },
         inventory: { type: "object" },
-        quests: { type: "object" }
+        quests: { type: "object" },
+        progression: { type: "object" }
     }
 };
 
@@ -48,6 +49,9 @@ const validateSavePayload = (payload) => {
     }
     if ("quests" in payload && !isPlainObject(payload.quests)) {
         return { ok: false, error: "Save payload quests must be an object." };
+    }
+    if ("progression" in payload && !isPlainObject(payload.progression)) {
+        return { ok: false, error: "Save payload progression must be an object." };
     }
     return { ok: true };
 };

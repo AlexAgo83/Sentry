@@ -2,18 +2,18 @@
 > From version: 0.8.18
 > Understanding: 94%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 85%
 
 # Context
 Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
 
 # Plan
-- [ ] 1. Data model: add rolling 7‑day buckets for XP/Gold + active/idle time + per‑skill active time.
-- [ ] 2. Aggregation: update buckets daily (local midnight), include offline gains, retain last 7 days only.
-- [ ] 3. UI: replace Stats panel with Progression dashboard (cards, split bar, top 5 list, trend chart).
-- [ ] 4. UI: add Character tab with base + perm/temp/gear breakdown and totals.
-- [ ] 5. Mobile layout: stack sections in priority order (cards → split → top list → chart).
-- [ ] 6. Persistence: ensure save payload includes new tracking data (local + cloud).
+- [x] 1. Data model: add rolling 7‑day buckets for XP/Gold + active/idle time + per‑skill active time.
+- [x] 2. Aggregation: update buckets daily (local midnight), include offline gains, retain last 7 days only.
+- [x] 3. UI: replace Stats panel with Progression dashboard (cards, split bar, top 5 list, trend chart).
+- [x] 4. UI: add Character tab with base + perm/temp/gear breakdown and totals.
+- [x] 5. Mobile layout: stack sections in priority order (cards → split → top list → chart).
+- [x] 6. Persistence: ensure save payload includes new tracking data (local + cloud).
 - [ ] 7. Tests/QA: add unit tests for bucketing + aggregation; verify UI on mobile + desktop.
 - [ ] FINAL: update related Logics docs if scope changes.
 
@@ -27,6 +27,10 @@ Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
 - npm run test:e2e
 
 # Report
+- Added rolling 7‑day progression tracking (XP, gold, active/idle time, per‑skill time) with save hydration/migration.
+- Replaced Stats panel with a progression dashboard + Character breakdown tab; added mobile/desktop layouts.
+- Tests run: `npm run lint`, `npm run typecheck`, `npm run tests`.
+- Pending QA: UI verification on mobile + desktop, plus `npm run test:ci`, `npm run coverage`, `npm run build`, `npm run test:e2e`.
 
 # Notes
 - Mockups: `logics/external/mockup/` (progression + character, mobile + desktop).

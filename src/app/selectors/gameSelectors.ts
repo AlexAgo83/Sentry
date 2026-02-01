@@ -70,6 +70,17 @@ export const selectDriftLabel = (() => {
     };
 })();
 
+const computePlayerSkillScore = (player: PlayerState): number => {
+    return Object.values(player.skills).reduce((sum, skill) => {
+        const xpNext = Number.isFinite(skill.xpNext) && skill.xpNext > 0 ? skill.xpNext : 0;
+        const xpProgress = xpNext > 0 ? Math.min(1, Math.max(0, skill.xp / xpNext)) : 0;
+        const recipeScore = Object.values(skill.recipes).reduce((recipeSum, recipe) => {
+            return recipeSum + recipe.level * 0.25;
+        }, 0);
+        return sum + skill.level + xpProgress + recipeScore;
+    }, 0);
+};
+
 export const selectVirtualScore = (() => {
     let lastPlayers: GameState["players"] | null = null;
     let lastQuests: GameState["quests"] | null = null;
@@ -83,17 +94,25 @@ export const selectVirtualScore = (() => {
         const questCount = Object.values(state.quests.completed ?? {}).filter(Boolean).length;
         const questScore = questCount * 5;
         const skillScore = Object.values(state.players).reduce((total, player) => {
-            const playerScore = Object.values(player.skills).reduce((sum, skill) => {
-                const xpNext = Number.isFinite(skill.xpNext) && skill.xpNext > 0 ? skill.xpNext : 0;
-                const xpProgress = xpNext > 0 ? Math.min(1, Math.max(0, skill.xp / xpNext)) : 0;
-                const recipeScore = Object.values(skill.recipes).reduce((recipeSum, recipe) => {
-                    return recipeSum + recipe.level * 0.25;
-                }, 0);
-                return sum + skill.level + xpProgress + recipeScore;
-            }, 0);
-            return total + playerScore;
+            return total + computePlayerSkillScore(player);
         }, 0);
         lastResult = Math.round(skillScore + questScore);
+        return lastResult;
+    };
+})();
+
+export const selectHeroVirtualScore = (() => {
+    let lastPlayers: GameState["players"] | null = null;
+    let lastActiveId: GameState["activePlayerId"] | null = null;
+    let lastResult = 0;
+    return (state: GameState): number => {
+        if (state.players === lastPlayers && state.activePlayerId === lastActiveId) {
+            return lastResult;
+        }
+        lastPlayers = state.players;
+        lastActiveId = state.activePlayerId;
+        const player = state.activePlayerId ? state.players[state.activePlayerId] ?? null : null;
+        lastResult = player ? Math.round(computePlayerSkillScore(player)) : 0;
         return lastResult;
     };
 })();

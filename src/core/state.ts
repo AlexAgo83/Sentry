@@ -6,6 +6,7 @@ import {
     PlayerId,
     PlayerSaveState,
     PlayerState,
+    ProgressionState,
     QuestProgressState,
     RecipeState,
     SkillId,
@@ -27,6 +28,7 @@ import {
 import { SKILL_DEFINITIONS, getRecipesForSkill } from "../data/definitions";
 import { createPlayerStatsState, normalizePlayerStats } from "./stats";
 import { createPlayerEquipmentState, normalizePlayerEquipment } from "./equipment";
+import { createProgressionState, normalizeProgressionState } from "./progression";
 
 export const createActionProgress = (): ActionProgressState => ({
     currentInterval: 0,
@@ -129,6 +131,7 @@ export const createPlayerState = (id: PlayerId, name?: string): PlayerState => {
         stats: createPlayerStatsState(),
         equipment: createPlayerEquipmentState(),
         skills,
+        progression: createProgressionState(Date.now()),
         selectedActionId: null,
         actionProgress: createActionProgress(),
         createdAt: Date.now(),
@@ -168,6 +171,7 @@ export const createInitialGameState = (version: string, options: InitialGameStat
             offlineInterval: OFFLINE_INTERVAL,
             offlineThreshold: OFFLINE_THRESHOLD
         },
+        progression: createProgressionState(Date.now()),
         perf: {
             lastTickDurationMs: 0,
             lastDeltaMs: 0,
@@ -191,6 +195,10 @@ const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
         storage?: { gold?: number };
         skills?: Record<SkillId, SkillState>;
     };
+    const progression = normalizeProgressionState(
+        (player as PlayerSaveState & { progression?: ProgressionState }).progression,
+        Date.now()
+    );
     const normalizedSkills = SKILL_DEFINITIONS.reduce<Record<SkillId, SkillState>>((acc, skill) => {
         acc[skill.id] = normalizeSkillState(skill.id, skills?.[skill.id]);
         return acc;
@@ -204,6 +212,7 @@ const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
         stats: normalizePlayerStats(player.stats),
         equipment: normalizePlayerEquipment(player.equipment),
         skills: normalizedSkills,
+        progression,
         actionProgress: createActionProgress()
     };
 };
@@ -274,6 +283,7 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
             lastTick: save.lastTick ?? baseState.loop.lastTick,
             lastHiddenAt: save.lastHiddenAt ?? baseState.loop.lastHiddenAt
         },
+        progression: normalizeProgressionState(save.progression, Date.now()),
         persistence: baseState.persistence,
         offlineSummary: null,
         lastTickSummary: null

@@ -1,12 +1,10 @@
 import { useMemo } from "react";
-import { SKILL_DEFINITIONS } from "../../data/definitions";
 import { getEquipmentModifiers } from "../../data/equipment";
-import type { SkillId } from "../../core/types";
 import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../../core/stats";
 import { useGameStore } from "../hooks/useGameStore";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
-import { selectActivePlayer } from "../selectors/gameSelectors";
-import { CharacterStatsPanel } from "../components/CharacterStatsPanel";
+import { selectActivePlayer, selectHeroVirtualScore, selectVirtualScore } from "../selectors/gameSelectors";
+import { StatsDashboardPanel } from "../components/StatsDashboardPanel";
 import { HeroSkinPanelContainer } from "./HeroSkinPanelContainer";
 
 type StatsPanelContainerProps = {
@@ -27,36 +25,22 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
         : null;
     const statsState = statsSnapshot?.stats ?? createPlayerStatsState();
     const effectiveStats = statsSnapshot?.effective ?? computeEffectiveStats(statsState, equipmentMods);
-    const skillLevels = useMemo(() => SKILL_DEFINITIONS.reduce<Partial<Record<SkillId, number>>>((acc, skill) => {
-        acc[skill.id] = activePlayer?.skills[skill.id]?.level ?? 0;
-        return acc;
-    }, {}), [activePlayer]);
-    const skillProgress = useMemo(() => SKILL_DEFINITIONS.reduce<Partial<Record<SkillId, number>>>((acc, skill) => {
-        const state = activePlayer?.skills[skill.id];
-        if (!state) {
-            acc[skill.id] = 0;
-            return acc;
-        }
-        if (state.maxLevel > 0 && state.level >= state.maxLevel) {
-            acc[skill.id] = 1;
-            return acc;
-        }
-        const progress = state.xpNext > 0 ? state.xp / state.xpNext : 0;
-        acc[skill.id] = Math.max(0, Math.min(1, progress));
-        return acc;
-    }, {}), [activePlayer]);
+    const globalProgression = useGameStore((state) => state.progression);
+    const globalVirtualScore = useGameStore(selectVirtualScore);
+    const heroVirtualScore = useGameStore(selectHeroVirtualScore);
+    const heroProgression = activePlayer?.progression ?? globalProgression;
 
     return (
         <>
             <HeroSkinPanelContainer onRenameHero={onRenameHero} />
-            <CharacterStatsPanel
-                skills={SKILL_DEFINITIONS}
-                skillLevels={skillLevels}
-                skillProgress={skillProgress}
+            <StatsDashboardPanel
+                heroProgression={heroProgression}
+                globalProgression={globalProgression}
+                globalVirtualScore={globalVirtualScore}
+                heroVirtualScore={heroVirtualScore}
                 stats={statsState}
                 effectiveStats={effectiveStats}
                 equipmentMods={equipmentMods}
-                now={now}
                 isCollapsed={isCollapsed}
                 onToggleCollapsed={() => setCollapsed((value) => !value)}
             />
