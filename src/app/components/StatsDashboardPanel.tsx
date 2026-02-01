@@ -226,7 +226,6 @@ export const StatsDashboardPanel = memo(({
                 <div className="ts-panel-body">
                     {resolvedTab === "hero-stats" ? (
                         <div className="ts-character-breakdown">
-                            <div className="ts-character-title">Base + modifiers breakdown</div>
                             <div className="ts-character-header">
                                 <span>Stat</span>
                                 <span>Base</span>

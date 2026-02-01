@@ -658,12 +658,12 @@
 
     .ts-prog-cards {
         grid-template-columns: 1fr;
-        gap: var(--m3);
+        gap: var(--m4);
     }
 
     .ts-prog-row {
         grid-template-columns: 1fr;
-        gap: var(--m3);
+        gap: var(--m4);
     }
 
     .ts-prog-card,
@@ -674,7 +674,7 @@
     }
 
     .ts-character-breakdown {
-        padding: var(--m3) var(--m4);
+        padding: var(--m4) var(--m5);
     }
 
     .ts-prog-chart svg {
@@ -682,7 +682,7 @@
     }
 
     .ts-progression {
-        gap: var(--m4);
+        gap: var(--m5);
     }
 
     .ts-prog-list-row {
@@ -702,11 +702,66 @@
     }
 
     .ts-character-row {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-areas:
+            "stat stat stat total"
+            "base perm temp gear";
         row-gap: var(--m2);
+        column-gap: var(--m3);
+        padding: var(--m3) var(--m4);
     }
 
     .ts-character-cell-label {
         display: block;
+        font-size: calc(var(--text-xs-size) - 1px);
+        letter-spacing: 0.14em;
+    }
+
+    .ts-character-cell {
+        gap: var(--m1);
+    }
+
+    .ts-character-cell--stat {
+        grid-area: stat;
+        color: var(--color-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: var(--text-s-size);
+        font-weight: 600;
+    }
+
+    .ts-character-cell--stat .ts-character-cell-label {
+        display: none;
+    }
+
+    .ts-character-cell-value {
+        font-size: var(--text-s-size);
+        font-weight: 600;
+    }
+
+    .ts-character-cell--total {
+        grid-area: total;
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .ts-character-row .ts-character-cell:nth-child(2) {
+        grid-area: base;
+    }
+
+    .ts-character-cell--perm {
+        grid-area: perm;
+    }
+
+    .ts-character-cell--temp {
+        grid-area: temp;
+    }
+
+    .ts-character-cell--gear {
+        grid-area: gear;
+    }
+
+    .ts-character-cell--total .ts-character-cell-label {
+        display: none;
     }
 }
