@@ -2,7 +2,7 @@
 > From version: 0.8.18
 > Understanding: 94%
 > Confidence: 92%
-> Progress: 95%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
@@ -14,8 +14,8 @@ Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
 - [x] 4. UI: add Character tab with base + perm/temp/gear breakdown and totals.
 - [x] 5. Mobile layout: stack sections in priority order (cards → split → top list → chart).
 - [x] 6. Persistence: ensure save payload includes new tracking data (local + cloud).
-- [ ] 7. Tests/QA: add unit tests for bucketing + aggregation; verify UI on mobile + desktop.
-- [ ] FINAL: update related Logics docs if scope changes.
+- [x] 7. Tests/QA: add unit tests for bucketing + aggregation; verify UI on mobile + desktop.
+- [x] FINAL: update related Logics docs if scope changes.
 
 # Validation
 - npm run lint
@@ -31,8 +31,8 @@ Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
 - Replaced Stats panel with a progression dashboard + Hero statistics view; added global vs hero progression switch and responsive controls.
 - Added clearer trend chart (axis labels, tooltip, legend), updated skill list to show all skills, refined spacing and layout.
 - Hero virtual score is now independent from global score.
-- Tests run: `npm run lint`, `npm run typecheck`, `npm run tests`.
-- Pending QA: UI verification on mobile + desktop, plus `npm run test:ci`, `npm run coverage`, `npm run build`, `npm run test:e2e`.
+- Tests run: `npm run lint`, `npm run typecheck`, `npm run tests`, `npm run test:ci`, `npm run coverage`, `npm run build`, `npm run test:e2e`.
+- Pending QA: none.
 
 # Notes
 - Mockups: `logics/external/mockup/` (progression + character, mobile + desktop).

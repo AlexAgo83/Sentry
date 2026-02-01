@@ -2,7 +2,7 @@
 > From version: 0.8.18
 > Understanding: 90%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 `src/data/definitions/recipes` is a large static payload loaded on startup. This increases the main bundle size and
@@ -22,7 +22,7 @@ initial parsing cost even though only a subset of recipes are needed early.
 - Main bundle shows a measurable reduction in recipe payload size.
 - Recipe lookups continue to work for all skills after data load.
 - Build and tests pass.
- - Offline/PWA still works (recipes available without network).
+- Offline/PWA still works (recipes available without network).
 
 # Priority
 - Impact: Medium (startup perf).
@@ -31,3 +31,4 @@ initial parsing cost even though only a subset of recipes are needed early.
 # Notes
 - Derived from `logics/request/req_016_reduce_static_bundle_weight_recipes_payload_inline_svg_icons.md`.
 - Candidate approaches: dynamic import per-skill (prefetched), JSON files loaded on demand and precached, or a compacted data format.
+- Delivered via `logics/tasks/task_041_reduce_recipes_payload_in_initial_bundle.md` (status: Done).

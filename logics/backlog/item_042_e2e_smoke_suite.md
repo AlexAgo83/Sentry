@@ -2,7 +2,7 @@
 > From version: 0.8.17
 > Understanding: 92%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Promoted from `logics/request/req_015_technical_review.md`.
@@ -28,3 +28,4 @@ Critical user flows lack end‑to‑end coverage, so regressions can slip despit
 
 # Notes
 - Prefer data‑test selectors for stability.
+- Delivered via `logics/tasks/task_037_add_e2e_smoke_tests_for_critical_flows.md` (status: Done).
