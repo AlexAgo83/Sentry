@@ -5,3 +5,4 @@ dist
 coverage
 test-results
 scripts/db/dumps
+perf-trace-*.json
