@@ -12,7 +12,7 @@ FaceIcon.displayName = "FaceIcon";
 
 export const HairIcon = memo(() => (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <use href={`${UI_ICON_PATH}skin-hair.svg#icon`} />
+        <use href={`${UI_ICON_PATH}skin-hair.svg?v=2#icon`} />
     </svg>
 ));
 
