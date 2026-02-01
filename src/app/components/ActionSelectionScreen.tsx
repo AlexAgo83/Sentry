@@ -155,6 +155,13 @@ export const ActionSelectionScreen = memo(({
         } as CSSProperties;
     };
 
+    const formatSummaryValue = (value: string | null | undefined): string => {
+        if (!value || value === "None") {
+            return "-";
+        }
+        return value;
+    };
+
     return (
         <section className="generic-panel ts-panel ts-action-selection-panel">
         <div className="ts-panel-header">
@@ -207,47 +214,55 @@ export const ActionSelectionScreen = memo(({
                 <div className="ts-action-summary">
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">Action</span>
-                        <span className="ts-action-summary-value">{pendingSkillLabel}</span>
+                        <span className="ts-action-summary-value">{formatSummaryValue(pendingSkillLabel)}</span>
                     </div>
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">Recipe</span>
-                        <span className="ts-action-summary-value">{pendingRecipeLabel}</span>
+                        <span className="ts-action-summary-value">{formatSummaryValue(pendingRecipeLabel)}</span>
                     </div>
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">Action time</span>
-                        <span className="ts-action-summary-value">{pendingActionDurationLabel}</span>
+                        <span className="ts-action-summary-value">{formatSummaryValue(pendingActionDurationLabel)}</span>
                     </div>
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">Speed bonus</span>
                         <span className="ts-action-summary-value" title={pendingSpeedBonusTooltip}>
-                            {pendingSpeedBonusLabel}
+                            {formatSummaryValue(pendingSpeedBonusLabel)}
                         </span>
                     </div>
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">XP per action</span>
-                        <span className="ts-action-summary-value">{pendingActionXpLabel}</span>
+                        <span className="ts-action-summary-value">{formatSummaryValue(pendingActionXpLabel)}</span>
                     </div>
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">XP bonus</span>
                         <span className="ts-action-summary-value" title={pendingXpBonusTooltip}>
-                            {pendingXpBonusLabel}
+                            {formatSummaryValue(pendingXpBonusLabel)}
                         </span>
                     </div>
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">Consumes</span>
                         <span className="ts-action-summary-value">
-                            {renderItemSummary(pendingConsumptionEntries, pendingConsumptionLabel, "consume")}
+                            {renderItemSummary(
+                                pendingConsumptionEntries,
+                                formatSummaryValue(pendingConsumptionLabel),
+                                "consume"
+                            )}
                         </span>
                     </div>
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">Produces</span>
                         <span className="ts-action-summary-value">
-                            {renderItemSummary(pendingProductionEntries, pendingProductionLabel, "produce")}
+                            {renderItemSummary(
+                                pendingProductionEntries,
+                                formatSummaryValue(pendingProductionLabel),
+                                "produce"
+                            )}
                         </span>
                     </div>
                     <div className="ts-action-summary-row">
                         <span className="ts-action-summary-label">Stun time</span>
-                        <span className="ts-action-summary-value">{pendingStunTimeLabel ?? "None"}</span>
+                        <span className="ts-action-summary-value">{formatSummaryValue(pendingStunTimeLabel)}</span>
                     </div>
                 </div>
                 {missingItemsLabel ? (

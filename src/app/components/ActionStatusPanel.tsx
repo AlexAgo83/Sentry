@@ -105,6 +105,13 @@ export const ActionStatusPanel = memo(({
         return String(Math.round(value));
     };
 
+    const formatSummaryValue = (value: string | null | undefined): string => {
+        if (!value || value === "None") {
+            return "-";
+        }
+        return value;
+    };
+
     const renderItemSummary = (
         entries: ItemEntry[],
         fallbackLabel: string,
@@ -188,47 +195,55 @@ export const ActionStatusPanel = memo(({
                         <div className="ts-action-summary">
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">Action</span>
-                                <span className="ts-action-summary-value">{activeSkillName}</span>
+                                <span className="ts-action-summary-value">{formatSummaryValue(activeSkillName)}</span>
                             </div>
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">Recipe</span>
-                                <span className="ts-action-summary-value">{activeRecipeLabel}</span>
+                                <span className="ts-action-summary-value">{formatSummaryValue(activeRecipeLabel)}</span>
                             </div>
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">Action time</span>
-                                <span className="ts-action-summary-value">{actionDurationLabel}</span>
+                                <span className="ts-action-summary-value">{formatSummaryValue(actionDurationLabel)}</span>
                             </div>
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">Speed bonus</span>
                                 <span className="ts-action-summary-value" title={actionSpeedBonusTooltip}>
-                                    {actionSpeedBonusLabel}
+                                    {formatSummaryValue(actionSpeedBonusLabel)}
                                 </span>
                             </div>
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">XP per action</span>
-                                <span className="ts-action-summary-value">{actionXpLabel}</span>
+                                <span className="ts-action-summary-value">{formatSummaryValue(actionXpLabel)}</span>
                             </div>
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">XP bonus</span>
                                 <span className="ts-action-summary-value" title={actionXpBonusTooltip}>
-                                    {actionXpBonusLabel}
+                                    {formatSummaryValue(actionXpBonusLabel)}
                                 </span>
                             </div>
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">Consumes</span>
                                 <span className="ts-action-summary-value">
-                                    {renderItemSummary(activeConsumptionEntries, activeConsumptionLabel, "consume")}
+                                    {renderItemSummary(
+                                        activeConsumptionEntries,
+                                        formatSummaryValue(activeConsumptionLabel),
+                                        "consume"
+                                    )}
                                 </span>
                             </div>
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">Produces</span>
                                 <span className="ts-action-summary-value">
-                                    {renderItemSummary(activeProductionEntries, activeProductionLabel, "produce")}
+                                    {renderItemSummary(
+                                        activeProductionEntries,
+                                        formatSummaryValue(activeProductionLabel),
+                                        "produce"
+                                    )}
                                 </span>
                             </div>
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">Stun time</span>
-                                <span className="ts-action-summary-value">{stunTimeLabel ?? "None"}</span>
+                                <span className="ts-action-summary-value">{formatSummaryValue(stunTimeLabel)}</span>
                             </div>
                             {resourceHint ? (
                                 <div className="ts-resource-hint">{resourceHint}</div>
