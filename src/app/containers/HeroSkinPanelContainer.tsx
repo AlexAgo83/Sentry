@@ -4,6 +4,7 @@ import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { CharacterSkinPanel } from "../components/CharacterSkinPanel";
 import { getSkillIconColor } from "../ui/skillColors";
+import { getSkillBackgroundUrl } from "../ui/skillBackgrounds";
 import { getFaceIndex, normalizeFaceIndex } from "../ui/heroFaces";
 import { getHairColor, getHairIndex, getSkinColor, normalizeHairIndex } from "../ui/heroHair";
 
@@ -23,6 +24,7 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
     const hairColor = activePlayer?.appearance?.hairColor ?? getHairColor(activePlayerId ?? "default");
     const skinColor = activePlayer?.appearance?.skinColor ?? getSkinColor(activePlayerId ?? "default");
     const showHelmet = activePlayer?.appearance?.showHelmet ?? true;
+    const skillBackgroundUrl = getSkillBackgroundUrl(activePlayer?.selectedActionId ?? null);
 
     const handleNextFace = () => {
         if (!activePlayerId) {
@@ -70,6 +72,7 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
             skinColor={skinColor}
             showHelmet={showHelmet}
             equipment={activePlayer?.equipment ?? null}
+            skillBackgroundUrl={skillBackgroundUrl}
             heroName={activePlayer?.name ?? null}
             isPlaceholder={!activePlayer}
             isCollapsed={isSkinCollapsed}
