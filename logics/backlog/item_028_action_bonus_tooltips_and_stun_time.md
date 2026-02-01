@@ -7,6 +7,8 @@
 # Context
 Players see bonus labels but not the formulas; stun time is currently implicit.
 
+Source request: `logics/request/req_011_economy_action_inventory_cloud_qol.md`.
+
 # Goal
 Explain action bonus formulas and show stun time when stamina is 0.
 

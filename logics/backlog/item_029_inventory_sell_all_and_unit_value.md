@@ -7,6 +7,8 @@
 # Context
 Selling large stacks is tedious and unit value is not visible.
 
+Source request: `logics/request/req_011_economy_action_inventory_cloud_qol.md`.
+
 # Goal
 Add a “sell all” flow and show unit value in item focus.
 

@@ -59,4 +59,10 @@
 - Describe the need
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_026_roster_cap_ui_and_disable_purchase.md`
+- `logics/backlog/item_027_compact_number_formatting.md`
+- `logics/backlog/item_028_action_bonus_tooltips_and_stun_time.md`
+- `logics/backlog/item_029_inventory_sell_all_and_unit_value.md`
+- `logics/backlog/item_030_cloud_last_sync_and_meta_diff.md`
+- `logics/backlog/item_031_new_badges_for_menus_and_items.md`
+- `logics/backlog/item_032_selector_memoization_pass.md`

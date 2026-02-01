@@ -7,6 +7,8 @@
 # Context
 Some panels re-render more often than needed due to non-memoized selectors and broad store subscriptions.
 
+Source request: `logics/request/req_011_economy_action_inventory_cloud_qol.md`.
+
 # Goal
 Reduce unnecessary re-renders via memoized selectors and shallow comparisons.
 

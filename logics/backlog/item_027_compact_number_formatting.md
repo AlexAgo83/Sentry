@@ -7,6 +7,8 @@
 # Context
 Large gold values and counts become hard to read in shop, inventory, action summaries, and recaps.
 
+Source request: `logics/request/req_011_economy_action_inventory_cloud_qol.md`.
+
 # Goal
 Apply compact number formatting (K/M/B/T) with full values on tooltip/aria across the UI.
 

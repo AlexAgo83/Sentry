@@ -7,6 +7,8 @@
 # Context
 Roster size upgrades become confusing once the cap is reached. The UI needs to communicate the cap clearly and stop purchases everywhere.
 
+Source request: `logics/request/req_011_economy_action_inventory_cloud_qol.md`.
+
 # Goal
 Make the roster cap explicit and block upgrades when the cap is reached.
 

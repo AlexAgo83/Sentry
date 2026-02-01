@@ -7,6 +7,8 @@
 # Context
 QA provided UI and UX feedback covering redundant controls, discoverability, copy clarity, and spacing issues.
 
+Source request: `logics/request/req_003_qa_beertime.md`.
+
 # Goal
 Address QA feedback with small UI adjustments while preserving current behavior.
 

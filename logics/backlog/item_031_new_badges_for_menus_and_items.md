@@ -7,6 +7,8 @@
 # Context
 Players miss newly unlocked items/menus without a visual cue.
 
+Source request: `logics/request/req_011_economy_action_inventory_cloud_qol.md`.
+
 # Goal
 Add “New” badges to surface new content.
 

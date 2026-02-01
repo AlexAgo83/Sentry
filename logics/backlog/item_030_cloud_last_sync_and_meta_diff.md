@@ -7,6 +7,8 @@
 # Context
 Cloud panel shows Local/Cloud meta lines but lacks “last sync” and an at-a-glance diff.
 
+Source request: `logics/request/req_011_economy_action_inventory_cloud_qol.md`.
+
 # Goal
 Make cloud state easier to compare and understand.
 
