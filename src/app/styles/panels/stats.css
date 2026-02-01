@@ -670,7 +670,7 @@
     .ts-prog-list,
     .ts-prog-chart,
     .ts-prog-split {
-        padding: var(--m3) var(--m4);
+        padding: var(--m4) var(--m5);
     }
 
     .ts-character-breakdown {
@@ -679,6 +679,14 @@
 
     .ts-prog-chart svg {
         height: 180px;
+    }
+
+    .ts-progression {
+        gap: var(--m4);
+    }
+
+    .ts-prog-list-row {
+        padding: var(--m3) var(--m4);
     }
 
     .ts-prog-chart-axis {

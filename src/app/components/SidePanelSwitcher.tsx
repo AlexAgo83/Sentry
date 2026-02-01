@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef, useState } from "react";
+import { TabIcon, type TabIconKind } from "../ui/tabIcons";
 
 type SidePanelSwitcherLabels = {
     action: string;
@@ -8,104 +9,6 @@ type SidePanelSwitcherLabels = {
     equipment: string;
     shop: string;
     quests: string;
-};
-
-type TabIconKind = keyof SidePanelSwitcherLabels | "hero" | "travel";
-
-type TabIconProps = {
-    kind: TabIconKind;
-};
-
-const TabIcon = ({ kind }: TabIconProps) => {
-    switch (kind) {
-        case "action":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13 2L4 14h7l-1 8 10-14h-7l0-6z"
-                    />
-                </svg>
-            );
-        case "stats":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 20V10m6 10V4m6 16v-7m4 7H2" />
-                </svg>
-            );
-        case "roster":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <circle cx="8" cy="9" r="3" />
-                    <circle cx="16" cy="9" r="3" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 20c1.5-3 3.5-4.5 5-4.5s3.5 1.5 5 4.5" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 20c1.5-3 3.5-4.5 5-4.5s3.5 1.5 5 4.5" />
-                </svg>
-            );
-        case "hero":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <circle cx="12" cy="9" r="4" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 20c2.5-4 5.5-6 7.5-6s5 2 7.5 6" />
-                </svg>
-            );
-        case "inventory":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 8l2-3h8l2 3" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 12v3" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 12h3" />
-                </svg>
-            );
-        case "travel":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <circle cx="12" cy="12" r="8" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v3" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v3" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h3" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12h3" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9l3 6l-6-3z" />
-                </svg>
-            );
-        case "quests":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 4h7l3 3v13H7z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 4v3h3" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" />
-                </svg>
-            );
-        case "equipment":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 2l7 4v6c0 5-3 9-7 10C8 21 5 17 5 12V6l7-4z"
-                    />
-                </svg>
-            );
-        case "shop":
-            return (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 7h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 7z"
-                    />
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M8 7V5a4 4 0 0 1 8 0v2"
-                    />
-                </svg>
-            );
-        default:
-            return null;
-    }
 };
 
 type TabButtonProps = {
@@ -329,20 +232,6 @@ export const SidePanelSwitcher = memo(({
                             <button
                                 type="button"
                                 role="menuitem"
-                                className={`ts-bank-menu-item${active === "action" ? " is-active" : ""}`}
-                                onClick={() => {
-                                    setHeroMenuOpen(false);
-                                    onShowAction();
-                                }}
-                            >
-                                <span className="ts-bank-menu-icon" aria-hidden="true">
-                                    <TabIcon kind="action" />
-                                </span>
-                                <span className="ts-bank-menu-text">{resolvedLabels.action}</span>
-                            </button>
-                            <button
-                                type="button"
-                                role="menuitem"
                                 className={`ts-bank-menu-item${active === "stats" ? " is-active" : ""}`}
                                 onClick={() => {
                                     setHeroMenuOpen(false);
@@ -353,6 +242,20 @@ export const SidePanelSwitcher = memo(({
                                     <TabIcon kind="stats" />
                                 </span>
                                 <span className="ts-bank-menu-text">{resolvedLabels.stats}</span>
+                            </button>
+                            <button
+                                type="button"
+                                role="menuitem"
+                                className={`ts-bank-menu-item${active === "action" ? " is-active" : ""}`}
+                                onClick={() => {
+                                    setHeroMenuOpen(false);
+                                    onShowAction();
+                                }}
+                            >
+                                <span className="ts-bank-menu-icon" aria-hidden="true">
+                                    <TabIcon kind="action" />
+                                </span>
+                                <span className="ts-bank-menu-text">{resolvedLabels.action}</span>
                             </button>
                         </div>
                     ) : null}
@@ -418,6 +321,23 @@ export const SidePanelSwitcher = memo(({
                             <button
                                 type="button"
                                 role="menuitem"
+                                className={`ts-bank-menu-item${active === "inventory" ? " is-active" : ""}`}
+                                onClick={() => {
+                                    setInventoryMenuOpen(false);
+                                    onShowInventory();
+                                }}
+                            >
+                                <span className="ts-bank-menu-icon" aria-hidden="true">
+                                    <TabIcon kind="inventory" />
+                                </span>
+                                <span className="ts-bank-menu-text">Inventory</span>
+                                {badges?.inventory ? (
+                                    <span className="ts-bank-menu-badge" aria-hidden="true">{badges.inventory}</span>
+                                ) : null}
+                            </button>
+                            <button
+                                type="button"
+                                role="menuitem"
                                 className={`ts-bank-menu-item${active === "quests" ? " is-active" : ""}`}
                                 onClick={() => {
                                     setInventoryMenuOpen(false);
@@ -448,23 +368,6 @@ export const SidePanelSwitcher = memo(({
                                     ) : null}
                                 </button>
                             ) : null}
-                            <button
-                                type="button"
-                                role="menuitem"
-                                className={`ts-bank-menu-item${active === "inventory" ? " is-active" : ""}`}
-                                onClick={() => {
-                                    setInventoryMenuOpen(false);
-                                    onShowInventory();
-                                }}
-                            >
-                                <span className="ts-bank-menu-icon" aria-hidden="true">
-                                    <TabIcon kind="inventory" />
-                                </span>
-                                <span className="ts-bank-menu-text">Inventory</span>
-                                {badges?.inventory ? (
-                                    <span className="ts-bank-menu-badge" aria-hidden="true">{badges.inventory}</span>
-                                ) : null}
-                            </button>
                         </div>
                     ) : null}
                 </div>

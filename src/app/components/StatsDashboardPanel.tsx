@@ -4,6 +4,7 @@ import { STAT_IDS } from "../../core/stats";
 import { SKILL_DEFINITIONS } from "../../data/definitions";
 import { usePersistedPanelTab } from "../hooks/usePersistedPanelTab";
 import { CollapseIcon } from "../ui/collapseIcon";
+import { GlobalProgressIcon, HeroProgressIcon, HeroStatsIcon } from "../ui/statsViewIcons";
 
 type StatsDashboardPanelProps = {
     heroProgression: ProgressionState;
@@ -107,7 +108,8 @@ export const StatsDashboardPanel = memo(({
     onToggleCollapsed
 }: StatsDashboardPanelProps) => {
     const [activeTab, setActiveTab] = usePersistedPanelTab("stats", "hero-progression");
-    const resolvedTab = activeTab === "hero-stats" ? "hero-stats" : activeTab === "global-progression"
+    const resolvedTab: "hero-stats" | "global-progression" | "hero-progression" =
+        activeTab === "hero-stats" ? "hero-stats" : activeTab === "global-progression"
         ? "global-progression"
         : "hero-progression";
     const scopedProgression = resolvedTab === "global-progression" ? globalProgression : heroProgression;
@@ -211,12 +213,7 @@ export const StatsDashboardPanel = memo(({
                             aria-selected={resolvedTab === "global-progression"}
                             aria-label="Global progression"
                         >
-                            <svg className="ts-stats-tab-icon" viewBox="0 0 24 24" aria-hidden="true">
-                                <path
-                                    d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1 2.07A8.03 8.03 0 0 0 6.1 8H11V4.07Zm0 5.93H5.07a8 8 0 0 0 0 4H11v-4Zm0 6H6.1A8.03 8.03 0 0 0 11 19.93V16Zm2 3.93A8.03 8.03 0 0 0 17.9 16H13v3.93Zm0-5.93h5.93a8 8 0 0 0 0-4H13v4Zm0-6h4.9A8.03 8.03 0 0 0 13 4.07V8Z"
-                                    fill="currentColor"
-                                />
-                            </svg>
+                            <GlobalProgressIcon className="ts-stats-tab-icon" />
                             <span className="ts-stats-tab-label">Global progression</span>
                         </button>
                         <button
@@ -227,16 +224,7 @@ export const StatsDashboardPanel = memo(({
                             aria-selected={resolvedTab === "hero-progression"}
                             aria-label="Hero progression"
                         >
-                            <svg className="ts-stats-tab-icon" viewBox="0 0 24 24" aria-hidden="true">
-                                <path
-                                    d="M12 12a4 4 0 1 0-0.001-8.001A4 4 0 0 0 12 12Zm0 2c-3.31 0-6 2.24-6 5v1h12v-1c0-2.76-2.69-5-6-5Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M19 4v6h-6V8h4V4h2Z"
-                                    fill="currentColor"
-                                />
-                            </svg>
+                            <HeroProgressIcon className="ts-stats-tab-icon" />
                             <span className="ts-stats-tab-label">Hero progression</span>
                         </button>
                         <button
@@ -247,16 +235,7 @@ export const StatsDashboardPanel = memo(({
                             aria-selected={resolvedTab === "hero-stats"}
                             aria-label="Hero statistics"
                         >
-                            <svg className="ts-stats-tab-icon" viewBox="0 0 24 24" aria-hidden="true">
-                                <path
-                                    d="M5 3h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M8 9h8v2H8V9Zm0 4h6v2H8v-2Z"
-                                    fill="rgba(12, 18, 32, 0.9)"
-                                />
-                            </svg>
+                            <HeroStatsIcon className="ts-stats-tab-icon" />
                             <span className="ts-stats-tab-label">Hero statistics</span>
                         </button>
                     </div>
@@ -355,21 +334,19 @@ export const StatsDashboardPanel = memo(({
                                 </div>
                             </div>
 
-                            {resolvedTab !== "hero-stats" ? (
-                                <div
-                                    className="ts-prog-split ts-prog-split--full"
-                                    style={{ "--ts-split-active": `${activeRatio * 100}%` } as CSSProperties}
-                                >
-                                    <span className="ts-prog-label">Action / idle split</span>
-                                    <div className="ts-prog-split-bar">
-                                        <span className="ts-prog-split-fill" />
-                                    </div>
-                                    <div className="ts-prog-split-meta">
-                                        <span>Active {formatDuration(totals.activeMs)}</span>
-                                        <span>Idle {formatDuration(totals.idleMs)}</span>
-                                    </div>
+                            <div
+                                className="ts-prog-split ts-prog-split--full"
+                                style={{ "--ts-split-active": `${activeRatio * 100}%` } as CSSProperties}
+                            >
+                                <span className="ts-prog-label">Action / idle split</span>
+                                <div className="ts-prog-split-bar">
+                                    <span className="ts-prog-split-fill" />
                                 </div>
-                            ) : null}
+                                <div className="ts-prog-split-meta">
+                                    <span>Active {formatDuration(totals.activeMs)}</span>
+                                    <span>Idle {formatDuration(totals.idleMs)}</span>
+                                </div>
+                            </div>
 
                             <div className="ts-prog-row">
                                 <div className="ts-prog-list">

@@ -2,7 +2,7 @@
 > From version: 0.8.18
 > Understanding: 94%
 > Confidence: 92%
-> Progress: 85%
+> Progress: 95%
 
 # Context
 Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
@@ -27,8 +27,10 @@ Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
 - npm run test:e2e
 
 # Report
-- Added rolling 7‑day progression tracking (XP, gold, active/idle time, per‑skill time) with save hydration/migration.
-- Replaced Stats panel with a progression dashboard + Character breakdown tab; added mobile/desktop layouts.
+- Added rolling 7‑day progression tracking (XP, gold, active/idle time, per‑skill time) with save hydration/migration; fixed per‑hero persistence on migration.
+- Replaced Stats panel with a progression dashboard + Hero statistics view; added global vs hero progression switch and responsive controls.
+- Added clearer trend chart (axis labels, tooltip, legend), updated skill list to show all skills, refined spacing and layout.
+- Hero virtual score is now independent from global score.
 - Tests run: `npm run lint`, `npm run typecheck`, `npm run tests`.
 - Pending QA: UI verification on mobile + desktop, plus `npm run test:ci`, `npm run coverage`, `npm run build`, `npm run test:e2e`.
 
