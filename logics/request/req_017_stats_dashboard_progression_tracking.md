@@ -1,7 +1,7 @@
 ## req_017_stats_dashboard_progression_tracking - Stats dashboard progression tracking
 > From version: 0.8.18
-> Understanding: 70%
-> Confidence: 55%
+> Understanding: 92%
+> Confidence: 90%
 
 # Needs
 - Track XP and gold progression for the last 7 days (rolling window) so the Stats screen can show a clear trend.
@@ -20,3 +20,9 @@
 - The 7‑day view is required; other ranges can be optional if they come “for free.”
 - Avoid inventing gameplay concepts not present yet (e.g., “Combat/Explore” labels if the game doesn’t expose them).
 - PWA + mobile-first: the dashboard must read well on phones, but still have a strong desktop layout (can differ if needed).
+- Suggested defaults (unless product decides otherwise):
+  - Rolling window: 7 daily buckets, midnight local time, include today.
+  - XP/Gold: track daily deltas (gains), include offline gains.
+  - Active time: time with a skill running; Idle time: no skill running.
+  - Top 5 skills: by total active time within the 7-day window.
+  - Tabs: “Progression” (default) and “Character”, remember last tab locally.
