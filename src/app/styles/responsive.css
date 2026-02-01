@@ -80,6 +80,16 @@
         row-gap: var(--m8);
     }
 
+    .ts-action-button {
+        width: 44px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .ts-action-button-label {
+        display: none;
+    }
+
     .ts-skill-picker {
         flex-direction: column;
     }

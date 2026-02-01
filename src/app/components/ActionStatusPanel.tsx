@@ -134,30 +134,32 @@ export const ActionStatusPanel = memo(({
 	                <h2 className="ts-panel-title">Action</h2>
 	            </div>
 	            <div className="ts-panel-actions ts-panel-actions-inline">
-	                <button
-	                    type="button"
-	                    className={changeActionClassName}
-	                    onClick={onChangeAction}
-	                    disabled={!canChangeAction}
-	                    aria-label="Change"
-	                    title="Change"
-	                >
-	                    <span className="ts-collapse-label">
-	                        <ChangeIcon />
-	                    </span>
-	                </button>
-	                <button
-	                    type="button"
-	                    className={`ts-collapse-button ts-focusable ts-action-stop${canInterruptAction ? " is-ready-stop" : ""}`}
-	                    onClick={onInterruptAction}
-	                    disabled={!canInterruptAction}
-	                    aria-label="Interrupt"
-	                    title="Interrupt"
-	                >
-	                    <span className="ts-collapse-label">
-	                        <InterruptIcon />
-	                    </span>
-	                </button>
+                    <button
+                        type="button"
+                        className={`${changeActionClassName} ts-action-button`}
+                        onClick={onChangeAction}
+                        disabled={!canChangeAction}
+                        aria-label="Change"
+                        title="Change"
+                    >
+                        <span className="ts-collapse-label">
+                            <ChangeIcon />
+                        </span>
+                        <span className="ts-action-button-label">Change</span>
+                    </button>
+                    <button
+                        type="button"
+                        className={`ts-collapse-button ts-focusable ts-action-stop ts-action-button${canInterruptAction ? " is-ready-stop" : ""}`}
+                        onClick={onInterruptAction}
+                        disabled={!canInterruptAction}
+                        aria-label="Interrupt"
+                        title="Interrupt"
+                    >
+                        <span className="ts-collapse-label">
+                            <InterruptIcon />
+                        </span>
+                        <span className="ts-action-button-label">Interrupt</span>
+                    </button>
 	                <button
 	                    type="button"
 	                    className="ts-collapse-button ts-focusable"
@@ -181,84 +183,88 @@ export const ActionStatusPanel = memo(({
                         <div className="ts-skill-name">{activeSkillName}</div>
                     </div>
                 </div>
-                <div className="ts-resource-card">
-                    <div className="ts-resource-row">
-                        <span className="ts-resource-label">Recipe</span>
-                        <span className="ts-resource-value">{activeRecipeLabel}</span>
-                    </div>
-                    <div className="ts-resource-row">
-                        <span className="ts-resource-label">Action time</span>
-                        <span className="ts-resource-value">{actionDurationLabel}</span>
-                    </div>
-                    <div className="ts-resource-row">
-                        <span className="ts-resource-label">Speed bonus</span>
-                        <span className="ts-resource-value" title={actionSpeedBonusTooltip}>
-                            {actionSpeedBonusLabel}
-                        </span>
-                    </div>
-                    <div className="ts-resource-row">
-                        <span className="ts-resource-label">XP per action</span>
-                        <span className="ts-resource-value">{actionXpLabel}</span>
-                    </div>
-                    <div className="ts-resource-row">
-                        <span className="ts-resource-label">XP bonus</span>
-                        <span className="ts-resource-value" title={actionXpBonusTooltip}>
-                            {actionXpBonusLabel}
-                        </span>
-                    </div>
-                    <div className="ts-resource-row">
-                        <span className="ts-resource-label">Stun time</span>
-                        <span className="ts-resource-value">{stunTimeLabel ?? "None"}</span>
-                    </div>
-                    <div className="ts-resource-row">
-                        <span className="ts-resource-label">Consumes</span>
-                        <span className="ts-resource-value">
-                            {renderItemSummary(activeConsumptionEntries, activeConsumptionLabel, "consume")}
-                        </span>
-                    </div>
-                    <div className="ts-resource-row">
-                        <span className="ts-resource-label">Produces</span>
-                        <span className="ts-resource-value">
-                            {renderItemSummary(activeProductionEntries, activeProductionLabel, "produce")}
-                        </span>
-                    </div>
-                    {resourceHint ? (
-                        <div className="ts-resource-hint">{resourceHint}</div>
-                    ) : null}
-                </div>
-                <div
-                    className={`generic-field panel progress-row ts-progress-row ts-progress-action${isStunned ? " is-stunned" : ""}`}
-                    style={progressStyle}
-                >
-                    <span className="ts-progress-label">
-                        Progress {progressPercent.toFixed(1)}%
-                    </span>
-                </div>
-                <div
-                    className="generic-field panel progress-row ts-progress-row ts-progress-stamina"
-                    style={staminaStyle}
-                >
-                    <span className="ts-progress-label">
-                        Stamina {staminaCurrent}/{staminaMax}
-                    </span>
-                </div>
-                <div
-                    className="generic-field panel progress-row ts-progress-row ts-progress-skill"
-                    style={skillStyle}
-                >
-                    <span className="ts-progress-label">
-                        Skill Lv {activeSkillLevel} - XP {formatXp(activeSkillXp)}/{formatXp(activeSkillXpNext)}
-                    </span>
-                </div>
-                <div
-                    className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
-                    style={recipeStyle}
-	                >
-	                    <span className="ts-progress-label">
-	                        Recipe Lv {activeRecipeLevel} - XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}
-	                    </span>
-	                </div>
-	            </>
+                {hasActiveAction ? (
+                    <>
+                        <div className="ts-resource-card">
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Recipe</span>
+                                <span className="ts-resource-value">{activeRecipeLabel}</span>
+                            </div>
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Action time</span>
+                                <span className="ts-resource-value">{actionDurationLabel}</span>
+                            </div>
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Speed bonus</span>
+                                <span className="ts-resource-value" title={actionSpeedBonusTooltip}>
+                                    {actionSpeedBonusLabel}
+                                </span>
+                            </div>
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">XP per action</span>
+                                <span className="ts-resource-value">{actionXpLabel}</span>
+                            </div>
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">XP bonus</span>
+                                <span className="ts-resource-value" title={actionXpBonusTooltip}>
+                                    {actionXpBonusLabel}
+                                </span>
+                            </div>
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Stun time</span>
+                                <span className="ts-resource-value">{stunTimeLabel ?? "None"}</span>
+                            </div>
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Consumes</span>
+                                <span className="ts-resource-value">
+                                    {renderItemSummary(activeConsumptionEntries, activeConsumptionLabel, "consume")}
+                                </span>
+                            </div>
+                            <div className="ts-resource-row">
+                                <span className="ts-resource-label">Produces</span>
+                                <span className="ts-resource-value">
+                                    {renderItemSummary(activeProductionEntries, activeProductionLabel, "produce")}
+                                </span>
+                            </div>
+                            {resourceHint ? (
+                                <div className="ts-resource-hint">{resourceHint}</div>
+                            ) : null}
+                        </div>
+                        <div
+                            className={`generic-field panel progress-row ts-progress-row ts-progress-action${isStunned ? " is-stunned" : ""}`}
+                            style={progressStyle}
+                        >
+                            <span className="ts-progress-label">
+                                Progress {progressPercent.toFixed(1)}%
+                            </span>
+                        </div>
+                        <div
+                            className="generic-field panel progress-row ts-progress-row ts-progress-stamina"
+                            style={staminaStyle}
+                        >
+                            <span className="ts-progress-label">
+                                Stamina {staminaCurrent}/{staminaMax}
+                            </span>
+                        </div>
+                        <div
+                            className="generic-field panel progress-row ts-progress-row ts-progress-skill"
+                            style={skillStyle}
+                        >
+                            <span className="ts-progress-label">
+                                Skill Lv {activeSkillLevel} - XP {formatXp(activeSkillXp)}/{formatXp(activeSkillXpNext)}
+                            </span>
+                        </div>
+                        <div
+                            className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
+                            style={recipeStyle}
+                        >
+                            <span className="ts-progress-label">
+                                Recipe Lv {activeRecipeLevel} - XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}
+                            </span>
+                        </div>
+                    </>
+                ) : null}
+            </>
 	        ) : null}
 	    </section>
 	    );

@@ -37,13 +37,15 @@ export const ProgressionTrendChart = memo(({
         const width = 360;
         const height = 180;
         const padding = 18;
-        const maxValue = Math.max(...xpSeries, ...goldSeries, 1);
-        const xpPoints = buildPoints(xpSeries, width, height, padding, maxValue);
-        const goldPoints = buildPoints(goldSeries, width, height, padding, maxValue);
+        const xpMax = Math.max(...xpSeries, 1);
+        const goldMax = Math.max(...goldSeries, 1);
+        const xpPoints = buildPoints(xpSeries, width, height, padding, xpMax);
+        const goldPoints = buildPoints(goldSeries, width, height, padding, goldMax);
         return {
             width,
             height,
-            maxValue,
+            xpMax,
+            goldMax,
             xpPoints,
             goldPoints
         };
@@ -52,8 +54,12 @@ export const ProgressionTrendChart = memo(({
     return (
         <>
             <div className="ts-prog-chart-canvas">
-                <div className="ts-prog-chart-scale">
-                    <span>Max {formatNumber(chart.maxValue)}</span>
+                <div className="ts-prog-chart-scale ts-prog-chart-scale--xp">
+                    <span>XP {formatNumber(chart.xpMax)}</span>
+                    <span>0</span>
+                </div>
+                <div className="ts-prog-chart-scale ts-prog-chart-scale--gold">
+                    <span>Gold {formatNumber(chart.goldMax)}</span>
                     <span>0</span>
                 </div>
                 <svg

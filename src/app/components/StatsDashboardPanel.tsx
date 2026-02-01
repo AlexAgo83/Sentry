@@ -304,20 +304,6 @@ export const StatsDashboardPanel = memo(({
                                 </div>
                             </div>
 
-                            <div
-                                className="ts-prog-split ts-prog-split--full"
-                                style={{ "--ts-split-active": `${activeRatio * 100}%` } as CSSProperties}
-                            >
-                                <span className="ts-prog-label">Action / idle split</span>
-                                <div className="ts-prog-split-bar">
-                                    <span className="ts-prog-split-fill" />
-                                </div>
-                                <div className="ts-prog-split-meta">
-                                    <span>Active {formatDuration(totals.activeMs)}</span>
-                                    <span>Idle {formatDuration(totals.idleMs)}</span>
-                                </div>
-                            </div>
-
                             <div className="ts-prog-row">
                                 <div className="ts-prog-list">
                                     <span className="ts-prog-label">Top skills (time)</span>

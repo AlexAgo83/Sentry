@@ -164,7 +164,7 @@ export const ActionSelectionScreen = memo(({
             <div className="ts-panel-actions ts-panel-actions-inline">
                 <button
                     type="button"
-                    className={startActionClassName}
+                    className={`${startActionClassName} ts-action-button`}
                     onClick={onStartAction}
                     disabled={!canStartAction}
                     aria-label="Start action"
@@ -173,10 +173,11 @@ export const ActionSelectionScreen = memo(({
                     <span className="ts-collapse-label">
                         <StartActionIcon />
                     </span>
+                    <span className="ts-action-button-label">Start</span>
                 </button>
                 <button
                     type="button"
-                    className={`ts-collapse-button ts-focusable ts-action-stop${canStopAction ? " is-ready-stop" : ""}`}
+                    className={`ts-collapse-button ts-focusable ts-action-stop ts-action-button${canStopAction ? " is-ready-stop" : ""}`}
                     onClick={onStopAction}
                     disabled={!canStopAction}
                     aria-label="Interrupt"
@@ -185,10 +186,11 @@ export const ActionSelectionScreen = memo(({
                     <span className="ts-collapse-label">
                         <InterruptIcon />
                     </span>
+                    <span className="ts-action-button-label">Interrupt</span>
                 </button>
                 <button
                     type="button"
-                    className="ts-collapse-button ts-focusable"
+                    className="ts-collapse-button ts-focusable ts-action-button"
                     onClick={onBack}
                     aria-label="Back"
                     title="Back"
@@ -196,6 +198,7 @@ export const ActionSelectionScreen = memo(({
                     <span className="ts-collapse-label">
                         <BackIcon />
                     </span>
+                    <span className="ts-action-button-label">Back</span>
                 </button>
             </div>
         </div>

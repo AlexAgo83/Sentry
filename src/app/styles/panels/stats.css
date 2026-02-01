@@ -468,6 +468,17 @@
     pointer-events: none;
 }
 
+.ts-prog-chart-scale--xp {
+    color: rgba(87, 212, 255, 0.8);
+}
+
+.ts-prog-chart-scale--gold {
+    left: auto;
+    right: var(--m2);
+    text-align: right;
+    color: rgba(244, 181, 76, 0.85);
+}
+
 .ts-prog-point {
     fill: currentColor;
     stroke: rgba(12, 18, 32, 0.9);
