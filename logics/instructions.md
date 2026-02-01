@@ -23,6 +23,8 @@ Use this lightweight flow to go from an idea to an executable plan:
 
 1. Create a request in `logics/request/` (problem statement + context).
 2. Promote it to `logics/backlog/` once the scope is clear (acceptance criteria + priority).
+   - Ensure the backlog item notes reference the source request.
+   - Update the request with a `# Backlog` section listing generated backlog items.
 3. Create one or more tasks in `logics/tasks/` (step-by-step plan, progress tracking, validation commands).
 4. Update `Understanding`, `Confidence`, and `Progress` as you learn and implement.
 
