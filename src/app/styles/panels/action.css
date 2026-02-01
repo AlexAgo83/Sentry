@@ -1,7 +1,7 @@
 .ts-action-summary {
-    display: flex;
-    flex-direction: column;
-    gap: var(--m2);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--m2) var(--m4);
     padding: var(--m4) var(--m5);
     margin-left: var(--m1);
     margin-right: var(--m1);
@@ -10,11 +10,20 @@
     background: rgba(12, 18, 32, 0.7);
 }
 
+.ts-action-selection-panel {
+    padding: var(--m5) var(--m7);
+    gap: var(--m4);
+}
+
 .ts-action-summary-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--m4);
+}
+
+.ts-action-summary-row--wide {
+    grid-column: 1 / -1;
 }
 
 .ts-action-summary-label {
@@ -70,7 +79,7 @@
     grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
     row-gap: var(--m6);
     column-gap: var(--m8);
-    align-items: start;
+    align-items: stretch;
 }
 
 
@@ -86,6 +95,29 @@
     flex-direction: column;
     gap: var(--m4);
     min-width: 0;
+    min-height: 0;
+}
+
+.ts-action-selection-layout > .ts-action-selection-column:first-child .ts-picker {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+}
+
+.ts-action-selection-layout > .ts-action-selection-column:first-child .ts-skill-picker {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: var(--m2);
+    padding-bottom: var(--m4);
+}
+
+.ts-action-selection-panel .ts-recipe-picker {
+    max-height: min(52vh, 440px);
+    overflow-y: auto;
+    padding-right: var(--m2);
+    padding-bottom: var(--m4);
 }
 
 .ts-picker {

@@ -80,6 +80,10 @@
         row-gap: var(--m8);
     }
 
+    .ts-action-summary {
+        grid-template-columns: 1fr;
+    }
+
     .ts-action-button {
         width: 44px;
         padding: 0;

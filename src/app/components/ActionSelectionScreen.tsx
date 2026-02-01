@@ -156,7 +156,7 @@ export const ActionSelectionScreen = memo(({
     };
 
     return (
-        <section className="generic-panel ts-panel">
+        <section className="generic-panel ts-panel ts-action-selection-panel">
         <div className="ts-panel-header">
             <div className="ts-panel-heading">
                 <h2 className="ts-panel-title">Action</h2>
@@ -298,13 +298,13 @@ export const ActionSelectionScreen = memo(({
                             <span className="ts-action-summary-label">Stun time</span>
                             <span className="ts-action-summary-value">{pendingStunTimeLabel ?? "None"}</span>
                         </div>
-                        <div className="ts-action-summary-row">
+                        <div className="ts-action-summary-row ts-action-summary-row--wide">
                             <span className="ts-action-summary-label">Consumes</span>
                             <span className="ts-action-summary-value">
                                 {renderItemSummary(pendingConsumptionEntries, pendingConsumptionLabel, "consume")}
                             </span>
                         </div>
-                        <div className="ts-action-summary-row">
+                        <div className="ts-action-summary-row ts-action-summary-row--wide">
                             <span className="ts-action-summary-label">Produces</span>
                             <span className="ts-action-summary-value">
                                 {renderItemSummary(pendingProductionEntries, pendingProductionLabel, "produce")}
