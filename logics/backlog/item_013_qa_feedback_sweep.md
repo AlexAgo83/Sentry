@@ -71,3 +71,6 @@ QA feedbacks need to be addressed, including UI/UX improvements for Inventory an
 - Urgency:
 
 # Notes
+
+# Acceptance criteria
+- Define acceptance criteria

@@ -22,3 +22,20 @@ Formalizes the onboarding hero creation flow as described in `req_012_onboarding
 
 # Source
 - Source request: `logics/request/req_012_onboarding_hero_creation.md`
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes
+- Derived from `logics/request/req_012_onboarding_hero_creation.md`.

@@ -22,3 +22,19 @@ Formalizes the global code quality review and actionable recommendations request
 
 # Source
 - Source request: `logics/request/req_008_global_code_quality_review_and_evolution_recommendations.md`
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

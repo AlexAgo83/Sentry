@@ -59,3 +59,6 @@ The game needs a global inventory shared across all players, with stackable item
 
 # Notes
 - Derived from `logics/request/req_002_inventory.md`.
+
+# Acceptance criteria
+- Define acceptance criteria

@@ -48,3 +48,6 @@ The project needs a structured review to assess code quality, architecture, risk
 # Notes
 - Derived from `logics/request/req_001_project_review.md`.
 - Derived from `logics/request/req_004_polish.md`.
+
+# Acceptance criteria
+- Define acceptance criteria

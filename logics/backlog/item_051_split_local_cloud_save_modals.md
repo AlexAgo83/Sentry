@@ -22,3 +22,19 @@ Formalizes the request to split Local and Cloud save modals as described in `req
 
 # Source
 - Source request: `logics/request/req_013_local_cloud_save_modals.md`
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

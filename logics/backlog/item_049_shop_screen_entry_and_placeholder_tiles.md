@@ -20,3 +20,19 @@ Formalizes the request to add a dedicated Shop screen and placeholder tiles as d
 
 # Source
 - Source request: `logics/request/req_010_add_shop_screen_entry_and_placeholder_tiles.md`
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes
