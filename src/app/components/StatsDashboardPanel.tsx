@@ -5,6 +5,7 @@ import { SKILL_DEFINITIONS } from "../../data/definitions";
 import { usePersistedPanelTab } from "../hooks/usePersistedPanelTab";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { GlobalProgressIcon, HeroProgressIcon, HeroStatsIcon } from "../ui/statsViewIcons";
+import { ProgressionTrendChart } from "./ProgressionTrendChart";
 
 type StatsDashboardPanelProps = {
     heroProgression: ProgressionState;
@@ -82,20 +83,6 @@ const formatDuration = (ms: number): string => {
     return `${minutes}m`;
 };
 
-const buildPoints = (values: number[], width: number, height: number, padding: number, maxValue: number) => {
-    const max = Math.max(maxValue, 1);
-    const step = values.length > 1 ? (width - padding * 2) / (values.length - 1) : 0;
-    return values.map((value, index) => {
-        const x = padding + step * index;
-        const y = height - padding - (value / max) * (height - padding * 2);
-        return { x, y };
-    });
-};
-
-const pointsToPolyline = (points: Array<{ x: number; y: number }>) => {
-    return points.map((point) => `${point.x},${point.y}`).join(" ");
-};
-
 export const StatsDashboardPanel = memo(({
     heroProgression,
     globalProgression,
@@ -137,22 +124,6 @@ export const StatsDashboardPanel = memo(({
         const goldSeries = buckets.map((bucket) => bucket.gold);
         return { labels, xpSeries, goldSeries };
     }, [buckets]);
-
-    const chart = useMemo(() => {
-        const width = 360;
-        const height = 180;
-        const padding = 18;
-        const maxValue = Math.max(...trend.xpSeries, ...trend.goldSeries, 1);
-        const xpPoints = buildPoints(trend.xpSeries, width, height, padding, maxValue);
-        const goldPoints = buildPoints(trend.goldSeries, width, height, padding, maxValue);
-        return {
-            width,
-            height,
-            maxValue,
-            xpPoints,
-            goldPoints
-        };
-    }, [trend]);
 
     const hasProgressionData = useMemo(() => {
         return buckets.some((bucket) => {
@@ -376,75 +347,17 @@ export const StatsDashboardPanel = memo(({
                                 <div className="ts-prog-chart">
                                     <span className="ts-prog-label">XP + Gold trend</span>
                                     {hasTrendData ? (
-                                        <div className="ts-prog-chart-canvas">
-                                            <div className="ts-prog-chart-scale">
-                                                <span>Max {formatNumber(chart.maxValue)}</span>
-                                                <span>0</span>
-                                            </div>
-                                            <svg
-                                                viewBox={`0 0 ${chart.width} ${chart.height}`}
-                                                role="img"
-                                                aria-label="XP and gold trend"
-                                                onMouseLeave={() => setHoverIndex(null)}
-                                            >
-                                                <polyline
-                                                    points={pointsToPolyline(chart.xpPoints)}
-                                                    fill="none"
-                                                    className="ts-prog-line ts-prog-line--xp"
-                                                    strokeWidth="2.5"
-                                                />
-                                                <polyline
-                                                    points={pointsToPolyline(chart.goldPoints)}
-                                                    fill="none"
-                                                    className="ts-prog-line ts-prog-line--gold"
-                                                    strokeWidth="2.5"
-                                                />
-                                                {chart.xpPoints.map((point, index) => (
-                                                    <circle
-                                                        key={`xp-${index}`}
-                                                        className="ts-prog-point ts-prog-point--xp"
-                                                        cx={point.x}
-                                                        cy={point.y}
-                                                        r={3}
-                                                        onMouseEnter={() => setHoverIndex(index)}
-                                                    />
-                                                ))}
-                                                {chart.goldPoints.map((point, index) => (
-                                                    <circle
-                                                        key={`gold-${index}`}
-                                                        className="ts-prog-point ts-prog-point--gold"
-                                                        cx={point.x}
-                                                        cy={point.y}
-                                                        r={3}
-                                                        onMouseEnter={() => setHoverIndex(index)}
-                                                    />
-                                                ))}
-                                            </svg>
-                                            {hoverIndex !== null && chart.xpPoints[hoverIndex] ? (
-                                                <div
-                                                    className="ts-prog-tooltip"
-                                                    style={{
-                                                        left: `${(chart.xpPoints[hoverIndex].x / chart.width) * 100}%`,
-                                                        top: `${(Math.min(
-                                                            chart.xpPoints[hoverIndex].y,
-                                                            chart.goldPoints[hoverIndex]?.y ?? chart.xpPoints[hoverIndex].y
-                                                        ) / chart.height) * 100}%`
-                                                    } as CSSProperties}
-                                                >
-                                                    <span className="ts-prog-tooltip-label">{trend.labels[hoverIndex]}</span>
-                                                    <span>XP {formatNumber(trend.xpSeries[hoverIndex])}</span>
-                                                    <span>Gold {formatNumber(trend.goldSeries[hoverIndex])}</span>
-                                                </div>
-                                            ) : null}
-                                        </div>
+                                        <ProgressionTrendChart
+                                            labels={trend.labels}
+                                            xpSeries={trend.xpSeries}
+                                            goldSeries={trend.goldSeries}
+                                            formatNumber={formatNumber}
+                                            hoverIndex={hoverIndex}
+                                            onHoverIndexChange={setHoverIndex}
+                                        />
                                     ) : (
                                         <div className="ts-prog-empty">No data yet.</div>
                                     )}
-                                    <div className="ts-prog-chart-axis" aria-hidden="true">
-                                        {trend.labels.map((label) => (
-                                            <span key={label}>{label}</span>
-                                        ))}
-                                    </div>
                                     <div className="ts-prog-chart-legend">
                                         <span className="ts-prog-legend-item">
                                             <span className="ts-prog-legend-dot ts-prog-legend-dot--xp" aria-hidden="true" />

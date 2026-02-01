@@ -1,19 +1,11 @@
 import { memo } from "react";
 
+const UI_ICON_PATH = `${__ASSETS_PATH__}icons/ui/`;
+
 export const StartActionIcon = memo(() => (
-    <svg
-        className="ts-collapse-icon"
-        viewBox="0 0 20 20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-    >
-        <polygon points="7,5 16,10 7,15" />
+    <svg className="ts-collapse-icon" viewBox="0 0 20 20" aria-hidden="true">
+        <use href={`${UI_ICON_PATH}start-action.svg#icon`} />
     </svg>
 ));
 
 StartActionIcon.displayName = "StartActionIcon";
-

@@ -23,7 +23,7 @@ export const normalizeFaceIndex = (index: number): number => {
 
 export const getFaceUrlByIndex = (index: number): string => {
     const normalized = normalizeFaceIndex(index);
-    return `/img/hero/faces/face_${String(normalized).padStart(2, "0")}.svg`;
+    return `/img/characters/faces/face-${String(normalized).padStart(2, "0")}.svg`;
 };
 
 export const getFaceUrl = (seed?: string | number | null): string => {

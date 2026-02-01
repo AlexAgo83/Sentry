@@ -1,4 +1,4 @@
-export const HAIR_COUNT = 10;
+export const HAIR_COUNT = 8;
 const HAIR_COLORS = [
     "#1f1a17",
     "#2e2420",
@@ -37,7 +37,7 @@ export const normalizeHairIndex = (index: number): number => {
 
 export const getHairUrlByIndex = (index: number): string => {
     const normalized = normalizeHairIndex(index);
-    return `/img/hero/hairstyles/hair_${String(normalized).padStart(2, "0")}.svg`;
+    return `/img/characters/hair/hair-${String(normalized).padStart(2, "0")}.svg`;
 };
 
 export const getHairUrl = (seed?: string | number | null): string => {

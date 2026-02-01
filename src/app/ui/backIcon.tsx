@@ -1,20 +1,11 @@
 import { memo } from "react";
 
+const UI_ICON_PATH = `${__ASSETS_PATH__}icons/ui/`;
+
 export const BackIcon = memo(() => (
-    <svg
-        className="ts-collapse-icon"
-        viewBox="0 0 20 20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-    >
-        <polyline points="9,4 3,10 9,16" />
-        <line x1="3" y1="10" x2="17" y2="10" />
+    <svg className="ts-collapse-icon" viewBox="0 0 20 20" aria-hidden="true">
+        <use href={`${UI_ICON_PATH}back.svg#icon`} />
     </svg>
 ));
 
 BackIcon.displayName = "BackIcon";
-
