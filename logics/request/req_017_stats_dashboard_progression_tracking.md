@@ -8,6 +8,7 @@
 - Track total execution time spent running skills and total idle time (no action) for the same window.
 - Redesign the Stats panel into a progression dashboard (cards + compact trends) aligned with the provided PNG style.
 - In the Activity area, show the 5 most-used skills (by total execution time) for the selected window.
+- Add a separate "Character Stats" tab that lists base stats with a detailed modifiers breakdown (perm/temp/gear) and the resulting total.
 
 # Context
 - Current Stats panel (`src/app/components/CharacterStatsPanel.tsx`) focuses on skill levels and attribute modifiers; there is no time-series tracking for XP/gold or time spent.
