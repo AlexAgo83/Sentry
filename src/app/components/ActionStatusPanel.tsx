@@ -185,46 +185,50 @@ export const ActionStatusPanel = memo(({
                 </div>
                 {hasActiveAction ? (
                     <>
-                        <div className="ts-resource-card">
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Recipe</span>
-                                <span className="ts-resource-value">{activeRecipeLabel}</span>
+                        <div className="ts-action-summary">
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">Action</span>
+                                <span className="ts-action-summary-value">{activeSkillName}</span>
                             </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Action time</span>
-                                <span className="ts-resource-value">{actionDurationLabel}</span>
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">Recipe</span>
+                                <span className="ts-action-summary-value">{activeRecipeLabel}</span>
                             </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Speed bonus</span>
-                                <span className="ts-resource-value" title={actionSpeedBonusTooltip}>
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">Action time</span>
+                                <span className="ts-action-summary-value">{actionDurationLabel}</span>
+                            </div>
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">Speed bonus</span>
+                                <span className="ts-action-summary-value" title={actionSpeedBonusTooltip}>
                                     {actionSpeedBonusLabel}
                                 </span>
                             </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">XP per action</span>
-                                <span className="ts-resource-value">{actionXpLabel}</span>
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">XP per action</span>
+                                <span className="ts-action-summary-value">{actionXpLabel}</span>
                             </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">XP bonus</span>
-                                <span className="ts-resource-value" title={actionXpBonusTooltip}>
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">XP bonus</span>
+                                <span className="ts-action-summary-value" title={actionXpBonusTooltip}>
                                     {actionXpBonusLabel}
                                 </span>
                             </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Stun time</span>
-                                <span className="ts-resource-value">{stunTimeLabel ?? "None"}</span>
-                            </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Consumes</span>
-                                <span className="ts-resource-value">
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">Consumes</span>
+                                <span className="ts-action-summary-value">
                                     {renderItemSummary(activeConsumptionEntries, activeConsumptionLabel, "consume")}
                                 </span>
                             </div>
-                            <div className="ts-resource-row">
-                                <span className="ts-resource-label">Produces</span>
-                                <span className="ts-resource-value">
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">Produces</span>
+                                <span className="ts-action-summary-value">
                                     {renderItemSummary(activeProductionEntries, activeProductionLabel, "produce")}
                                 </span>
+                            </div>
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">Stun time</span>
+                                <span className="ts-action-summary-value">{stunTimeLabel ?? "None"}</span>
                             </div>
                             {resourceHint ? (
                                 <div className="ts-resource-hint">{resourceHint}</div>

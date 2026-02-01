@@ -13,6 +13,7 @@
 .ts-action-selection-panel {
     padding: var(--m5) var(--m7);
     gap: var(--m4);
+    --ts-action-selection-list-max: clamp(360px, 60vh, 680px);
 }
 
 .ts-action-summary-row {
@@ -20,10 +21,6 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--m4);
-}
-
-.ts-action-summary-row--wide {
-    grid-column: 1 / -1;
 }
 
 .ts-action-summary-label {
@@ -80,14 +77,17 @@
     row-gap: var(--m6);
     column-gap: var(--m8);
     align-items: stretch;
+    min-height: 0;
 }
 
 
 .ts-action-selection-summary-panel {
     margin-top: 0;
+    margin-bottom: var(--m4);
     display: flex;
     flex-direction: column;
     gap: var(--m3);
+    grid-column: 1 / -1;
 }
 
 .ts-action-selection-column {
@@ -98,24 +98,34 @@
     min-height: 0;
 }
 
-.ts-action-selection-layout > .ts-action-selection-column:first-child .ts-picker {
+.ts-action-selection-column--skills .ts-picker {
     display: flex;
     flex-direction: column;
     min-height: 0;
     flex: 1;
 }
 
-.ts-action-selection-layout > .ts-action-selection-column:first-child .ts-skill-picker {
-    flex: 1;
+.ts-action-selection-column--skills .ts-skill-picker {
+    flex: 0 1 auto;
     min-height: 0;
-    overflow-y: auto;
+    overflow: visible;
+    max-height: none;
     padding-right: var(--m2);
     padding-bottom: var(--m4);
 }
 
+.ts-action-selection-column--recipes .ts-picker {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+}
+
 .ts-action-selection-panel .ts-recipe-picker {
-    max-height: min(52vh, 440px);
+    flex: 0 1 var(--ts-action-selection-list-max);
+    min-height: 0;
     overflow-y: auto;
+    max-height: var(--ts-action-selection-list-max);
     padding-right: var(--m2);
     padding-bottom: var(--m4);
 }
@@ -171,6 +181,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: var(--m3);
+    align-content: start;
 }
 
 .ts-choice {
