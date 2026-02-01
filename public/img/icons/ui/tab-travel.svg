@@ -1,10 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <g id="icon" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="8" />
-    <path d="M12 6v3" />
-    <path d="M12 15v3" />
-    <path d="M6 12h3" />
-    <path d="M15 12h3" />
-    <path d="M12 9l3 6l-6-3z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg290"
+   sodipodi:docname="tab-travel.svg"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs294" />
+  <sodipodi:namedview
+     id="namedview292"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="6.4389328"
+     inkscape:cx="11.026672"
+     inkscape:cy="12.890335"
+     inkscape:window-width="1309"
+     inkscape:window-height="456"
+     inkscape:window-x="147"
+     inkscape:window-y="362"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg290" />
+  <g
+     id="g367"
+     inkscape:label="icon"
+     transform="matrix(0.02321568,0,0,0.02321568,11.271249,11.477951)">
+    <g
+       id="g6"
+       transform="matrix(1.5625,0,0,1.5625,-365.42373,-386.27119)">
+	<g
+   id="g4">
+		<polygon
+   points="235.179,268.571 245.592,299.799 276.821,310.212 266.408,278.983 "
+   id="polygon2" />
+
+	</g>
+
+</g>
+    <g
+       id="g12"
+       transform="matrix(1.5625,0,0,1.5625,-365.42373,-386.27119)">
+	<g
+   id="g10">
+		<path
+   d="m 345.043,289.391 c 0,-9.223 7.473,-16.696 16.696,-16.696 h 15.42 C 369.724,218.549 326.841,175.666 272.695,168.231 v 15.42 c 0,9.223 -7.473,16.696 -16.696,16.696 -9.223,0 -16.696,-7.473 -16.696,-16.696 v -15.42 c -54.146,7.435 -97.029,50.318 -104.464,104.464 h 15.42 c 9.223,0 16.696,7.473 16.696,16.696 0,9.223 -7.473,16.696 -16.696,16.696 h -15.42 c 7.435,54.146 50.318,97.028 104.464,104.464 v -15.42 c 0,-9.223 7.473,-16.696 16.696,-16.696 9.223,0 16.696,7.473 16.696,16.696 v 15.42 c 54.146,-7.435 97.028,-50.318 104.464,-104.464 h -15.42 c -9.223,0 -16.696,-7.473 -16.696,-16.696 z m -47.104,63.061 -70.832,-23.614 c -4.984,-1.657 -8.897,-5.571 -10.554,-10.554 l -23.614,-70.832 c -4.331,-12.997 8.034,-25.463 21.12,-21.12 l 70.832,23.614 c 4.984,1.657 8.897,5.571 10.554,10.554 l 23.614,70.832 c 4.362,13.086 -8.128,25.436 -21.12,21.12 z"
+   id="path8" />
+
+	</g>
+
+</g>
+    <g
+       id="g18"
+       transform="matrix(1.5625,0,0,1.5625,-365.42373,-386.27119)">
+	<g
+   id="g16">
+		<path
+   d="M 306.087,72.675 V 50.087 C 306.087,22.468 283.619,0 256,0 228.381,0 205.913,22.468 205.913,50.087 V 72.675 C 107.243,95.486 33.391,183.89 33.391,289.391 33.391,412.135 133.256,512 256,512 378.744,512 478.609,412.135 478.609,289.391 478.609,183.89 404.757,95.486 306.087,72.675 Z M 239.304,50.087 c 0,-9.206 7.49,-16.696 16.696,-16.696 9.206,0 16.696,7.49 16.696,16.696 v 17.542 c -5.532,-0.414 -11.06,-0.846 -16.696,-0.846 -5.635,0 -11.164,0.432 -16.696,0.846 z M 256,445.217 c -85.924,0 -155.826,-69.903 -155.826,-155.826 0,-85.923 69.902,-155.826 155.826,-155.826 85.924,0 155.826,69.902 155.826,155.826 0,85.924 -69.902,155.826 -155.826,155.826 z"
+   id="path14" />
+
+	</g>
+
+</g>
   </g>
 </svg>
