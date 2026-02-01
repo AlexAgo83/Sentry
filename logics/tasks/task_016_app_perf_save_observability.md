@@ -1,7 +1,7 @@
 ## task_016_app_perf_save_observability - App architecture/perf refactor + save hardening + observability
-> From version: 0.8.0  
-> Understanding: 95%  
-> Confidence: 95%  
+> From version: 0.8.0
+> Understanding: 95%
+> Confidence: 95%
 > Progress: 100%
 
 # Context
@@ -78,3 +78,12 @@ The app is growing and `src/app/App.tsx` is still a large integration point with
 - Profiling shows reduced re-render churn in key UI flows (panel switching, inventory, modals), without changing gameplay behavior.
 - Saves migrate safely across versions; corrupted saves trigger safe mode (restore last good / export raw / reset) instead of breaking the app.
 - A crash in UI code is caught by an `ErrorBoundary` and produces a locally accessible crash report (without crashing the entire app).
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Report
+- 
+
+# Notes

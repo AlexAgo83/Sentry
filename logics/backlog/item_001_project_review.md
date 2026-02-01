@@ -28,3 +28,20 @@ Deliver a structured review covering architecture, risks, potential bugs, and te
 - Review findings delivered.
 - Test gaps defined; unit/build/offline tests added and passing.
 - Key fixes applied from review findings.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes
+- Derived from `logics/request/req_001_project_review.md`.

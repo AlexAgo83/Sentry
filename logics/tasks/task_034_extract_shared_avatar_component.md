@@ -25,3 +25,5 @@ Normalize avatar rendering everywhere it appears using a shared component.
 - Added shared `Avatar` component and replaced roster/skin usages.
 - Added unit test for avatar layers and optional skill icon.
 - Validation: `npm run test:ci -- tests/app/avatar.test.tsx`.
+
+# Notes

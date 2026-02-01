@@ -24,3 +24,6 @@
 - Output quantities, craft duration, and unlock level for the skill/recipes?
 - What equipment slot/type should the tablets use?
 - Item naming, icon, and rarity/quality (if any)?
+
+# Backlog
+- `logics/backlog/item_019_invocation_tablets_skill.md`

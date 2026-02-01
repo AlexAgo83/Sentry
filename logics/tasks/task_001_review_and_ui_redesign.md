@@ -26,3 +26,9 @@ This task executes `item_001_project_review` and `item_002_ui_redesign`.
 6. Applied the modern fantasy visual system (Cinzel + Source Sans 3, gold/teal palette, layered gradients).
 7. Implemented the left sidebar layout and responsive stacking in `index.html` and `styles/*`.
 8. Fixed action progress rendering to guard against invalid values; validation ongoing.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

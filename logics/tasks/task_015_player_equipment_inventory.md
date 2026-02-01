@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_015_player_equipment_inventory.md`.
 This task executes `item_015_player_equipment_inventory`.
 
 # Plan
@@ -24,3 +25,9 @@ This task executes `item_015_player_equipment_inventory`.
 1. Added equipment model, definitions, recipes, and inventory metadata.
 2. Implemented equip/unequip flows with inventory consumption + auto-swap, and wired modifiers into stats.
 3. Built Equipment panel UI and added tests; lint/tests/coverage passing.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

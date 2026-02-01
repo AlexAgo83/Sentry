@@ -28,3 +28,5 @@
 - Notes: Save actions moved into Local Save modal; Cloud Save modal now owns cloud panel UI; onboarding blocks until hero creation.
 - Files touched: src/app/AppContainer.tsx, src/app/components/SystemModal.tsx, src/app/components/LocalSaveModal.tsx, src/app/components/CloudSaveModal.tsx, src/app/components/OnboardingHeroModal.tsx, src/core/state.ts, src/app/game.ts, src/core/runtime.ts, tests/app/App.test.tsx, tests/app/systemModal.test.tsx
 - Tests: npm run tests, npm run lint
+
+# Notes

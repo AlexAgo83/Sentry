@@ -23,3 +23,5 @@ Split recipes by skill and CSS by panel, keeping a stable import facade and orde
 # Report
 - Status: complete.
 - Notes: Recipes split into per-skill modules with an index facade; stats/action CSS now imports panel-specific files in a fixed order.
+
+# Notes

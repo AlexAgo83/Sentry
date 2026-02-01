@@ -19,3 +19,19 @@ Add a “sell all” flow and show unit value in item focus.
 - Sell all is blocked for gold.
 - Confirmation includes item name, count, and estimated gain.
 - Unit value appears in focus panel for selected item.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

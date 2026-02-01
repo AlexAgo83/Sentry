@@ -14,3 +14,9 @@ QA give me those feedbacks :
 6. en mode desktop le text SORT et les boutons NAME et COUNT sont trop collés entre eux, ajoutes un peu d'espace.
 7. en mode desktop le text SEARCH et le textfield filter by name est trop collé il faudrait ajouter de l'espace entre les deux elements
 8. dans l'inventaire ; si il n'y a qu'une page ; pas la peine d'afficher le controleur de pagination.
+
+# Context
+Add context and constraints.
+
+# Backlog
+- (none yet)

@@ -5,7 +5,7 @@
 > Progress: 100%
 
 # Context
-Derived from `logics/backlog/item_023_virtual_score_in_setup_modal.md`
+Derived from `logics/backlog/item_023_virtual_score_in_setup_modal.md`.
 
 # Plan
 - [x] 1. Add a selector/helper to compute the virtual score (sum of all players’ skill levels).
@@ -37,3 +37,5 @@ Derived from `logics/backlog/item_023_virtual_score_in_setup_modal.md`
   - Unknowns: exact setup modal layout constraints.
   - Integration points: state selectors and setup modal component.
   - Migration/rollback risk: low.
+
+# Notes

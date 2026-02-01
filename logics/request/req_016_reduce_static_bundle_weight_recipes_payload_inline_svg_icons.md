@@ -13,3 +13,6 @@
   `src/app/ui/inventoryIcons.tsx` + `src/app/ui/skillIcons.tsx`.
 - One acceptable solution is to externalize SVGs into separate files (sprite/assets) and load them at runtime.
 - Any change should preserve existing icon usage APIs and recipe lookups, avoiding gameplay regressions.
+
+# Backlog
+- (none yet)

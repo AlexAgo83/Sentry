@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_004_project_review_followups.md`.
 This task executes `item_004_project_review_followups`.
 
 # Plan
@@ -16,3 +17,9 @@ This task executes `item_004_project_review_followups`.
 1. Removed legacy JS folders and entry files under `src/` to keep the TS/React rewrite as the only runtime.
 2. Updated `public/sw.js` and `src/main.tsx` to register a versioned cache and clear old caches.
 3. Captured the review follow-ups in `logics/backlog/item_004_project_review_followups.md`.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

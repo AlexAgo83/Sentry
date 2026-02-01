@@ -1,7 +1,7 @@
 ## task_017_perf_quality_tech_debt_sweep - Runtime offline catch-up + UI perf + lint + deps + TS test typecheck
-> From version: 0.8.7  
-> Understanding: 90%  
-> Confidence: 90%  
+> From version: 0.8.7
+> Understanding: 90%
+> Confidence: 90%
 > Progress: 100%
 
 # Context
@@ -63,3 +63,12 @@ The project review highlighted a small set of technical risks that can compound 
 - React Hooks linting is enabled; conditional-hook issues and dependency warnings fixed.
 - `glob` removed; `jest-axe` moved to `devDependencies`; lockfile updated; `npm audit` clean.
 - Added `tsconfig.tests.json` + `npm run typecheck:tests` and wired into CI and release workflows.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Report
+- 
+
+# Notes

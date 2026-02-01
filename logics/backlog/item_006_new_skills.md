@@ -49,3 +49,19 @@ Add alchemy, herbalism, tailoring, fishing, carpentry, and leatherworking as pla
 - Add item sinks (crafting, upgrades, buffs) so inventories do not inflate indefinitely.
 - Balance cross-skill dependencies so a solo path still exists per tier.
 - Surface "next unlock" targets (tier goals) to keep progression readable.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

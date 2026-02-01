@@ -53,3 +53,19 @@ Address QA feedback with small UI adjustments while preserving current behavior.
 
 # Status
 - Delivered in `logics/tasks/task_013_qa_feedback_sweep.md`.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

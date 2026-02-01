@@ -34,3 +34,19 @@ Deliver a cohesive, visually rich UI that upgrades the experience while keeping 
 # Status
 - Visual system and layout implemented (modern fantasy, left sidebar, responsive stacking).
 - Validation of desktop/mobile UI and core gameplay flows pending.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

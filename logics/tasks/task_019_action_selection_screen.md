@@ -1,10 +1,11 @@
 ## task_019_action_selection_screen - Replace Loadout modal with a dedicated Action Selection screen
-> From version: 0.8.9  
-> Understanding: 95%  
-> Confidence: 90%  
+> From version: 0.8.9
+> Understanding: 95%
+> Confidence: 90%
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_017_action_selection_screen.md`.
 Clicking the **Change** button currently opens a modal (`LoadoutModal`) to select the active skill/recipe.
 
 We want this flow to become a dedicated screen (not a modal), reachable **only** via the **Change** button.
@@ -79,3 +80,9 @@ Replace the modal-based action selection UX with a screen-based UX that feels li
 - Added app-shell screen state (`activeScreen`) with Back + `Escape` behavior and “return to previous panel” handling.
 - Removed the modal from the modal stack and ensured it does not affect “any modal open” app-bar hiding.
 - Updated tests and validated with `npm run lint`, `npm run typecheck`, `npm run test:ci`.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

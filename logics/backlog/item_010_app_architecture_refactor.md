@@ -39,3 +39,19 @@ Improve maintainability and reduce unnecessary re-renders by splitting the UI in
 
 # Open questions
 - None for v1.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

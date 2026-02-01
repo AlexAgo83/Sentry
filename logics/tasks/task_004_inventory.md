@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_005_inventory.md`.
 This task executes `item_005_inventory`.
 
 # Plan
@@ -23,3 +24,9 @@ This task executes `item_005_inventory`.
 4. Added missing-items hint and Start action blocking when requirements are not met.
 5. Expanded offline recap to include item deltas per player and total inventory changes.
 6. Updated core tests for inventory rewards, action blocking, and save migration.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

@@ -1,7 +1,7 @@
 ## task_011_app_architecture_and_ci_hardening - App split, deps hygiene, CI docs
-> From version: 0.6.3  
-> Understanding: 92%  
-> Confidence: 90%  
+> From version: 0.6.3
+> Understanding: 92%
+> Confidence: 90%
 > Progress: 100%
 
 # Context
@@ -27,3 +27,12 @@ Simplify the app architecture for readability/tests, fix npm vulnerabilities, an
 - `npm audit` reports no vulnerabilities (or explicitly ignored/documented), CI includes a vuln check (fails at moderate+).
 - README/CONTRIBUTING clearly describe local/CI commands (dev, lint, tests, coverage, audit) and display a GitHub Actions badge.
 - Offline recap smoke validates the resume scenario; UI perf improved via targeted memo; a11y fixes on panels; preview+smoke job in CI passes.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Report
+- 
+
+# Notes

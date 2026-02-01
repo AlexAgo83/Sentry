@@ -20,3 +20,5 @@ Add build size reporting + HTML report and fail CI on thresholds.
 # Report
 - Status: complete.
 - Notes: Added bundle visualizer HTML report and a bundle size budget script wired into CI/release.
+
+# Notes

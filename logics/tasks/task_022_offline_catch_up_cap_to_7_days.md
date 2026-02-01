@@ -5,7 +5,7 @@
 > Progress: 100%
 
 # Context
-Derived from `logics/backlog/item_020_offline_catch_up_cap_to_7_days.md`
+Derived from `logics/backlog/item_020_offline_catch_up_cap_to_7_days.md`.
 
 # Plan
 - [x] 1. Introduce a configurable offline cap constant (default 7 days) and optional dev env override.
@@ -38,3 +38,5 @@ Derived from `logics/backlog/item_020_offline_catch_up_cap_to_7_days.md`
   - Unknowns: exact location to inject env override; long-duration test harness coverage.
   - Integration points: runtime constants, offline recap messaging.
   - Migration/rollback risk: low (no data migration).
+
+# Notes

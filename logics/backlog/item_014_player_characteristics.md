@@ -97,3 +97,19 @@ Add a player characteristics model (base + mods) with clear stacking rules and i
 # Status
 - Delivered v1 stat system with defaults, UI, and tests.
 - Temporary modifier sources are still TBD (no gameplay sources yet).
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

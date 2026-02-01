@@ -29,3 +29,9 @@ A few good next moves in this repo (based on `logics/backlog/`):
 
 # Execution
 - Tracked as `logics/tasks/task_018_req_004_polish.md`.
+
+# Context
+Add context and constraints.
+
+# Backlog
+- (none yet)

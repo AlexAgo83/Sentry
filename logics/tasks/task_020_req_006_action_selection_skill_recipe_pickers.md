@@ -53,3 +53,5 @@ Replace the dropdown-based selection UI with visual pickers:
 - Replaced skill/recipe `<select>` dropdowns with visual, radio-like pickers (skill cards + recipe cards).
 - Added responsive layout: desktop 3-column grid, mobile single-column + horizontally scrollable skill chips.
 - Updated tests to use the new controls; validated with `npm run lint`, `npm run typecheck`, `npm run test:ci`.
+
+# Notes

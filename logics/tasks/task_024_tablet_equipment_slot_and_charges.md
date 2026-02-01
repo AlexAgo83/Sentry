@@ -5,7 +5,7 @@
 > Progress: 100%
 
 # Context
-Derived from `logics/backlog/item_022_tablet_equipment_slot_and_charges.md`
+Derived from `logics/backlog/item_022_tablet_equipment_slot_and_charges.md`.
 
 # Plan
 - [x] 1. Extend equipment slot enums/types with Tablet and place slot after Weapons in UI.
@@ -44,3 +44,5 @@ Derived from `logics/backlog/item_022_tablet_equipment_slot_and_charges.md`
   - Unknowns: tablet item definitions/assets; migration edge cases.
   - Integration points: core types/state, persistence, UI panels.
   - Migration/rollback risk: medium (schema update).
+
+# Notes

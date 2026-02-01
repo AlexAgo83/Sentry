@@ -1,7 +1,7 @@
 ## task_009_test_runtime_hardening - Stabilize runtime listeners and test harness
-> From version: 0.6.2  
-> Understanding: 92%  
-> Confidence: 86%  
+> From version: 0.6.2
+> Understanding: 92%
+> Confidence: 86%
 > Progress: 100%
 
 # Context
@@ -36,3 +36,12 @@ terminate valid runs in CI/local.
 - Vitest config now driven by env (`VITEST_STRICT`, `VITEST_LOG_CONSOLE`, `CI`), thresholds tuned; README documents knobs.
 - Test runner timeout configurable via `TEST_TIMEOUT_MS` and disabled by default in CI.
 - Full suite/coverage passing (`npm run coverage`).
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Report
+- 
+
+# Notes

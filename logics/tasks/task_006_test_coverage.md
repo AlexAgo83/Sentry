@@ -26,3 +26,12 @@ Create and execute a test plan that covers the full application surface, with st
 - Coverage runs cleanly with `npm run coverage`.
 - UI, store, core runtime, adapters, and entry points have tests.
 - Coverage thresholds are defined and passing.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Report
+- 
+
+# Notes

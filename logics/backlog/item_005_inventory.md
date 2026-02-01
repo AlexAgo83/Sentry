@@ -41,3 +41,20 @@ Introduce a global inventory and item-based production/consumption in the TS rew
 
 # Open questions
 - None (defaults accepted).
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes
+- Derived from `logics/request/req_002_inventory.md`.

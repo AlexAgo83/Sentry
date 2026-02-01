@@ -5,7 +5,7 @@
 > Progress: 100%
 
 # Context
-Derived from `logics/backlog/item_019_invocation_tablets_skill.md`
+Derived from `logics/backlog/item_019_invocation_tablets_skill.md`.
 
 # Plan
 - [x] 1. Add Invocation skill to core definitions (types, skill list, skill color/icon).
@@ -25,3 +25,5 @@ Derived from `logics/backlog/item_019_invocation_tablets_skill.md`
 2. Added Invocation Tablet as an equippable Amulet item with inventory metadata.
 3. Expanded Invocation to 10 named recipes with descriptions and scaling costs/rewards.
 4. Confirmed lint, typecheck, and test suite all pass.
+
+# Notes

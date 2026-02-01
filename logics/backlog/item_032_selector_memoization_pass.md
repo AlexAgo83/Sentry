@@ -18,3 +18,19 @@ Reduce unnecessary re-renders via memoized selectors and shallow comparisons.
 # Acceptance
 - No change in behavior.
 - Reduced render counts in dev profiler (qualitative).
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

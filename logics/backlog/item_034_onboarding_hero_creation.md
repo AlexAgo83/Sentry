@@ -40,3 +40,4 @@ Promoted from `logics/request/req_012_onboarding_hero_creation.md`
   - Re-show onboarding after a full save reset when no heroes exist.
   - Autofocus the name input and allow Enter to submit.
   - Keep copy minimal (kicker + title + CTA) to avoid extra tutorial text.
+- Derived from `logics/request/req_012_onboarding_hero_creation.md`.

@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_035_quests_screen.md`.
 - Implements `logics/backlog/item_035_quests_screen.md`.
 - Adds a Quests screen with shop-like layout and milestone quests for equipables + skills.
 - Quests are shared across heroes (account-wide), not per-character.
@@ -36,3 +37,5 @@
 - Notes: Quests are account-wide; completion auto-rewards gold once and fades in UI.
 - Files touched: src/data/quests.ts, src/core/types.ts, src/core/state.ts, src/core/loop.ts, src/core/serialization.ts, src/app/AppView.tsx, src/app/AppContainer.tsx, src/app/hooks/useAppShellUi.ts, src/app/components/SidePanelSwitcher.tsx, src/app/components/QuestsPanel.tsx, src/app/containers/QuestsPanelContainer.tsx, src/app/containers/AppViewContainer.tsx, src/app/styles/stats-action.css, tests/app/questsPanel.test.tsx, tests/app/appView.questsNav.test.tsx, tests/app/appView.mobileRoster.test.tsx, tests/app/bottomBarAutoHide.test.tsx
 - Tests: npm run lint, npm run typecheck, npm run typecheck:tests, npm run test:ci
+
+# Notes

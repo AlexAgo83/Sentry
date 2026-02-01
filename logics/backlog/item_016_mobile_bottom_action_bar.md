@@ -83,3 +83,19 @@ Introduce proper app bars:
   - Safe-area padding via `env(safe-area-inset-top/bottom)` and app-shell padding to prevent overlap.
   - App bars hide with slide/fade while a modal is open (also covers SweetAlert2 via `.swal2-shown`).
 - Executed in `logics/tasks/task_018_req_004_polish.md`.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

@@ -77,3 +77,19 @@ Introduce a per-player equipment system with fixed slots, supporting armor and w
 # Status
 - Delivered v1 equipment data model, recipes, UI, and tests.
 - Empty slots render with icon + label; Feet slot used for boots.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

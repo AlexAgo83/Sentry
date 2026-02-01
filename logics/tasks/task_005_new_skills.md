@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_006_new_skills.md`.
 This task executes `item_006_new_skills`.
 
 # Plan
@@ -14,3 +15,12 @@ This task executes `item_006_new_skills`.
 - [x] 4. Update UI to handle new skill/recipe labels.
 - [x] 5. Add/adjust tests for new skills, items, and unlock tiers.
 - [x] FINAL: Update backlog/task docs and verify acceptance.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Report
+- 
+
+# Notes

@@ -42,3 +42,19 @@ Make tick timing reflect real elapsed time and harden persistence so gameplay do
 # Test coverage
 - Delayed ticks: 1s, 5s, 20s stalls.
 - Persistence failures: simulate quota errors and ensure runtime continues.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

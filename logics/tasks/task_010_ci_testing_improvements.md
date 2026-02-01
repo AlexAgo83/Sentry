@@ -1,7 +1,7 @@
 ## task_010_ci_testing_improvements - Restore stricter CI and raise coverage confidence
-> From version: 0.6.3  
-> Understanding: 90%  
-> Confidence: 84%  
+> From version: 0.6.3
+> Understanding: 90%
+> Confidence: 84%
 > Progress: 100%
 
 # Context
@@ -35,3 +35,12 @@ lightweight coverage to critical flows (offline recap).
 - Added RTL smoke test `tests/app/offlineRecapModal.test.tsx` for offline recap on mount.
 - Added ESLint flat config + `npm run lint`.
 - README documents CI/local commands and test knobs. Function threshold back to 90% in CI config.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Report
+- 
+
+# Notes

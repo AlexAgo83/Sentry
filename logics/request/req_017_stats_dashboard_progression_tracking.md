@@ -35,3 +35,6 @@
 - UI acceptance: explicit card order and mobile priority order; empty‑state copy.
 - Character stats detail: tooltip format, source display (mod origin), rounding rules.
 - Testing/validation: unit tests for rolling window + aggregation, and UI layout checks.
+
+# Backlog
+- `logics/backlog/item_047_stats_dashboard_progression_tracking.md`

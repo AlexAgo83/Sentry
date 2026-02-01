@@ -59,3 +59,9 @@ Low
 Decisions / direction
 - Offline recap: change to multi-player summary (aggregate per player, or summary + per-player rows).
 - Service worker: prefer versioned caches (include app version in cache name), cache only core assets + built JS/CSS, and clear old caches on activate. Optionally implement stale-while-revalidate for navigation and asset requests.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

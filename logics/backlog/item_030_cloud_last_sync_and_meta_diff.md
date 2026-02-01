@@ -19,3 +19,19 @@ Make cloud state easier to compare and understand.
 - Last sync updates on successful refresh/upload.
 - Time-ago formatting is readable (m/h/d).
 - Diff highlights the better/newer values clearly.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

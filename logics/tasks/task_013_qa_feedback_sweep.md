@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_013_qa_feedback_sweep.md`.
 This task executes `item_013_qa_feedback_sweep`.
 
 # Plan
@@ -23,3 +24,9 @@ This task executes `item_013_qa_feedback_sweep`.
 2. Added offline recap duration formatting, inventory spacing adjustments, and pagination hiding for single-page inventories.
 3. Updated tests for the new controls and ran `npm run lint` and `npm run test:ci`.
 4. Manual desktop UI validation is still pending.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

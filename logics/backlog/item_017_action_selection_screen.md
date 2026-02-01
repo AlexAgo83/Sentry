@@ -25,3 +25,20 @@ Replace the modal with a dedicated **Action Selection** screen that is reachable
 
 # Status
 - Delivered in `logics/tasks/task_019_action_selection_screen.md`.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes
+- Derived from `logics/request/req_005_action_selection_screen.md`.

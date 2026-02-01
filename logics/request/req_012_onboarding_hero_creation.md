@@ -23,3 +23,6 @@
   - After creation, auto-open Action Selection and optionally preselect a starter action (e.g., Hunting) or keep it unselected with a CTA.
   - Optional quick-start CTA: “Start with Hunting” in the last step.
   - Optional short tooltips for Action / Bank / Shop dismissed on first interaction.
+
+# Backlog
+- `logics/backlog/item_034_onboarding_hero_creation.md`

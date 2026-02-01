@@ -5,7 +5,7 @@
 > Progress: 100%
 
 # Context
-Derived from `logics/backlog/item_025_db_dump_and_reset_utilities.md`
+Derived from `logics/backlog/item_025_db_dump_and_reset_utilities.md`.
 
 # Plan
 - [x] 1. Add Node JS scripts for dump/restore/reset with CLI parsing and safety checks.
@@ -42,3 +42,5 @@ Derived from `logics/backlog/item_025_db_dump_and_reset_utilities.md`
   - Unknowns: environment parity across local/Render; tool availability (`pg_dump`, `pg_restore`).
   - Integration points: env parsing, shell execution, CI mocks.
   - Migration/rollback risk: medium (operational risk).
+
+# Notes

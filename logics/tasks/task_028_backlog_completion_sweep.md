@@ -27,3 +27,12 @@ Sweep task to complete all backlog items that are not yet at 100%.
 
 # Risks & rollback
 - Risk: UI regressions in core panels. Rollback by feature flag or reverting individual changes.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Report
+- 
+
+# Notes

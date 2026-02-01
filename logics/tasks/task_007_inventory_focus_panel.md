@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_007_inventory_focus_panel.md`.
 This task executes `item_007_inventory_focus_panel`.
 
 # Plan
@@ -20,3 +21,9 @@ This task executes `item_007_inventory_focus_panel`.
 3. Introduced inventory metadata for descriptions/icons in `src/app/inventoryMeta.tsx`.
 4. Styled the inventory grid, selection outline, and responsive layout in `src/app/styles/app.css`.
 5. Updated inventory panel UI tests to cover selection/clear behavior in `tests/app/App.test.tsx`.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

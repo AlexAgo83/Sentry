@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_014_player_characteristics.md`.
 This task executes `item_014_player_characteristics`.
 
 # Plan
@@ -21,3 +22,9 @@ This task executes `item_014_player_characteristics`.
 1. Implemented stat model, defaults, and persistence wiring in core types/state.
 2. Wired stat effects into loop calculations and Stats UI (two-column layout).
 3. Added coverage via stat helper + per-stat effect tests; lint/tests passing.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

@@ -60,3 +60,14 @@ Add a new skill and its tablet items so players can craft and equip Invocation T
 
 # Notes
 - Later extension: consider dedicated Relic/Focus slot and tablet tiers once invocation effects are defined.
+
+- Derived from `logics/request/req_007_invocation_tablets_skill.md`.
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria

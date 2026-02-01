@@ -129,3 +129,6 @@ Produce a deep technical review of the project and capture all findings as a pri
 - Convert P1 items into backlog entries with acceptance criteria.
 - Add a test plan task for E2E + backend integration coverage.
 - Optional: architecture note for save schema + migration policy.
+
+# Backlog
+- (none yet)

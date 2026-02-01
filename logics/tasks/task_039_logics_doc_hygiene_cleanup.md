@@ -23,3 +23,5 @@ Move example docs to `logics/external/` and ensure doc linting is clean, with CI
 - Moved example docs to `logics/external/examples/` and removed `??%` indicators.
 - Added Logics doc linter to CI and release workflows.
 - `logics-doc-linter` passes cleanly.
+
+# Notes

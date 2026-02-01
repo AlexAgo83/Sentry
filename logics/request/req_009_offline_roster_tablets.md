@@ -2,7 +2,6 @@
 > From version: 0.8.11
 > Understanding: 94%
 > Confidence: 85%
-> Progress: 15%
 
 # Needs
 - Increase the offline time limit to 7 days across all platforms (cap the processed window; keep recap messaging for capped time).
@@ -79,3 +78,6 @@
 
 # Open questions
 - None for now; revisit if backend hosting, auth, or tooling constraints change.
+
+# Backlog
+- (none yet)

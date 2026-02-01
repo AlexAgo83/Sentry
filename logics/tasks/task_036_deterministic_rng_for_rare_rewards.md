@@ -22,3 +22,5 @@ Use a seeded RNG (playerId + tickTime + actionId + recipeId) so rare rewards are
 - Added `src/core/rng.ts` and deterministic rare reward rolls in `src/core/loop.ts`.
 - Updated core loop test to validate deterministic rare drops.
 - Validation: `npm run test:ci -- tests/core/loop.test.ts`.
+
+# Notes

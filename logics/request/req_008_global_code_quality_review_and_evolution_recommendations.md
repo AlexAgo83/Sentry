@@ -14,3 +14,6 @@
 - Requested as a global health check of the repo and its Logics workflow.
 - Prefer outputs as lightweight artifacts in `logics/` (review and optional roadmap).
 - No feature implementation in this request; only analysis + recommendations.
+
+# Backlog
+- (none yet)

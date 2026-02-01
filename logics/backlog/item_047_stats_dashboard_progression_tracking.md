@@ -41,6 +41,7 @@ Players need a clearer Stats experience that highlights progression trends (XP/G
 - Mockups: `logics/external/mockup/` (progression + character, mobile + desktop).
 - Delivered: global + hero progression tracking, hero stats view, chart clarity/legend, responsive buttons, per‑hero virtual score.
 
+- Derived from `logics/request/req_017_stats_dashboard_progression_tracking.md`.
 # Clarifications
 
 - Define the primary outcome and scope boundaries (in/out). :: In: core deliverables. Out: adjacent features or polish.

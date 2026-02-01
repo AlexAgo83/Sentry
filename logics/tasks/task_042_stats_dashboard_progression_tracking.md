@@ -5,7 +5,7 @@
 > Progress: 100%
 
 # Context
-Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`
+Derived from `logics/backlog/item_047_stats_dashboard_progression_tracking.md`.
 
 # Plan
 - [x] 1. Data model: add rolling 7‑day buckets for XP/Gold + active/idle time + per‑skill active time.

@@ -43,3 +43,19 @@ Improve UI accessibility, clarity, and performance hotspots without changing cor
 # Test coverage
 - Focus-visible styling present on interactive elements.
 - Inventory focus panel shows usage labels ("Used by" / "Obtained by").
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

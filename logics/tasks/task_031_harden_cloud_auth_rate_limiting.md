@@ -23,3 +23,5 @@ Serverless on Render, no external store. Use Postgres for rotation/revocation an
 # Report
 - Status: complete.
 - Notes: Added refresh token rotation + DB-backed rate limiting, CSRF double-submit cookie validation, and backend tests for rotation + limits.
+
+# Notes

@@ -19,3 +19,19 @@ Apply compact number formatting (K/M/B/T) with full values on tooltip/aria acros
 - Values >= 1,000 render compact (e.g. 1.25M).
 - Full value is accessible via tooltip/aria.
 - No rounding in saved values or calculations.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

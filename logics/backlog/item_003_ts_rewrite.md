@@ -43,3 +43,19 @@ Modern fantasy UI cues similar to Diablo IV menus, Hades UI, or Genshin characte
 - New app runs with feature parity and passes tests.
 - Core engine is decoupled from UI.
 - Clear path to add IndexedDB/cloud sync later.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

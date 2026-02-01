@@ -76,3 +76,13 @@ Replace the dropdown-based selection UX with visual pickers that are faster to s
 
 # Status
 - Delivered (visual pickers for skills/recipes + responsive layout + tests updated).
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria

@@ -5,7 +5,7 @@
 > Progress: 100%
 
 # Context
-Derived from `logics/backlog/item_021_mobile_roster_navigation_update.md`
+Derived from `logics/backlog/item_021_mobile_roster_navigation_update.md`.
 
 # Plan
 - [x] 1. Locate mobile nav label for Stats and change to Roster at the mobile breakpoint.
@@ -39,3 +39,5 @@ Derived from `logics/backlog/item_021_mobile_roster_navigation_update.md`
   - Unknowns: location of label + visibility logic in UI components.
   - Integration points: SidePanelSwitcher + roster panel visibility rules.
   - Migration/rollback risk: low.
+
+# Notes

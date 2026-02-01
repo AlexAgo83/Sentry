@@ -14,3 +14,9 @@
 # Notes
 - Items are base-only for now (no quality/rarity).
 - Scope for v1 is limited to Hunting/Cooking production/consumption.
+
+# Context
+Add context and constraints.
+
+# Backlog
+- `logics/backlog/item_005_inventory.md`

@@ -22,3 +22,17 @@ Make the roster cap explicit and block upgrades when the cap is reached.
 
 # Notes
 - Keep the cap value centralized in constants.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:

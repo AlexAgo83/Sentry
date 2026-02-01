@@ -18,3 +18,19 @@ Explain action bonus formulas and show stun time when stamina is 0.
 # Acceptance
 - Tooltips show the formula and computed %.
 - Stun time line appears only when stamina <= 0.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

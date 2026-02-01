@@ -22,3 +22,19 @@ Records the full-project review findings and the agreed follow-ups.
 # Actions (applied)
 - Removed legacy JS folders/files under `src/`.
 - Registered the service worker with a versioned URL and updated cache naming/cleanup in `public/sw.js`.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

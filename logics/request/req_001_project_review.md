@@ -51,3 +51,6 @@ This is a JavaScript idle game engine using Vite and npm. The goal is to assess 
 
 # Next Steps
 - Redesign the UI (visual direction + implementation).
+
+# Backlog
+- `logics/backlog/item_001_project_review.md`

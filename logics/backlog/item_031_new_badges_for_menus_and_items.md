@@ -19,3 +19,19 @@ Add “New” badges to surface new content.
 - Badges appear when new content is introduced.
 - Opening the menu/item clears the badge.
 - Badges reset on new app version.
+
+# Problem
+Describe the problem and user impact.
+
+# Scope
+- In:
+- Out:
+
+# Acceptance criteria
+- Define acceptance criteria
+
+# Priority
+- Impact:
+- Urgency:
+
+# Notes

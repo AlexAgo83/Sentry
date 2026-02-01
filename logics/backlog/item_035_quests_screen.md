@@ -60,3 +60,6 @@ Promoted from `logics/request/req_014_quests_screen.md`
 - Quest definitions are static (data-driven), derived from the current skills list and equipable recipes.
 - Use existing selectors for skill levels and craft counts; default to 0 if missing.
 - No backend sync or persistence beyond current save state.
+
+# Notes
+- Derived from `logics/request/req_014_quests_screen.md`.

@@ -1,7 +1,7 @@
 ## task_018_req_004_polish - Close remaining UX backlog + gameplay polish + release hardening
-> From version: 0.8.8  
-> Understanding: 95%  
-> Confidence: 90%  
+> From version: 0.8.8
+> Understanding: 95%
+> Confidence: 90%
 > Progress: 100%
 
 # Context
@@ -115,3 +115,9 @@ It focuses on:
 - Gameplay polish: added a deterministic “Rested” temporary buff after long offline catch-ups (Endurance +2 flat, 10m, refresh via `stackKey: "rested"`), persisted in saves and visible in Stats.
 - Docs: updated `item_013` and `item_016` to reflect shipped behavior and set progress to 100%.
 - Validation: `npm run lint`, `npm run typecheck`, `npm run test:ci`, `npm run build` all green; version bumped to `0.8.9`.
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

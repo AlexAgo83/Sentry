@@ -22,3 +22,5 @@ Show a persistent banner when persistence is disabled, with retry and export act
 # Report
 - Status: complete.
 - Notes: Added persistence status to game state, runtime backoff + retry handler, and a sticky banner with retry/export actions. Added recovery coverage in runtime tests.
+
+# Notes

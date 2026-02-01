@@ -5,7 +5,7 @@
 > Progress: 100%
 
 # Context
-Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
+Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`.
 
 # Plan
 - [x] 1. Scaffold backend (Fastify + Prisma) with `/api/v1` base, Postgres schema `sentry`, and env config.
@@ -44,3 +44,5 @@ Derived from `logics/backlog/item_024_cloud_save_backend_and_conflict_ui.md`
   - Unknowns: backend scaffold + hosting details; auth hardening; schema design.
   - Integration points: frontend UI, API client, DB schema/scripts.
   - Migration/rollback risk: medium-high (new backend + data storage).
+
+# Notes

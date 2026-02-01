@@ -5,6 +5,7 @@
 > Progress: 100%
 
 # Context
+Derived from `logics/backlog/item_012_app_ui_extractions.md`.
 This task executes `item_012_app_ui_extractions`.
 
 # Plan
@@ -22,3 +23,9 @@ This task executes `item_012_app_ui_extractions`.
 2. Introduced hooks (`useInventoryView`, `usePendingActionSelection`, `useActionStatus`) and rewired `App.tsx` to use them while keeping behavior unchanged.
 3. Added interaction tests for modal closing and inventory view hook output; ran `npm run lint`, `npm run test:ci`, `npm run tests`, and `npm run coverage`.
 4. React Profiler check completed (App and panels render as expected during tab/modal interactions).
+
+# Validation
+- npm run tests
+- npm run lint
+
+# Notes

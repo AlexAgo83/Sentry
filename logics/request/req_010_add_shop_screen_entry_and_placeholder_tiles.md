@@ -13,3 +13,6 @@
 - Current UI has top-bar navigation on desktop and a bottom-bar switcher on mobile.
 - Mobile request: merge "Bank" navigation entry and use it as a hub for Inventory / Equipment / Shop.
 - Shop layout is a stub; real items and pricing will be added later.
+
+# Backlog
+- (none yet)

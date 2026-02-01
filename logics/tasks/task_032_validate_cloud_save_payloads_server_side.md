@@ -22,3 +22,5 @@ Shallow validation: version + top-level fields. Unknown fields allowed. Invalid 
 # Report
 - Status: complete.
 - Notes: Added a minimal schema + validator with warning logs and backend coverage for invalid payloads.
+
+# Notes
