@@ -2,7 +2,7 @@
 
 Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fantasy UI.
 
-[![CI](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml)
+[![CI](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml) [![License](https://img.shields.io/github/license/AlexAgo83/Sentry)](LICENSE)
 
 ## Features
 
