@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dungeon Renderer Boss Fight Mockup</title>
+  <style>
+    :root {
+      --bg0: #0f1218;
+      --bg1: #171b25;
+      --bg2: #202839;
+      --ink: #e8edf6;
+      --muted: #9ca7bc;
+      --line: #2f3950;
+      --accent-red: #ef4d43;
+      --accent-gold: #f4c56f;
+      --ally: #6fd2ff;
+      --enemy: #ff7a5b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1100px 500px at 20% -10%, #2a3046 0%, transparent 60%),
+        radial-gradient(900px 400px at 110% 0%, #2f1f2a 0%, transparent 65%),
+        linear-gradient(160deg, var(--bg0), #121722 45%, #0f141f 100%);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .mock {
+      width: min(1400px, 100%);
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+
+    .topbar {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(13, 17, 26, 0.86);
+      backdrop-filter: blur(6px);
+    }
+
+    .brand {
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid #3a445d;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 13px;
+      background: #20273a;
+      color: #c5d0e6;
+    }
+
+    .btn-danger {
+      background: linear-gradient(180deg, #4d1d23, #39141b);
+      border-color: #7f313d;
+      color: #ffd8d4;
+      box-shadow: 0 0 0 1px rgba(239,77,67,0.22) inset;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      min-height: 760px;
+    }
+
+    .panel {
+      padding: 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(18, 24, 36, 0.72);
+    }
+
+    .panel:last-child {
+      border-right: 0;
+      border-left: 1px solid var(--line);
+    }
+
+    .title {
+      margin: 0 0 6px;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .card {
+      border: 1px solid #37415c;
+      border-radius: 14px;
+      background: #1a2233;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .value { color: var(--accent-gold); }
+
+    .arena-wrap {
+      position: relative;
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(25,32,47,0.9), rgba(20,25,37,0.95));
+    }
+
+    .arena-ui {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid #3a465f;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      background: #1d2537;
+      color: #c3cee4;
+    }
+
+    .arena {
+      position: relative;
+      border-radius: 18px;
+      border: 1px solid #3a4358;
+      height: 640px;
+      background:
+        radial-gradient(400px 220px at 50% 50%, rgba(70, 45, 59, 0.6), transparent 75%),
+        radial-gradient(circle at 50% 50%, #2a3144 0%, #1a2132 48%, #131a2a 100%);
+      overflow: hidden;
+    }
+
+    .arena::before {
+      content: "";
+      position: absolute;
+      inset: 40px;
+      border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+
+    .arena::after {
+      content: "";
+      position: absolute;
+      inset: 120px;
+      border: 1px dashed rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+
+    .entity {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      transform: translate(-50%, -50%);
+    }
+
+    .hp {
+      position: absolute;
+      top: -14px;
+      width: 84px;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid #3a4460;
+      background: #161b28;
+      overflow: hidden;
+    }
+
+    .hp > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #6de9a7, #35b777);
+    }
+
+    .hp.enemy > span {
+      background: linear-gradient(90deg, #ff9a87, #f25f50);
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2px solid #4b5e84;
+      background: #192033;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.36);
+      overflow: hidden;
+    }
+
+    .avatar::before {
+      content: "";
+      position: absolute;
+      inset: 11px 14px 14px;
+      border-radius: 40px 40px 32px 32px;
+      background: #f0bf9c;
+    }
+
+    .hair,
+    .helmet {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 6px;
+      height: 18px;
+      border-radius: 14px 14px 8px 8px;
+    }
+
+    .hair { background: #3d2d2a; }
+
+    .helmet {
+      display: none;
+      background: linear-gradient(180deg, #9fa6ba, #5f6883);
+      border: 1px solid #464f68;
+      top: 2px;
+      height: 24px;
+    }
+
+    .helmet.on { display: block; }
+
+    .eyes {
+      position: absolute;
+      width: 18px;
+      height: 5px;
+      left: 20px;
+      top: 28px;
+      border-top: 2px solid #32231f;
+      border-radius: 8px;
+      box-shadow: 12px 0 0 0 #32231f;
+    }
+
+    .boss {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 2px solid #8c3642;
+      background:
+        radial-gradient(circle at 38% 34%, #ffb89f 0%, #d87164 28%, #712f43 65%, #36182b 100%);
+      box-shadow: 0 0 0 14px rgba(239,77,67,0.16), 0 30px 80px rgba(0,0,0,0.48);
+      position: relative;
+    }
+
+    .boss::before,
+    .boss::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #2b1522;
+      top: 42px;
+    }
+
+    .boss::before { left: 36px; }
+    .boss::after { right: 36px; }
+
+    .boss-mouth {
+      position: absolute;
+      left: 40px;
+      right: 40px;
+      bottom: 36px;
+      height: 18px;
+      border-radius: 0 0 12px 12px;
+      border-bottom: 4px solid #2b1522;
+    }
+
+    .ring {
+      position: absolute;
+      width: 98px;
+      height: 98px;
+      border-radius: 50%;
+      border: 2px solid rgba(111,210,255,0.32);
+      box-shadow: 0 0 24px rgba(111,210,255,0.16);
+    }
+
+    .log {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #d3ddf1;
+      margin-top: 8px;
+    }
+
+    .log p {
+      margin: 0 0 6px;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+      padding-bottom: 5px;
+    }
+
+    .danger { color: #ff8c83; }
+    .ok { color: #89e5b2; }
+
+    .timeline {
+      margin-top: 14px;
+      height: 8px;
+      border-radius: 999px;
+      background: #151d2d;
+      border: 1px solid #3a4560;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline span {
+      position: absolute;
+      inset: 0;
+      width: 78%;
+      background: linear-gradient(90deg, #3f6cf2, #7d8bff, #ec5e4f);
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .panel { border-right: 0; border-bottom: 1px solid var(--line); }
+      .panel:last-child { border-left: 0; }
+      .arena { height: 500px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="mock">
+    <header class="topbar">
+      <div>
+        <div class="brand">Dungeon Live Renderer - Boss Fight Mockup</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-danger">Dungeon (Run Active)</button>
+        <button class="btn">Action</button>
+        <button class="btn">Shop</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel">
+        <h3 class="title">Party Setup</h3>
+        <div class="card">
+          <div class="row"><span>Dungeon</span><strong>Citadelle rouge</strong></div>
+          <div class="row"><span>Floor</span><strong class="value">10 / 10</strong></div>
+          <div class="row"><span>Boss</span><strong>Crimson Warden</strong></div>
+          <div class="row"><span>Mode</span><strong>Auto-restart ON</strong></div>
+        </div>
+        <div class="card">
+          <div class="row"><span>Team Power</span><strong class="value">2,860</strong></div>
+          <div class="row"><span>Recommended</span><strong>2,700</strong></div>
+          <div class="row"><span>Meat</span><strong>18</strong></div>
+          <div class="row"><span>Potions</span><strong>6 / 4 / 2</strong></div>
+        </div>
+        <div class="card">
+          <h3 class="title" style="margin-top:0">Live Controls</h3>
+          <div class="chips">
+            <span class="chip">x1</span>
+            <span class="chip">x2</span>
+            <span class="chip">x4</span>
+            <span class="chip">Pause</span>
+            <span class="chip">Focus Boss</span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="arena-wrap">
+        <div class="arena-ui">
+          <div class="chips">
+            <span class="chip">Boss HP 62%</span>
+            <span class="chip">Party alive: 4/4</span>
+            <span class="chip">Potion trigger: &lt;50% HP</span>
+          </div>
+          <div class="chips">
+            <span class="chip">Replay: Last failed run</span>
+          </div>
+        </div>
+
+        <div class="arena">
+          <div class="entity" style="left:50%; top:46%;">
+            <div class="hp enemy"><span style="width:62%"></span></div>
+            <div class="boss"><div class="boss-mouth"></div></div>
+          </div>
+
+          <div class="entity" style="left:31%; top:53%;">
+            <div class="hp"><span style="width:71%"></span></div>
+            <div class="ring"></div>
+            <div class="avatar">
+              <div class="hair"></div><div class="eyes"></div>
+            </div>
+          </div>
+
+          <div class="entity" style="left:40%; top:70%;">
+            <div class="hp"><span style="width:54%"></span></div>
+            <div class="avatar">
+              <div class="hair" style="background:#5e3d2f"></div><div class="eyes"></div>
+            </div>
+          </div>
+
+          <div class="entity" style="left:59%; top:67%;">
+            <div class="hp"><span style="width:39%"></span></div>
+            <div class="avatar">
+              <div class="helmet on"></div><div class="eyes"></div>
+            </div>
+          </div>
+
+          <div class="entity" style="left:68%; top:50%;">
+            <div class="hp"><span style="width:86%"></span></div>
+            <div class="avatar">
+              <div class="hair" style="background:#26314b"></div><div class="eyes"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h3 class="title">Combat Log (Latest Run)</h3>
+        <div class="log">
+          <p>[09:32:10] <span class="ok">Alden</span> hits Boss for 126</p>
+          <p>[09:32:11] <span class="danger">Boss</span> uses Crimson Wave (AoE 88)</p>
+          <p>[09:32:12] <span class="ok">Mira</span> auto-uses Tonic (+40% HP)</p>
+          <p>[09:32:13] <span class="ok">Korin</span> crits for 204</p>
+          <p>[09:32:14] <span class="danger">Boss HP:</span> 62%</p>
+        </div>
+
+        <h3 class="title" style="margin-top:14px;">Replay Controls</h3>
+        <div class="chips">
+          <span class="chip">Play</span>
+          <span class="chip">Pause</span>
+          <span class="chip">Skip 1st Death</span>
+          <span class="chip">Skip Wipe</span>
+        </div>
+        <div class="timeline"><span></span></div>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>
