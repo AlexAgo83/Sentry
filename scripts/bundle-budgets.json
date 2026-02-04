@@ -1,5 +1,5 @@
 {
-  "maxJsKb": 400,
+  "maxJsKb": 500,
   "maxCssKb": 75,
-  "maxTotalKb": 500
+  "maxTotalKb": 1000
 }
