@@ -6,15 +6,11 @@ import { getActiveDungeonRun } from "../../core/dungeon";
 import type { PlayerId } from "../../core/types";
 import { DungeonScreen } from "../components/DungeonScreen";
 
-type DungeonScreenContainerProps = {
-    onBack: () => void;
-};
-
-export const DungeonScreenContainer = ({ onBack }: DungeonScreenContainerProps) => {
+export const DungeonScreenContainer = () => {
     const players = useGameStore((state) => state.players);
     const setup = useGameStore((state) => state.dungeon.setup);
     const dungeon = useGameStore((state) => state.dungeon);
-    const meatCount = useGameStore((state) => state.inventory.items.meat ?? 0);
+    const foodCount = useGameStore((state) => state.inventory.items.food ?? 0);
     const activeRun = useMemo(() => getActiveDungeonRun(dungeon), [dungeon]);
     const playerCount = Object.keys(players).length;
     const canEnterDungeon = playerCount >= 4;
@@ -55,14 +51,12 @@ export const DungeonScreenContainer = ({ onBack }: DungeonScreenContainerProps) 
 
     return (
         <DungeonScreen
-            onBack={onBack}
             definitions={DUNGEON_DEFINITIONS}
             players={players}
             selectedDungeonId={setup.selectedDungeonId}
             selectedPartyPlayerIds={setup.selectedPartyPlayerIds}
-            autoRestart={setup.autoRestart}
             canEnterDungeon={canEnterDungeon}
-            meatCount={meatCount}
+            foodCount={foodCount}
             activeRun={activeRun}
             latestReplay={dungeon.latestReplay}
             showReplay={showReplay}

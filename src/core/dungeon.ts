@@ -48,7 +48,7 @@ const cloneInventory = (inventory: InventoryState): InventoryState => ({
 
 const getRunStorageInventorySnapshot = (inventory: InventoryState) => {
     return {
-        meat: normalizeInventoryCount(inventory.items.meat),
+        food: normalizeInventoryCount(inventory.items.food),
         tonic: normalizeInventoryCount(inventory.items.tonic),
         elixir: normalizeInventoryCount(inventory.items.elixir),
         potion: normalizeInventoryCount(inventory.items.potion)
@@ -81,16 +81,16 @@ const floorMobDamage = (tier: number, floor: number) => {
     return Math.max(1, Math.round(12 * (1.15 ** (tier - 1)) * (1.07 ** (floor - 1))));
 };
 
-const meatCostPerFloor = (tier: number) => {
+const foodCostPerFloor = (tier: number) => {
     return 1 + Math.floor((tier - 1) / 2);
 };
 
-const meatCostForFloor = (tier: number, floor: number, floorCount: number) => {
-    return meatCostPerFloor(tier) + (floor === floorCount ? 1 : 0);
+const foodCostForFloor = (tier: number, floor: number, floorCount: number) => {
+    return foodCostPerFloor(tier) + (floor === floorCount ? 1 : 0);
 };
 
-export const getDungeonStartMeatCost = (definition: DungeonDefinition): number => {
-    return meatCostForFloor(definition.tier, 1, Math.max(1, definition.floorCount));
+export const getDungeonStartFoodCost = (definition: DungeonDefinition): number => {
+    return foodCostForFloor(definition.tier, 1, Math.max(1, definition.floorCount));
 };
 
 const resolveTargetEnemy = (enemies: DungeonRunEnemyState[], targetEnemyId: string | null): DungeonRunEnemyState | null => {
@@ -303,22 +303,22 @@ const initializeFloor = (
     itemDeltas: ItemDelta
 ): { run: DungeonRunState; inventory: InventoryState } => {
     const nextInventory = cloneInventory(inventory);
-    const cost = meatCostForFloor(definition.tier, run.floor, run.floorCount);
-    const availableMeat = normalizeInventoryCount(nextInventory.items.meat);
-    if (availableMeat < cost) {
-        nextInventory.items.meat = Math.max(0, availableMeat);
+    const cost = foodCostForFloor(definition.tier, run.floor, run.floorCount);
+    const availableFood = normalizeInventoryCount(nextInventory.items.food);
+    if (availableFood < cost) {
+        nextInventory.items.food = Math.max(0, availableFood);
         run.status = "failed";
-        run.endReason = "out_of_meat";
+        run.endReason = "out_of_food";
         run.party = run.party.map((member) => ({ ...member, hp: 0 }));
         pushEvent(run, {
             type: "run_end",
-            label: "Out of meat"
+            label: "Out of food"
         });
         return { run, inventory: nextInventory };
     }
 
-    nextInventory.items.meat = availableMeat - cost;
-    addItemDelta(itemDeltas, "meat", -cost);
+    nextInventory.items.food = availableFood - cost;
+    addItemDelta(itemDeltas, "food", -cost);
 
     run.enemies = createEnemyWave(definition, run.floor, run.seed, run.runIndex);
     run.targetEnemyId = run.enemies[0]?.id ?? null;
@@ -466,8 +466,8 @@ export const startDungeonRun = (
     if (uniquePartyIds.some((playerId) => assignedToActiveRuns.has(playerId))) {
         return state;
     }
-    const requiredMeatForStart = getDungeonStartMeatCost(definition);
-    if (normalizeInventoryCount(state.inventory.items.meat) < requiredMeatForStart) {
+    const requiredFoodForStart = getDungeonStartFoodCost(definition);
+    if (normalizeInventoryCount(state.inventory.items.food) < requiredFoodForStart) {
         return state;
     }
 
@@ -610,7 +610,7 @@ export const applyDungeonTick = (
 
     if (run.restartAt && timestamp >= run.restartAt && run.autoRestart) {
         const aliveCount = resolveAliveHeroIds(run).length;
-        if (aliveCount > 0 && normalizeInventoryCount(inventory.items.meat) > 0) {
+        if (aliveCount > 0 && normalizeInventoryCount(inventory.items.food) > 0) {
             run.status = "running";
             run.endReason = null;
             run.restartAt = null;

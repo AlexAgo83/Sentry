@@ -28,7 +28,7 @@ const getBaseRun = (): DungeonRunState => ({
     autoRestart: true,
     restartAt: null,
     runIndex: 1,
-    startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 0 },
+    startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
     seed: 3,
     events: [
         { atMs: 0, type: "floor_start", label: "Floor 2" },
@@ -48,7 +48,7 @@ const getReplay = (): DungeonReplayState => ({
     seed: 4,
     partyPlayerIds: ["1", "2", "3", "4"],
     teamSnapshot: [],
-    startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 0 },
+    startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
     events: [
         { atMs: 0, type: "floor_start", label: "Floor 10" },
         { atMs: 100, type: "death", sourceId: "1", label: "Hero" },
@@ -59,7 +59,7 @@ const getReplay = (): DungeonReplayState => ({
 });
 
 describe("DungeonScreen controls", () => {
-    it("shows live and replay control groups", () => {
+    it("shows replay controls in setup screen", () => {
         const state = createInitialGameState("0.9.0");
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
@@ -67,14 +67,45 @@ describe("DungeonScreen controls", () => {
 
         render(
             <DungeonScreen
-                onBack={() => {}}
                 definitions={[]}
                 players={state.players}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
-                autoRestart
                 canEnterDungeon
-                meatCount={20}
+                foodCount={20}
+                activeRun={null}
+                latestReplay={getReplay()}
+                showReplay
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByRole("button", { name: "Start run" })).toBeTruthy();
+        expect(screen.getByRole("button", { name: "Hide replay" })).toBeTruthy();
+        expect(screen.getByLabelText("Replay timeline")).toBeTruthy();
+        expect(screen.getByRole("button", { name: "Skip to first death" })).toBeTruthy();
+        expect(screen.queryByRole("button", { name: /auto restart/i })).toBeNull();
+    });
+
+    it("hides replay controls in live screen", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        render(
+            <DungeonScreen
+                definitions={[]}
+                players={state.players}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
                 activeRun={getBaseRun()}
                 latestReplay={getReplay()}
                 showReplay
@@ -87,9 +118,13 @@ describe("DungeonScreen controls", () => {
             />
         );
 
-        expect(screen.getByRole("button", { name: "Pause" })).toBeTruthy();
-        expect(screen.getByLabelText("Replay timeline")).toBeTruthy();
-        expect(screen.getByRole("button", { name: "Skip to first death" })).toBeTruthy();
+        expect(screen.queryByRole("button", { name: "Show replay" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Hide replay" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Start run" })).toBeNull();
+        expect(screen.queryByLabelText("Replay timeline")).toBeNull();
+        expect(screen.getByRole("button", { name: /auto restart/i })).toBeTruthy();
+        expect(screen.queryByRole("button", { name: "Pause" })).toBeNull();
+        expect(screen.queryByRole("group", { name: "Live speed" })).toBeNull();
         expect(screen.queryByRole("button", { name: /Focus boss/i })).toBeNull();
     });
 });

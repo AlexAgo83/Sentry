@@ -16,7 +16,7 @@ describe("dungeon flow", () => {
         expect(state.rosterLimit).toBeGreaterThanOrEqual(4);
     });
 
-    it("starts a run with 4 heroes and consumes floor meat", () => {
+    it("starts a run with 4 heroes and consumes floor food", () => {
         let state = createInitialGameState("0.4.0");
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
@@ -29,7 +29,7 @@ describe("dungeon flow", () => {
             ...state.players["1"],
             selectedActionId: "Combat"
         };
-        state.inventory.items.meat = 12;
+        state.inventory.items.food = 12;
 
         state = gameReducer(state, {
             type: "dungeonStartRun",
@@ -49,16 +49,16 @@ describe("dungeon flow", () => {
         expect(state.players["2"].hp).toBe(state.players["2"].hpMax);
         expect(state.players["3"].hp).toBe(state.players["3"].hpMax);
         expect(state.players["4"].hp).toBe(state.players["4"].hpMax);
-        expect(state.inventory.items.meat).toBe(11);
+        expect(state.inventory.items.food).toBe(11);
         expect(state.players["1"].selectedActionId).toBeNull();
     });
 
-    it("does not start a run when there is not enough meat", () => {
+    it("does not start a run when there is not enough food", () => {
         let state = createInitialGameState("0.4.0");
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 0;
+        state.inventory.items.food = 0;
 
         state = gameReducer(state, {
             type: "dungeonStartRun",
@@ -70,6 +70,26 @@ describe("dungeon flow", () => {
         expect(state.dungeon.activeRunId).toBeNull();
     });
 
+    it("updates auto restart for setup and active run", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 12;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        state = gameReducer(state, { type: "dungeonSetupSetAutoRestart", autoRestart: false });
+
+        expect(state.dungeon.setup.autoRestart).toBe(false);
+        expect(getActiveDungeonRun(state.dungeon)?.autoRestart).toBe(false);
+    });
+
     it("enforces v1 single active run guard even with extra roster", () => {
         let state = createInitialGameState("0.4.0");
         state.players["2"] = createPlayerState("2", "Mara");
@@ -79,7 +99,7 @@ describe("dungeon flow", () => {
         state.players["6"] = createPlayerState("6", "Rin");
         state.players["7"] = createPlayerState("7", "Tao");
         state.players["8"] = createPlayerState("8", "Uma");
-        state.inventory.items.meat = 30;
+        state.inventory.items.food = 30;
 
         state = gameReducer(state, {
             type: "dungeonStartRun",
@@ -121,7 +141,7 @@ describe("dungeon flow", () => {
                 autoRestart: true,
                 restartAt: null,
                 runIndex: 1,
-                startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 0 },
+                startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
                 seed: 1,
                 events: []
             },
@@ -142,7 +162,7 @@ describe("dungeon flow", () => {
                 autoRestart: true,
                 restartAt: 12_000,
                 runIndex: 1,
-                startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 0 },
+                startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
                 seed: 2,
                 events: []
             },
@@ -163,7 +183,7 @@ describe("dungeon flow", () => {
                 autoRestart: false,
                 restartAt: null,
                 runIndex: 1,
-                startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 0 },
+                startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
                 seed: 3,
                 events: []
             }
@@ -182,7 +202,7 @@ describe("dungeon flow", () => {
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 12;
+        state.inventory.items.food = 12;
         state.inventory.items.potion = 1;
 
         state = gameReducer(state, {
@@ -213,7 +233,7 @@ describe("dungeon flow", () => {
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 12;
+        state.inventory.items.food = 12;
         state.inventory.items.potion = 1;
 
         state = gameReducer(state, {
@@ -243,7 +263,7 @@ describe("dungeon flow", () => {
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 12;
+        state.inventory.items.food = 12;
         state.inventory.items.tonic = 1;
         state.inventory.items.elixir = 1;
         state.inventory.items.potion = 1;
@@ -274,7 +294,7 @@ describe("dungeon flow", () => {
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 12;
+        state.inventory.items.food = 12;
 
         state = gameReducer(state, {
             type: "dungeonStartRun",
@@ -316,7 +336,7 @@ describe("dungeon flow", () => {
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 20;
+        state.inventory.items.food = 20;
 
         state = gameReducer(state, {
             type: "dungeonStartRun",
@@ -361,7 +381,7 @@ describe("dungeon flow", () => {
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 20;
+        state.inventory.items.food = 20;
         state.inventory.items.potion = 2;
 
         state = gameReducer(state, {
@@ -384,7 +404,7 @@ describe("dungeon flow", () => {
         expect(largeRun?.elapsedMs).toBe(splitRun?.elapsedMs);
         expect(largeRun?.party.map((member) => member.hp)).toEqual(splitRun?.party.map((member) => member.hp));
         expect(largeRun?.enemies.map((enemy) => enemy.hp)).toEqual(splitRun?.enemies.map((enemy) => enemy.hp));
-        expect(largeTickResult.state.inventory.items.meat).toBe(splitTickState.inventory.items.meat);
+        expect(largeTickResult.state.inventory.items.food).toBe(splitTickState.inventory.items.food);
         expect(largeTickResult.state.inventory.items.gold).toBe(splitTickState.inventory.items.gold);
     });
 
@@ -393,7 +413,7 @@ describe("dungeon flow", () => {
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 12;
+        state.inventory.items.food = 12;
 
         state = gameReducer(state, {
             type: "dungeonStartRun",

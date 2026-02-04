@@ -32,7 +32,6 @@ type AppViewContainerProps = {
     onAddPlayer: () => void;
     onChangeAction: () => void;
     onCloseActionSelection: () => void;
-    onCloseDungeonScreen: () => void;
     onRenameHero: () => void;
     getSkillLabel: (skillId: SkillId) => string;
     getRecipeLabel: (skillId: SkillId, recipeId: string | null) => string;
@@ -60,7 +59,6 @@ export const AppViewContainer = ({
     onAddPlayer,
     onChangeAction,
     onCloseActionSelection,
-    onCloseDungeonScreen,
     onRenameHero,
     getSkillLabel,
     getRecipeLabel,
@@ -142,7 +140,7 @@ export const AppViewContainer = ({
                 )}
                 dungeonScreen={(
                     <DevProfiler id="DungeonScreen">
-                        <DungeonScreenContainer onBack={onCloseDungeonScreen} />
+                        <DungeonScreenContainer />
                     </DevProfiler>
                 )}
             />

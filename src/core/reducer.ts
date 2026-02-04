@@ -27,6 +27,7 @@ import { getEquipmentDefinition } from "../data/equipment";
 import { getSellGoldGain } from "./economy";
 import { getDungeonDefinition } from "../data/dungeons";
 import {
+    getActiveDungeonRun,
     isPlayerAssignedToActiveDungeonRun,
     startDungeonRun,
     stopDungeonRun,
@@ -430,7 +431,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 }
             };
         }
-        case "dungeonSetupSetAutoRestart":
+        case "dungeonSetupSetAutoRestart": {
+            const activeRun = getActiveDungeonRun(state.dungeon);
             return {
                 ...state,
                 dungeon: {
@@ -438,9 +440,17 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     setup: {
                         ...state.dungeon.setup,
                         autoRestart: action.autoRestart
-                    }
+                    },
+                    runs: activeRun ? {
+                        ...state.dungeon.runs,
+                        [activeRun.id]: {
+                            ...activeRun,
+                            autoRestart: action.autoRestart
+                        }
+                    } : state.dungeon.runs
                 }
             };
+        }
         case "dungeonStartRun":
             return startDungeonRun(
                 state,

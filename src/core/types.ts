@@ -19,7 +19,7 @@ export type QuestId = string;
 export type DungeonId = string;
 export type DungeonBossMechanicId = "burst" | "poison" | "shield" | "summon" | "enrage";
 export type DungeonRunStatus = "running" | "victory" | "failed";
-export type DungeonRunEndReason = "victory" | "wipe" | "out_of_meat" | "stopped";
+export type DungeonRunEndReason = "victory" | "wipe" | "out_of_food" | "out_of_meat" | "stopped";
 export type StatId = "Strength" | "Agility" | "Endurance" | "Intellect" | "Luck";
 export type EquipmentSlotId =
     | "Head"
@@ -202,7 +202,7 @@ export interface DungeonRunState {
     restartAt: number | null;
     runIndex: number;
     startInventory: {
-        meat: number;
+        food: number;
         tonic: number;
         elixir: number;
         potion: number;
@@ -227,7 +227,7 @@ export interface DungeonReplayState {
         equipment: PlayerEquipmentState;
     }>;
     startInventory: {
-        meat: number;
+        food: number;
         tonic: number;
         elixir: number;
         potion: number;

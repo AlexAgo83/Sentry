@@ -10,6 +10,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--m4);
+    align-items: start;
 }
 
 .ts-dungeon-card {
@@ -19,7 +20,8 @@
     padding: var(--m4);
     display: flex;
     flex-direction: column;
-    gap: var(--m3);
+    gap: var(--m4);
+    align-self: start;
 }
 
 .ts-dungeon-card-title {
@@ -31,11 +33,20 @@
 }
 
 .ts-dungeon-list,
-.ts-dungeon-party-list,
-.ts-dungeon-live-party {
+.ts-dungeon-party-list {
     display: flex;
     flex-direction: column;
     gap: var(--m2);
+}
+
+.ts-dungeon-live-party {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+}
+
+.ts-dungeon-live-party + .ts-dungeon-live-party {
+    margin-top: var(--m2);
 }
 
 .ts-dungeon-option,
@@ -65,6 +76,42 @@
 
 .ts-dungeon-live-entity-enemy {
     border-color: rgba(239, 77, 67, 0.45);
+}
+
+.ts-dungeon-cost-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--m2);
+}
+
+.ts-dungeon-cost-label {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-text-fade);
+}
+
+.ts-dungeon-cost-pill {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(93, 217, 193, 0.32);
+    border-radius: 999px;
+    padding: var(--m1) var(--m4);
+    background: rgba(12, 18, 32, 0.8);
+    font-size: var(--text-s-size);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.ts-dungeon-cost-pill.is-ok {
+    border-color: rgba(110, 220, 150, 0.55);
+    color: rgba(180, 244, 204, 0.95);
+}
+
+.ts-dungeon-cost-pill.is-low {
+    border-color: rgba(239, 77, 67, 0.55);
+    color: rgba(255, 187, 181, 0.95);
 }
 
 .ts-dungeon-replay-log {
@@ -121,6 +168,48 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--m2);
+}
+
+.ts-dungeon-auto-restart-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m2);
+    padding-left: var(--m8);
+    padding-right: var(--m8);
+}
+
+.ts-dungeon-action-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+}
+
+.ts-dungeon-action-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.ts-dungeon-action-label {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: currentColor;
+}
+
+.ts-dungeon-auto-restart-button.is-active {
+    border-color: rgba(110, 220, 150, 0.75);
+    color: rgba(180, 244, 204, 0.95);
+    box-shadow:
+        0 0 10px rgba(90, 220, 140, 0.3),
+        0 0 18px rgba(90, 220, 140, 0.2);
+}
+
+.ts-dungeon-auto-restart-button.is-active:hover {
+    border-color: rgba(170, 255, 210, 0.95);
+    color: rgba(210, 255, 228, 0.95);
 }
 
 .ts-dungeon-speed-group {

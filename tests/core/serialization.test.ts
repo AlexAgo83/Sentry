@@ -47,7 +47,7 @@ describe("serialization", () => {
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
         state.players["4"] = createPlayerState("4", "Kai");
-        state.inventory.items.meat = 20;
+        state.inventory.items.food = 20;
 
         state = gameReducer(state, {
             type: "dungeonStartRun",

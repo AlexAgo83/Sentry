@@ -263,7 +263,6 @@ export const AppContainer = () => {
                 onAddPlayer={openRecruit}
                 onChangeAction={handleOpenActionSelection}
                 onCloseActionSelection={closeActionSelection}
-                onCloseDungeonScreen={closeDungeonScreen}
                 onRenameHero={openActiveRename}
                 getSkillLabel={getSkillLabelStrict}
                 getRecipeLabel={getRecipeLabel}

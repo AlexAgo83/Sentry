@@ -46,7 +46,7 @@ describe("dungeon arena playback", () => {
             autoRestart: true,
             restartAt: null,
             runIndex: 1,
-            startInventory: { meat: 10, tonic: 1, elixir: 0, potion: 0 },
+            startInventory: { food: 10, tonic: 1, elixir: 0, potion: 0 },
             seed: 42,
             events: [
                 { atMs: 0, type: "floor_start", label: "Floor 10" },
@@ -87,7 +87,7 @@ describe("dungeon arena playback", () => {
                 { playerId: "3", name: "C", equipment: state.players["3"].equipment },
                 { playerId: "4", name: "D", equipment: state.players["4"].equipment }
             ],
-            startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 1 },
+            startInventory: { food: 10, tonic: 0, elixir: 0, potion: 1 },
             events: [
                 { atMs: 0, type: "floor_start", label: "Floor 10" },
                 { atMs: 10, type: "boss_start", sourceId: "boss-1", label: "Boss" },
