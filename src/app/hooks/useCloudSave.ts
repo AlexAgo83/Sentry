@@ -17,6 +17,7 @@ type CloudSaveState = {
     status: "idle" | "authenticating" | "ready" | "error" | "offline" | "warming";
     error: string | null;
     warmupRetrySeconds: number | null;
+    isBackendAwake: boolean;
     cloudMeta: CloudSaveMeta | null;
     localMeta: CloudSaveMeta;
     lastSyncAt: Date | null;
@@ -95,9 +96,11 @@ export const useCloudSave = () => {
     const [status, setStatus] = useState<CloudSaveState["status"]>("idle");
     const [error, setError] = useState<string | null>(null);
     const [warmupRetrySeconds, setWarmupRetrySeconds] = useState<number | null>(null);
+    const [isBackendAwake, setIsBackendAwake] = useState(false);
     const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
     const [isOnline, setIsOnline] = useState(() => (typeof navigator !== "undefined" ? navigator.onLine : true));
     const warmupRetrySignalRef = useRef<(() => void) | null>(null);
+    const backendProbeInFlightRef = useRef(false);
     const lastRequestRef = useRef<(() => Promise<void>) | null>(null);
 
     useEffect(() => {
@@ -128,11 +131,13 @@ export const useCloudSave = () => {
     }, []);
     const applyRequestError = useCallback((err: unknown, fallback: string) => {
         if (isWarmupError(err)) {
+            setIsBackendAwake(false);
             setStatus("warming");
             setError(warmupMessage());
             setWarmupRetrySeconds(null);
             return;
         }
+        setIsBackendAwake(true);
         setStatus("error");
         setError(err instanceof Error ? err.message : fallback);
     }, []);
@@ -174,6 +179,7 @@ export const useCloudSave = () => {
     const authenticate = useCallback(async (mode: "login" | "register", email: string, password: string) => {
         lastRequestRef.current = () => authenticate(mode, email, password);
         if (!isAvailable) {
+            setIsBackendAwake(false);
             setStatus("offline");
             setError("Cloud sync is unavailable.");
             return;
@@ -185,6 +191,7 @@ export const useCloudSave = () => {
                     ? cloudClient.register(email, password)
                     : cloudClient.login(email, password)
             ));
+            setIsBackendAwake(true);
             setAccessToken(token);
             setStatus("ready");
         } catch (err) {
@@ -194,6 +201,7 @@ export const useCloudSave = () => {
 
     const refreshToken = useCallback(async () => {
         if (!isAvailable) {
+            setIsBackendAwake(false);
             setStatus("offline");
             setError("Cloud sync is unavailable.");
             return null;
@@ -201,6 +209,7 @@ export const useCloudSave = () => {
         setError(null);
         try {
             const token = await withWarmupRetry("authenticating", () => cloudClient.refresh());
+            setIsBackendAwake(true);
             setAccessToken(token);
             return token;
         } catch (err) {
@@ -230,6 +239,7 @@ export const useCloudSave = () => {
     const refreshCloud = useCallback(async () => {
         lastRequestRef.current = refreshCloud;
         if (!isAvailable) {
+            setIsBackendAwake(false);
             setStatus("offline");
             setError("Cloud sync is unavailable.");
             return;
@@ -237,6 +247,7 @@ export const useCloudSave = () => {
         setError(null);
         try {
             const response = await withWarmupRetry("idle", () => withRefreshRetry((token) => cloudClient.getLatestSave(token)));
+            setIsBackendAwake(true);
             if (!response) {
                 setHasCloudSave(false);
                 setCloudMeta(null);
@@ -261,12 +272,47 @@ export const useCloudSave = () => {
         }
     }, [applyRequestError, isAvailable, withRefreshRetry, withWarmupRetry]);
 
+    const probeBackend = useCallback(async () => {
+        if (backendProbeInFlightRef.current) {
+            return;
+        }
+        lastRequestRef.current = probeBackend;
+        if (!isAvailable) {
+            setIsBackendAwake(false);
+            setStatus("offline");
+            setError("Cloud sync is unavailable.");
+            return;
+        }
+        backendProbeInFlightRef.current = true;
+        setError(null);
+        try {
+            await withWarmupRetry("idle", () => cloudClient.probeReady());
+            setIsBackendAwake(true);
+            setStatus((currentStatus) => (currentStatus === "warming" ? "idle" : currentStatus));
+        } catch (err) {
+            applyRequestError(err, "Cloud backend is unavailable.");
+        } finally {
+            backendProbeInFlightRef.current = false;
+        }
+    }, [applyRequestError, isAvailable, withWarmupRetry]);
+
     useEffect(() => {
         if (!isAvailable || !accessToken) {
             return;
         }
         refreshCloud();
     }, [accessToken, isAvailable, refreshCloud]);
+
+    useEffect(() => {
+        if (!isAvailable) {
+            setIsBackendAwake(false);
+            return;
+        }
+        if (accessToken || isBackendAwake || status === "authenticating") {
+            return;
+        }
+        void probeBackend();
+    }, [accessToken, isAvailable, isBackendAwake, probeBackend, status]);
 
     const loadCloud = useCallback(async () => {
         if (!cloudPayload) {
@@ -279,6 +325,7 @@ export const useCloudSave = () => {
     const overwriteCloud = useCallback(async () => {
         lastRequestRef.current = overwriteCloud;
         if (!isAvailable) {
+            setIsBackendAwake(false);
             setStatus("offline");
             setError("Cloud sync is unavailable.");
             return;
@@ -292,6 +339,7 @@ export const useCloudSave = () => {
                 virtualScore,
                 appVersion
             )));
+            setIsBackendAwake(true);
             setCloudMeta({
                 updatedAt: toDateOrNull(result.meta.updatedAt),
                 virtualScore: result.meta.virtualScore,
@@ -338,6 +386,7 @@ export const useCloudSave = () => {
         status,
         error,
         warmupRetrySeconds,
+        isBackendAwake,
         cloudMeta,
         localMeta,
         lastSyncAt,

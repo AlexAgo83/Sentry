@@ -15,12 +15,13 @@ const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const cloud = useCloudSave();
-    const badgeLabel = cloud.status === "warming" ? "Warming" : cloud.isAvailable ? "Online" : "Offline";
-    const badgeTone = cloud.status === "warming"
+    const backendUnavailable = cloud.isAvailable && (!cloud.isBackendAwake || cloud.status === "warming");
+    const badgeLabel = !cloud.isAvailable ? "Offline" : backendUnavailable ? "Warming" : "Online";
+    const badgeTone = !cloud.isAvailable
+        ? "is-offline"
+        : backendUnavailable
         ? "is-warming"
-        : cloud.isAvailable
-            ? "is-online"
-            : "is-offline";
+        : "is-online";
 
     return (
         <ModalShell
@@ -37,6 +38,7 @@ const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
                     error={cloud.error}
                     warmupRetrySeconds={cloud.warmupRetrySeconds}
                     isAvailable={cloud.isAvailable}
+                    isBackendAwake={cloud.isBackendAwake}
                     hasCloudSave={cloud.hasCloudSave}
                     localMeta={cloud.localMeta}
                     cloudMeta={cloud.cloudMeta}

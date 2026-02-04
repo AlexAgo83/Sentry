@@ -10,6 +10,7 @@ const baseProps = {
     error: null,
     warmupRetrySeconds: null,
     isAvailable: true,
+    isBackendAwake: true,
     hasCloudSave: true,
     localMeta: {
         updatedAt: new Date("2024-01-01T10:00:00Z"),
@@ -59,6 +60,21 @@ describe("CloudSavePanel", () => {
         expect(screen.queryByText("Cloud")).toBeNull();
         expect(screen.queryByRole("button", { name: "Load cloud save" })).toBeNull();
         expect(screen.queryByRole("button", { name: "Overwrite cloud with local" })).toBeNull();
+    });
+
+    it("hides auth controls while backend is waking up", () => {
+        render(
+            <CloudSavePanel
+                {...baseProps}
+                isAuthenticated={false}
+                isBackendAwake={false}
+                status="warming"
+                error="Cloud backend is waking up."
+            />
+        );
+        expect(screen.queryByRole("button", { name: "Register" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Login" })).toBeNull();
+        expect(screen.getByRole("button", { name: "Retry now" })).toBeTruthy();
     });
 
     it("shows logout when authenticated", () => {

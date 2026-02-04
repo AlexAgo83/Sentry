@@ -16,6 +16,7 @@ export const CloudSavePanelContainer = () => {
             error={cloud.error}
             warmupRetrySeconds={cloud.warmupRetrySeconds}
             isAvailable={cloud.isAvailable}
+            isBackendAwake={cloud.isBackendAwake}
             hasCloudSave={cloud.hasCloudSave}
             localMeta={cloud.localMeta}
             cloudMeta={cloud.cloudMeta}

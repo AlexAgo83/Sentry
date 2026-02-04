@@ -20,14 +20,14 @@ export const LocalSaveModal = memo(({
                 <div className="ts-action-row">
                     <button
                         type="button"
-                        className="generic-field button ts-focusable"
+                        className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onExportSave}
                     >
                         Export save
                     </button>
                     <button
                         type="button"
-                        className="generic-field button ts-focusable"
+                        className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onImportSave}
                     >
                         Import save
@@ -41,7 +41,7 @@ export const LocalSaveModal = memo(({
                 <div className="ts-action-row">
                     <button
                         type="button"
-                        className="generic-field button ts-reset ts-focusable"
+                        className="generic-field button ts-devtools-button ts-reset ts-focusable"
                         onClick={onResetSave}
                     >
                         Reset save

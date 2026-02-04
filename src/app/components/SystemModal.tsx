@@ -88,7 +88,7 @@ export const SystemModal = memo(({
                     <div className="ts-action-row">
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={onOpenLocalSave}
                             data-testid="open-local-save"
                         >
@@ -96,7 +96,7 @@ export const SystemModal = memo(({
                         </button>
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={onOpenCloudSave}
                             data-testid="open-cloud-save"
                         >
@@ -112,7 +112,7 @@ export const SystemModal = memo(({
                 <div className="ts-action-row ts-system-actions">
                     <button
                         type="button"
-                        className="generic-field button ts-focusable"
+                        className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onOpenDevTools}
                     >
                         Dev tools
@@ -131,7 +131,7 @@ export const SystemModal = memo(({
                     <div className="ts-action-row ts-system-actions ts-crash-actions">
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={onClearCrashReports}
                         >
                             Clear crash reports

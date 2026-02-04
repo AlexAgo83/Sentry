@@ -162,6 +162,21 @@ const putLatestSave = async (
     });
 };
 
+const probeReady = async (): Promise<void> => {
+    const url = buildUrl("/api/v1/saves/latest");
+    if (!url) {
+        throw new Error("Cloud API base is not configured.");
+    }
+    const response = await fetch(url, {
+        credentials: "include"
+    });
+    if ([200, 204, 401].includes(response.status)) {
+        return;
+    }
+    const message = await response.text();
+    throw new CloudApiError(response.status, message);
+};
+
 export const cloudClient = {
     getApiBase,
     loadAccessToken,
@@ -170,5 +185,6 @@ export const cloudClient = {
     login,
     refresh,
     getLatestSave,
-    putLatestSave
+    putLatestSave,
+    probeReady
 };

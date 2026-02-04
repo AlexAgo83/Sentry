@@ -10,6 +10,7 @@ export type CloudSavePanelProps = {
     error: string | null;
     warmupRetrySeconds: number | null;
     isAvailable: boolean;
+    isBackendAwake: boolean;
     hasCloudSave: boolean;
     localMeta: CloudSaveMeta;
     cloudMeta: CloudSaveMeta | null;
@@ -63,6 +64,7 @@ export const CloudSavePanel = memo(({
     error,
     warmupRetrySeconds,
     isAvailable,
+    isBackendAwake,
     hasCloudSave,
     localMeta,
     cloudMeta,
@@ -80,7 +82,8 @@ export const CloudSavePanel = memo(({
     onLoadCloud,
     onOverwriteCloud
 }: CloudSavePanelProps) => {
-    const disabled = !isAvailable || status === "authenticating" || status === "warming";
+    const backendUnavailable = isAvailable && (!isBackendAwake || status === "warming");
+    const disabled = !isAvailable || !isBackendAwake || status === "authenticating" || status === "warming";
     const authDisabled = disabled || !isAuthenticated;
     const warmupLabel = warmupRetrySeconds && warmupRetrySeconds > 0
         ? `Cloud backend is waking up… retrying in ${warmupRetrySeconds}s.`
@@ -89,11 +92,11 @@ export const CloudSavePanel = memo(({
         if (!isAvailable) {
             return "Cloud sync unavailable (missing API base or offline).";
         }
+        if (backendUnavailable) {
+            return warmupLabel;
+        }
         if (status === "authenticating") {
             return "Authenticating…";
-        }
-        if (status === "warming") {
-            return warmupLabel;
         }
         if (error) {
             return error;
@@ -104,12 +107,12 @@ export const CloudSavePanel = memo(({
         return null;
     })();
     const isErrorMessage = Boolean(error) && status !== "warming";
-    const badgeLabel = status === "warming" ? "Warming" : isAvailable ? "Online" : "Offline";
-    const badgeTone = status === "warming"
+    const badgeLabel = !isAvailable ? "Offline" : backendUnavailable ? "Warming" : "Online";
+    const badgeTone = !isAvailable
+        ? "is-offline"
+        : backendUnavailable
         ? "is-warming"
-        : isAvailable
-            ? "is-online"
-            : "is-offline";
+        : "is-online";
     const lastSyncLabel = formatTimeAgo(lastSyncAt);
     const lastSyncTitle = lastSyncAt ? lastSyncAt.toLocaleString() : "Never";
     const localDateValue = localMeta.updatedAt?.getTime() ?? null;
@@ -153,57 +156,59 @@ export const CloudSavePanel = memo(({
                 </div>
             ) : null}
             {!isAuthenticated ? (
-                <div className="ts-system-cloud-form">
-                    <label className="ts-system-cloud-field">
-                        <span>Email</span>
-                        <input
-                            className="generic-field input ts-system-cloud-input"
-                            type="email"
-                            value={email}
-                            onChange={(event) => onEmailChange(event.currentTarget.value)}
-                            placeholder="you@example.com"
-                            disabled={disabled}
-                            data-testid="cloud-email"
-                        />
-                    </label>
-                    <label className="ts-system-cloud-field">
-                        <span>Password</span>
-                        <input
-                            className="generic-field input ts-system-cloud-input"
-                            type="password"
-                            value={password}
-                            onChange={(event) => onPasswordChange(event.currentTarget.value)}
-                            placeholder="••••••"
-                            disabled={disabled}
-                            data-testid="cloud-password"
-                        />
-                    </label>
-                    <div className="ts-system-cloud-actions">
-                        <button
-                            type="button"
-                            className="generic-field button ts-focusable"
-                            onClick={onRegister}
-                            disabled={disabled}
-                            data-testid="cloud-register"
-                        >
-                            Register
-                        </button>
-                        <button
-                            type="button"
-                            className="generic-field button ts-focusable"
-                            onClick={onLogin}
-                            disabled={disabled}
-                            data-testid="cloud-login"
-                        >
-                            Login
-                        </button>
+                isBackendAwake ? (
+                    <div className="ts-system-cloud-form">
+                        <label className="ts-system-cloud-field">
+                            <span>Email</span>
+                            <input
+                                className="generic-field input ts-system-cloud-input"
+                                type="email"
+                                value={email}
+                                onChange={(event) => onEmailChange(event.currentTarget.value)}
+                                placeholder="you@example.com"
+                                disabled={disabled}
+                                data-testid="cloud-email"
+                            />
+                        </label>
+                        <label className="ts-system-cloud-field">
+                            <span>Password</span>
+                            <input
+                                className="generic-field input ts-system-cloud-input"
+                                type="password"
+                                value={password}
+                                onChange={(event) => onPasswordChange(event.currentTarget.value)}
+                                placeholder="••••••"
+                                disabled={disabled}
+                                data-testid="cloud-password"
+                            />
+                        </label>
+                        <div className="ts-system-cloud-actions">
+                            <button
+                                type="button"
+                                className="generic-field button ts-devtools-button ts-focusable"
+                                onClick={onRegister}
+                                disabled={disabled}
+                                data-testid="cloud-register"
+                            >
+                                Register
+                            </button>
+                            <button
+                                type="button"
+                                className="generic-field button ts-devtools-button ts-focusable"
+                                onClick={onLogin}
+                                disabled={disabled}
+                                data-testid="cloud-login"
+                            >
+                                Login
+                            </button>
+                        </div>
                     </div>
-                </div>
+                ) : null
             ) : (
                 <div className="ts-system-cloud-actions">
                     <button
                         type="button"
-                        className="generic-field button ts-focusable"
+                        className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onLogout}
                         disabled={disabled}
                         data-testid="cloud-logout"
@@ -212,7 +217,7 @@ export const CloudSavePanel = memo(({
                     </button>
                     <button
                         type="button"
-                        className="generic-field button ts-focusable"
+                        className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onRefresh}
                         disabled={authDisabled}
                         data-testid="cloud-refresh"
@@ -230,11 +235,11 @@ export const CloudSavePanel = memo(({
                     )}
                 </div>
             ) : null}
-            {status === "warming" ? (
+            {backendUnavailable ? (
                 <div className="ts-system-cloud-actions">
                     <button
                         type="button"
-                        className="generic-field button ts-focusable"
+                        className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onWarmupRetryNow}
                         data-testid="cloud-retry"
                     >
@@ -298,7 +303,7 @@ export const CloudSavePanel = memo(({
                     <div className="ts-system-cloud-actions">
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={onLoadCloud}
                             disabled={disabled || !hasCloudSave}
                             data-testid="cloud-load"
@@ -307,7 +312,7 @@ export const CloudSavePanel = memo(({
                         </button>
                         <button
                             type="button"
-                            className="generic-field button ts-focusable"
+                            className="generic-field button ts-devtools-button ts-focusable"
                             onClick={onOverwriteCloud}
                             disabled={disabled}
                             data-testid="cloud-overwrite"
