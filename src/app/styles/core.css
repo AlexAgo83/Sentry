@@ -70,6 +70,7 @@
 
 .ts-panel {
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: stretch;
     gap: var(--m5);
 }
@@ -192,12 +193,15 @@
     text-align: left;
     font-family: var(--default-font);
     cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.12s ease;
+    will-change: border-color, box-shadow, transform;
+    transform: translateZ(0);
 }
 
 .ts-player-card:hover {
-    transform: translateY(-1px);
+    transform: translate3d(0, -1px, 0);
     border-color: rgba(242, 193, 78, 0.55);
+    box-shadow: 0 6px 14px -12px rgba(242, 193, 78, 0.6);
 }
 
 .ts-player-card.is-disabled,

@@ -227,7 +227,8 @@ const buildFloatingTexts = (
     atMs: number
 ): DungeonArenaFloatingText[] => {
     return events
-        .filter((event) => (
+        .map((event, eventIndex) => ({ event, eventIndex }))
+        .filter(({ event }) => (
             (event.type === "damage" || event.type === "heal")
             && event.atMs <= atMs
             && event.atMs >= atMs - FLOAT_WINDOW_MS
@@ -236,11 +237,11 @@ const buildFloatingTexts = (
             && event.amount > 0
         ))
         .slice(-FLOAT_MAX_COUNT)
-        .map((event, index) => {
+        .map(({ event, eventIndex }) => {
             const age = Math.max(0, atMs - event.atMs);
             const kind: DungeonArenaFloatingText["kind"] = event.type === "heal" ? "heal" : "damage";
             return {
-                id: `${event.type}-${event.atMs}-${index}`,
+                id: `${event.type}-${event.atMs}-${eventIndex}`,
                 targetId: event.targetId ?? event.sourceId ?? "",
                 amount: Math.max(1, Math.round(event.amount ?? 0)),
                 kind,

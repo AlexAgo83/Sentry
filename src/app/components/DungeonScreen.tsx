@@ -1,5 +1,6 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { DungeonDefinition, DungeonReplayState, DungeonRunState, PlayerId, PlayerState } from "../../core/types";
+import { BackIcon } from "../ui/backIcon";
 import { ChangeIcon } from "../ui/changeIcon";
 import { AutoRestartOffIcon, AutoRestartOnIcon } from "../ui/dungeonIcons";
 import { InterruptIcon } from "../ui/interruptIcon";
@@ -61,18 +62,29 @@ export const DungeonScreen = memo(({
     const selectedDungeon = definitions.find((definition) => definition.id === selectedDungeonId) ?? definitions[0] ?? null;
     const sortedPlayers = Object.values(players).sort((a, b) => Number(a.id) - Number(b.id));
     const requiredFoodForStart = selectedDungeon ? 1 + Math.floor((selectedDungeon.tier - 1) / 2) : 0;
-    const hasEnoughFood = foodCount >= requiredFoodForStart;
+    const safeRequiredFoodForStart = Number.isFinite(requiredFoodForStart) ? Math.max(0, Math.floor(requiredFoodForStart)) : 0;
+    const safeFoodCount = Number.isFinite(foodCount) ? Math.max(0, Math.floor(foodCount)) : 0;
+    const hasEnoughFood = safeFoodCount >= safeRequiredFoodForStart;
     const canStartRun = canEnterDungeon
         && selectedPartyPlayerIds.length === 4
         && Boolean(selectedDungeon)
         && hasEnoughFood;
     const liveTotalMs = activeRun ? Math.max(activeRun.elapsedMs, activeRun.events.at(-1)?.atMs ?? 0) : 0;
     const replayTotalMs = latestReplay ? Math.max(latestReplay.elapsedMs, latestReplay.events.at(-1)?.atMs ?? 0) : 0;
+    const activeRunId = activeRun?.id ?? null;
+    const liveTotalMsRef = useRef(0);
     const replayJumpMarks = useMemo(() => getDungeonReplayJumpMarks(latestReplay), [latestReplay]);
 
     useEffect(() => {
-        setLiveCursorMs(liveTotalMs);
-    }, [activeRun?.id, liveTotalMs]);
+        liveTotalMsRef.current = liveTotalMs;
+    }, [liveTotalMs]);
+
+    useEffect(() => {
+        if (!activeRunId) {
+            return;
+        }
+        setLiveCursorMs(liveTotalMsRef.current);
+    }, [activeRunId]);
 
     useEffect(() => {
         setReplayCursorMs(0);
@@ -81,7 +93,7 @@ export const DungeonScreen = memo(({
     }, [latestReplay?.runId]);
 
     useEffect(() => {
-        if (!activeRun || typeof window === "undefined") {
+        if (!activeRunId || typeof window === "undefined") {
             return;
         }
         let rafId = 0;
@@ -89,12 +101,18 @@ export const DungeonScreen = memo(({
         const animate = (nextTs: number) => {
             const deltaMs = Math.max(0, nextTs - lastTs);
             lastTs = nextTs;
-            setLiveCursorMs((previous) => Math.min(liveTotalMs, previous + deltaMs));
+            setLiveCursorMs((previous) => {
+                const targetMs = liveTotalMsRef.current;
+                if (previous >= targetMs) {
+                    return targetMs;
+                }
+                return Math.min(targetMs, previous + deltaMs);
+            });
             rafId = window.requestAnimationFrame(animate);
         };
         rafId = window.requestAnimationFrame(animate);
         return () => window.cancelAnimationFrame(rafId);
-    }, [activeRun, activeRun?.id, liveTotalMs]);
+    }, [activeRunId]);
 
     useEffect(() => {
         if (!showReplay || !latestReplay || replayPaused || typeof window === "undefined") {
@@ -159,6 +177,88 @@ export const DungeonScreen = memo(({
         "ts-action-button",
         activeRun ? "is-ready-stop" : ""
     ].filter(Boolean).join(" ");
+    const isReplayScreen = !activeRun && showReplay && Boolean(latestReplay);
+    const handleReplayPlayPause = () => {
+        if (replayPaused && replayCursorMs >= replayTotalMs) {
+            setReplayCursorMs(0);
+        }
+        setReplayPaused((value) => !value);
+    };
+
+    const replayPanel = latestReplay ? (
+        <div className="ts-dungeon-replay-body">
+            <DungeonArenaRenderer frame={replayFrame} />
+            <div className="ts-dungeon-control-row">
+                <div className="ts-dungeon-speed-group" role="group" aria-label="Replay speed">
+                    {[1, 2, 4].map((speed) => (
+                        <button
+                            key={speed}
+                            type="button"
+                            className={`ts-icon-button ts-focusable ts-dungeon-replay-button ts-dungeon-replay-speed${replaySpeed === speed ? " is-active" : ""}`}
+                            onClick={() => setReplaySpeed(speed as 1 | 2 | 4)}
+                        >
+                            x{speed}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <label className="ts-field-label" htmlFor="dungeon-replay-scrub">
+                Replay timeline
+            </label>
+            <input
+                id="dungeon-replay-scrub"
+                type="range"
+                min={0}
+                max={Math.max(1, replayTotalMs)}
+                step={100}
+                value={Math.min(replayCursorMs, replayTotalMs)}
+                onChange={(event) => {
+                    const next = Number(event.target.value);
+                    if (Number.isFinite(next)) {
+                        setReplayCursorMs(next);
+                    }
+                }}
+            />
+            <div className="ts-dungeon-control-row">
+                <button
+                    type="button"
+                    className="ts-icon-button ts-panel-action-button ts-focusable ts-dungeon-replay-button"
+                    disabled={replayJumpMarks.firstDeathAtMs === null}
+                    onClick={() => {
+                        if (replayJumpMarks.firstDeathAtMs !== null) {
+                            setReplayCursorMs(replayJumpMarks.firstDeathAtMs);
+                            setReplayPaused(true);
+                        }
+                    }}
+                >
+                    Skip to first death
+                </button>
+            </div>
+            <div className="ts-dungeon-replay-meta-row">
+                <span className="ts-dungeon-replay-meta-pill">
+                    <span className="ts-dungeon-replay-meta-label">Reason</span>
+                    <span className="ts-dungeon-replay-meta-value">{latestReplay.endReason ?? "unknown"}</span>
+                </span>
+                <span className="ts-dungeon-replay-meta-pill">
+                    <span className="ts-dungeon-replay-meta-label">Events</span>
+                    <span className="ts-dungeon-replay-meta-value">{latestReplay.events.length}</span>
+                </span>
+            </div>
+            <div className="ts-dungeon-replay-meta-row">
+                <span className="ts-dungeon-replay-meta-pill ts-dungeon-replay-meta-pill-playback">
+                    <span className="ts-dungeon-replay-meta-label">Replay playback</span>
+                    <span className="ts-dungeon-replay-meta-value">{Math.round(replayCursorMs)}ms / {replayTotalMs}ms</span>
+                </span>
+            </div>
+            <div className="ts-dungeon-replay-log" role="log" aria-live="polite">
+                {latestReplay.events.slice(-220).map((event, index) => (
+                    <p key={`${event.atMs}-${index}`}>
+                        [{event.atMs}ms] {event.type} {event.label ? `- ${event.label}` : ""}
+                    </p>
+                ))}
+            </div>
+        </div>
+    ) : null;
 
     return (
         <section className="generic-panel ts-panel ts-dungeon-panel" data-testid="dungeon-screen">
@@ -168,7 +268,7 @@ export const DungeonScreen = memo(({
                     <span className="ts-panel-meta">Party idle boss run</span>
                 </div>
                 <div className="ts-panel-actions ts-panel-actions-inline">
-                    {!activeRun ? (
+                    {!activeRun && !isReplayScreen ? (
                         <>
                             <button
                                 type="button"
@@ -187,11 +287,32 @@ export const DungeonScreen = memo(({
                                 className={replayButtonClassName}
                                 onClick={onToggleReplay}
                                 disabled={!latestReplay}
-                                aria-label={showReplay ? "Hide replay" : "Show replay"}
-                                title={showReplay ? "Hide replay" : "Show replay"}
+                                aria-label="Show replay"
+                                title="Show replay"
                             >
                                 <span className="ts-collapse-label"><ChangeIcon /></span>
-                                <span className="ts-action-button-label">{showReplay ? "Hide" : "Replay"}</span>
+                                <span className="ts-action-button-label">Replay</span>
+                            </button>
+                        </>
+                    ) : null}
+                    {isReplayScreen ? (
+                        <>
+                            <button
+                                type="button"
+                                className={`ts-icon-button ts-panel-action-button ts-focusable ts-dungeon-replay-button ts-dungeon-replay-toggle${!replayPaused ? " is-active" : ""}`}
+                                onClick={handleReplayPlayPause}
+                            >
+                                {replayPaused ? "Play" : "Pause"}
+                            </button>
+                            <button
+                                type="button"
+                                className="ts-collapse-button ts-focusable ts-action-button"
+                                onClick={onToggleReplay}
+                                aria-label="Back to dungeon"
+                                title="Back to dungeon"
+                            >
+                                <span className="ts-collapse-label"><BackIcon /></span>
+                                <span className="ts-action-button-label">Back</span>
                             </button>
                         </>
                     ) : null}
@@ -225,7 +346,7 @@ export const DungeonScreen = memo(({
                 </div>
             </div>
 
-            {!activeRun ? (
+            {!activeRun && !isReplayScreen ? (
                 <div className="ts-dungeon-setup-grid">
                     <div className="ts-dungeon-card">
                         <h3 className="ts-dungeon-card-title">1. Select dungeon</h3>
@@ -273,129 +394,65 @@ export const DungeonScreen = memo(({
                         <div className="ts-dungeon-cost-row">
                             <span className="ts-dungeon-cost-label">Entry cost</span>
                             <span className="ts-dungeon-cost-pill">
-                                Food: {requiredFoodForStart.toLocaleString()}
+                                Food: {safeRequiredFoodForStart.toLocaleString()}
                             </span>
                             <span className={`ts-dungeon-cost-pill ${hasEnoughFood ? "is-ok" : "is-low"}`}>
-                                Available: {foodCount.toLocaleString()}
+                                Available: {safeFoodCount.toLocaleString()}
                             </span>
                         </div>
                         {!hasEnoughFood ? (
-                            <p className="ts-system-helper">Not enough food to start this dungeon.</p>
+                            <p className="ts-system-helper ts-dungeon-cost-warning">Not enough food to start this dungeon.</p>
                         ) : null}
                     </div>
-
-                    {showReplay && latestReplay ? (
-                        <div className="ts-dungeon-card">
-                            <h3 className="ts-dungeon-card-title">Latest replay ({latestReplay.status})</h3>
-                            <p className="ts-system-helper">Reason: {latestReplay.endReason} · Events: {latestReplay.events.length}</p>
-                            <DungeonArenaRenderer frame={replayFrame} />
-                            <div className="ts-dungeon-control-row">
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-focusable"
-                                    onClick={() => setReplayPaused((value) => !value)}
-                                >
-                                    {replayPaused ? "Play replay" : "Pause replay"}
-                                </button>
-                                <div className="ts-dungeon-speed-group" role="group" aria-label="Replay speed">
-                                    {[1, 2, 4].map((speed) => (
-                                        <button
-                                            key={speed}
-                                            type="button"
-                                            className={`generic-field button ts-focusable${replaySpeed === speed ? " is-active" : ""}`}
-                                            onClick={() => setReplaySpeed(speed as 1 | 2 | 4)}
-                                        >
-                                            x{speed}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <label className="ts-field-label" htmlFor="dungeon-replay-scrub">
-                                Replay timeline
-                            </label>
-                            <input
-                                id="dungeon-replay-scrub"
-                                type="range"
-                                min={0}
-                                max={Math.max(1, replayTotalMs)}
-                                step={100}
-                                value={Math.min(replayCursorMs, replayTotalMs)}
-                                onChange={(event) => {
-                                    const next = Number(event.target.value);
-                                    if (Number.isFinite(next)) {
-                                        setReplayCursorMs(next);
-                                    }
-                                }}
-                            />
-                            <div className="ts-dungeon-control-row">
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-focusable"
-                                    disabled={replayJumpMarks.firstDeathAtMs === null}
-                                    onClick={() => {
-                                        if (replayJumpMarks.firstDeathAtMs !== null) {
-                                            setReplayCursorMs(replayJumpMarks.firstDeathAtMs);
-                                            setReplayPaused(true);
-                                        }
-                                    }}
-                                >
-                                    Skip to first death
-                                </button>
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-focusable"
-                                    disabled={replayJumpMarks.runEndAtMs === null}
-                                    onClick={() => {
-                                        if (replayJumpMarks.runEndAtMs !== null) {
-                                            setReplayCursorMs(replayJumpMarks.runEndAtMs);
-                                            setReplayPaused(true);
-                                        }
-                                    }}
-                                >
-                                    Skip to wipe/end
-                                </button>
-                            </div>
-                            <p className="ts-system-helper">
-                                Replay playback: {Math.round(replayCursorMs)}ms / {replayTotalMs}ms
-                            </p>
-                            <div className="ts-dungeon-replay-log" role="log" aria-live="polite">
-                                {latestReplay.events.slice(-220).map((event, index) => (
-                                    <p key={`${event.atMs}-${index}`}>
-                                        [{event.atMs}ms] {event.type} {event.label ? `- ${event.label}` : ""}
-                                    </p>
-                                ))}
-                            </div>
-                        </div>
-                    ) : null}
+                </div>
+            ) : isReplayScreen ? (
+                <div className="ts-dungeon-replay-screen">
+                    {replayPanel}
                 </div>
             ) : (
                 <div className="ts-dungeon-live-grid">
-                    <div className="ts-dungeon-card">
-                        <h3 className="ts-dungeon-card-title">Live run</h3>
-                        <p className="ts-system-helper">{selectedDungeon?.name ?? activeRun.dungeonId} · Floor {activeRun.floor}/{activeRun.floorCount}</p>
-                        <p className="ts-system-helper">Status: {activeRun.status}{activeRun.restartAt ? " · restart pending" : ""}</p>
+                    <div className="ts-dungeon-live-body">
                         <DungeonArenaRenderer frame={liveFrame} />
-                        <p className="ts-system-helper">
-                            Live playback: {Math.round(liveCursorMs)}ms / {liveTotalMs}ms
-                        </p>
-                        <div className="ts-dungeon-live-party">
-                            {activeRun.party.map((member) => {
-                                const player = players[member.playerId];
-                                return (
-                                    <div key={member.playerId} className="ts-dungeon-live-entity">
-                                        <strong>{player?.name ?? member.playerId}</strong>
-                                        <span>HP {member.hp}/{member.hpMax} ({percent(member.hp, member.hpMax)}%)</span>
-                                    </div>
-                                );
-                            })}
+                        <div className="ts-dungeon-live-meta-row">
+                            <span className="ts-dungeon-live-meta-pill">
+                                <span className="ts-dungeon-live-meta-label">Dungeon</span>
+                                <span className="ts-dungeon-live-meta-value">{selectedDungeon?.name ?? activeRun!.dungeonId}</span>
+                            </span>
+                            <span className="ts-dungeon-live-meta-pill">
+                                <span className="ts-dungeon-live-meta-label">Floor</span>
+                                <span className="ts-dungeon-live-meta-value">{activeRun!.floor}/{activeRun!.floorCount}</span>
+                            </span>
+                            <span className={`ts-dungeon-live-meta-pill ts-dungeon-live-status is-${activeRun!.status}`}>
+                                <span className="ts-dungeon-live-meta-label">Status</span>
+                                <span className="ts-dungeon-live-meta-value">{activeRun!.status}</span>
+                            </span>
+                            {activeRun!.restartAt ? (
+                                <span className="ts-dungeon-live-meta-pill ts-dungeon-live-status is-restart">
+                                    <span className="ts-dungeon-live-meta-label">Queue</span>
+                                    <span className="ts-dungeon-live-meta-value">Restart pending</span>
+                                </span>
+                            ) : null}
                         </div>
-                        <div className="ts-dungeon-live-party">
-                            {activeRun.enemies.map((enemy) => (
-                                <div key={enemy.id} className="ts-dungeon-live-entity ts-dungeon-live-entity-enemy">
-                                    <strong>{enemy.name}</strong>
-                                    <span>HP {enemy.hp}/{enemy.hpMax} ({percent(enemy.hp, enemy.hpMax)}%)</span>
-                                </div>
-                            ))}
+                        <div className="ts-dungeon-live-entities-grid">
+                            <div className="ts-dungeon-live-party">
+                                {activeRun!.party.map((member) => {
+                                    const player = players[member.playerId];
+                                    return (
+                                        <div key={member.playerId} className="ts-dungeon-live-entity">
+                                            <strong>{player?.name ?? member.playerId}</strong>
+                                            <span>HP {member.hp}/{member.hpMax} ({percent(member.hp, member.hpMax)}%)</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="ts-dungeon-live-party">
+                                {activeRun!.enemies.map((enemy) => (
+                                    <div key={enemy.id} className="ts-dungeon-live-entity ts-dungeon-live-entity-enemy">
+                                        <strong>{enemy.name}</strong>
+                                        <span>HP {enemy.hp}/{enemy.hpMax} ({percent(enemy.hp, enemy.hpMax)}%)</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

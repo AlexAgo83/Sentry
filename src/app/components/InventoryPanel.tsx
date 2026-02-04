@@ -125,20 +125,75 @@ export const InventoryPanel = memo(({
     const formattedMaxSellQuantityFull = formatNumberFull(maxSellQuantity);
     const formattedClampedSellQuantity = formatNumberCompact(clampedSellQuantity);
     const canSellAll = Boolean(canSellSelected && selectedItem && selectedItem.count > 1);
+
+    const sellButton = sellDisabledReason ? (
+        <span className="ts-inventory-action-tooltip" title={sellDisabledReason}>
+            <button
+                type="button"
+                className="ts-icon-button ts-panel-action-button ts-focusable ts-inventory-header-button ts-inventory-sell"
+                onClick={onSellSelected}
+                disabled={!canSellSelected}
+                data-testid="inventory-sell"
+            >
+                Sell
+            </button>
+        </span>
+    ) : (
+        <button
+            type="button"
+            className="ts-icon-button ts-panel-action-button ts-focusable ts-inventory-header-button ts-inventory-sell"
+            onClick={onSellSelected}
+            disabled={!canSellSelected}
+            data-testid="inventory-sell"
+        >
+            Sell
+            {canSellSelected ? (
+                <span className="ts-inventory-sell-button-gain" aria-hidden="true">
+                    +{formattedSellGoldGain}g
+                </span>
+            ) : null}
+        </button>
+    );
+
     return (
         <section className="generic-panel ts-panel ts-inventory-panel">
             <div className="ts-panel-header">
                 <h2 className="ts-panel-title">Inventory</h2>
-                <button
-                    type="button"
-                    className="ts-collapse-button ts-focusable"
-                    onClick={onToggleCollapsed}
-                    aria-label={isCollapsed ? "Expand" : "Collapse"}
-                >
-                    <span className="ts-collapse-label">
-                        <CollapseIcon isCollapsed={isCollapsed} />
-                    </span>
-                </button>
+                <div className="ts-panel-actions ts-panel-actions-inline ts-inventory-header-actions">
+                    {selectedItem ? (
+                        <>
+                            {sellButton}
+                            {canSellAll ? (
+                                <button
+                                    type="button"
+                                    className="ts-icon-button ts-panel-action-button ts-focusable ts-inventory-header-button ts-inventory-sell"
+                                    onClick={onSellAll}
+                                    data-testid="inventory-sell-all"
+                                >
+                                    Sell all
+                                </button>
+                            ) : null}
+                            <button
+                                type="button"
+                                className="ts-icon-button ts-panel-action-button ts-focusable ts-inventory-header-button ts-inventory-clear"
+                                onClick={onClearSelection}
+                                data-testid="inventory-clear-selection"
+                            >
+                                Clear
+                            </button>
+                        </>
+                    ) : null}
+                    <button
+                        type="button"
+                        className="ts-collapse-button ts-focusable"
+                        onClick={onToggleCollapsed}
+                        aria-label={isCollapsed ? "Expand" : "Collapse"}
+                    >
+                        <span className="ts-collapse-label">
+                            <CollapseIcon isCollapsed={isCollapsed} />
+                        </span>
+                    </button>
+                </div>
             </div>
             {!isCollapsed ? (
                 <div className="ts-inventory-layout">
@@ -195,58 +250,6 @@ export const InventoryPanel = memo(({
                             <h3 className="ts-inventory-focus-title">
                                 {selectedItem ? selectedItem.name : "No item selected"}
                             </h3>
-                            {selectedItem ? (
-                                <div className="ts-inventory-focus-actions">
-                                    {sellDisabledReason ? (
-                                        <span className="ts-inventory-action-tooltip" title={sellDisabledReason}>
-                                            <button
-                                                type="button"
-                                                className="generic-field button ts-inventory-sell ts-focusable"
-                                                onClick={onSellSelected}
-                                                disabled={!canSellSelected}
-                                                data-testid="inventory-sell"
-                                            >
-                                                Sell
-                                            </button>
-                                        </span>
-                                    ) : (
-                                        <>
-                                            <button
-                                                type="button"
-                                                className="generic-field button ts-inventory-sell ts-focusable"
-                                                onClick={onSellSelected}
-                                                disabled={!canSellSelected}
-                                                data-testid="inventory-sell"
-                                            >
-                                                Sell
-                                                {canSellSelected ? (
-                                                    <span className="ts-inventory-sell-button-gain" aria-hidden="true">
-                                                        +{formattedSellGoldGain}g
-                                                    </span>
-                                                ) : null}
-                                            </button>
-                                            {canSellAll ? (
-                                                <button
-                                                    type="button"
-                                                    className="generic-field button ts-inventory-sell ts-focusable"
-                                                    onClick={onSellAll}
-                                                    data-testid="inventory-sell-all"
-                                                >
-                                                    Sell all
-                                                </button>
-                                            ) : null}
-                                        </>
-                                    )}
-                                    <button
-                                        type="button"
-                                        className="generic-field button ts-inventory-clear ts-focusable"
-                                        onClick={onClearSelection}
-                                        data-testid="inventory-clear-selection"
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-                            ) : null}
                         </div>
                         <div className="ts-inventory-focus-count">
                             <span title={selectedItem ? formattedSelectedCountFull : undefined}>

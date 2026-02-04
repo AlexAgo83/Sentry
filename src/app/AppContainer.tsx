@@ -87,6 +87,22 @@ export const AppContainer = () => {
     }, [dungeonOnboardingRequired, playerCount]);
 
     useEffect(() => {
+        if (!isOnboardingOpen || onboardingHeroName.trim().length > 0) {
+            return;
+        }
+        const existingNames = new Set(
+            Object.values(gameStore.getState().players)
+                .map((player) => player.name.trim().toLowerCase())
+                .filter(Boolean)
+        );
+        const candidate = generateUniqueEnglishHeroNames(8).find((name) => !existingNames.has(name.toLowerCase()));
+        if (!candidate) {
+            return;
+        }
+        setOnboardingHeroName(candidate);
+    }, [isOnboardingOpen, onboardingHeroName]);
+
+    useEffect(() => {
         if (!isDungeonRunActive) {
             setDidAutoOpenDungeon(false);
             return;

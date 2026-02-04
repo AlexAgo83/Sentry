@@ -498,6 +498,17 @@
     gap: var(--m3);
 }
 
+.ts-inventory-header-actions {
+    align-items: center;
+    gap: var(--m2);
+}
+
+.ts-inventory-header-button {
+    width: auto;
+    padding: var(--m2) var(--m5);
+    min-width: 0;
+}
+
 .ts-inventory-focus-header {
     display: flex;
     align-items: center;
@@ -767,7 +778,8 @@
     color: var(--color-primary);
 }
 
-.generic-field.button.ts-inventory-clear {
+.generic-field.button.ts-inventory-clear,
+.ts-inventory-header-button.ts-inventory-clear {
     width: auto;
     padding: var(--m2) var(--m5);
     border: 1px solid rgba(93, 217, 193, 0.4);
@@ -778,12 +790,14 @@
     text-transform: uppercase;
 }
 
-.generic-field.button.ts-inventory-clear:hover {
+.generic-field.button.ts-inventory-clear:hover,
+.ts-inventory-header-button.ts-inventory-clear:hover {
     border-color: rgba(242, 193, 78, 0.6);
     color: var(--color-primary);
 }
 
-.generic-field.button.ts-inventory-sell {
+.generic-field.button.ts-inventory-sell,
+.ts-inventory-header-button.ts-inventory-sell {
     width: auto;
     padding: var(--m2) var(--m5);
     border: 1px solid rgba(242, 193, 78, 0.4);
@@ -794,18 +808,21 @@
     text-transform: uppercase;
 }
 
-.generic-field.button.ts-inventory-sell .ts-inventory-sell-button-gain {
+.generic-field.button.ts-inventory-sell .ts-inventory-sell-button-gain,
+.ts-inventory-header-button.ts-inventory-sell .ts-inventory-sell-button-gain {
     margin-left: var(--m2);
     color: rgba(242, 193, 78, 0.95);
     letter-spacing: 0.06em;
 }
 
-.generic-field.button.ts-inventory-sell:hover:not(:disabled) {
+.generic-field.button.ts-inventory-sell:hover:not(:disabled),
+.ts-inventory-header-button.ts-inventory-sell:hover:not(:disabled) {
     border-color: rgba(93, 217, 193, 0.7);
     color: var(--color-secondary);
 }
 
-.generic-field.button.ts-inventory-sell:disabled {
+.generic-field.button.ts-inventory-sell:disabled,
+.ts-inventory-header-button.ts-inventory-sell:disabled {
     opacity: 0.55;
     cursor: not-allowed;
 }

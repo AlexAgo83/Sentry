@@ -75,6 +75,10 @@
 }
 
 @media (max-width: 720px) {
+    .ts-dungeon-panel .ts-panel-meta {
+        display: none;
+    }
+
     .ts-action-selection-layout {
         grid-template-columns: 1fr;
         row-gap: var(--m8);
@@ -91,6 +95,18 @@
     }
 
     .ts-action-button-label {
+        display: none;
+    }
+
+    .ts-dungeon-auto-restart-button {
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .ts-dungeon-auto-restart-button .ts-dungeon-action-label {
         display: none;
     }
 

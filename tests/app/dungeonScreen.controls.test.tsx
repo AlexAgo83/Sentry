@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
 import type { DungeonReplayState, DungeonRunState } from "../../src/core/types";
@@ -59,7 +59,7 @@ const getReplay = (): DungeonReplayState => ({
 });
 
 describe("DungeonScreen controls", () => {
-    it("shows replay controls in setup screen", () => {
+    it("shows replay controls in dedicated replay screen", () => {
         const state = createInitialGameState("0.9.0");
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
@@ -85,11 +85,12 @@ describe("DungeonScreen controls", () => {
             />
         );
 
-        expect(screen.getByRole("button", { name: "Start run" })).toBeTruthy();
-        expect(screen.getByRole("button", { name: "Hide replay" })).toBeTruthy();
+        expect(screen.getByRole("button", { name: "Back to dungeon" })).toBeTruthy();
         expect(screen.getByLabelText("Replay timeline")).toBeTruthy();
         expect(screen.getByRole("button", { name: "Skip to first death" })).toBeTruthy();
         expect(screen.queryByRole("button", { name: /auto restart/i })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Start run" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Show replay" })).toBeNull();
     });
 
     it("hides replay controls in live screen", () => {
@@ -126,5 +127,39 @@ describe("DungeonScreen controls", () => {
         expect(screen.queryByRole("button", { name: "Pause" })).toBeNull();
         expect(screen.queryByRole("group", { name: "Live speed" })).toBeNull();
         expect(screen.queryByRole("button", { name: /Focus boss/i })).toBeNull();
+    });
+
+    it("rewinds replay to start when pressing play at timeline end", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        render(
+            <DungeonScreen
+                definitions={[]}
+                players={state.players}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                activeRun={null}
+                latestReplay={getReplay()}
+                showReplay
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        const replayTimeline = screen.getByLabelText("Replay timeline") as HTMLInputElement;
+        fireEvent.change(replayTimeline, { target: { value: "1500" } });
+        expect(replayTimeline.value).toBe("1500");
+
+        fireEvent.click(screen.getByRole("button", { name: "Play" }));
+        expect(replayTimeline.value).toBe("0");
     });
 });

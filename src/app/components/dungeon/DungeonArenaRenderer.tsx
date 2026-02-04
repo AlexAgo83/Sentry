@@ -26,12 +26,14 @@ type PixiRuntime = {
     phaseLabel: any;
     unitNodes: Map<string, UnitNode>;
     floatingPool: any[];
+    floatingById: Map<string, any>;
     resizeObserver: ResizeObserver | null;
 };
 
 const WORLD_WIDTH = 1_000;
 const WORLD_HEIGHT = 560;
 const MAX_FLOAT_POOL = 24;
+const PHASE_LABEL_Y = 38;
 
 const toWorldX = (x: number) => x * WORLD_WIDTH;
 const toWorldY = (y: number) => y * WORLD_HEIGHT;
@@ -159,9 +161,6 @@ const drawTargetAndDeath = (node: UnitNode, isTarget: boolean, isAlive: boolean)
 
 const drawArena = (arena: any, frame: DungeonArenaFrame) => {
     arena.clear();
-    arena.beginFill(0x0b111d, 0.95);
-    arena.drawRoundedRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT, 24);
-    arena.endFill();
 
     arena.lineStyle(2, 0x1f334d, 0.8);
     arena.drawEllipse(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 420, 230);
@@ -255,32 +254,72 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         }
     }
 
-    frame.floatingTexts.forEach((floating, index) => {
-        const text = runtime.floatingPool[index];
+    const getFloatingTextNode = (id: string) => {
+        const existing = runtime.floatingById.get(id);
+        if (existing) {
+            return existing;
+        }
+        const freeNode = runtime.floatingPool.find((candidate) => !(candidate as any).__floatingId);
+        if (!freeNode) {
+            return null;
+        }
+        (freeNode as any).__floatingId = id;
+        (freeNode as any).__floatingStaleFrames = 0;
+        runtime.floatingById.set(id, freeNode);
+        return freeNode;
+    };
+
+    const visibleFloatingIds = new Set<string>();
+    frame.floatingTexts.forEach((floating) => {
+        const text = getFloatingTextNode(floating.id);
         if (!text) {
             return;
         }
+        visibleFloatingIds.add(floating.id);
         const target = frame.units.find((unit) => unit.id === floating.targetId);
-        if (!target) {
-            text.visible = false;
-            return;
-        }
-        text.visible = true;
+        const alpha = Math.max(0.03, 1 - Math.pow(floating.progress, 1.35));
+        text.alpha = alpha;
         text.text = `${floating.kind === "heal" ? "+" : "-"}${floating.amount}`;
         text.tint = floating.kind === "heal" ? 0x5ed9aa : 0xf07d73;
-        text.alpha = 1 - floating.progress;
-        text.position.set(
-            toWorldX(target.x),
-            toWorldY(target.y) - 42 - floating.progress * 28
-        );
+        text.visible = true;
+
+        if (target) {
+            const x = toWorldX(target.x);
+            const y = toWorldY(target.y) - 42 - floating.progress * 28;
+            text.position.set(x, y);
+            (text as any).__lastX = x;
+            (text as any).__lastY = y;
+        } else {
+            const lastX = Number((text as any).__lastX ?? WORLD_WIDTH / 2);
+            const lastY = Number((text as any).__lastY ?? WORLD_HEIGHT / 2) - 0.4;
+            text.position.set(lastX, lastY);
+            (text as any).__lastY = lastY;
+        }
+        (text as any).__floatingStaleFrames = 0;
     });
-    for (let i = frame.floatingTexts.length; i < runtime.floatingPool.length; i += 1) {
-        runtime.floatingPool[i].visible = false;
-    }
+
+    const idsToRelease: string[] = [];
+    runtime.floatingById.forEach((text, id) => {
+        if (visibleFloatingIds.has(id)) {
+            return;
+        }
+        const staleFrames = Number((text as any).__floatingStaleFrames ?? 0) + 1;
+        (text as any).__floatingStaleFrames = staleFrames;
+        text.visible = true;
+        text.alpha = Math.max(0, Number(text.alpha ?? 0) - 0.09);
+        text.position.y -= 0.7;
+        if (text.alpha <= 0.01 || staleFrames > 16) {
+            text.visible = false;
+            (text as any).__floatingId = undefined;
+            (text as any).__floatingStaleFrames = 0;
+            idsToRelease.push(id);
+        }
+    });
+    idsToRelease.forEach((id) => runtime.floatingById.delete(id));
 
     runtime.phaseLabel.visible = Boolean(frame.bossPhaseLabel);
     runtime.phaseLabel.text = frame.bossPhaseLabel ?? "";
-    runtime.phaseLabel.position.set(WORLD_WIDTH / 2, 24);
+    runtime.phaseLabel.position.set(WORLD_WIDTH / 2, PHASE_LABEL_Y);
 
     const viewportWidth = runtime.app.screen?.width ?? runtime.app.renderer.width;
     const viewportHeight = runtime.app.screen?.height ?? runtime.app.renderer.height;
@@ -366,6 +405,7 @@ export const DungeonArenaRenderer = memo(({
                     phaseLabel,
                     unitNodes: new Map(),
                     floatingPool: [],
+                    floatingById: new Map(),
                     resizeObserver
                 };
                 setDisabled(false);
