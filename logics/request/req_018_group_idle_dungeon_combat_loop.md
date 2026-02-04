@@ -215,7 +215,7 @@
 - Healing potions:
   - Auto-use trigger: hero HP `<= 50%` (current cooldown tuning: 500ms).
   - Heal amount: `40%` of max HP (capped to max HP).
-  - Cooldown: `8s` per hero between potion uses.
+  - Cooldown: `500ms` per hero between potion uses.
   - Default use priority when available: `tonic` -> `elixir` -> `potion`.
 - Enemy scaling curves:
   - Mob HP per floor `f` (1..9): `mobHp = round(120 * 1.18^(dungeonTier - 1) * 1.10^(f - 1))`.

@@ -2,7 +2,7 @@
 > From version: 0.8.22
 > Understanding: 92%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Even with one active party in v1, the architecture must avoid singleton assumptions so future concurrent parties across different dungeons do not require a rewrite.
@@ -31,3 +31,8 @@ Even with one active party in v1, the architecture must avoid singleton assumpti
 # Notes
 - Source request: `logics/request/req_018_group_idle_dungeon_combat_loop.md`
 - Derived from `logics/request/req_018_group_idle_dungeon_combat_loop.md`.
+- Save schema migration path (documented):
+  - Current schema already stores runs as `dungeon.runs: Record<runId, runState>` with `policy.maxConcurrentSupported` and `policy.maxConcurrentEnabled`.
+  - v1 runtime keeps `maxConcurrentEnabled` enforced to one active run via guards.
+  - Future multi-run enablement (up to 3) can be unlocked by policy/runtime changes without changing save shape.
+  - Legacy compatibility stays through `activeRunId` as primary-run pointer while selectors operate on run collections.

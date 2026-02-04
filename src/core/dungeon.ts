@@ -117,6 +117,10 @@ const recoverRunParty = (party: DungeonRunState["party"]): DungeonRunState["part
     }));
 };
 
+const isRunActive = (run: DungeonRunState): boolean => {
+    return run.status === "running" || run.restartAt !== null;
+};
+
 const resolveTargetHeroId = (run: DungeonRunState): PlayerId | null => {
     const alive = run.party
         .filter((member) => member.hp > 0)
@@ -273,11 +277,22 @@ const finalizeRun = (
     players: Record<PlayerId, PlayerState>
 ): DungeonState => {
     const replay = buildReplay(run, players, run.startInventory);
+    const nextRuns = {
+        ...dungeon.runs,
+        [run.id]: {
+            ...run,
+            restartAt: null
+        }
+    };
+    const nextActiveRunId = getActiveDungeonRunIds({
+        ...dungeon,
+        runs: nextRuns
+    })[0] ?? null;
     return {
         ...dungeon,
         latestReplay: replay,
-        activeRunId: null,
-        runs: {}
+        activeRunId: nextActiveRunId,
+        runs: nextRuns
     };
 };
 
@@ -359,6 +374,17 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
         ? (input.setup?.selectedDungeonId ?? fallback.setup.selectedDungeonId)
         : fallback.setup.selectedDungeonId;
 
+    const maxConcurrentSupported = Math.max(
+        1,
+        Math.floor(input.policy?.maxConcurrentSupported ?? fallback.policy.maxConcurrentSupported)
+    );
+    const maxConcurrentEnabled = Math.max(
+        1,
+        Math.min(maxConcurrentSupported, Math.floor(input.policy?.maxConcurrentEnabled ?? fallback.policy.maxConcurrentEnabled))
+    );
+    const runs = input.runs ?? {};
+    const activeRunId = input.activeRunId && runs[input.activeRunId] ? input.activeRunId : null;
+
     return {
         onboardingRequired: Boolean(input.onboardingRequired),
         setup: {
@@ -366,29 +392,49 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
             selectedPartyPlayerIds: Array.from(new Set((input.setup?.selectedPartyPlayerIds ?? []).map(String))),
             autoRestart: input.setup?.autoRestart ?? true
         },
-        runs: input.runs ?? {},
-        activeRunId: input.activeRunId ?? null,
+        runs,
+        activeRunId,
         latestReplay: input.latestReplay ?? null,
         policy: {
-            maxConcurrentSupported: Math.max(1, Math.floor(input.policy?.maxConcurrentSupported ?? fallback.policy.maxConcurrentSupported)),
-            maxConcurrentEnabled: 1
+            maxConcurrentSupported,
+            maxConcurrentEnabled
         }
     };
 };
 
+export const getDungeonRuns = (dungeon: DungeonState): DungeonRunState[] => {
+    return Object.values(dungeon.runs)
+        .slice()
+        .sort((a, b) => (a.startedAt - b.startedAt) || a.id.localeCompare(b.id));
+};
+
+export const getActiveDungeonRunIds = (dungeon: DungeonState): string[] => {
+    return getDungeonRuns(dungeon).filter((run) => isRunActive(run)).map((run) => run.id);
+};
+
+export const getActiveDungeonRuns = (dungeon: DungeonState): DungeonRunState[] => {
+    return getActiveDungeonRunIds(dungeon)
+        .map((runId) => dungeon.runs[runId])
+        .filter((run): run is DungeonRunState => Boolean(run));
+};
+
+const getV1MaxConcurrentRuns = (dungeon: DungeonState): number => {
+    // v1 intentionally enforces single-run execution, while policy shape is already future-ready.
+    return Math.min(1, Math.max(1, Math.floor(dungeon.policy.maxConcurrentEnabled || 1)));
+};
+
+// Backward-compatible helper: returns the primary active run used by the v1 runtime loop.
 export const getActiveDungeonRun = (dungeon: DungeonState): DungeonRunState | null => {
-    if (!dungeon.activeRunId) {
-        return null;
+    if (dungeon.activeRunId && dungeon.runs[dungeon.activeRunId] && isRunActive(dungeon.runs[dungeon.activeRunId])) {
+        return dungeon.runs[dungeon.activeRunId];
     }
-    return dungeon.runs[dungeon.activeRunId] ?? null;
+    return getActiveDungeonRuns(dungeon)[0] ?? null;
 };
 
 export const isPlayerAssignedToActiveDungeonRun = (state: GameState, playerId: PlayerId): boolean => {
-    const run = getActiveDungeonRun(state.dungeon);
-    if (!run) {
-        return false;
-    }
-    return run.party.some((member) => member.playerId === playerId);
+    return getActiveDungeonRuns(state.dungeon).some((run) => (
+        run.party.some((member) => member.playerId === playerId)
+    ));
 };
 
 export const startDungeonRun = (
@@ -405,12 +451,19 @@ export const startDungeonRun = (
     if (uniquePartyIds.length !== 4) {
         return state;
     }
-    if (state.dungeon.activeRunId) {
+    const activeRuns = getActiveDungeonRuns(state.dungeon);
+    if (activeRuns.length >= getV1MaxConcurrentRuns(state.dungeon)) {
         return state;
     }
 
     const allPlayersPresent = uniquePartyIds.every((playerId) => Boolean(state.players[playerId]));
     if (!allPlayersPresent) {
+        return state;
+    }
+    const assignedToActiveRuns = new Set(
+        activeRuns.flatMap((run) => run.party.map((member) => member.playerId))
+    );
+    if (uniquePartyIds.some((playerId) => assignedToActiveRuns.has(playerId))) {
         return state;
     }
     const requiredMeatForStart = getDungeonStartMeatCost(definition);
@@ -460,6 +513,7 @@ export const startDungeonRun = (
             selectedPartyPlayerIds: uniquePartyIds
         },
         runs: {
+            ...state.dungeon.runs,
             [run.id]: run
         },
         activeRunId: run.id

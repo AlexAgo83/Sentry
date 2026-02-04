@@ -24,7 +24,7 @@ import {
     TickSummaryState
 } from "./types";
 import { hashStringToSeed, seededRandom } from "./rng";
-import { applyDungeonTick, getActiveDungeonRun } from "./dungeon";
+import { applyDungeonTick, getActiveDungeonRuns } from "./dungeon";
 
 const clampProgress = (value: number): number => {
     if (!Number.isFinite(value)) {
@@ -319,9 +319,9 @@ const applyActionTick = (
 
 export const applyTick = (state: GameState, deltaMs: number, timestamp: number): GameState => {
     const sortedIds = Object.keys(state.players).sort((a, b) => Number(a) - Number(b));
-    const activeDungeonRun = getActiveDungeonRun(state.dungeon);
+    const activeDungeonRuns = getActiveDungeonRuns(state.dungeon);
     const lockedDungeonPlayerIds = new Set(
-        (activeDungeonRun?.party ?? []).map((member) => member.playerId)
+        activeDungeonRuns.flatMap((run) => run.party.map((member) => member.playerId))
     );
     const players = {} as Record<PlayerId, PlayerState>;
     let inventory = state.inventory;

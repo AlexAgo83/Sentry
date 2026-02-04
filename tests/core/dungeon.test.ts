@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
-import { getActiveDungeonRun, applyDungeonTick } from "../../src/core/dungeon";
+import {
+    applyDungeonTick,
+    getActiveDungeonRun,
+    getActiveDungeonRunIds,
+    getActiveDungeonRuns,
+    isPlayerAssignedToActiveDungeonRun
+} from "../../src/core/dungeon";
 import { gameReducer } from "../../src/core/reducer";
 
 describe("dungeon flow", () => {
@@ -62,6 +68,113 @@ describe("dungeon flow", () => {
         });
 
         expect(state.dungeon.activeRunId).toBeNull();
+    });
+
+    it("enforces v1 single active run guard even with extra roster", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.players["5"] = createPlayerState("5", "Noa");
+        state.players["6"] = createPlayerState("6", "Rin");
+        state.players["7"] = createPlayerState("7", "Tao");
+        state.players["8"] = createPlayerState("8", "Uma");
+        state.inventory.items.meat = 30;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+        const firstRunId = state.dungeon.activeRunId;
+        expect(firstRunId).toBeTruthy();
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_cryptes_dos",
+            playerIds: ["5", "6", "7", "8"],
+            timestamp: 2_000
+        });
+
+        expect(state.dungeon.activeRunId).toBe(firstRunId);
+        expect(getActiveDungeonRuns(state.dungeon)).toHaveLength(1);
+    });
+
+    it("supports collection-based active run selectors for multi-run shaped state", () => {
+        const state = createInitialGameState("0.4.0");
+        state.dungeon.runs = {
+            "run-a": {
+                id: "run-a",
+                dungeonId: "dungeon_ruines_humides",
+                status: "running",
+                endReason: null,
+                startedAt: 1_000,
+                elapsedMs: 0,
+                stepCarryMs: 0,
+                encounterStep: 0,
+                floor: 1,
+                floorCount: 10,
+                party: [{ playerId: "1", hp: 100, hpMax: 100, potionCooldownMs: 0 }],
+                enemies: [],
+                targetEnemyId: null,
+                autoRestart: true,
+                restartAt: null,
+                runIndex: 1,
+                startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 0 },
+                seed: 1,
+                events: []
+            },
+            "run-b": {
+                id: "run-b",
+                dungeonId: "dungeon_cryptes_dos",
+                status: "victory",
+                endReason: "victory",
+                startedAt: 2_000,
+                elapsedMs: 10_000,
+                stepCarryMs: 0,
+                encounterStep: 0,
+                floor: 10,
+                floorCount: 10,
+                party: [{ playerId: "2", hp: 100, hpMax: 100, potionCooldownMs: 0 }],
+                enemies: [],
+                targetEnemyId: null,
+                autoRestart: true,
+                restartAt: 12_000,
+                runIndex: 1,
+                startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 0 },
+                seed: 2,
+                events: []
+            },
+            "run-c": {
+                id: "run-c",
+                dungeonId: "dungeon_forges_brisees",
+                status: "failed",
+                endReason: "wipe",
+                startedAt: 3_000,
+                elapsedMs: 12_000,
+                stepCarryMs: 0,
+                encounterStep: 0,
+                floor: 3,
+                floorCount: 10,
+                party: [{ playerId: "3", hp: 0, hpMax: 100, potionCooldownMs: 0 }],
+                enemies: [],
+                targetEnemyId: null,
+                autoRestart: false,
+                restartAt: null,
+                runIndex: 1,
+                startInventory: { meat: 10, tonic: 0, elixir: 0, potion: 0 },
+                seed: 3,
+                events: []
+            }
+        };
+        state.dungeon.activeRunId = "run-a";
+
+        expect(getActiveDungeonRunIds(state.dungeon)).toEqual(["run-a", "run-b"]);
+        expect(getActiveDungeonRuns(state.dungeon).map((run) => run.id)).toEqual(["run-a", "run-b"]);
+        expect(isPlayerAssignedToActiveDungeonRun(state, "1")).toBe(true);
+        expect(isPlayerAssignedToActiveDungeonRun(state, "2")).toBe(true);
+        expect(isPlayerAssignedToActiveDungeonRun(state, "3")).toBe(false);
     });
 
     it("auto-uses healing potions under 50% hp", () => {
