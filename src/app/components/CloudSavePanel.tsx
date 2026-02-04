@@ -157,50 +157,55 @@ export const CloudSavePanel = memo(({
             ) : null}
             {!isAuthenticated ? (
                 isBackendAwake ? (
-                    <div className="ts-system-cloud-form">
-                        <label className="ts-system-cloud-field">
-                            <span>Email</span>
-                            <input
-                                className="generic-field input ts-system-cloud-input"
-                                type="email"
-                                value={email}
-                                onChange={(event) => onEmailChange(event.currentTarget.value)}
-                                placeholder="you@example.com"
-                                disabled={disabled}
-                                data-testid="cloud-email"
-                            />
-                        </label>
-                        <label className="ts-system-cloud-field">
-                            <span>Password</span>
-                            <input
-                                className="generic-field input ts-system-cloud-input"
-                                type="password"
-                                value={password}
-                                onChange={(event) => onPasswordChange(event.currentTarget.value)}
-                                placeholder="••••••"
-                                disabled={disabled}
-                                data-testid="cloud-password"
-                            />
-                        </label>
-                        <div className="ts-system-cloud-actions">
-                            <button
-                                type="button"
-                                className="generic-field button ts-devtools-button ts-focusable"
-                                onClick={onRegister}
-                                disabled={disabled}
-                                data-testid="cloud-register"
-                            >
-                                Register
-                            </button>
-                            <button
-                                type="button"
-                                className="generic-field button ts-devtools-button ts-focusable"
-                                onClick={onLogin}
-                                disabled={disabled}
-                                data-testid="cloud-login"
-                            >
-                                Login
-                            </button>
+                    <div className="ts-system-cloud-auth-card">
+                        <p className="ts-system-cloud-auth-copy">
+                            Sign in to sync this save across devices.
+                        </p>
+                        <div className="ts-system-cloud-form">
+                            <label className="ts-system-cloud-field">
+                                <span>Email</span>
+                                <input
+                                    className="generic-field input ts-system-cloud-input"
+                                    type="email"
+                                    value={email}
+                                    onChange={(event) => onEmailChange(event.currentTarget.value)}
+                                    placeholder="you@example.com"
+                                    disabled={disabled}
+                                    data-testid="cloud-email"
+                                />
+                            </label>
+                            <label className="ts-system-cloud-field">
+                                <span>Password</span>
+                                <input
+                                    className="generic-field input ts-system-cloud-input"
+                                    type="password"
+                                    value={password}
+                                    onChange={(event) => onPasswordChange(event.currentTarget.value)}
+                                    placeholder="••••••"
+                                    disabled={disabled}
+                                    data-testid="cloud-password"
+                                />
+                            </label>
+                            <div className="ts-system-cloud-actions ts-system-cloud-auth-actions">
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-devtools-button ts-cloud-register-button ts-focusable"
+                                    onClick={onRegister}
+                                    disabled={disabled}
+                                    data-testid="cloud-register"
+                                >
+                                    Register
+                                </button>
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-devtools-button ts-cloud-login-button ts-focusable"
+                                    onClick={onLogin}
+                                    disabled={disabled}
+                                    data-testid="cloud-login"
+                                >
+                                    Login
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ) : null

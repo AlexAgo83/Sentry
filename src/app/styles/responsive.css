@@ -235,6 +235,10 @@
         width: 100%;
     }
 
+    .ts-system-cloud-auth-actions {
+        grid-template-columns: 1fr;
+    }
+
     .ts-action-row.ts-system-actions {
         padding: 0 var(--m4);
     }

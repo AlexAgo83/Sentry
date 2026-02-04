@@ -77,7 +77,23 @@
 .ts-system-cloud-form {
     display: flex;
     flex-direction: column;
-    gap: var(--m3);
+    gap: var(--m4);
+}
+
+.ts-system-cloud-auth-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m4);
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+.ts-system-cloud-auth-copy {
+    margin: 0;
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
 }
 
 .ts-system-cloud-field {
@@ -88,8 +104,18 @@
     color: var(--color-text-muted);
 }
 
+.ts-system-cloud-field > span {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+
 .ts-system-cloud-input {
     width: 100%;
+    min-height: 44px;
+}
+
+.ts-system-cloud-input::placeholder {
+    color: rgba(243, 239, 228, 0.35);
 }
 
 .ts-system-cloud-actions {
@@ -98,6 +124,28 @@
     gap: var(--m4);
     justify-content: flex-start;
     padding: 0 var(--m7);
+}
+
+.ts-system-cloud-auth-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--m3);
+    padding: 0;
+}
+
+.ts-system-cloud-auth-actions .generic-field.button {
+    width: 100%;
+}
+
+.generic-field.button.ts-cloud-register-button {
+    border-color: rgba(242, 193, 78, 0.35);
+    background: rgba(14, 22, 40, 0.94);
+}
+
+.generic-field.button.ts-cloud-login-button {
+    border-color: rgba(93, 217, 193, 0.5);
+    background: linear-gradient(140deg, rgba(14, 41, 52, 0.95), rgba(9, 20, 43, 0.95));
+    box-shadow: 0 0 0 1px rgba(93, 217, 193, 0.24), 0 8px 20px -14px rgba(93, 217, 193, 0.6);
 }
 
 .ts-system-cloud-status {
