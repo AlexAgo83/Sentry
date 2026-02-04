@@ -14,12 +14,15 @@ describe("AppView (mobile bottom bar)", () => {
                 activeScreen="main"
                 activeSidePanel="action"
                 onShowAction={() => {}}
+                onShowDungeon={() => {}}
+                isDungeonLocked={false}
                 onShowStats={() => {}}
                 onShowRoster={() => {}}
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
                 onShowShop={() => {}}
                 onShowQuests={() => {}}
+                isDungeonRunActive={false}
                 hasNewInventoryItems={false}
                 roster={<div />}
                 actionPanel={<div />}
@@ -29,6 +32,7 @@ describe("AppView (mobile bottom bar)", () => {
                 shopPanel={<div />}
                 questsPanel={<div />}
                 actionSelectionScreen={<div />}
+                dungeonScreen={<div />}
             />
         );
 

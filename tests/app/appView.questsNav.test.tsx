@@ -11,12 +11,15 @@ const renderAppView = () => {
             activeScreen="main"
             activeSidePanel="action"
             onShowAction={() => {}}
+            onShowDungeon={() => {}}
+            isDungeonLocked={false}
             onShowStats={() => {}}
             onShowRoster={() => {}}
             onShowInventory={() => {}}
             onShowEquipment={() => {}}
             onShowShop={() => {}}
             onShowQuests={() => {}}
+            isDungeonRunActive={false}
             hasNewInventoryItems={false}
             roster={<div />}
             actionPanel={<div />}
@@ -26,6 +29,7 @@ const renderAppView = () => {
             shopPanel={<div />}
             questsPanel={<div />}
             actionSelectionScreen={<div />}
+            dungeonScreen={<div />}
         />
     );
 };

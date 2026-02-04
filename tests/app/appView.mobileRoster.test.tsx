@@ -1,21 +1,27 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { AppView } from "../../src/app/AppView";
+import { AppView, type AppActiveScreen, type AppActiveSidePanel } from "../../src/app/AppView";
 
-const renderAppView = (props: Partial<Parameters<typeof AppView>[0]> = {}) => {
+const renderAppView = (props?: {
+    activeScreen?: AppActiveScreen;
+    activeSidePanel?: AppActiveSidePanel;
+}) => {
     return render(
         <AppView
             version="0.0.0"
             onOpenSystem={() => {}}
-            activeScreen="main"
-            activeSidePanel="action"
+            activeScreen={props?.activeScreen ?? "main"}
+            activeSidePanel={props?.activeSidePanel ?? "action"}
             onShowAction={() => {}}
+            onShowDungeon={() => {}}
+            isDungeonLocked={false}
             onShowStats={() => {}}
             onShowRoster={() => {}}
             onShowInventory={() => {}}
             onShowEquipment={() => {}}
             onShowShop={() => {}}
             onShowQuests={() => {}}
+            isDungeonRunActive={false}
             hasNewInventoryItems={false}
             roster={<section><h2>Roster Panel Content</h2></section>}
             actionPanel={<div />}
@@ -25,7 +31,7 @@ const renderAppView = (props: Partial<Parameters<typeof AppView>[0]> = {}) => {
             shopPanel={<div />}
             questsPanel={<div />}
             actionSelectionScreen={<div />}
-            {...props}
+            dungeonScreen={<div />}
         />
     );
 };
@@ -49,12 +55,15 @@ describe("AppView (mobile roster)", () => {
                 activeScreen="roster"
                 activeSidePanel="action"
                 onShowAction={() => {}}
+                onShowDungeon={() => {}}
+                isDungeonLocked={false}
                 onShowStats={() => {}}
                 onShowRoster={() => {}}
                 onShowInventory={() => {}}
                 onShowEquipment={() => {}}
                 onShowShop={() => {}}
                 onShowQuests={() => {}}
+                isDungeonRunActive={false}
                 hasNewInventoryItems={false}
                 roster={<section><h2>Roster Panel Content</h2></section>}
                 actionPanel={<div />}
@@ -64,6 +73,7 @@ describe("AppView (mobile roster)", () => {
                 shopPanel={<div />}
                 questsPanel={<div />}
                 actionSelectionScreen={<div />}
+                dungeonScreen={<div />}
             />
         );
         expect(screen.getByText("Roster Panel Content")).toBeTruthy();
