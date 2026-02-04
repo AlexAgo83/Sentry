@@ -14,6 +14,8 @@ export type CloudSavePanelProps = {
     localMeta: CloudSaveMeta;
     cloudMeta: CloudSaveMeta | null;
     lastSyncAt: Date | null;
+    localHasActiveDungeonRun: boolean;
+    cloudHasActiveDungeonRun: boolean;
     showHeader?: boolean;
     onEmailChange: (value: string) => void;
     onPasswordChange: (value: string) => void;
@@ -65,6 +67,8 @@ export const CloudSavePanel = memo(({
     localMeta,
     cloudMeta,
     lastSyncAt,
+    localHasActiveDungeonRun,
+    cloudHasActiveDungeonRun,
     showHeader = true,
     onEmailChange,
     onPasswordChange,
@@ -121,6 +125,24 @@ export const CloudSavePanel = memo(({
     const localScoreTitle = formatNumberFull(localMeta.virtualScore);
     const cloudScoreLabel = cloudMeta ? formatNumberCompact(cloudMeta.virtualScore) : "--";
     const cloudScoreTitle = cloudMeta ? formatNumberFull(cloudMeta.virtualScore) : "--";
+    const hasConflict = Boolean(
+        isAuthenticated
+        && hasCloudSave
+        && cloudMeta
+        && (dateComparison !== 0 || scoreComparison !== 0 || versionMismatch)
+    );
+    const runActiveWarning = (() => {
+        if (!hasConflict || (!localHasActiveDungeonRun && !cloudHasActiveDungeonRun)) {
+            return null;
+        }
+        if (dateComparison < 0) {
+            return "Active dungeon run detected. Recommended: load cloud save (newer).";
+        }
+        if (dateComparison > 0) {
+            return "Active dungeon run detected. Recommended: overwrite cloud with local (newer).";
+        }
+        return "Active dungeon run detected in save conflict. Prefer the newest save to avoid losing run progress.";
+    })();
 
     return (
         <div className="ts-system-cloud">
@@ -266,6 +288,13 @@ export const CloudSavePanel = memo(({
                             </span>
                         </div>
                     </div>
+                    {runActiveWarning ? (
+                        <div className="ts-system-cloud-status">
+                            <span className="ts-system-cloud-error" data-testid="cloud-run-active-warning">
+                                {runActiveWarning}
+                            </span>
+                        </div>
+                    ) : null}
                     <div className="ts-system-cloud-actions">
                         <button
                             type="button"

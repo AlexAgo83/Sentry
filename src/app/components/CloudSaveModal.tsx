@@ -41,6 +41,8 @@ const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
                     localMeta={cloud.localMeta}
                     cloudMeta={cloud.cloudMeta}
                     lastSyncAt={cloud.lastSyncAt}
+                    localHasActiveDungeonRun={cloud.localHasActiveDungeonRun}
+                    cloudHasActiveDungeonRun={cloud.cloudHasActiveDungeonRun}
                     showHeader={false}
                     onEmailChange={setEmail}
                     onPasswordChange={setPassword}

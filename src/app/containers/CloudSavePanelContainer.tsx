@@ -20,6 +20,8 @@ export const CloudSavePanelContainer = () => {
             localMeta={cloud.localMeta}
             cloudMeta={cloud.cloudMeta}
             lastSyncAt={cloud.lastSyncAt}
+            localHasActiveDungeonRun={cloud.localHasActiveDungeonRun}
+            cloudHasActiveDungeonRun={cloud.cloudHasActiveDungeonRun}
             onEmailChange={setEmail}
             onPasswordChange={setPassword}
             onLogin={() => cloud.authenticate("login", email, password)}

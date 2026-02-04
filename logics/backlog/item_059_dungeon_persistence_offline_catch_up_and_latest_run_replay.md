@@ -2,7 +2,7 @@
 > From version: 0.8.22
 > Understanding: 94%
 > Confidence: 88%
-> Progress: 70%
+> Progress: 100%
 
 # Problem
 Dungeon runs must persist safely across reloads/cloud sync and remain coherent with offline catch-up while preserving latest run replay data.

@@ -242,4 +242,83 @@ describe("dungeon flow", () => {
             expect(member.hp).toBe(member.hpMax);
         });
     });
+
+    it("keeps deterministic outcomes between one big offline tick and split ticks", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.meat = 20;
+        state.inventory.items.potion = 2;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const largeTickResult = applyDungeonTick(structuredClone(state), 5_000, 6_000);
+        let splitTickState = structuredClone(state);
+        for (let i = 0; i < 10; i += 1) {
+            splitTickState = applyDungeonTick(splitTickState, 500, 1_500 + i * 500).state;
+        }
+
+        const largeRun = getActiveDungeonRun(largeTickResult.state.dungeon);
+        const splitRun = getActiveDungeonRun(splitTickState.dungeon);
+        expect(largeRun?.status).toBe(splitRun?.status);
+        expect(largeRun?.floor).toBe(splitRun?.floor);
+        expect(largeRun?.elapsedMs).toBe(splitRun?.elapsedMs);
+        expect(largeRun?.party.map((member) => member.hp)).toEqual(splitRun?.party.map((member) => member.hp));
+        expect(largeRun?.enemies.map((enemy) => enemy.hp)).toEqual(splitRun?.enemies.map((enemy) => enemy.hp));
+        expect(largeTickResult.state.inventory.items.meat).toBe(splitTickState.inventory.items.meat);
+        expect(largeTickResult.state.inventory.items.gold).toBe(splitTickState.inventory.items.gold);
+    });
+
+    it("falls back to critical replay events when replay payload exceeds size cap", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.meat = 12;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        const hugeLabel = "x".repeat(30_000);
+        run.events = [
+            { atMs: 0, type: "floor_start", label: "Floor 1" },
+            ...Array.from({ length: 120 }, (_, index) => ({
+                atMs: (index + 1) * 100,
+                type: "attack" as const,
+                label: hugeLabel,
+                sourceId: "1",
+                targetId: "mob",
+                amount: 1
+            })),
+            { atMs: 20_000, type: "run_end", label: "stopped" }
+        ];
+
+        state = gameReducer(state, { type: "dungeonStopRun" });
+        const replay = state.dungeon.latestReplay;
+        expect(replay).toBeTruthy();
+        expect(replay?.fallbackCriticalOnly).toBe(true);
+        expect(replay?.truncated).toBe(true);
+        expect(replay?.events.every((event) => (
+            event.type === "floor_start"
+            || event.type === "boss_start"
+            || event.type === "heal"
+            || event.type === "death"
+            || event.type === "run_end"
+        ))).toBe(true);
+    });
 });

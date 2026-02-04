@@ -22,6 +22,8 @@ const baseProps = {
         appVersion: "0.8.11"
     },
     lastSyncAt: null,
+    localHasActiveDungeonRun: false,
+    cloudHasActiveDungeonRun: false,
     onEmailChange: vi.fn(),
     onPasswordChange: vi.fn(),
     onLogin: vi.fn(),
@@ -62,5 +64,17 @@ describe("CloudSavePanel", () => {
     it("shows logout when authenticated", () => {
         render(<CloudSavePanel {...baseProps} />);
         expect(screen.getByRole("button", { name: "Logout" })).toBeTruthy();
+    });
+
+    it("shows active run conflict warning and recommends newest save action", () => {
+        render(
+            <CloudSavePanel
+                {...baseProps}
+                localHasActiveDungeonRun
+                cloudHasActiveDungeonRun={false}
+            />
+        );
+        expect(screen.getByTestId("cloud-run-active-warning")).toBeTruthy();
+        expect(screen.getByText(/Recommended: load cloud save \(newer\)/)).toBeTruthy();
     });
 });

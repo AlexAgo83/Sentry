@@ -21,6 +21,8 @@ type CloudSaveState = {
     localMeta: CloudSaveMeta;
     lastSyncAt: Date | null;
     hasCloudSave: boolean;
+    localHasActiveDungeonRun: boolean;
+    cloudHasActiveDungeonRun: boolean;
     isAvailable: boolean;
     accessToken: string | null;
 };
@@ -65,14 +67,31 @@ const warmupMessage = (seconds?: number) => (
         : "Cloud backend is still waking up. Please retry in a moment."
 );
 
+const isRecord = (value: unknown): value is Record<string, unknown> => (
+    Boolean(value) && typeof value === "object"
+);
+
+const hasActiveDungeonRunInPayload = (payload: unknown): boolean => {
+    if (!isRecord(payload)) {
+        return false;
+    }
+    const dungeon = payload.dungeon;
+    if (!isRecord(dungeon)) {
+        return false;
+    }
+    const activeRunId = dungeon.activeRunId;
+    return typeof activeRunId === "string" && activeRunId.trim().length > 0;
+};
 
 export const useCloudSave = () => {
     const virtualScore = useGameStore(selectVirtualScore);
     const appVersion = useGameStore((state) => state.version);
+    const localHasActiveDungeonRun = useGameStore((state) => Boolean(state.dungeon.activeRunId));
     const [accessToken, setAccessToken] = useState<string | null>(() => cloudClient.loadAccessToken());
     const [cloudMeta, setCloudMeta] = useState<CloudSaveMeta | null>(null);
     const [cloudPayload, setCloudPayload] = useState<unknown | null>(null);
     const [hasCloudSave, setHasCloudSave] = useState(false);
+    const [cloudHasActiveDungeonRun, setCloudHasActiveDungeonRun] = useState(false);
     const [status, setStatus] = useState<CloudSaveState["status"]>("idle");
     const [error, setError] = useState<string | null>(null);
     const [warmupRetrySeconds, setWarmupRetrySeconds] = useState<number | null>(null);
@@ -219,15 +238,17 @@ export const useCloudSave = () => {
         try {
             const response = await withWarmupRetry("idle", () => withRefreshRetry((token) => cloudClient.getLatestSave(token)));
             if (!response) {
-            setHasCloudSave(false);
-            setCloudMeta(null);
-            setCloudPayload(null);
-            setLastSyncAt(new Date());
-            setStatus("ready");
-            return;
-        }
+                setHasCloudSave(false);
+                setCloudMeta(null);
+                setCloudPayload(null);
+                setCloudHasActiveDungeonRun(false);
+                setLastSyncAt(new Date());
+                setStatus("ready");
+                return;
+            }
             setHasCloudSave(true);
             setCloudPayload(response.payload);
+            setCloudHasActiveDungeonRun(hasActiveDungeonRunInPayload(response.payload));
             setCloudMeta({
                 updatedAt: toDateOrNull(response.meta.updatedAt),
                 virtualScore: response.meta.virtualScore,
@@ -290,6 +311,7 @@ export const useCloudSave = () => {
         setCloudMeta(null);
         setCloudPayload(null);
         setHasCloudSave(false);
+        setCloudHasActiveDungeonRun(false);
         setStatus("idle");
         setError(null);
         setWarmupRetrySeconds(null);
@@ -320,6 +342,8 @@ export const useCloudSave = () => {
         localMeta,
         lastSyncAt,
         hasCloudSave,
+        localHasActiveDungeonRun,
+        cloudHasActiveDungeonRun,
         isAvailable,
         accessToken,
         authenticate,
