@@ -173,14 +173,6 @@ export const InventoryPanel = memo(({
                                     Sell all
                                 </button>
                             ) : null}
-                            <button
-                                type="button"
-                                className="ts-icon-button ts-panel-action-button ts-focusable ts-inventory-header-button ts-inventory-clear"
-                                onClick={onClearSelection}
-                                data-testid="inventory-clear-selection"
-                            >
-                                Clear
-                            </button>
                         </>
                     ) : null}
                     <button
@@ -250,6 +242,18 @@ export const InventoryPanel = memo(({
                             <h3 className="ts-inventory-focus-title">
                                 {selectedItem ? selectedItem.name : "No item selected"}
                             </h3>
+                            {selectedItem ? (
+                                <div className="ts-inventory-focus-actions">
+                                    <button
+                                        type="button"
+                                        className="generic-field button ts-inventory-clear ts-focusable"
+                                        onClick={onClearSelection}
+                                        data-testid="inventory-clear-selection"
+                                    >
+                                        Clear
+                                    </button>
+                                </div>
+                            ) : null}
                         </div>
                         <div className="ts-inventory-focus-count">
                             <span title={selectedItem ? formattedSelectedCountFull : undefined}>
