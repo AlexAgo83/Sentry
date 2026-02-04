@@ -1,4 +1,5 @@
 import type {
+    DungeonState,
     GameSave,
     InventoryState,
     PlayerId,
@@ -7,6 +8,7 @@ import type {
 } from "../../core/types";
 import type { ProgressionState } from "../../core/types";
 import { normalizeProgressionState } from "../../core/progression";
+import { normalizeDungeonState } from "../../core/dungeon";
 
 export const LATEST_SAVE_SCHEMA_VERSION = 1;
 
@@ -180,6 +182,13 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
         ? input.progression as unknown as ProgressionState
         : undefined;
     const progression = normalizeProgressionState(progressionInput, now);
+    const dungeonInput = isObject(input.dungeon)
+        ? input.dungeon as unknown as DungeonState
+        : undefined;
+    const dungeon = normalizeDungeonState(dungeonInput);
+    if (!dungeonInput) {
+        dungeon.onboardingRequired = false;
+    }
 
     return {
         ok: true,
@@ -194,7 +203,8 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             rosterLimit,
             inventory: finalInventory,
             ...(quests ? { quests } : {}),
-            progression
+            progression,
+            dungeon
         }
     };
 };

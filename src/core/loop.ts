@@ -24,6 +24,7 @@ import {
     TickSummaryState
 } from "./types";
 import { hashStringToSeed, seededRandom } from "./rng";
+import { applyDungeonTick, getActiveDungeonRun } from "./dungeon";
 
 const clampProgress = (value: number): number => {
     if (!Number.isFinite(value)) {
@@ -318,6 +319,10 @@ const applyActionTick = (
 
 export const applyTick = (state: GameState, deltaMs: number, timestamp: number): GameState => {
     const sortedIds = Object.keys(state.players).sort((a, b) => Number(a) - Number(b));
+    const activeDungeonRun = getActiveDungeonRun(state.dungeon);
+    const lockedDungeonPlayerIds = new Set(
+        (activeDungeonRun?.party ?? []).map((member) => member.playerId)
+    );
     const players = {} as Record<PlayerId, PlayerState>;
     let inventory = state.inventory;
     const totalItemDeltas: ItemDelta = {};
@@ -329,7 +334,10 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
 
     sortedIds.forEach((id) => {
         const player = state.players[id];
-        const result = applyActionTick(player, inventory, deltaMs, timestamp);
+        const playerForTick = lockedDungeonPlayerIds.has(id)
+            ? { ...player, selectedActionId: null }
+            : player;
+        const result = applyActionTick(playerForTick, inventory, deltaMs, timestamp);
         const playerSkillActiveMs: Partial<Record<SkillId, number>> = {};
         if (result.skillId && result.activeMs > 0) {
             playerSkillActiveMs[result.skillId] = result.activeMs;
@@ -391,6 +399,21 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         inventory = applyItemDelta(inventory, { gold: questGoldReward }, 1, totalItemDeltas);
     }
 
+    const dungeonResult = applyDungeonTick(
+        {
+            ...state,
+            players,
+            inventory
+        },
+        deltaMs,
+        timestamp
+    );
+    const nextPlayers = dungeonResult.state.players;
+    inventory = dungeonResult.state.inventory;
+    Object.entries(dungeonResult.itemDeltas).forEach(([itemId, amount]) => {
+        addItemDelta(totalItemDeltas, itemId, amount);
+    });
+
     const goldDelta = totalItemDeltas.gold ?? 0;
     const progression = applyProgressionDelta(
         state.progression ?? createProgressionState(timestamp),
@@ -406,7 +429,7 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
 
     return {
         ...state,
-        players,
+        players: nextPlayers,
         inventory,
         quests: {
             craftCounts: nextCraftCounts,
@@ -417,6 +440,7 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
             lastTick: timestamp
         },
         progression,
-        lastTickSummary
+        lastTickSummary,
+        dungeon: dungeonResult.state.dungeon
     };
 };

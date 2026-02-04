@@ -4,6 +4,7 @@ import type { OfflineSummaryState } from "../../core/types";
 type UseCloseOverlaysOnOfflineSummaryOptions = {
     offlineSummary: OfflineSummaryState | null;
     closeActionSelection: () => void;
+    closeDungeonScreen: () => void;
     closeAllHeroNameModals: () => void;
     closeSystem: () => void;
     closeDevTools: () => void;
@@ -14,6 +15,7 @@ type UseCloseOverlaysOnOfflineSummaryOptions = {
 export const useCloseOverlaysOnOfflineSummary = ({
     offlineSummary,
     closeActionSelection,
+    closeDungeonScreen,
     closeAllHeroNameModals,
     closeSystem,
     closeDevTools,
@@ -25,6 +27,7 @@ export const useCloseOverlaysOnOfflineSummary = ({
             return;
         }
         closeActionSelection();
+        closeDungeonScreen();
         closeAllHeroNameModals();
         closeSystem();
         closeDevTools();
@@ -32,6 +35,7 @@ export const useCloseOverlaysOnOfflineSummary = ({
         closeCloudSave();
     }, [
         closeActionSelection,
+        closeDungeonScreen,
         closeAllHeroNameModals,
         closeDevTools,
         closeSystem,

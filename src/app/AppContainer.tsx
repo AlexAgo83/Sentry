@@ -15,6 +15,7 @@ import { AppModalsContainer } from "./containers/AppModalsContainer";
 import { useCloseOverlaysOnOfflineSummary } from "./hooks/useCloseOverlaysOnOfflineSummary";
 import { useGameRuntimeLifecycle } from "./hooks/useGameRuntimeLifecycle";
 import { useInventoryNewBadges } from "./hooks/useInventoryNewBadges";
+import { generateUniqueEnglishHeroNames } from "./ui/heroNames";
 
 export const AppContainer = () => {
     useRenderCount("AppContainer");
@@ -28,6 +29,8 @@ export const AppContainer = () => {
     const offlineSummary = useGameStore((state) => state.offlineSummary);
     const inventoryItems = useGameStore((state) => state.inventory.items);
     const playerCount = useGameStore((state) => Object.keys(state.players).length);
+    const isDungeonRunActive = useGameStore((state) => Boolean(state.dungeon.activeRunId));
+    const dungeonOnboardingRequired = useGameStore((state) => state.dungeon.onboardingRequired);
     const persistence = useGameStore((state) => state.persistence);
 
     const {
@@ -53,11 +56,14 @@ export const AppContainer = () => {
         openCloudSave,
         closeCloudSave,
         openActionSelection,
-        closeActionSelection
+        closeActionSelection,
+        openDungeonScreen,
+        closeDungeonScreen
     } = useAppShellUi();
 
     const [onboardingHeroName, setOnboardingHeroName] = useState("");
-    const isOnboardingOpen = playerCount === 0;
+    const [didAutoOpenDungeon, setDidAutoOpenDungeon] = useState(false);
+    const isOnboardingOpen = dungeonOnboardingRequired && playerCount < 4;
 
     const {
         newItemIds: newInventoryItemIds,
@@ -65,6 +71,28 @@ export const AppContainer = () => {
         markItemSeen: markInventoryItemSeen,
         markMenuSeen: markInventoryMenuSeen
     } = useInventoryNewBadges(inventoryItems, version);
+
+    useEffect(() => {
+        if (!dungeonOnboardingRequired || playerCount > 0) {
+            return;
+        }
+        const starterNames = generateUniqueEnglishHeroNames(3);
+        starterNames.forEach((name) => {
+            gameStore.dispatch({ type: "addPlayer", name });
+        });
+    }, [dungeonOnboardingRequired, playerCount]);
+
+    useEffect(() => {
+        if (!isDungeonRunActive) {
+            setDidAutoOpenDungeon(false);
+            return;
+        }
+        if (didAutoOpenDungeon || isOnboardingOpen || activeScreen !== "main") {
+            return;
+        }
+        openDungeonScreen();
+        setDidAutoOpenDungeon(true);
+    }, [activeScreen, didAutoOpenDungeon, isDungeonRunActive, isOnboardingOpen, openDungeonScreen]);
 
     useEffect(() => {
         if (
@@ -101,6 +129,7 @@ export const AppContainer = () => {
     useCloseOverlaysOnOfflineSummary({
         offlineSummary,
         closeActionSelection,
+        closeDungeonScreen,
         closeAllHeroNameModals,
         closeSystem,
         closeDevTools,
@@ -113,6 +142,7 @@ export const AppContainer = () => {
             return;
         }
         closeActionSelection();
+        closeDungeonScreen();
         closeAllHeroNameModals();
         closeSystem();
         closeDevTools();
@@ -120,6 +150,7 @@ export const AppContainer = () => {
         closeCloudSave();
     }, [
         closeActionSelection,
+        closeDungeonScreen,
         closeAllHeroNameModals,
         closeCloudSave,
         closeDevTools,
@@ -140,7 +171,10 @@ export const AppContainer = () => {
         }
         gameStore.dispatch({ type: "addPlayer", name: trimmed });
         setOnboardingHeroName("");
-        openActionSelection();
+        const nextPlayerCount = Object.keys(gameStore.getState().players).length;
+        if (nextPlayerCount >= 4) {
+            openActionSelection();
+        }
     }, [onboardingHeroName, openActionSelection]);
 
     const handleSimulateOffline = useCallback(() => {
@@ -210,18 +244,22 @@ export const AppContainer = () => {
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={showActionPanel}
+                onShowDungeon={openDungeonScreen}
+                isDungeonLocked={playerCount < 4}
                 onShowStats={showStatsPanel}
                 onShowRoster={showRosterScreen}
                 onShowInventory={showInventoryPanel}
                 onShowEquipment={showEquipmentPanel}
                 onShowShop={showShopPanel}
                 onShowQuests={showQuestsPanel}
+                isDungeonRunActive={isDungeonRunActive}
                 hasNewInventoryItems={hasNewInventoryItems}
                 newInventoryItemIds={newInventoryItemIds}
                 onMarkInventoryItemSeen={markInventoryItemSeen}
                 onAddPlayer={openRecruit}
                 onChangeAction={handleOpenActionSelection}
                 onCloseActionSelection={closeActionSelection}
+                onCloseDungeonScreen={closeDungeonScreen}
                 onRenameHero={openActiveRename}
                 getSkillLabel={getSkillLabelStrict}
                 getRecipeLabel={getRecipeLabel}
@@ -246,6 +284,11 @@ export const AppContainer = () => {
                 isCloudSaveOpen={isCloudSaveOpen}
                 onCloseCloudSave={closeCloudSave}
                 isOnboardingOpen={isOnboardingOpen}
+                onboardingTitle={playerCount >= 3 ? "Create your 4th hero" : "Create your hero"}
+                onboardingHelperText={playerCount >= 3
+                    ? "Your party needs a fourth hero to unlock Dungeon mode."
+                    : "Pick a name to begin your journey."}
+                onboardingSubmitLabel={playerCount >= 3 ? "Create 4th hero" : "Create hero"}
                 onboardingHeroName={onboardingHeroName}
                 onOnboardingHeroNameChange={setOnboardingHeroName}
                 onCreateOnboardingHero={handleCreateOnboardingHero}

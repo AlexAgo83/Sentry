@@ -25,6 +25,13 @@ import {
 import { getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
 import { getEquipmentDefinition } from "../data/equipment";
 import { getSellGoldGain } from "./economy";
+import { getDungeonDefinition } from "../data/dungeons";
+import {
+    isPlayerAssignedToActiveDungeonRun,
+    startDungeonRun,
+    stopDungeonRun,
+    updateDungeonOnboardingRequired
+} from "./dungeon";
 
 export type GameAction =
     | { type: "hydrate"; save: GameSave | null; version: string }
@@ -44,7 +51,12 @@ export type GameAction =
     | { type: "sellItem"; itemId: ItemId; count: number }
     | { type: "purchaseRosterSlot" }
     | { type: "equipItem"; playerId: PlayerId; itemId: ItemId }
-    | { type: "unequipItem"; playerId: PlayerId; slot: EquipmentSlotId };
+    | { type: "unequipItem"; playerId: PlayerId; slot: EquipmentSlotId }
+    | { type: "dungeonSetupSelectDungeon"; dungeonId: string }
+    | { type: "dungeonSetupSetParty"; playerIds: PlayerId[] }
+    | { type: "dungeonSetupSetAutoRestart"; autoRestart: boolean }
+    | { type: "dungeonStartRun"; dungeonId?: string; playerIds?: PlayerId[]; timestamp?: number }
+    | { type: "dungeonStopRun" };
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
     switch (action.type) {
@@ -134,7 +146,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             }
             const nextId = getNextPlayerId(state.players);
             const nextPlayer = createPlayerState(nextId, action.name);
-            return {
+            const nextState = {
                 ...state,
                 players: {
                     ...state.players,
@@ -142,6 +154,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 },
                 activePlayerId: nextId
             };
+            return updateDungeonOnboardingRequired(nextState);
         }
         case "renamePlayer": {
             const player = state.players[action.playerId];
@@ -166,6 +179,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         case "selectAction": {
             const player = state.players[action.playerId];
             if (!player) {
+                return state;
+            }
+            if (action.actionId && isPlayerAssignedToActiveDungeonRun(state, action.playerId)) {
                 return state;
             }
             return {
@@ -386,6 +402,54 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 }
             };
         }
+        case "dungeonSetupSelectDungeon": {
+            if (!getDungeonDefinition(action.dungeonId)) {
+                return state;
+            }
+            return {
+                ...state,
+                dungeon: {
+                    ...state.dungeon,
+                    setup: {
+                        ...state.dungeon.setup,
+                        selectedDungeonId: action.dungeonId
+                    }
+                }
+            };
+        }
+        case "dungeonSetupSetParty": {
+            const uniqueIds = Array.from(new Set(action.playerIds)).filter((id) => Boolean(state.players[id])).slice(0, 4);
+            return {
+                ...state,
+                dungeon: {
+                    ...state.dungeon,
+                    setup: {
+                        ...state.dungeon.setup,
+                        selectedPartyPlayerIds: uniqueIds
+                    }
+                }
+            };
+        }
+        case "dungeonSetupSetAutoRestart":
+            return {
+                ...state,
+                dungeon: {
+                    ...state.dungeon,
+                    setup: {
+                        ...state.dungeon.setup,
+                        autoRestart: action.autoRestart
+                    }
+                }
+            };
+        case "dungeonStartRun":
+            return startDungeonRun(
+                state,
+                action.dungeonId ?? state.dungeon.setup.selectedDungeonId,
+                action.playerIds ?? state.dungeon.setup.selectedPartyPlayerIds,
+                action.timestamp ?? Date.now()
+            );
+        case "dungeonStopRun":
+            return stopDungeonRun(state, "stopped");
         default:
             return state;
     }

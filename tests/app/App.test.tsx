@@ -107,10 +107,10 @@ describe("App", () => {
 
     it("forces onboarding when no heroes exist", async () => {
         const { user } = renderApp({ seedHero: false, addSecondHero: false });
-        expect(screen.getByRole("heading", { name: "Create your hero" })).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Create your 4th hero" })).toBeTruthy();
 
         await user.type(screen.getByLabelText("Hero name"), "Nova");
-        await user.click(screen.getByRole("button", { name: "Create hero" }));
+        await user.click(screen.getByRole("button", { name: "Create 4th hero" }));
 
         expect(await screen.findByRole("group", { name: "Select skill" })).toBeTruthy();
     });

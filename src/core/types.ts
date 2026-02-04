@@ -16,6 +16,10 @@ export type ActionId = SkillId;
 export type RecipeId = string;
 export type ItemId = string;
 export type QuestId = string;
+export type DungeonId = string;
+export type DungeonBossMechanicId = "burst" | "poison" | "shield" | "summon" | "enrage";
+export type DungeonRunStatus = "running" | "victory" | "failed";
+export type DungeonRunEndReason = "victory" | "wipe" | "out_of_meat" | "stopped";
 export type StatId = "Strength" | "Agility" | "Endurance" | "Intellect" | "Luck";
 export type EquipmentSlotId =
     | "Head"
@@ -147,6 +151,104 @@ export interface ProgressionState {
     buckets: ProgressionBucket[];
 }
 
+export interface DungeonSetupState {
+    selectedDungeonId: DungeonId;
+    selectedPartyPlayerIds: PlayerId[];
+    autoRestart: boolean;
+}
+
+export interface DungeonRunPartyMemberState {
+    playerId: PlayerId;
+    hp: number;
+    hpMax: number;
+    potionCooldownMs: number;
+}
+
+export interface DungeonRunEnemyState {
+    id: string;
+    name: string;
+    hp: number;
+    hpMax: number;
+    damage: number;
+    isBoss: boolean;
+    mechanic: DungeonBossMechanicId | null;
+    spawnIndex: number;
+}
+
+export interface DungeonReplayEvent {
+    atMs: number;
+    type: "spawn" | "attack" | "damage" | "heal" | "death" | "floor_start" | "boss_start" | "run_end";
+    sourceId?: string;
+    targetId?: string;
+    amount?: number;
+    label?: string;
+}
+
+export interface DungeonRunState {
+    id: string;
+    dungeonId: DungeonId;
+    status: DungeonRunStatus;
+    endReason: DungeonRunEndReason | null;
+    startedAt: number;
+    elapsedMs: number;
+    stepCarryMs: number;
+    encounterStep: number;
+    floor: number;
+    floorCount: number;
+    party: DungeonRunPartyMemberState[];
+    enemies: DungeonRunEnemyState[];
+    targetEnemyId: string | null;
+    autoRestart: boolean;
+    restartAt: number | null;
+    runIndex: number;
+    startInventory: {
+        meat: number;
+        tonic: number;
+        elixir: number;
+        potion: number;
+    };
+    seed: number;
+    events: DungeonReplayEvent[];
+}
+
+export interface DungeonReplayState {
+    runId: string;
+    dungeonId: DungeonId;
+    status: "victory" | "failed";
+    endReason: DungeonRunEndReason;
+    runIndex: number;
+    startedAt: number;
+    elapsedMs: number;
+    seed: number;
+    partyPlayerIds: PlayerId[];
+    teamSnapshot: Array<{
+        playerId: PlayerId;
+        name: string;
+        equipment: PlayerEquipmentState;
+    }>;
+    startInventory: {
+        meat: number;
+        tonic: number;
+        elixir: number;
+        potion: number;
+    };
+    events: DungeonReplayEvent[];
+    truncated: boolean;
+    fallbackCriticalOnly: boolean;
+}
+
+export interface DungeonState {
+    onboardingRequired: boolean;
+    setup: DungeonSetupState;
+    runs: Record<string, DungeonRunState>;
+    activeRunId: string | null;
+    latestReplay: DungeonReplayState | null;
+    policy: {
+        maxConcurrentSupported: number;
+        maxConcurrentEnabled: number;
+    };
+}
+
 export interface GameState {
     version: string;
     players: Record<PlayerId, PlayerState>;
@@ -160,6 +262,7 @@ export interface GameState {
     persistence: PersistenceState;
     offlineSummary: OfflineSummaryState | null;
     lastTickSummary: TickSummaryState | null;
+    dungeon: DungeonState;
 }
 
 export interface SkillDefinition {
@@ -193,6 +296,16 @@ export interface ActionDefinition {
     itemCosts?: ItemDelta;
     itemRewards?: ItemDelta;
     rareRewards?: ItemDelta;
+}
+
+export interface DungeonDefinition {
+    id: DungeonId;
+    name: string;
+    tier: number;
+    floorCount: number;
+    recommendedPower: number;
+    bossName: string;
+    bossMechanic: DungeonBossMechanicId;
 }
 
 export type PlayerSaveState = Omit<PlayerState, "actionProgress">;
@@ -249,4 +362,5 @@ export interface GameSave {
     inventory?: InventoryState;
     quests?: QuestProgressState;
     progression?: ProgressionState;
+    dungeon?: DungeonState;
 }

@@ -2,6 +2,7 @@ import { memo } from "react";
 
 export type TabIconKind =
     | "action"
+    | "dungeon"
     | "stats"
     | "roster"
     | "inventory"
@@ -20,6 +21,12 @@ const UI_ICON_PATH = `${__ASSETS_PATH__}icons/ui/`;
 export const TabIcon = memo(({ kind }: TabIconProps) => {
     switch (kind) {
         case "action":
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href={`${UI_ICON_PATH}tab-action.svg#icon`} />
+                </svg>
+            );
+        case "dungeon":
             return (
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <use href={`${UI_ICON_PATH}tab-action.svg#icon`} />

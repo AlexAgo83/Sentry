@@ -31,6 +31,9 @@ type AppModalsContainerProps = {
     isCloudSaveOpen: boolean;
     onCloseCloudSave: () => void;
     isOnboardingOpen: boolean;
+    onboardingTitle?: string;
+    onboardingHelperText?: string;
+    onboardingSubmitLabel?: string;
     onboardingHeroName: string;
     onOnboardingHeroNameChange: (value: string) => void;
     onCreateOnboardingHero: () => void;
@@ -80,6 +83,9 @@ export const AppModalsContainer = ({
     isCloudSaveOpen,
     onCloseCloudSave,
     isOnboardingOpen,
+    onboardingTitle,
+    onboardingHelperText,
+    onboardingSubmitLabel,
     onboardingHeroName,
     onOnboardingHeroNameChange,
     onCreateOnboardingHero,
@@ -113,6 +119,9 @@ export const AppModalsContainer = ({
         <>
             {isOnboardingOpen ? (
                 <OnboardingHeroModal
+                    title={onboardingTitle}
+                    helperText={onboardingHelperText}
+                    submitLabel={onboardingSubmitLabel}
                     name={onboardingHeroName}
                     isSubmitDisabled={onboardingHeroName.trim().length === 0}
                     onNameChange={onOnboardingHeroNameChange}

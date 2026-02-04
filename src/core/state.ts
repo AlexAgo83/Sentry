@@ -29,6 +29,7 @@ import { SKILL_DEFINITIONS, getRecipesForSkill } from "../data/definitions";
 import { createPlayerStatsState, normalizePlayerStats } from "./stats";
 import { createPlayerEquipmentState, normalizePlayerEquipment } from "./equipment";
 import { createProgressionState, normalizeProgressionState } from "./progression";
+import { createDungeonState, normalizeDungeonState } from "./dungeon";
 
 export const createActionProgress = (): ActionProgressState => ({
     currentInterval: 0,
@@ -157,11 +158,15 @@ export const createInitialGameState = (version: string, options: InitialGameStat
     const seedHero = options.seedHero ?? true;
     const playerId: PlayerId = "1";
     const player = seedHero ? createPlayerState(playerId) : null;
+    const initialRosterLimit = seedHero ? DEFAULT_ROSTER_LIMIT : Math.max(DEFAULT_ROSTER_LIMIT, 4);
+    const dungeon = createDungeonState();
+    dungeon.onboardingRequired = !seedHero;
+
     return {
         version,
         players: player ? { [playerId]: player } : {},
         activePlayerId: player ? playerId : null,
-        rosterLimit: DEFAULT_ROSTER_LIMIT,
+        rosterLimit: initialRosterLimit,
         inventory: createInventoryState(DEFAULT_GOLD),
         quests: createQuestProgressState(),
         loop: {
@@ -186,7 +191,8 @@ export const createInitialGameState = (version: string, options: InitialGameStat
             lastFailureAt: null
         },
         offlineSummary: null,
-        lastTickSummary: null
+        lastTickSummary: null,
+        dungeon
     };
 };
 
@@ -269,6 +275,13 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         ? Math.max(1, Math.floor(save.rosterLimit ?? baseState.rosterLimit))
         : baseState.rosterLimit;
     const rosterLimit = Math.max(resolvedRosterLimit, playerIds.length);
+    const dungeon = normalizeDungeonState(save.dungeon);
+    if (!save.dungeon) {
+        dungeon.onboardingRequired = false;
+    }
+    if (playerIds.length >= 4) {
+        dungeon.onboardingRequired = false;
+    }
 
     return {
         ...baseState,
@@ -286,7 +299,8 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         progression: normalizeProgressionState(save.progression, Date.now()),
         persistence: baseState.persistence,
         offlineSummary: null,
-        lastTickSummary: null
+        lastTickSummary: null,
+        dungeon
     };
 };
 

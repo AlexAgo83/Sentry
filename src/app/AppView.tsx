@@ -5,7 +5,7 @@ import { SystemIcon } from "./ui/systemIcon";
 import { useRenderCount } from "./dev/renderDebug";
 
 export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment" | "shop" | "quests";
-export type AppActiveScreen = "main" | "actionSelection" | "roster";
+export type AppActiveScreen = "main" | "actionSelection" | "dungeon" | "roster";
 
 export interface AppViewProps {
     version: string;
@@ -13,12 +13,15 @@ export interface AppViewProps {
     activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
+    onShowDungeon: () => void;
+    isDungeonLocked: boolean;
     onShowStats: () => void;
     onShowRoster: () => void;
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
     onShowQuests: () => void;
+    isDungeonRunActive: boolean;
     hasNewInventoryItems: boolean;
     roster: ReactNode;
     actionPanel: ReactNode;
@@ -28,6 +31,7 @@ export interface AppViewProps {
     shopPanel: ReactNode;
     questsPanel: ReactNode;
     actionSelectionScreen: ReactNode;
+    dungeonScreen: ReactNode;
 }
 
 export const AppView = (props: AppViewProps) => {
@@ -61,12 +65,15 @@ export const AppView = (props: AppViewProps) => {
         activeScreen,
         activeSidePanel,
         onShowAction,
+        onShowDungeon,
+        isDungeonLocked,
         onShowStats,
         onShowRoster,
         onShowInventory,
         onShowEquipment,
         onShowShop,
         onShowQuests,
+        isDungeonRunActive,
         hasNewInventoryItems,
         roster,
         actionPanel,
@@ -76,6 +83,7 @@ export const AppView = (props: AppViewProps) => {
         shopPanel,
         questsPanel,
         actionSelectionScreen,
+        dungeonScreen,
     } = props;
 
     const showRoster = !isMobile || activeScreen === "roster";
@@ -94,17 +102,24 @@ export const AppView = (props: AppViewProps) => {
                         {!isMobile ? (
                             <SidePanelSwitcher
                                 active={activeSidePanel}
+                                isDungeonActive={activeScreen === "dungeon"}
+                                onShowDungeon={onShowDungeon}
+                                isDungeonLocked={isDungeonLocked}
                                 onShowAction={onShowAction}
                                 onShowStats={onShowStats}
                                 onShowInventory={onShowInventory}
                                 onShowEquipment={onShowEquipment}
                                 onShowShop={onShowShop}
                                 onShowQuests={onShowQuests}
-                                badges={hasNewInventoryItems ? { inventory: "New" } : undefined}
+                                badges={{
+                                    ...(hasNewInventoryItems ? { inventory: "New" } : {}),
+                                    ...(isDungeonRunActive ? { dungeon: "Live" } : {})
+                                }}
                                 className="ts-topbar-switcher"
                                 inventoryOrder="equipment-first"
                                 labels={{
                                     action: "Action",
+                                    dungeon: "Dungeon",
                                     stats: "Stats",
                                     inventory: "Inv",
                                     equipment: "Equip",
@@ -136,6 +151,8 @@ export const AppView = (props: AppViewProps) => {
                     <div className="ts-main-stack">
                         {activeScreen === "actionSelection"
                             ? actionSelectionScreen
+                            : activeScreen === "dungeon"
+                                ? dungeonScreen
                             : (
                                 <>
                                     {activeSidePanel === "action" ? (
@@ -168,6 +185,9 @@ export const AppView = (props: AppViewProps) => {
                 >
                     <SidePanelSwitcher
                         active={activeSidePanel}
+                        isDungeonActive={activeScreen === "dungeon"}
+                        onShowDungeon={onShowDungeon}
+                        isDungeonLocked={isDungeonLocked}
                         isRosterActive={activeScreen === "roster"}
                         onShowRoster={onShowRoster}
                         onShowAction={onShowAction}
@@ -176,7 +196,10 @@ export const AppView = (props: AppViewProps) => {
                         onShowEquipment={onShowEquipment}
                         onShowShop={onShowShop}
                         onShowQuests={onShowQuests}
-                        badges={hasNewInventoryItems ? { inventory: "New" } : undefined}
+                        badges={{
+                            ...(hasNewInventoryItems ? { inventory: "New" } : {}),
+                            ...(isDungeonRunActive ? { dungeon: "Live" } : {})
+                        }}
                         className="ts-bottombar-switcher"
                         useInventoryMenu
                         useHeroMenu
@@ -185,6 +208,7 @@ export const AppView = (props: AppViewProps) => {
                         heroLabel="Hero"
                         labels={{
                             action: "Act",
+                            dungeon: "Dungeon",
                             stats: "Stats",
                             roster: "Roster",
                             inventory: "Travel",

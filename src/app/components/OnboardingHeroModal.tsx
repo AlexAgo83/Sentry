@@ -2,6 +2,9 @@ import { memo, type FormEvent } from "react";
 import { ModalShell } from "./ModalShell";
 
 type OnboardingHeroModalProps = {
+    title?: string;
+    helperText?: string;
+    submitLabel?: string;
     name: string;
     isSubmitDisabled: boolean;
     onNameChange: (value: string) => void;
@@ -9,6 +12,9 @@ type OnboardingHeroModalProps = {
 };
 
 export const OnboardingHeroModal = memo(({
+    title = "Create your hero",
+    helperText = "Pick a name to begin your journey.",
+    submitLabel = "Create hero",
     name,
     isSubmitDisabled,
     onNameChange,
@@ -25,14 +31,14 @@ export const OnboardingHeroModal = memo(({
     return (
         <ModalShell
             kicker="First time setup"
-            title="Create your hero"
+            title={title}
             onClose={() => {}}
             showClose={false}
             onBackdropClick={() => {}}
             onEscape={() => {}}
         >
             <form className="ts-field-group" onSubmit={handleSubmit}>
-                <p className="ts-system-helper">Pick a name to begin your journey.</p>
+                <p className="ts-system-helper">{helperText}</p>
                 <label className="ts-field-label" htmlFor="onboarding-hero-name">Hero name</label>
                 <input
                     id="onboarding-hero-name"
@@ -51,7 +57,7 @@ export const OnboardingHeroModal = memo(({
                         disabled={isSubmitDisabled}
                         data-testid="onboarding-create-hero"
                     >
-                        Create hero
+                        {submitLabel}
                     </button>
                 </div>
             </form>

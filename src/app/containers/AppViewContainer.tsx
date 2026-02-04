@@ -2,6 +2,7 @@ import type { SkillId } from "../../core/types";
 import { AppView, type AppActiveScreen, type AppActiveSidePanel } from "../AppView";
 import { ActionPanelContainer } from "./ActionPanelContainer";
 import { ActionSelectionScreenContainer } from "./ActionSelectionScreenContainer";
+import { DungeonScreenContainer } from "./DungeonScreenContainer";
 import { EquipmentPanelContainer } from "./EquipmentPanelContainer";
 import { InventoryPanelContainer } from "./InventoryPanelContainer";
 import { RosterContainer } from "./RosterContainer";
@@ -16,18 +17,22 @@ type AppViewContainerProps = {
     activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
+    onShowDungeon: () => void;
+    isDungeonLocked: boolean;
     onShowStats: () => void;
     onShowRoster: () => void;
     onShowInventory: () => void;
     onShowEquipment: () => void;
     onShowShop: () => void;
     onShowQuests: () => void;
+    isDungeonRunActive: boolean;
     hasNewInventoryItems: boolean;
     newInventoryItemIds: string[];
     onMarkInventoryItemSeen: (itemId: string) => void;
     onAddPlayer: () => void;
     onChangeAction: () => void;
     onCloseActionSelection: () => void;
+    onCloseDungeonScreen: () => void;
     onRenameHero: () => void;
     getSkillLabel: (skillId: SkillId) => string;
     getRecipeLabel: (skillId: SkillId, recipeId: string | null) => string;
@@ -40,18 +45,22 @@ export const AppViewContainer = ({
     activeScreen,
     activeSidePanel,
     onShowAction,
+    onShowDungeon,
+    isDungeonLocked,
     onShowStats,
     onShowRoster,
     onShowInventory,
     onShowEquipment,
     onShowShop,
     onShowQuests,
+    isDungeonRunActive,
     hasNewInventoryItems,
     newInventoryItemIds,
     onMarkInventoryItemSeen,
     onAddPlayer,
     onChangeAction,
     onCloseActionSelection,
+    onCloseDungeonScreen,
     onRenameHero,
     getSkillLabel,
     getRecipeLabel,
@@ -65,12 +74,15 @@ export const AppViewContainer = ({
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={onShowAction}
+                onShowDungeon={onShowDungeon}
+                isDungeonLocked={isDungeonLocked}
                 onShowStats={onShowStats}
                 onShowRoster={onShowRoster}
                 onShowInventory={onShowInventory}
                 onShowEquipment={onShowEquipment}
                 onShowShop={onShowShop}
                 onShowQuests={onShowQuests}
+                isDungeonRunActive={isDungeonRunActive}
                 hasNewInventoryItems={hasNewInventoryItems}
                 roster={(
                     <DevProfiler id="RosterPanel">
@@ -126,6 +138,11 @@ export const AppViewContainer = ({
                             onRenameHero={onRenameHero}
                             getSkillLabel={getSkillLabel}
                         />
+                    </DevProfiler>
+                )}
+                dungeonScreen={(
+                    <DevProfiler id="DungeonScreen">
+                        <DungeonScreenContainer onBack={onCloseDungeonScreen} />
                     </DevProfiler>
                 )}
             />

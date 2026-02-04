@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState } from "react";
 import { TabIcon, type TabIconKind } from "../ui/tabIcons";
 
 type SidePanelSwitcherLabels = {
+    dungeon: string;
     action: string;
     stats: string;
     roster: string;
@@ -16,20 +17,28 @@ type TabButtonProps = {
     label: string;
     badge?: string;
     isSelected: boolean;
+    variant?: "default" | "dungeon";
+    disabled?: boolean;
+    tooltip?: string;
     onClick: () => void;
 };
 
-const TabButton = memo(({ id, label, badge, isSelected, onClick }: TabButtonProps) => {
+const TabButton = memo(({ id, label, badge, isSelected, variant = "default", disabled = false, tooltip, onClick }: TabButtonProps) => {
     const ariaLabel = badge ? `${label} (${badge})` : label;
-    const iconKind: TabIconKind = id === "inventory" && label.toLowerCase() === "travel" ? "travel" : id;
+    const iconKind: TabIconKind = id === "inventory" && label.toLowerCase() === "travel"
+        ? "travel"
+        : id === "dungeon"
+            ? "dungeon"
+            : id;
     return (
         <button
             type="button"
             role="tab"
             aria-selected={isSelected}
             aria-label={ariaLabel}
-            title={label}
-            className={`ts-chip ts-focusable${isSelected ? " is-active" : ""}`}
+            title={tooltip ?? label}
+            className={`ts-chip ts-focusable${isSelected ? " is-active" : ""}${variant === "dungeon" ? " is-dungeon" : ""}${disabled ? " is-disabled" : ""}`}
+            disabled={disabled}
             onClick={onClick}
             data-testid={`tab-${id}`}
         >
@@ -48,6 +57,10 @@ TabButton.displayName = "TabButton";
 
 type SidePanelSwitcherProps = {
     active: "action" | "stats" | "inventory" | "equipment" | "shop" | "quests";
+    isDungeonActive?: boolean;
+    onShowDungeon?: () => void;
+    isDungeonLocked?: boolean;
+    dungeonLockReason?: string;
     isRosterActive?: boolean;
     onShowAction: () => void;
     onShowStats: () => void;
@@ -69,6 +82,10 @@ type SidePanelSwitcherProps = {
 
 export const SidePanelSwitcher = memo(({
     active,
+    isDungeonActive,
+    onShowDungeon,
+    isDungeonLocked = false,
+    dungeonLockReason,
     isRosterActive,
     onShowAction,
     onShowStats,
@@ -89,6 +106,7 @@ export const SidePanelSwitcher = memo(({
 }: SidePanelSwitcherProps) => {
     const resolvedLabels: SidePanelSwitcherLabels = {
         action: labels?.action ?? "Action",
+        dungeon: labels?.dungeon ?? "Dungeon",
         stats: labels?.stats ?? "Stats",
         roster: labels?.roster ?? "Roster",
         inventory: labels?.inventory ?? "Bank",
@@ -97,6 +115,8 @@ export const SidePanelSwitcher = memo(({
         quests: labels?.quests ?? "Quests"
     };
 
+    const canShowDungeon = Boolean(onShowDungeon);
+    const dungeonTooltip = dungeonLockReason ?? "Requires 4 heroes to unlock";
     const [isInventoryMenuOpen, setInventoryMenuOpen] = useState(false);
     const [isHeroMenuOpen, setHeroMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
@@ -108,7 +128,12 @@ export const SidePanelSwitcher = memo(({
         || active === "shop"
         || active === "quests"
     );
-    const isHeroSelected = !isRosterActive && (active === "action" || active === "stats" || (shouldShowEquipmentInHero && active === "equipment"));
+    const isHeroSelected = !isRosterActive && (
+        active === "action"
+        || active === "stats"
+        || (shouldShowEquipmentInHero && active === "equipment")
+        || Boolean(isDungeonActive)
+    );
     const resolvedHeroLabel = heroLabel ?? "Hero";
     const inventoryIconKind: TabIconKind =
         resolvedLabels.inventory.toLowerCase() === "travel" ? "travel" : "inventory";
@@ -257,11 +282,44 @@ export const SidePanelSwitcher = memo(({
                                 </span>
                                 <span className="ts-bank-menu-text">{resolvedLabels.action}</span>
                             </button>
+                            {canShowDungeon ? (
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={`ts-bank-menu-item ts-bank-menu-item-dungeon${isDungeonActive ? " is-active" : ""}`}
+                                    onClick={() => {
+                                        if (isDungeonLocked) {
+                                            return;
+                                        }
+                                        setHeroMenuOpen(false);
+                                        onShowDungeon?.();
+                                    }}
+                                    disabled={isDungeonLocked}
+                                    title={isDungeonLocked ? dungeonTooltip : resolvedLabels.dungeon}
+                                >
+                                    <span className="ts-bank-menu-icon" aria-hidden="true">
+                                        <TabIcon kind="dungeon" />
+                                    </span>
+                                    <span className="ts-bank-menu-text">{resolvedLabels.dungeon}</span>
+                                </button>
+                            ) : null}
                         </div>
                     ) : null}
                 </div>
             ) : (
                 <>
+                    {canShowDungeon ? (
+                        <TabButton
+                            id="dungeon"
+                            label={resolvedLabels.dungeon}
+                            badge={badges?.dungeon}
+                            isSelected={Boolean(isDungeonActive)}
+                            variant="dungeon"
+                            disabled={Boolean(isDungeonLocked)}
+                            tooltip={isDungeonLocked ? dungeonTooltip : undefined}
+                            onClick={onShowDungeon ?? (() => {})}
+                        />
+                    ) : null}
                     <TabButton
                         id="action"
                         label={resolvedLabels.action}

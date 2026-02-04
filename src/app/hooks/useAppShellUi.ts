@@ -54,6 +54,15 @@ export const useAppShellUi = () => {
         setActiveSidePanel(returnSidePanel);
     }, [returnSidePanel]);
 
+    const openDungeonScreen = useCallback(() => {
+        setReturnSidePanel(activeSidePanel);
+        setActiveScreen("dungeon");
+    }, [activeSidePanel]);
+    const closeDungeonScreen = useCallback(() => {
+        setActiveScreen("main");
+        setActiveSidePanel(returnSidePanel);
+    }, [returnSidePanel]);
+
     const showActionPanel = useCallback(() => {
         setActiveScreen("main");
         setActiveSidePanel("action");
@@ -106,5 +115,7 @@ export const useAppShellUi = () => {
         closeCloudSave,
         openActionSelection,
         closeActionSelection,
+        openDungeonScreen,
+        closeDungeonScreen,
     };
 };
