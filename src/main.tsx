@@ -27,6 +27,22 @@ createRoot(rootElement).render(
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
+        if (import.meta.env.PROD) {
+            registerServiceWorker(version).catch((error) => {
+                console.error("Service worker registration failed", error);
+            });
+            return;
+        }
+
+        // Keep Vite HMR stable in local dev by removing any previously installed SW.
+        if (typeof navigator.serviceWorker.getRegistrations === "function") {
+            navigator.serviceWorker.getRegistrations()
+                .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+                .catch(() => undefined);
+            return;
+        }
+
+        // Fallback for test-like environments that expose `serviceWorker` but not `getRegistrations`.
         registerServiceWorker(version).catch((error) => {
             console.error("Service worker registration failed", error);
         });

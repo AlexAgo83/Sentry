@@ -86,3 +86,50 @@
 .ts-dungeon-replay-log p:last-child {
     margin-bottom: 0;
 }
+
+.ts-dungeon-arena {
+    position: relative;
+    width: 100%;
+    min-height: 220px;
+    border: 1px solid rgba(93, 217, 193, 0.24);
+    border-radius: 12px;
+    background:
+        radial-gradient(circle at 80% 50%, rgba(239, 77, 67, 0.09), transparent 44%),
+        radial-gradient(circle at 20% 50%, rgba(93, 217, 193, 0.08), transparent 40%),
+        rgba(8, 12, 22, 0.85);
+    overflow: hidden;
+}
+
+.ts-dungeon-arena canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.ts-dungeon-arena-fallback {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 220px;
+    color: rgba(221, 230, 246, 0.75);
+    font-size: 12px;
+    text-align: center;
+    padding: 16px;
+}
+
+.ts-dungeon-control-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--m2);
+}
+
+.ts-dungeon-speed-group {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.ts-dungeon-control-row .button.is-active,
+.ts-dungeon-speed-group .button.is-active {
+    border-color: rgba(239, 77, 67, 0.75);
+    box-shadow: inset 0 0 0 1px rgba(239, 77, 67, 0.35);
+}

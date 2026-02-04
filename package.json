@@ -37,6 +37,7 @@
   ],
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@playwright/test": "^1.54.1",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.0.4",
@@ -46,13 +47,12 @@
     "@typescript-eslint/parser": "^8.16.0",
     "@vitejs/plugin-react-swc": "^4.0.1",
     "@vitest/coverage-v8": "^3.2.4",
-    "@playwright/test": "^1.54.1",
     "eslint": "^9.15.0",
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hooks": "^5.0.0",
     "globals": "^15.11.0",
-    "jsdom": "^22.1.0",
     "jest-axe": "^10.0.0",
+    "jsdom": "^22.1.0",
     "prisma": "^5.19.1",
     "rollup-plugin-visualizer": "^5.12.1",
     "typescript": "^5.9.2",
@@ -66,8 +66,6 @@
   },
   "homepage": "https://github.com/AlexAgo83/Sentry#readme",
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.0.0",
     "@fastify/jwt": "^10.0.0",
@@ -75,6 +73,9 @@
     "@prisma/client": "^5.19.1",
     "bcryptjs": "^2.4.3",
     "fastify": "^5.2.0",
+    "pixi.js": "^7.4.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "sweetalert2": "^11.26.17"
   }
 }

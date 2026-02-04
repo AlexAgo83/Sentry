@@ -1,6 +1,12 @@
-import { memo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import type { DungeonDefinition, DungeonReplayState, DungeonRunState, PlayerId, PlayerState } from "../../core/types";
 import { BackIcon } from "../ui/backIcon";
+import { DungeonArenaRenderer } from "./dungeon/DungeonArenaRenderer";
+import {
+    buildDungeonArenaLiveFrame,
+    buildDungeonArenaReplayFrame,
+    getDungeonReplayJumpMarks
+} from "./dungeon/arenaPlayback";
 
 type DungeonScreenProps = {
     onBack: () => void;
@@ -48,6 +54,13 @@ export const DungeonScreen = memo(({
     onStartRun,
     onStopRun
 }: DungeonScreenProps) => {
+    const [livePaused, setLivePaused] = useState(false);
+    const [liveSpeed, setLiveSpeed] = useState<1 | 2 | 4>(1);
+    const [liveCursorMs, setLiveCursorMs] = useState(0);
+    const [replayPaused, setReplayPaused] = useState(true);
+    const [replaySpeed, setReplaySpeed] = useState<1 | 2 | 4>(1);
+    const [replayCursorMs, setReplayCursorMs] = useState(0);
+
     const selectedDungeon = definitions.find((definition) => definition.id === selectedDungeonId) ?? definitions[0] ?? null;
     const sortedPlayers = Object.values(players).sort((a, b) => Number(a.id) - Number(b.id));
     const requiredMeatForStart = selectedDungeon ? 1 + Math.floor((selectedDungeon.tier - 1) / 2) : 0;
@@ -56,6 +69,78 @@ export const DungeonScreen = memo(({
         && selectedPartyPlayerIds.length === 4
         && Boolean(selectedDungeon)
         && hasEnoughMeat;
+    const liveTotalMs = activeRun ? Math.max(activeRun.elapsedMs, activeRun.events.at(-1)?.atMs ?? 0) : 0;
+    const replayTotalMs = latestReplay ? Math.max(latestReplay.elapsedMs, latestReplay.events.at(-1)?.atMs ?? 0) : 0;
+    const replayJumpMarks = useMemo(() => getDungeonReplayJumpMarks(latestReplay), [latestReplay]);
+
+    useEffect(() => {
+        setLiveCursorMs(liveTotalMs);
+        setLivePaused(false);
+    }, [activeRun?.id, liveTotalMs]);
+
+    useEffect(() => {
+        setReplayCursorMs(0);
+        setReplayPaused(true);
+        setReplaySpeed(1);
+    }, [latestReplay?.runId]);
+
+    useEffect(() => {
+        if (!activeRun || livePaused || typeof window === "undefined") {
+            return;
+        }
+        let rafId = 0;
+        let lastTs = performance.now();
+        const animate = (nextTs: number) => {
+            const deltaMs = Math.max(0, nextTs - lastTs);
+            lastTs = nextTs;
+            setLiveCursorMs((previous) => Math.min(liveTotalMs, previous + deltaMs * liveSpeed));
+            rafId = window.requestAnimationFrame(animate);
+        };
+        rafId = window.requestAnimationFrame(animate);
+        return () => window.cancelAnimationFrame(rafId);
+    }, [activeRun, activeRun?.id, livePaused, liveSpeed, liveTotalMs]);
+
+    useEffect(() => {
+        if (!showReplay || !latestReplay || replayPaused || typeof window === "undefined") {
+            return;
+        }
+        let rafId = 0;
+        let lastTs = performance.now();
+        const animate = (nextTs: number) => {
+            const deltaMs = Math.max(0, nextTs - lastTs);
+            lastTs = nextTs;
+            setReplayCursorMs((previous) => {
+                if (previous >= replayTotalMs) {
+                    return replayTotalMs;
+                }
+                return Math.min(replayTotalMs, previous + deltaMs * replaySpeed);
+            });
+            rafId = window.requestAnimationFrame(animate);
+        };
+        rafId = window.requestAnimationFrame(animate);
+        return () => window.cancelAnimationFrame(rafId);
+    }, [showReplay, latestReplay, latestReplay?.runId, replayPaused, replaySpeed, replayTotalMs]);
+
+    useEffect(() => {
+        if (!latestReplay || replayCursorMs < replayTotalMs) {
+            return;
+        }
+        setReplayPaused(true);
+    }, [latestReplay, replayCursorMs, replayTotalMs]);
+
+    const liveFrame = useMemo(() => {
+        if (!activeRun) {
+            return null;
+        }
+        return buildDungeonArenaLiveFrame(activeRun, players, liveCursorMs);
+    }, [activeRun, players, liveCursorMs]);
+
+    const replayFrame = useMemo(() => {
+        if (!latestReplay) {
+            return null;
+        }
+        return buildDungeonArenaReplayFrame(latestReplay, players, replayCursorMs);
+    }, [latestReplay, players, replayCursorMs]);
 
     return (
         <section className="generic-panel ts-panel ts-dungeon-panel" data-testid="dungeon-screen">
@@ -155,6 +240,31 @@ export const DungeonScreen = memo(({
                         <h3 className="ts-dungeon-card-title">Live run</h3>
                         <p className="ts-system-helper">{selectedDungeon?.name ?? activeRun.dungeonId} · Floor {activeRun.floor}/{activeRun.floorCount}</p>
                         <p className="ts-system-helper">Status: {activeRun.status}{activeRun.restartAt ? " · restart pending" : ""}</p>
+                        <DungeonArenaRenderer frame={liveFrame} />
+                        <div className="ts-dungeon-control-row">
+                            <button
+                                type="button"
+                                className="generic-field button ts-focusable"
+                                onClick={() => setLivePaused((value) => !value)}
+                            >
+                                {livePaused ? "Resume" : "Pause"}
+                            </button>
+                            <div className="ts-dungeon-speed-group" role="group" aria-label="Live speed">
+                                {[1, 2, 4].map((speed) => (
+                                    <button
+                                        key={speed}
+                                        type="button"
+                                        className={`generic-field button ts-focusable${liveSpeed === speed ? " is-active" : ""}`}
+                                        onClick={() => setLiveSpeed(speed as 1 | 2 | 4)}
+                                    >
+                                        x{speed}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <p className="ts-system-helper">
+                            Live playback: {Math.round(liveCursorMs)}ms / {liveTotalMs}ms
+                        </p>
                         <div className="ts-dungeon-live-party">
                             {activeRun.party.map((member) => {
                                 const player = players[member.playerId];
@@ -188,8 +298,78 @@ export const DungeonScreen = memo(({
                         <div className="ts-dungeon-card">
                             <h3 className="ts-dungeon-card-title">Latest replay ({latestReplay.status})</h3>
                             <p className="ts-system-helper">Reason: {latestReplay.endReason} · Events: {latestReplay.events.length}</p>
+                            <DungeonArenaRenderer frame={replayFrame} />
+                            <div className="ts-dungeon-control-row">
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-focusable"
+                                    onClick={() => setReplayPaused((value) => !value)}
+                                >
+                                    {replayPaused ? "Play replay" : "Pause replay"}
+                                </button>
+                                <div className="ts-dungeon-speed-group" role="group" aria-label="Replay speed">
+                                    {[1, 2, 4].map((speed) => (
+                                        <button
+                                            key={speed}
+                                            type="button"
+                                            className={`generic-field button ts-focusable${replaySpeed === speed ? " is-active" : ""}`}
+                                            onClick={() => setReplaySpeed(speed as 1 | 2 | 4)}
+                                        >
+                                            x{speed}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <label className="ts-field-label" htmlFor="dungeon-replay-scrub">
+                                Replay timeline
+                            </label>
+                            <input
+                                id="dungeon-replay-scrub"
+                                type="range"
+                                min={0}
+                                max={Math.max(1, replayTotalMs)}
+                                step={100}
+                                value={Math.min(replayCursorMs, replayTotalMs)}
+                                onChange={(event) => {
+                                    const next = Number(event.target.value);
+                                    if (Number.isFinite(next)) {
+                                        setReplayCursorMs(next);
+                                    }
+                                }}
+                            />
+                            <div className="ts-dungeon-control-row">
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-focusable"
+                                    disabled={replayJumpMarks.firstDeathAtMs === null}
+                                    onClick={() => {
+                                        if (replayJumpMarks.firstDeathAtMs !== null) {
+                                            setReplayCursorMs(replayJumpMarks.firstDeathAtMs);
+                                            setReplayPaused(true);
+                                        }
+                                    }}
+                                >
+                                    Skip to first death
+                                </button>
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-focusable"
+                                    disabled={replayJumpMarks.runEndAtMs === null}
+                                    onClick={() => {
+                                        if (replayJumpMarks.runEndAtMs !== null) {
+                                            setReplayCursorMs(replayJumpMarks.runEndAtMs);
+                                            setReplayPaused(true);
+                                        }
+                                    }}
+                                >
+                                    Skip to wipe/end
+                                </button>
+                            </div>
+                            <p className="ts-system-helper">
+                                Replay playback: {Math.round(replayCursorMs)}ms / {replayTotalMs}ms
+                            </p>
                             <div className="ts-dungeon-replay-log" role="log" aria-live="polite">
-                                {latestReplay.events.map((event, index) => (
+                                {latestReplay.events.slice(-220).map((event, index) => (
                                     <p key={`${event.atMs}-${index}`}>
                                         [{event.atMs}ms] {event.type} {event.label ? `- ${event.label}` : ""}
                                     </p>
