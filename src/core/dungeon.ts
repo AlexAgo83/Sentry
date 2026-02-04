@@ -21,6 +21,10 @@ export const DUNGEON_REPLAY_MAX_EVENTS = 5000;
 export const DUNGEON_REPLAY_MAX_BYTES = 2 * 1024 * 1024;
 
 const POTION_PRIORITY: Array<"tonic" | "elixir" | "potion"> = ["tonic", "elixir", "potion"];
+const BOSS_BASE_DAMAGE_MULTIPLIER = 1.4;
+const BOSS_BURST_DAMAGE_MULTIPLIER = 1.35;
+const BOSS_ENRAGE_DAMAGE_MULTIPLIER = 1.25;
+const BOSS_POISON_DAMAGE_RATIO = 0.15;
 
 const normalizeInventoryCount = (value: number | undefined) => {
     const numeric = typeof value === "number" ? value : Number.NaN;
@@ -136,7 +140,7 @@ const createEnemyWave = (
                 name: definition.bossName,
                 hp: hpBase * 5,
                 hpMax: hpBase * 5,
-                damage: Math.max(1, Math.round(dmgBase * 1.8)),
+                damage: Math.max(1, Math.round(dmgBase * BOSS_BASE_DAMAGE_MULTIPLIER)),
                 isBoss: true,
                 mechanic: definition.bossMechanic,
                 spawnIndex: 0
@@ -668,10 +672,10 @@ export const applyDungeonTick = (
             if (hero) {
                 let enemyDamage = activeEnemy.damage;
                 if (activeEnemy.isBoss && activeEnemy.mechanic === "burst" && run.encounterStep % 4 === 0) {
-                    enemyDamage = Math.round(enemyDamage * 1.6);
+                    enemyDamage = Math.round(enemyDamage * BOSS_BURST_DAMAGE_MULTIPLIER);
                 }
                 if (activeEnemy.isBoss && activeEnemy.mechanic === "enrage" && activeEnemy.hp / activeEnemy.hpMax <= 0.3) {
-                    enemyDamage = Math.round(enemyDamage * 1.5);
+                    enemyDamage = Math.round(enemyDamage * BOSS_ENRAGE_DAMAGE_MULTIPLIER);
                 }
                 hero.hp = Math.max(0, hero.hp - enemyDamage);
                 pushEvent(run, {
@@ -702,7 +706,7 @@ export const applyDungeonTick = (
                 if (member.hp <= 0) {
                     return;
                 }
-                const poisonDamage = Math.max(1, Math.round(activeEnemy.damage * 0.2));
+                const poisonDamage = Math.max(1, Math.round(activeEnemy.damage * BOSS_POISON_DAMAGE_RATIO));
                 member.hp = Math.max(0, member.hp - poisonDamage);
                 pushEvent(run, {
                     type: "damage",
