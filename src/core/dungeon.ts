@@ -737,7 +737,7 @@ export const applyDungeonTick = (
 
         // Potion auto-use below 50% HP.
         run.party.forEach((member) => {
-            if (member.hp <= 0 || member.hp / member.hpMax >= 0.5 || member.potionCooldownMs > 0) {
+            if (member.hp <= 0 || member.hp / member.hpMax > 0.5 || member.potionCooldownMs > 0) {
                 return;
             }
             const potionType = POTION_PRIORITY.find((itemId) => normalizeInventoryCount(inventory.items[itemId]) > 0);
@@ -748,7 +748,7 @@ export const applyDungeonTick = (
             addItemDelta(itemDeltas, potionType, -1);
             const amount = healAmount(member.hpMax);
             member.hp = Math.min(member.hpMax, member.hp + amount);
-            member.potionCooldownMs = 8000;
+            member.potionCooldownMs = 500;
             pushEvent(run, {
                 type: "heal",
                 sourceId: member.playerId,
