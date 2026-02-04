@@ -2,14 +2,14 @@
 > From version: 0.8.22
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 The simulation requires a stable, data-driven dungeon content pack for v1 (5 dungeons, floor parameters, boss signatures, and scaling values).
 
 # Scope
 - In:
-  - Add initial 5-dungeon pack and order: Ruines humides, Cryptes d'os, Forges brisees, Sanctuaire noir, Citadelle rouge.
+  - Add initial 5-dungeon pack and order: Damp Ruins, Bone Crypts, Broken Forges, Black Sanctuary, Red Citadel.
   - Keep floor count configurable per dungeon with v1 default of 10.
   - Define and expose a recommended power value per dungeon.
   - Add one final boss per dungeon and one signature mechanic per boss.

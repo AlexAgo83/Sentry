@@ -57,11 +57,11 @@
 - Run behavior:
   - Launch with 5 dungeons in v1.
   - Initial dungeon set and order:
-    - D1 `Ruines humides`
-    - D2 `Cryptes d'os`
-    - D3 `Forges brisees`
-    - D4 `Sanctuaire noir`
-    - D5 `Citadelle rouge`
+    - D1 `Damp Ruins`
+    - D2 `Bone Crypts`
+    - D3 `Broken Forges`
+    - D4 `Black Sanctuary`
+    - D5 `Red Citadel`
   - Dungeon floor count is configurable per dungeon; default is 10 floors in v1.
   - One final boss in v1.
   - Auto-restart is enabled by default after successful completion, only if party is alive and required resources are available.

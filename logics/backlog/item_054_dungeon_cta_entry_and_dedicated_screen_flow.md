@@ -2,7 +2,7 @@
 > From version: 0.8.22
 > Understanding: 97%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Dungeon mode needs a clear and consistent navigation entry point across desktop and mobile, with dedicated screen behavior (not modal).

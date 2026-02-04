@@ -85,6 +85,10 @@ const meatCostForFloor = (tier: number, floor: number, floorCount: number) => {
     return meatCostPerFloor(tier) + (floor === floorCount ? 1 : 0);
 };
 
+export const getDungeonStartMeatCost = (definition: DungeonDefinition): number => {
+    return meatCostForFloor(definition.tier, 1, Math.max(1, definition.floorCount));
+};
+
 const resolveTargetEnemy = (enemies: DungeonRunEnemyState[], targetEnemyId: string | null): DungeonRunEnemyState | null => {
     const alive = enemies.filter((enemy) => enemy.hp > 0);
     if (alive.length === 0) {
@@ -100,6 +104,14 @@ const resolveTargetEnemy = (enemies: DungeonRunEnemyState[], targetEnemyId: stri
 };
 
 const resolveAliveHeroIds = (run: DungeonRunState) => run.party.filter((member) => member.hp > 0).map((member) => member.playerId);
+
+const recoverRunParty = (party: DungeonRunState["party"]): DungeonRunState["party"] => {
+    return party.map((member) => ({
+        ...member,
+        hp: member.hpMax,
+        potionCooldownMs: 0
+    }));
+};
 
 const resolveTargetHeroId = (run: DungeonRunState): PlayerId | null => {
     const alive = run.party
@@ -288,16 +300,6 @@ const initializeFloor = (
 
     nextInventory.items.meat = availableMeat - cost;
     addItemDelta(itemDeltas, "meat", -cost);
-    if (nextInventory.items.meat <= 0) {
-        run.status = "failed";
-        run.endReason = "out_of_meat";
-        run.party = run.party.map((member) => ({ ...member, hp: 0 }));
-        pushEvent(run, {
-            type: "run_end",
-            label: "Out of meat"
-        });
-        return { run, inventory: nextInventory };
-    }
 
     run.enemies = createEnemyWave(definition, run.floor, run.seed, run.runIndex);
     run.targetEnemyId = run.enemies[0]?.id ?? null;
@@ -407,6 +409,10 @@ export const startDungeonRun = (
     if (!allPlayersPresent) {
         return state;
     }
+    const requiredMeatForStart = getDungeonStartMeatCost(definition);
+    if (normalizeInventoryCount(state.inventory.items.meat) < requiredMeatForStart) {
+        return state;
+    }
 
     const runId = `run-${timestamp}`;
     const runSeed = hashStringToSeed(`${runId}-${dungeonId}`);
@@ -465,6 +471,7 @@ export const startDungeonRun = (
         }
         players[playerId] = {
             ...player,
+            hp: player.hpMax,
             selectedActionId: null
         };
     });
@@ -636,6 +643,7 @@ export const applyDungeonTick = (
                 addItemDelta(itemDeltas, "gold", bossGold);
                 run.status = "victory";
                 run.endReason = "victory";
+                run.party = recoverRunParty(run.party);
                 pushEvent(run, {
                     type: "run_end",
                     label: "victory"

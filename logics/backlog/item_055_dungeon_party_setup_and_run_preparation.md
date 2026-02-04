@@ -2,7 +2,7 @@
 > From version: 0.8.22
 > Understanding: 96%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 95%
 
 # Problem
 Dungeon runs require a strict setup flow (dungeon selection, party composition, preparation) and clear hero eligibility rules before launch.

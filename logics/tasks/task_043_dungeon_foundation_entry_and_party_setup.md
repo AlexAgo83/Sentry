@@ -2,7 +2,7 @@
 > From version: 0.8.22
 > Understanding: 95%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Derived from:
@@ -13,13 +13,13 @@ Derived from:
 This task delivers the player entry funnel before combat simulation: onboarding gate, Dungeon CTA integration (desktop + mobile), and setup flow with a 4-hero party requirement.
 
 # Plan
-- [ ] 1. Onboarding gate: generate 3 starter heroes with English non-duplicate names and enforce 4th hero naming before dungeon access.
-- [ ] 2. Navigation: add `Dungeon` CTA before `Action` on desktop and under `ACT` on mobile with red-accent visual identity.
-- [ ] 3. CTA states: implement locked tooltip (<4 heroes), unlocked state, and active-run indicator.
-- [ ] 4. Screen flow: route CTA to dedicated dungeon screen (setup or live if run is active).
-- [ ] 5. Party setup: enforce exactly 4 heroes, validate availability, and keep preparation tied to already equipped gear only.
-- [ ] 6. Add/adjust tests for onboarding gate, CTA visibility/state, and setup validation paths.
-- [ ] FINAL: Update related Logics docs
+- [x] 1. Onboarding gate: generate 3 starter heroes with English non-duplicate names only when roster is empty, and enforce 4th hero naming before dungeon access.
+- [x] 2. Navigation: add `Dungeon` CTA before `Action` on desktop and under `ACT` on mobile with red-accent visual identity.
+- [x] 3. CTA states: implement locked tooltip (<4 heroes), unlocked state, and active-run indicator.
+- [x] 4. Screen flow: route CTA to dedicated dungeon screen (setup or live if run is active).
+- [x] 5. Party setup: enforce exactly 4 heroes, validate availability, and keep preparation tied to already equipped gear only.
+- [x] 6. Add/adjust tests for onboarding gate, CTA visibility/state, and setup validation paths.
+- [x] FINAL: Update related Logics docs
 
 # Validation
 - npm run lint
@@ -28,3 +28,4 @@ This task delivers the player entry funnel before combat simulation: onboarding 
 - npm run build
 
 # Report
+- Completed in code: onboarding gate + 3 starter heroes generation (empty roster only), Dungeon CTA integration desktop/mobile, dedicated dungeon screen routing, setup validation for 4-hero party, and related test updates.

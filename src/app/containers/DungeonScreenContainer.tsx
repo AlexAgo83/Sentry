@@ -14,6 +14,7 @@ export const DungeonScreenContainer = ({ onBack }: DungeonScreenContainerProps) 
     const players = useGameStore((state) => state.players);
     const setup = useGameStore((state) => state.dungeon.setup);
     const dungeon = useGameStore((state) => state.dungeon);
+    const meatCount = useGameStore((state) => state.inventory.items.meat ?? 0);
     const activeRun = useMemo(() => getActiveDungeonRun(dungeon), [dungeon]);
     const playerCount = Object.keys(players).length;
     const canEnterDungeon = playerCount >= 4;
@@ -61,6 +62,7 @@ export const DungeonScreenContainer = ({ onBack }: DungeonScreenContainerProps) 
             selectedPartyPlayerIds={setup.selectedPartyPlayerIds}
             autoRestart={setup.autoRestart}
             canEnterDungeon={canEnterDungeon}
+            meatCount={meatCount}
             activeRun={activeRun}
             latestReplay={dungeon.latestReplay}
             showReplay={showReplay}

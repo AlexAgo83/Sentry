@@ -3,7 +3,7 @@ import type { DungeonDefinition, DungeonId } from "../core/types";
 export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
     {
         id: "dungeon_ruines_humides",
-        name: "Ruines humides",
+        name: "Damp Ruins",
         tier: 1,
         floorCount: 10,
         recommendedPower: 900,
@@ -12,7 +12,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
     },
     {
         id: "dungeon_cryptes_dos",
-        name: "Cryptes d'os",
+        name: "Bone Crypts",
         tier: 2,
         floorCount: 10,
         recommendedPower: 1300,
@@ -21,7 +21,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
     },
     {
         id: "dungeon_forges_brisees",
-        name: "Forges brisees",
+        name: "Broken Forges",
         tier: 3,
         floorCount: 10,
         recommendedPower: 1700,
@@ -30,7 +30,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
     },
     {
         id: "dungeon_sanctuaire_noir",
-        name: "Sanctuaire noir",
+        name: "Black Sanctuary",
         tier: 4,
         floorCount: 10,
         recommendedPower: 2200,
@@ -39,7 +39,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
     },
     {
         id: "dungeon_citadelle_rouge",
-        name: "Citadelle rouge",
+        name: "Red Citadel",
         tier: 5,
         floorCount: 10,
         recommendedPower: 2700,

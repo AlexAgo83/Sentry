@@ -2,14 +2,14 @@
 > From version: 0.8.22
 > Understanding: 96%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Dungeon flow requires a 4-hero party, but onboarding currently does not guarantee the right roster state or naming flow for the 4th hero.
 
 # Scope
 - In:
-  - Start new saves with 3 procedurally generated heroes, including generated names.
+  - Start new saves with 3 procedurally generated heroes, including generated names, only when roster is empty.
   - Use an English name pool for generated starter heroes.
   - Prevent duplicate names across the 3 generated starter heroes.
   - Add mandatory creation and name entry for the 4th hero before dungeon flow is playable.
@@ -20,7 +20,8 @@ Dungeon flow requires a 4-hero party, but onboarding currently does not guarante
   - New hero customization systems outside current creation flow.
 
 # Acceptance criteria
-- New saves start with exactly 3 generated heroes and valid generated names.
+- New saves with empty roster start with exactly 3 generated heroes and valid generated names.
+- Existing saves that already have heroes never trigger auto-generation of those 3 starter heroes.
 - Generated starter hero names use English naming and contain no duplicates.
 - Dungeon flow cannot be entered until a 4th hero is created and saved.
 - Locked Dungeon CTA state and unlock transition are visible and consistent on desktop and mobile.

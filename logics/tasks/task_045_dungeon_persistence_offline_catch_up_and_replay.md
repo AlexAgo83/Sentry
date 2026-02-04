@@ -2,7 +2,7 @@
 > From version: 0.8.22
 > Understanding: 93%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 70%
 
 # Context
 Derived from:
@@ -11,11 +11,11 @@ Derived from:
 This task ensures dungeon state integrity across local/cloud persistence, offline catch-up, and deterministic latest-run replay constraints.
 
 # Plan
-- [ ] 1. Extend save model with dungeon runtime state and latest-run replay snapshot fields.
-- [ ] 2. Implement offline catch-up using existing cap and simulation rules; enforce stop on wipe/end conditions.
-- [ ] 3. Persist latest replay only with cap guardrails (5000 events or 2 MB serialized) and critical-event fallback.
+- [x] 1. Extend save model with dungeon runtime state and latest-run replay snapshot fields.
+- [x] 2. Implement offline catch-up using existing cap and simulation rules; enforce stop on wipe/end conditions.
+- [x] 3. Persist latest replay only with cap guardrails (5000 events or 2 MB serialized) and critical-event fallback.
 - [ ] 4. Integrate cloud conflict behavior: default to newest save, show explicit active-run warning in conflict UI.
-- [ ] 5. Route to dungeon live screen by default when an active run remains after resume/catch-up.
+- [x] 5. Route to dungeon live screen by default when an active run remains after resume/catch-up.
 - [ ] 6. Add tests for save round-trip, offline parity, replay deterministic load, and payload cap behavior.
 - [ ] FINAL: Update related Logics docs
 
@@ -26,3 +26,5 @@ This task ensures dungeon state integrity across local/cloud persistence, offlin
 - npm run build
 
 # Report
+- Partially completed in code: save model/migrations/serialization for dungeon, offline catch-up integration, replay caps/fallback, and auto-open live dungeon screen on resume.
+- Remaining: explicit active-run warning in cloud conflict UI, plus dedicated persistence/offline parity/replay-cap test suite and final docs completion.

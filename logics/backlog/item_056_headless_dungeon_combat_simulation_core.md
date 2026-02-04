@@ -2,7 +2,7 @@
 > From version: 0.8.22
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Dungeon combat must be deterministic, simulation-first, and independent from rendering so live and replay views can consume the same authoritative outcomes.

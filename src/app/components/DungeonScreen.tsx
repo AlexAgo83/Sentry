@@ -10,6 +10,7 @@ type DungeonScreenProps = {
     selectedPartyPlayerIds: PlayerId[];
     autoRestart: boolean;
     canEnterDungeon: boolean;
+    meatCount: number;
     activeRun: DungeonRunState | null;
     latestReplay: DungeonReplayState | null;
     showReplay: boolean;
@@ -36,6 +37,7 @@ export const DungeonScreen = memo(({
     selectedPartyPlayerIds,
     autoRestart,
     canEnterDungeon,
+    meatCount,
     activeRun,
     latestReplay,
     showReplay,
@@ -48,6 +50,12 @@ export const DungeonScreen = memo(({
 }: DungeonScreenProps) => {
     const selectedDungeon = definitions.find((definition) => definition.id === selectedDungeonId) ?? definitions[0] ?? null;
     const sortedPlayers = Object.values(players).sort((a, b) => Number(a.id) - Number(b.id));
+    const requiredMeatForStart = selectedDungeon ? 1 + Math.floor((selectedDungeon.tier - 1) / 2) : 0;
+    const hasEnoughMeat = meatCount >= requiredMeatForStart;
+    const canStartRun = canEnterDungeon
+        && selectedPartyPlayerIds.length === 4
+        && Boolean(selectedDungeon)
+        && hasEnoughMeat;
 
     return (
         <section className="generic-panel ts-panel ts-dungeon-panel" data-testid="dungeon-screen">
@@ -115,6 +123,12 @@ export const DungeonScreen = memo(({
                     <div className="ts-dungeon-card">
                         <h3 className="ts-dungeon-card-title">3. Preparation</h3>
                         <p className="ts-system-helper">Run uses currently equipped gear. No equipment edits in this screen.</p>
+                        <p className="ts-system-helper">
+                            Meat required to start: {requiredMeatForStart} · Available: {meatCount}
+                        </p>
+                        {!hasEnoughMeat ? (
+                            <p className="ts-system-helper">Not enough meat to start this dungeon.</p>
+                        ) : null}
                         <label className="ts-field-label" htmlFor="dungeon-auto-restart">Auto restart after victory</label>
                         <input
                             id="dungeon-auto-restart"
@@ -126,7 +140,7 @@ export const DungeonScreen = memo(({
                             <button
                                 type="button"
                                 className="generic-field button ts-focusable"
-                                disabled={!canEnterDungeon || selectedPartyPlayerIds.length !== 4 || !selectedDungeon}
+                                disabled={!canStartRun}
                                 onClick={onStartRun}
                                 data-testid="dungeon-start-run"
                             >

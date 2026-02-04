@@ -73,7 +73,11 @@ export const AppContainer = () => {
     } = useInventoryNewBadges(inventoryItems, version);
 
     useEffect(() => {
-        if (!dungeonOnboardingRequired || playerCount > 0) {
+        if (!dungeonOnboardingRequired || playerCount !== 0) {
+            return;
+        }
+        const livePlayerCount = Object.keys(gameStore.getState().players).length;
+        if (livePlayerCount !== 0) {
             return;
         }
         const starterNames = generateUniqueEnglishHeroNames(3);
