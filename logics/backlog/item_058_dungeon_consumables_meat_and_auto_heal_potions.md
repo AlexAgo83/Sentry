@@ -11,7 +11,7 @@ Dungeon loop depends on resource pressure and survivability rules (meat consumpt
 - In:
   - Apply meat consumption at the start of each floor using floor/tier rules and boss surcharge.
   - Stop run immediately when meat reaches zero.
-  - Implement potion auto-use below 50% HP with per-hero cooldown.
+  - Implement potion auto-use at or below 50% HP with per-hero cooldown (500ms current tuning).
   - Apply potion consumption priority: tonic -> elixir -> potion.
   - Keep potion usage limited by inventory stock (not capped per floor).
   - Ensure healing potion availability through Alchemy recipes and inventory integration.

@@ -129,7 +129,7 @@
   - Consume meat while running dungeons.
   - At 0 meat, the dungeon run stops immediately (party considered dead for this run).
   - Allow healing via consumable potions (from `Alchemy`) during run resolution.
-  - Potion usage is auto-use when hero HP is below 50%.
+  - Potion usage is auto-use when hero HP is at or below 50%.
   - Potion usage is not capped per floor; it is limited by inventory stock and per-hero cooldown.
 - Activity lock rules:
   - Heroes assigned to a dungeon party are unavailable for other action/roaming loops until run exit.
@@ -213,7 +213,7 @@
   - Boss floor surcharge: `+1 meat` on floor 10.
   - Example totals for 10 floors: D1=11, D2=11, D3=21, D4=21, D5=31.
 - Healing potions:
-  - Auto-use trigger: hero HP `< 50%`.
+  - Auto-use trigger: hero HP `<= 50%` (current cooldown tuning: 500ms).
   - Heal amount: `40%` of max HP (capped to max HP).
   - Cooldown: `8s` per hero between potion uses.
   - Default use priority when available: `tonic` -> `elixir` -> `potion`.

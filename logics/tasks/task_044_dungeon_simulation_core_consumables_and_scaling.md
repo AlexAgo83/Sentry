@@ -16,7 +16,7 @@ This task ships the simulation-authoritative dungeon runtime and the first playa
 - [x] 1. Implement headless simulation loop with fixed 500ms step and deterministic target selection rules.
 - [x] 2. Model run lifecycle: floor progression, boss encounter, immediate clear on boss kill, wipe stop, and 3s auto-restart when eligible.
 - [x] 3. Add v1 dungeon data pack (5 dungeons), configurable floor count (default 10), boss signatures, and recommended power values.
-- [x] 4. Integrate consumables: floor-start meat consumption, zero-meat hard stop, auto-use potions below 50% HP, and tonic->elixir->potion priority.
+- [x] 4. Integrate consumables: floor-start meat consumption, zero-meat hard stop, auto-use potions at or below 50% HP (500ms cooldown tuning), and tonic->elixir->potion priority.
 - [x] 5. Emit deterministic simulation events required by persistence/replay/renderer consumers.
 - [x] 6. Add/adjust tests for deterministic outcomes, scaling correctness, boss behavior, and resource stop conditions.
 - [x] FINAL: Update related Logics docs
