@@ -313,7 +313,7 @@
     background: rgba(21, 28, 46, 0.85);
     color: var(--color-primary);
     box-shadow: none;
-    transform: translateY(-1px);
+    transform: none;
 }
 
 .generic-field.button.ts-devtools-button:disabled,
