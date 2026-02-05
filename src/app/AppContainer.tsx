@@ -115,6 +115,11 @@ export const AppContainer = () => {
         setDidAutoOpenDungeon(true);
     }, [activeScreen, didAutoOpenDungeon, isDungeonRunActive, isOnboardingOpen, openDungeonScreen]);
 
+    const handleOpenDungeonScreen = useCallback(() => {
+        setDidAutoOpenDungeon(true);
+        openDungeonScreen();
+    }, [openDungeonScreen]);
+
     useEffect(() => {
         if (
             activeSidePanel === "inventory"
@@ -269,7 +274,7 @@ export const AppContainer = () => {
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={showActionPanel}
-                onShowDungeon={openDungeonScreen}
+                onShowDungeon={handleOpenDungeonScreen}
                 isDungeonLocked={playerCount < 4}
                 onShowStats={showStatsPanel}
                 onShowRoster={showRosterScreen}
