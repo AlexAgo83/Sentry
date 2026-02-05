@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 320" fill="none">
+  <defs>
+    <linearGradient id="combatGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2c14e" stop-opacity="0.26"/>
+      <stop offset="100%" stop-color="#f07f4f" stop-opacity="0.18"/>
+    </linearGradient>
+    <radialGradient id="combatCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f2c14e" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#f2c14e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="140" cy="160" r="114" stroke="url(#combatGlow)" stroke-width="2"/>
+  <circle cx="140" cy="160" r="78" stroke="#f2c14e" stroke-opacity="0.22" stroke-width="1.5" stroke-dasharray="6 8"/>
+  <circle cx="140" cy="160" r="44" fill="url(#combatCore)"/>
+
+  <path d="M98 208l84-84" stroke="#f2c14e" stroke-opacity="0.42" stroke-width="4" stroke-linecap="round"/>
+  <path d="M182 208l-84-84" stroke="#f07f4f" stroke-opacity="0.35" stroke-width="4" stroke-linecap="round"/>
+
+  <path d="M90 218l12 12" stroke="#f2c14e" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round"/>
+  <path d="M190 218l-12 12" stroke="#f07f4f" stroke-opacity="0.3" stroke-width="3" stroke-linecap="round"/>
+</svg>

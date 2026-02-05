@@ -27,7 +27,7 @@ describe("dungeon flow", () => {
         state.players["4"].hp = 10;
         state.players["1"] = {
             ...state.players["1"],
-            selectedActionId: "Combat"
+            selectedActionId: "Roaming"
         };
         state.inventory.items.food = 12;
 
@@ -68,6 +68,55 @@ describe("dungeon flow", () => {
         });
 
         expect(state.dungeon.activeRunId).toBeNull();
+    });
+
+    it("grants Combat XP on floor clear with boss bonus on the last floor", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+
+        const partyIds = run.party.map((member) => member.playerId);
+        partyIds.forEach((playerId) => {
+            state.players[playerId].skills.Combat.xp = 0;
+            state.players[playerId].skills.Combat.xpNext = 999_999;
+        });
+
+        run.floor = run.floorCount;
+        run.encounterStep = 0;
+        run.enemies = [{
+            id: "boss-test",
+            name: "Test Boss",
+            hp: 1,
+            hpMax: 1,
+            damage: 1,
+            isBoss: true,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "boss-test";
+
+        const result = applyDungeonTick(state, 500, 1_500);
+        const expectedFloorXp = 6 + (1 * 3) + run.floorCount;
+        const expectedTotalXp = expectedFloorXp + (expectedFloorXp * 2);
+
+        partyIds.forEach((playerId) => {
+            expect(result.state.players[playerId].skills.Combat.xp).toBe(expectedTotalXp);
+        });
     });
 
     it("updates auto restart for setup and active run", () => {

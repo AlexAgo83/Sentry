@@ -62,4 +62,35 @@ describe("serialization", () => {
         expect(Object.keys(hydrated.dungeon.runs)).toHaveLength(1);
         expect(hydrated.dungeon.setup.selectedPartyPlayerIds).toHaveLength(4);
     });
+
+    it("resets only Combat/Roaming when hydrating a pre-split save", () => {
+        const state = createInitialGameState("0.9.0");
+        const playerId = state.activePlayerId ?? "1";
+        const save = toGameSave(state);
+        const player = save.players[playerId] as any;
+
+        player.selectedActionId = "Combat";
+        player.skills.Combat = {
+            ...player.skills.Combat,
+            level: 25,
+            xp: 123
+        };
+        player.skills.Hunting = {
+            ...player.skills.Hunting,
+            level: 7,
+            xp: 55
+        };
+        delete player.skills.Roaming;
+
+        const hydrated = hydrateGameState("0.9.0", save);
+        const hydratedPlayer = hydrated.players[playerId];
+
+        expect(hydratedPlayer.skills.Combat.level).toBe(1);
+        expect(hydratedPlayer.skills.Combat.xp).toBe(0);
+        expect(hydratedPlayer.skills.Roaming.level).toBe(1);
+        expect(hydratedPlayer.skills.Roaming.xp).toBe(0);
+        expect(hydratedPlayer.skills.Hunting.level).toBe(7);
+        expect(hydratedPlayer.skills.Hunting.xp).toBe(55);
+        expect(hydratedPlayer.selectedActionId).toBe("Roaming");
+    });
 });

@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+    ACTION_SKILL_DEFINITIONS,
     getActionDefinition,
     getRecipeDefinition,
     getRecipesForSkill,
     isRecipeUnlocked,
-    ITEM_DEFINITIONS,
-    SKILL_DEFINITIONS
+    ITEM_DEFINITIONS
 } from "../../data/definitions";
 import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../core/constants";
-import type { ActionDefinition, SkillId, SkillState } from "../../core/types";
+import type { ActionDefinition, ActionId, SkillId, SkillState } from "../../core/types";
 import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../../core/stats";
 import { getEquipmentModifiers } from "../../data/equipment";
 import { gameStore } from "../game";
@@ -19,7 +19,7 @@ import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters"
 import { ActionSelectionScreen } from "../components/ActionSelectionScreen";
 import { HeroSkinPanelContainer } from "./HeroSkinPanelContainer";
 
-const getFirstUnlockedRecipeId = (skillId: SkillId, skillLevel: number): string => {
+const getFirstUnlockedRecipeId = (skillId: ActionId, skillLevel: number): string => {
     return getRecipesForSkill(skillId).find((recipe) => isRecipeUnlocked(recipe, skillLevel))?.id ?? "";
 };
 
@@ -45,7 +45,7 @@ export const ActionSelectionScreenContainer = ({
     const activePlayer = useGameStore(selectActivePlayer);
     const inventoryItems = useGameStore((state) => state.inventory.items);
 
-    const [pendingSkillId, setPendingSkillId] = useState<SkillId | "">("");
+    const [pendingSkillId, setPendingSkillId] = useState<ActionId | "">("");
     const [pendingRecipeId, setPendingRecipeId] = useState("");
 
     const itemNameById = useMemo(() => ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, item) => {
@@ -128,7 +128,7 @@ export const ActionSelectionScreenContainer = ({
         const skill = skillId ? player.skills[skillId] : null;
         const selectedRecipeId = skill?.selectedRecipeId ?? "";
         const selectedRecipeDef = skillId && selectedRecipeId
-            ? getRecipeDefinition(skillId as SkillId, selectedRecipeId)
+            ? getRecipeDefinition(skillId, selectedRecipeId)
             : null;
         const selectedRecipeUnlocked = Boolean(
             selectedRecipeDef && skill && isRecipeUnlocked(selectedRecipeDef, skill.level)
@@ -136,10 +136,10 @@ export const ActionSelectionScreenContainer = ({
         const recipeId = selectedRecipeUnlocked && selectedRecipeId
             ? selectedRecipeId
             : skillId && skill
-                ? getFirstUnlockedRecipeId(skillId as SkillId, skill.level)
+                ? getFirstUnlockedRecipeId(skillId, skill.level)
                 : "";
 
-        setPendingSkillId(skillId as SkillId | "");
+        setPendingSkillId(skillId);
         setPendingRecipeId(recipeId);
     }, [activePlayer?.id]);
 
@@ -158,7 +158,7 @@ export const ActionSelectionScreenContainer = ({
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [onBack]);
 
-    const handleSkillSelect = useCallback((nextSkillId: SkillId | "") => {
+    const handleSkillSelect = useCallback((nextSkillId: ActionId | "") => {
         if (!activePlayer) {
             return;
         }
@@ -174,14 +174,14 @@ export const ActionSelectionScreenContainer = ({
         }
         const selectedRecipeId = nextSkill.selectedRecipeId ?? "";
         const selectedRecipeDef = selectedRecipeId
-            ? getRecipeDefinition(nextSkillId as SkillId, selectedRecipeId)
+            ? getRecipeDefinition(nextSkillId, selectedRecipeId)
             : null;
         const selectedRecipeUnlocked = Boolean(
             selectedRecipeDef && isRecipeUnlocked(selectedRecipeDef, nextSkill.level)
         );
         const nextRecipeId = selectedRecipeUnlocked && selectedRecipeId
             ? selectedRecipeId
-            : getFirstUnlockedRecipeId(nextSkillId as SkillId, nextSkill.level);
+            : getFirstUnlockedRecipeId(nextSkillId, nextSkill.level);
         setPendingRecipeId(nextRecipeId);
     }, [activePlayer]);
 
@@ -207,12 +207,12 @@ export const ActionSelectionScreenContainer = ({
         gameStore.dispatch({
             type: "selectAction",
             playerId: activePlayer.id,
-            actionId: pendingSkillId as SkillId
+            actionId: pendingSkillId
         });
         gameStore.dispatch({
             type: "selectRecipe",
             playerId: activePlayer.id,
-            skillId: pendingSkillId as SkillId,
+            skillId: pendingSkillId,
             recipeId: pendingRecipeId
         });
     }, [activePlayer, pendingRecipeId, pendingSkillId]);
@@ -230,9 +230,9 @@ export const ActionSelectionScreenContainer = ({
         inventoryItems
     });
 
-    const pendingSkillLabel = pendingSkillId ? getSkillLabel(pendingSkillId as SkillId) : "None";
+    const pendingSkillLabel = pendingSkillId ? getSkillLabel(pendingSkillId) : "None";
     const pendingRecipeLabel = pendingSkillId && pendingRecipeId
-        ? getRecipeDefinition(pendingSkillId as SkillId, pendingRecipeId)?.name ?? pendingRecipeId
+        ? getRecipeDefinition(pendingSkillId, pendingRecipeId)?.name ?? pendingRecipeId
         : "None";
     const hasPendingSelection = Boolean(pendingSkillId && pendingRecipeId);
     const pendingConsumptionEntries = getItemListEntries(ITEM_DEFINITIONS, pendingItemCosts);
@@ -245,7 +245,7 @@ export const ActionSelectionScreenContainer = ({
         : "None";
 
     const pendingActionDef: ActionDefinition | null = pendingSkillId
-        ? (getActionDefinition(pendingSkillId as SkillId) ?? null)
+        ? (getActionDefinition(pendingSkillId) ?? null)
         : null;
     const pendingActionDurationLabel = getActionIntervalLabel(pendingSkill, pendingActionDef);
     const pendingActionXpLabel = getActionXpLabel(pendingActionDef);
@@ -281,7 +281,7 @@ export const ActionSelectionScreenContainer = ({
             <HeroSkinPanelContainer onRenameHero={onRenameHero} />
             <ActionSelectionScreen
                 activePlayer={activePlayer}
-                skills={SKILL_DEFINITIONS}
+                skills={ACTION_SKILL_DEFINITIONS}
                 pendingSkillId={pendingSkillId}
                 pendingRecipeId={pendingRecipeId}
                 pendingSkill={pendingSkill as SkillState | null}

@@ -424,7 +424,9 @@ export const DungeonScreen = memo(({
                             </span>
                             <span className={`ts-dungeon-live-meta-pill ts-dungeon-live-status is-${activeRun!.status}`}>
                                 <span className="ts-dungeon-live-meta-label">Status</span>
-                                <span className="ts-dungeon-live-meta-value">{activeRun!.status}</span>
+                                <span className="ts-dungeon-live-meta-value">
+                                    {activeRun!.status.charAt(0).toUpperCase() + activeRun!.status.slice(1)}
+                                </span>
                             </span>
                             {activeRun!.restartAt ? (
                                 <span className="ts-dungeon-live-meta-pill ts-dungeon-live-status is-restart">

@@ -1,7 +1,8 @@
 import type { SkillId } from "../../core/types";
 
 const SKILL_BACKGROUNDS: Record<SkillId, string> = {
-    Combat: "roaming",
+    Combat: "combat",
+    Roaming: "roaming",
     Hunting: "hunting",
     Cooking: "cooking",
     Excavation: "excavation",

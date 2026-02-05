@@ -1,5 +1,5 @@
 import { memo, type CSSProperties } from "react";
-import type { PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
+import type { ActionId, PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked, ITEM_DEFINITIONS } from "../../data/definitions";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
@@ -18,8 +18,8 @@ type ItemEntry = {
 
 type ActionSelectionScreenProps = {
     activePlayer: PlayerState;
-    skills: SkillDefinition[];
-    pendingSkillId: SkillId | "";
+    skills: Array<SkillDefinition & { id: ActionId }>;
+    pendingSkillId: ActionId | "";
     pendingRecipeId: string;
     pendingSkill: SkillState | null;
     pendingSkillLabel: string;
@@ -38,7 +38,7 @@ type ActionSelectionScreenProps = {
     missingItemsLabel: string;
     canStartAction: boolean;
     canStopAction: boolean;
-    onSkillSelect: (skillId: SkillId | "") => void;
+    onSkillSelect: (skillId: ActionId | "") => void;
     onRecipeSelect: (recipeId: string) => void;
     onStartAction: () => void;
     onStopAction: () => void;

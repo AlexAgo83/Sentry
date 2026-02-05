@@ -40,13 +40,13 @@ describe("progression tracking", () => {
         let state = gameReducer(initial, {
             type: "selectAction",
             playerId,
-            actionId: "Combat"
+            actionId: "Roaming"
         });
-        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        const recipeId = Object.keys(state.players[playerId].skills.Roaming.recipes)[0];
         state = gameReducer(state, {
             type: "selectRecipe",
             playerId,
-            skillId: "Combat",
+            skillId: "Roaming",
             recipeId
         });
         state = {
@@ -61,7 +61,7 @@ describe("progression tracking", () => {
         };
 
         const baseInterval = Math.ceil(
-            state.players[playerId].skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+            state.players[playerId].skills.Roaming.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
         );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const now = Date.now();
@@ -70,6 +70,6 @@ describe("progression tracking", () => {
         expect(bucket?.xp ?? 0).toBeGreaterThan(0);
         expect(bucket?.gold ?? 0).toBeGreaterThan(0);
         expect(bucket?.activeMs ?? 0).toBeGreaterThan(0);
-        expect(bucket?.skillActiveMs.Combat ?? 0).toBeGreaterThan(0);
+        expect(bucket?.skillActiveMs.Roaming ?? 0).toBeGreaterThan(0);
     });
 });

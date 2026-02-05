@@ -12,6 +12,7 @@ import { Avatar } from "./Avatar";
 type RosterPanelProps = {
     players: PlayerState[];
     activePlayerId: string | null;
+    activeDungeonPartyPlayerIds: string[];
     rosterLimit: number;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
@@ -24,6 +25,7 @@ type RosterPanelProps = {
 export const RosterPanel = memo(({
     players,
     activePlayerId,
+    activeDungeonPartyPlayerIds,
     rosterLimit,
     isCollapsed,
     onToggleCollapsed,
@@ -34,6 +36,7 @@ export const RosterPanel = memo(({
 }: RosterPanelProps) => {
     const rosterCount = players.length;
     const canAddPlayer = rosterCount < rosterLimit;
+    const activeDungeonPartySet = new Set(activeDungeonPartyPlayerIds);
 
     return (
         <section className="generic-panel ts-panel" data-testid="roster-panel">
@@ -59,16 +62,18 @@ export const RosterPanel = memo(({
                 <>
                     <div className="ts-player-list">
                         {players.map((player) => {
+                            const isAssignedToDungeon = activeDungeonPartySet.has(player.id);
                             const currentAction = player.selectedActionId;
-                            const currentSkill = currentAction ? player.skills[currentAction] : null;
+                            const displaySkillId = isAssignedToDungeon ? "Combat" : currentAction;
+                            const currentSkill = displaySkillId ? player.skills[displaySkillId] : null;
                             const currentRecipe = currentSkill?.selectedRecipeId ?? null;
-                            const actionLabel = currentAction ? getSkillLabel(currentAction) : "";
-                            const recipeLabel = currentAction && currentRecipe
-                                ? getRecipeLabel(currentAction, currentRecipe)
+                            const actionLabel = displaySkillId ? getSkillLabel(displaySkillId) : "";
+                            const recipeLabel = displaySkillId && currentRecipe
+                                ? getRecipeLabel(displaySkillId, currentRecipe)
                                 : null;
-                            const metaLabel = recipeLabel ?? "No recipe";
-                            const skillColor = getSkillIconColor(currentAction);
-                            const skillLevel = currentAction ? currentSkill?.level ?? 0 : 0;
+                            const metaLabel = isAssignedToDungeon ? "Dungeon run" : (recipeLabel ?? "No recipe");
+                            const skillColor = getSkillIconColor(displaySkillId);
+                            const skillLevel = displaySkillId ? currentSkill?.level ?? 0 : 0;
                             const faceIndex = player.appearance?.faceIndex ?? getFaceIndex(player.id);
                             const hairIndex = player.appearance?.hairIndex ?? getHairIndex(player.id);
                             const hairColor = player.appearance?.hairColor ?? getHairColor(player.id);
@@ -100,7 +105,7 @@ export const RosterPanel = memo(({
                                     {actionLabel ? (
                                         <div className="ts-player-skill">
                                             <span className="ts-player-skill-icon" aria-hidden="true">
-                                                <SkillIcon skillId={currentAction ?? ""} color={skillColor} />
+                                                <SkillIcon skillId={displaySkillId ?? ""} color={skillColor} />
                                             </span>
                                             <span className="ts-player-skill-label">
                                                 {actionLabel}

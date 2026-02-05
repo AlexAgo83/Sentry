@@ -22,7 +22,7 @@ import {
     RecipeId,
     SkillId
 } from "./types";
-import { getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
+import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
 import { getEquipmentDefinition } from "../data/equipment";
 import { getSellGoldGain } from "./economy";
 import { getDungeonDefinition } from "../data/dungeons";
@@ -180,6 +180,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         case "selectAction": {
             const player = state.players[action.playerId];
             if (!player) {
+                return state;
+            }
+            if (action.actionId && !getActionDefinition(action.actionId)) {
                 return state;
             }
             if (action.actionId && isPlayerAssignedToActiveDungeonRun(state, action.playerId)) {

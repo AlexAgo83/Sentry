@@ -179,7 +179,7 @@ describe("App", () => {
         expect(startButton.disabled).toBe(false);
 
         await user.click(startButton);
-        expect(testStore.getState().players["1"].selectedActionId).toBe("Combat");
+        expect(testStore.getState().players["1"].selectedActionId).toBe("Roaming");
         expect((screen.getByRole("button", { name: "Start action" }) as HTMLButtonElement).disabled).toBe(true);
 
         await user.click(screen.getByRole("button", { name: "Interrupt" }));

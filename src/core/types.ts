@@ -1,6 +1,7 @@
 export type PlayerId = string;
 export type SkillId =
     | "Combat"
+    | "Roaming"
     | "Hunting"
     | "Cooking"
     | "Excavation"
@@ -12,7 +13,7 @@ export type SkillId =
     | "Carpentry"
     | "Leatherworking"
     | "Invocation";
-export type ActionId = SkillId;
+export type ActionId = Exclude<SkillId, "Combat">;
 export type RecipeId = string;
 export type ItemId = string;
 export type QuestId = string;

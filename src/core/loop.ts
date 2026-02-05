@@ -61,7 +61,7 @@ const addItemDelta = (target: ItemDelta, itemId: string, amount: number) => {
     target[itemId] = (target[itemId] ?? 0) + amount;
 };
 
-const STRENGTH_SKILLS = new Set<SkillId>(["Combat", "Hunting", "Excavation", "MetalWork"]);
+const STRENGTH_SKILLS = new Set<SkillId>(["Combat", "Roaming", "Hunting", "Excavation", "MetalWork"]);
 const INTELLECT_SKILLS = new Set<SkillId>([
     "Cooking",
     "Alchemy",

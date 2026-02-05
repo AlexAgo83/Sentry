@@ -1,4 +1,5 @@
 import {
+    ActionId,
     ActionProgressState,
     GameSave,
     GameState,
@@ -25,7 +26,7 @@ import {
     RECIPE_MAX_LEVEL,
     SKILL_MAX_LEVEL
 } from "./constants";
-import { SKILL_DEFINITIONS, getRecipesForSkill } from "../data/definitions";
+import { SKILL_DEFINITIONS, getActionDefinition, getRecipesForSkill } from "../data/definitions";
 import { createPlayerStatsState, normalizePlayerStats } from "./stats";
 import { createPlayerEquipmentState, normalizePlayerEquipment } from "./equipment";
 import { createProgressionState, normalizeProgressionState } from "./progression";
@@ -104,6 +105,18 @@ const normalizeSkillState = (skillId: SkillId, savedSkill?: SkillState): SkillSt
         selectedRecipeId: resolvedSelected,
         recipes: mergedRecipes
     };
+};
+
+const normalizeSelectedActionId = (selectedActionId: unknown): ActionId | null => {
+    if (selectedActionId === "Combat") {
+        return "Roaming";
+    }
+    if (typeof selectedActionId !== "string") {
+        return null;
+    }
+    return getActionDefinition(selectedActionId as ActionId)
+        ? (selectedActionId as ActionId)
+        : null;
 };
 
 export const sanitizePlayerName = (name?: string): string | null => {
@@ -201,12 +214,17 @@ const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
         storage?: { gold?: number };
         skills?: Record<SkillId, SkillState>;
     };
+    const hasRoamingSkillInSave = Boolean(skills && "Roaming" in skills);
     const progression = normalizeProgressionState(
         (player as PlayerSaveState & { progression?: ProgressionState }).progression,
         Date.now()
     );
     const normalizedSkills = SKILL_DEFINITIONS.reduce<Record<SkillId, SkillState>>((acc, skill) => {
-        acc[skill.id] = normalizeSkillState(skill.id, skills?.[skill.id]);
+        const isSplitSkill = skill.id === "Combat" || skill.id === "Roaming";
+        const shouldResetSplitSkill = isSplitSkill && !hasRoamingSkillInSave;
+        acc[skill.id] = shouldResetSplitSkill
+            ? createSkillState(skill.id)
+            : normalizeSkillState(skill.id, skills?.[skill.id]);
         return acc;
     }, {} as Record<SkillId, SkillState>);
     return {
@@ -219,6 +237,7 @@ const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
         equipment: normalizePlayerEquipment(player.equipment),
         skills: normalizedSkills,
         progression,
+        selectedActionId: normalizeSelectedActionId(rest.selectedActionId),
         actionProgress: createActionProgress()
     };
 };

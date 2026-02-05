@@ -1,5 +1,6 @@
 import { getDungeonDefinition, DUNGEON_DEFINITIONS } from "../data/dungeons";
 import { hashStringToSeed, seededRandom } from "./rng";
+import { XP_NEXT_MULTIPLIER } from "./constants";
 import type {
     DungeonDefinition,
     DungeonReplayEvent,
@@ -25,6 +26,8 @@ const BOSS_BASE_DAMAGE_MULTIPLIER = 1.4;
 const BOSS_BURST_DAMAGE_MULTIPLIER = 1.35;
 const BOSS_ENRAGE_DAMAGE_MULTIPLIER = 1.25;
 const BOSS_POISON_DAMAGE_RATIO = 0.15;
+const COMBAT_XP_BASE = 6;
+const COMBAT_XP_TIER_FACTOR = 3;
 
 const normalizeInventoryCount = (value: number | undefined) => {
     const numeric = typeof value === "number" ? value : Number.NaN;
@@ -181,6 +184,69 @@ const getHeroAttackDamage = (player: PlayerState) => {
 };
 
 const healAmount = (hpMax: number) => Math.max(1, Math.round(hpMax * 0.4));
+
+const applySkillLevelUps = (xp: number, level: number, xpNext: number, maxLevel: number) => {
+    let nextXp = xp;
+    let nextLevel = level;
+    let nextXpNext = xpNext;
+
+    while (nextXpNext > 0 && nextXp >= nextXpNext && nextLevel < maxLevel) {
+        nextXp -= nextXpNext;
+        nextLevel += 1;
+        nextXpNext = Math.floor(nextXpNext * XP_NEXT_MULTIPLIER);
+    }
+
+    return {
+        xp: nextXp,
+        level: nextLevel,
+        xpNext: nextXpNext
+    };
+};
+
+const getFloorCombatXp = (tier: number, floor: number) => {
+    return COMBAT_XP_BASE + (tier * COMBAT_XP_TIER_FACTOR) + floor;
+};
+
+const grantCombatXpToParty = (
+    players: Record<PlayerId, PlayerState>,
+    party: DungeonRunState["party"],
+    xp: number
+) => {
+    if (!Number.isFinite(xp) || xp <= 0) {
+        return players;
+    }
+
+    const nextPlayers = { ...players };
+    party.forEach((member) => {
+        const player = nextPlayers[member.playerId];
+        if (!player) {
+            return;
+        }
+        const combatSkill = player.skills.Combat;
+        if (!combatSkill) {
+            return;
+        }
+        const leveled = applySkillLevelUps(
+            combatSkill.xp + xp,
+            combatSkill.level,
+            combatSkill.xpNext,
+            combatSkill.maxLevel
+        );
+        nextPlayers[member.playerId] = {
+            ...player,
+            skills: {
+                ...player.skills,
+                Combat: {
+                    ...combatSkill,
+                    xp: leveled.xp,
+                    level: leveled.level,
+                    xpNext: leveled.xpNext
+                }
+            }
+        };
+    });
+    return nextPlayers;
+};
 
 const buildReplay = (
     run: DungeonRunState,
@@ -607,6 +673,7 @@ export const applyDungeonTick = (
     };
     let inventory = cloneInventory(state.inventory);
     const itemDeltas: ItemDelta = {};
+    let players = state.players;
 
     if (run.restartAt && timestamp >= run.restartAt && run.autoRestart) {
         const aliveCount = resolveAliveHeroIds(run).length;
@@ -659,7 +726,7 @@ export const applyDungeonTick = (
 
         // Heroes attack first.
         resolveAliveHeroIds(run).forEach((playerId) => {
-            const player = state.players[playerId];
+            const player = players[playerId];
             const enemy = targetEnemy;
             if (!player || !enemy || enemy.hp <= 0) {
                 return;
@@ -695,6 +762,10 @@ export const applyDungeonTick = (
         run.targetEnemyId = targetEnemy?.id ?? null;
 
         if (!targetEnemy) {
+            const floorCombatXp = getFloorCombatXp(definition.tier, run.floor);
+            const bossBonusCombatXp = run.floor >= run.floorCount ? floorCombatXp * 2 : 0;
+            players = grantCombatXpToParty(players, run.party, floorCombatXp + bossBonusCombatXp);
+
             if (run.floor >= run.floorCount) {
                 const bossGold = Math.max(25, definition.tier * 75);
                 inventory.items.gold = normalizeInventoryCount(inventory.items.gold) + bossGold;
@@ -826,7 +897,6 @@ export const applyDungeonTick = (
         }
     }
 
-    let players = state.players;
     let dungeon = {
         ...state.dungeon,
         runs: {

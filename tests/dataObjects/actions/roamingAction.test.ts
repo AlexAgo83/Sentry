@@ -10,7 +10,7 @@ import {
     STAT_PERCENT_PER_POINT
 } from "../../../src/core/constants";
 
-describe("CombatAction", () => {
+describe("RoamingAction", () => {
     it("awards gold, xp, and drains stamina on completion", () => {
         const initial = createInitialGameState("0.4.0");
         const playerId = initial.activePlayerId ?? "1";
@@ -18,19 +18,19 @@ describe("CombatAction", () => {
         let state = gameReducer(initial, {
             type: "selectAction",
             playerId,
-            actionId: "Combat"
+            actionId: "Roaming"
         });
-        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        const recipeId = Object.keys(state.players[playerId].skills.Roaming.recipes)[0];
         state = gameReducer(state, {
             type: "selectRecipe",
             playerId,
-            skillId: "Combat",
+            skillId: "Roaming",
             recipeId
         });
 
         const before = state.players[playerId];
         const baseInterval = Math.ceil(
-            before.skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+            before.skills.Roaming.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
         );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const next = applyTick(state, actionInterval, Date.now());
@@ -45,9 +45,9 @@ describe("CombatAction", () => {
         const staminaCost = Math.ceil(10 * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT));
         const expectedStamina = Math.min(staminaMax, before.stamina + regenAmount) - staminaCost;
         expect(after.stamina).toBe(expectedStamina);
-        expect(after.skills.Combat.xp).toBe(before.skills.Combat.xp + 1);
-        expect(after.skills.Combat.recipes[recipeId].xp).toBe(
-            before.skills.Combat.recipes[recipeId].xp + 2
+        expect(after.skills.Roaming.xp).toBe(before.skills.Roaming.xp + 1);
+        expect(after.skills.Roaming.recipes[recipeId].xp).toBe(
+            before.skills.Roaming.recipes[recipeId].xp + 2
         );
     });
 });

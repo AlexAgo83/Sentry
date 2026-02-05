@@ -12,9 +12,9 @@ describe("GameRuntime offline loop", () => {
         const persistence = { load: () => null, save: vi.fn() };
         const runtime = new GameRuntime(store, persistence, "0.4.0");
 
-        store.dispatch({ type: "selectAction", playerId, actionId: "Combat" });
-        const recipeId = Object.keys(store.getState().players[playerId].skills.Combat.recipes)[0];
-        store.dispatch({ type: "selectRecipe", playerId, skillId: "Combat", recipeId });
+        store.dispatch({ type: "selectAction", playerId, actionId: "Roaming" });
+        const recipeId = Object.keys(store.getState().players[playerId].skills.Roaming.recipes)[0];
+        store.dispatch({ type: "selectRecipe", playerId, skillId: "Roaming", recipeId });
 
         runtime.simulateOffline(5000);
 

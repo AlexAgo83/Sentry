@@ -26,13 +26,13 @@ describe("core loop", () => {
         let state = gameReducer(initial, {
             type: "selectAction",
             playerId,
-            actionId: "Combat"
+            actionId: "Roaming"
         });
-        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        const recipeId = Object.keys(state.players[playerId].skills.Roaming.recipes)[0];
         state = gameReducer(state, {
             type: "selectRecipe",
             playerId,
-            skillId: "Combat",
+            skillId: "Roaming",
             recipeId
         });
         state = {
@@ -48,7 +48,7 @@ describe("core loop", () => {
 
         const before = state.players[playerId];
         const baseInterval = Math.ceil(
-            before.skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+            before.skills.Roaming.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
         );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const next = applyTick(state, actionInterval, Date.now());
@@ -61,9 +61,9 @@ describe("core loop", () => {
         const staminaCost = Math.ceil(10 * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT));
         const expectedStamina = Math.min(staminaMax, before.stamina + regenAmount) - staminaCost;
         expect(after.stamina).toBe(expectedStamina);
-        expect(after.skills.Combat.xp).toBe(before.skills.Combat.xp + 1);
-        expect(after.skills.Combat.recipes[recipeId].xp).toBe(
-            before.skills.Combat.recipes[recipeId].xp + 2
+        expect(after.skills.Roaming.xp).toBe(before.skills.Roaming.xp + 1);
+        expect(after.skills.Roaming.recipes[recipeId].xp).toBe(
+            before.skills.Roaming.recipes[recipeId].xp + 2
         );
     });
 
@@ -91,18 +91,18 @@ describe("core loop", () => {
         state = gameReducer(state, {
             type: "selectAction",
             playerId,
-            actionId: "Combat"
+            actionId: "Roaming"
         });
-        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        const recipeId = Object.keys(state.players[playerId].skills.Roaming.recipes)[0];
         state = gameReducer(state, {
             type: "selectRecipe",
             playerId,
-            skillId: "Combat",
+            skillId: "Roaming",
             recipeId
         });
 
         const baseInterval = Math.ceil(
-            state.players[playerId].skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+            state.players[playerId].skills.Roaming.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
         );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const next = applyTick(state, actionInterval * 3, Date.now());
@@ -152,18 +152,18 @@ describe("core loop", () => {
         state = gameReducer(state, {
             type: "selectAction",
             playerId,
-            actionId: "Combat"
+            actionId: "Roaming"
         });
-        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        const recipeId = Object.keys(state.players[playerId].skills.Roaming.recipes)[0];
         state = gameReducer(state, {
             type: "selectRecipe",
             playerId,
-            skillId: "Combat",
+            skillId: "Roaming",
             recipeId
         });
 
         const baseInterval = Math.ceil(
-            state.players[playerId].skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+            state.players[playerId].skills.Roaming.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
         );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const next = applyTick(state, actionInterval, Date.now());
@@ -305,13 +305,13 @@ describe("core loop", () => {
         let state = gameReducer(initial, {
             type: "selectAction",
             playerId,
-            actionId: "Combat"
+            actionId: "Roaming"
         });
-        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        const recipeId = Object.keys(state.players[playerId].skills.Roaming.recipes)[0];
         state = gameReducer(state, {
             type: "selectRecipe",
             playerId,
-            skillId: "Combat",
+            skillId: "Roaming",
             recipeId
         });
         state = {
@@ -323,8 +323,8 @@ describe("core loop", () => {
                     ...state.players[playerId],
                     skills: {
                         ...state.players[playerId].skills,
-                        Combat: {
-                            ...state.players[playerId].skills.Combat,
+                        Roaming: {
+                            ...state.players[playerId].skills.Roaming,
                             baseInterval: MIN_ACTION_INTERVAL_MS
                         }
                     },
@@ -335,13 +335,13 @@ describe("core loop", () => {
 
         const beforeGold = state.inventory.items.gold ?? 0;
         const baseInterval = Math.ceil(
-            state.players[playerId].skills.Combat.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
+            state.players[playerId].skills.Roaming.baseInterval * (1 - DEFAULT_STAT_BASE * STAT_PERCENT_PER_POINT)
         );
         const actionIntervalNoStun = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const next = applyTick(state, actionIntervalNoStun + 1, Date.now());
 
         expect(next.inventory.items.gold ?? 0).toBe(beforeGold);
-        expect(next.players[playerId].skills.Combat.xp).toBe(state.players[playerId].skills.Combat.xp);
+        expect(next.players[playerId].skills.Roaming.xp).toBe(state.players[playerId].skills.Roaming.xp);
         expect(next.players[playerId].actionProgress.progressPercent).toBeGreaterThan(0);
         expect(next.players[playerId].actionProgress.progressPercent).toBeLessThan(100);
     });

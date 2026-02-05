@@ -25,13 +25,13 @@ describe("stat effects", () => {
         let state = gameReducer(initial, {
             type: "selectAction",
             playerId,
-            actionId: "Combat"
+            actionId: "Roaming"
         });
-        const recipeId = Object.keys(state.players[playerId].skills.Combat.recipes)[0];
+        const recipeId = Object.keys(state.players[playerId].skills.Roaming.recipes)[0];
         state = gameReducer(state, {
             type: "selectRecipe",
             playerId,
-            skillId: "Combat",
+            skillId: "Roaming",
             recipeId
         });
         state = {
@@ -57,7 +57,7 @@ describe("stat effects", () => {
 
         const before = state.players[playerId];
         const baseInterval = Math.ceil(
-            before.skills.Combat.baseInterval * (1 - 0 * STAT_PERCENT_PER_POINT)
+            before.skills.Roaming.baseInterval * (1 - 0 * STAT_PERCENT_PER_POINT)
         );
         const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval);
         const next = applyTick(state, actionInterval, Date.now());

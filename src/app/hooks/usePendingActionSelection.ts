@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { ActionDefinition, ItemDelta, PlayerState, RecipeDefinition, SkillId, SkillState } from "../../core/types";
+import type { ActionDefinition, ActionId, ItemDelta, PlayerState, RecipeDefinition, SkillState } from "../../core/types";
 import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../../data/definitions";
 
 type MissingItem = {
@@ -25,7 +25,7 @@ export const usePendingActionSelection = ({
     inventoryItems
 }: {
     activePlayer: PlayerState | null;
-    pendingSkillId: SkillId | "";
+    pendingSkillId: ActionId | "";
     pendingRecipeId: string;
     inventoryItems: Record<string, number>;
 }): PendingActionSelectionState => {
@@ -36,7 +36,7 @@ export const usePendingActionSelection = ({
     const pendingRecipeDef = useMemo(
         () => (
             pendingSkillId && pendingRecipeId
-                ? getRecipeDefinition(pendingSkillId as SkillId, pendingRecipeId) ?? null
+                ? getRecipeDefinition(pendingSkillId, pendingRecipeId) ?? null
                 : null
         ),
         [pendingRecipeId, pendingSkillId]
@@ -49,7 +49,7 @@ export const usePendingActionSelection = ({
     }, [pendingRecipeDef, pendingSkill]);
 
     const pendingActionDef = useMemo<ActionDefinition | null>(
-        () => (pendingSkillId ? getActionDefinition(pendingSkillId as SkillId) ?? null : null),
+        () => (pendingSkillId ? getActionDefinition(pendingSkillId) ?? null : null),
         [pendingSkillId]
     );
     const pendingItemCosts = pendingRecipeDef?.itemCosts ?? pendingActionDef?.itemCosts;
