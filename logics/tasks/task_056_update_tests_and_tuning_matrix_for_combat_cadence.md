@@ -2,7 +2,7 @@
 > From version: 0.9.5
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 80%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_070_update_tests_and_tuning_matrix_for_combat_cadence.md`.
@@ -33,11 +33,11 @@ This task secures the cadence rollout with automated coverage and a reproducible
   - Replay determinism with cooldown-based cadence.
   - Offline recap includes dungeon gains (including mixed action+dungeon sessions).
   - Combat panel values render coherently in character stats.
-- [ ] 3. Define and run tuning matrix scenarios:
+- [x] 3. Define and run tuning matrix scenarios:
   - `low`, `mid`, `high` Agility bands with same seed/setup.
   - Capture KPIs: floor clear time, survival/wipe rate, Combat XP/hour, gold/items/hour.
-- [ ] 4. Document tuning results and accepted bounds for v1.
-- [ ] FINAL: Update related Logics docs
+- [x] 4. Document tuning results and accepted bounds for v1.
+- [x] FINAL: Update related Logics docs
 
 # Validation
 - npm run lint
@@ -49,5 +49,5 @@ This task secures the cadence rollout with automated coverage and a reproducible
 - Added cadence unit tests (bounds, multi-proc, per-hero cap, event cap) plus replay determinism checks.
 - Added regression tests for combat panel rendering and offline recap dungeon gains.
 - Created a tuning matrix template in `logics/tuning/combat_cadence_matrix.md`.
-- Pending: run the tuning matrix scenarios and fill in the results/bounds.
+- Ran the tuning matrix (12 fixed seeds; Damp Ruins tier 1) and filled the results/bounds in `logics/tuning/combat_cadence_matrix.md`.
 
