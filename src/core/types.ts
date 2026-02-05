@@ -206,6 +206,7 @@ export interface DungeonRunState {
     encounterStep: number;
     floor: number;
     floorCount: number;
+    floorPauseMs?: number | null;
     party: DungeonRunPartyMemberState[];
     enemies: DungeonRunEnemyState[];
     targetEnemyId: string | null;

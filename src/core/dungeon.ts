@@ -24,6 +24,7 @@ export const DUNGEON_AUTO_RESTART_DELAY_MS = 3000;
 export const DUNGEON_REPLAY_MAX_EVENTS = 5000;
 export const DUNGEON_REPLAY_MAX_BYTES = 2 * 1024 * 1024;
 export const DUNGEON_BASE_ATTACK_MS = DUNGEON_SIMULATION_STEP_MS;
+export const DUNGEON_FLOOR_PAUSE_MS = 800;
 export const DUNGEON_ATTACK_INTERVAL_MIN_MS = 250;
 export const DUNGEON_ATTACK_INTERVAL_MAX_MS = 1400;
 export const DUNGEON_ATTACKS_PER_STEP_CAP = 3;
@@ -50,6 +51,17 @@ const addItemDelta = (target: ItemDelta, itemId: string, amount: number) => {
         return;
     }
     target[itemId] = (target[itemId] ?? 0) + amount;
+};
+
+const normalizeEnemyVitals = (enemy: DungeonRunEnemyState): DungeonRunEnemyState => {
+    const rawHpMax = Number(enemy.hpMax);
+    const fallbackHpMax = Math.max(1, Math.round(Number(enemy.hp) || 1));
+    const hpMax = Number.isFinite(rawHpMax) && rawHpMax > 0 ? Math.round(rawHpMax) : fallbackHpMax;
+    const rawHp = Number(enemy.hp);
+    const hp = Number.isFinite(rawHp) ? Math.min(Math.max(0, Math.round(rawHp)), hpMax) : hpMax;
+    enemy.hpMax = hpMax;
+    enemy.hp = hp;
+    return enemy;
 };
 
 const cloneInventory = (inventory: InventoryState): InventoryState => ({
@@ -105,7 +117,7 @@ export const getDungeonStartFoodCost = (definition: DungeonDefinition): number =
 };
 
 const resolveTargetEnemy = (enemies: DungeonRunEnemyState[], targetEnemyId: string | null): DungeonRunEnemyState | null => {
-    const alive = enemies.filter((enemy) => enemy.hp > 0);
+    const alive = enemies.map(normalizeEnemyVitals).filter((enemy) => enemy.hp > 0);
     if (alive.length === 0) {
         return null;
     }
@@ -546,9 +558,13 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
                 attackCooldownMs: Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0
             }))
             : [];
+        const floorPauseMs = Number.isFinite(run.floorPauseMs)
+            ? Math.max(0, Math.floor(run.floorPauseMs ?? 0))
+            : null;
         acc[runId] = {
             ...run,
             party,
+            floorPauseMs,
             cadenceSnapshot: Array.isArray(run.cadenceSnapshot) ? run.cadenceSnapshot : [],
             truncatedEvents: Number.isFinite(run.truncatedEvents) ? run.truncatedEvents : 0
         };
@@ -677,6 +693,7 @@ export const startDungeonRun = (
         encounterStep: 0,
         floor: 1,
         floorCount: Math.max(1, definition.floorCount),
+        floorPauseMs: null,
         party,
         enemies: [],
         targetEnemyId: null,
@@ -810,6 +827,7 @@ export const applyDungeonTick = (
             run.floor = 1;
             run.elapsedMs = 0;
             run.stepCarryMs = 0;
+            run.floorPauseMs = null;
             run.events = [];
             run.runIndex += 1;
             const baseAttackMs = DUNGEON_BASE_ATTACK_MS;
@@ -834,6 +852,7 @@ export const applyDungeonTick = (
             run.status = "failed";
             run.endReason = "stopped";
             run.restartAt = null;
+            run.floorPauseMs = null;
             pushEvent(run, { type: "run_end", label: "Auto-restart canceled" });
         }
     }
@@ -859,16 +878,28 @@ export const applyDungeonTick = (
             pushEvent(run, event);
             stepEventCount += 1;
         };
-        run.party.forEach((member) => {
-            combatActiveMsByPlayer[member.playerId] = (combatActiveMsByPlayer[member.playerId] ?? 0) + DUNGEON_SIMULATION_STEP_MS;
-        });
-
         run.elapsedMs += DUNGEON_SIMULATION_STEP_MS;
         run.encounterStep += 1;
         run.party.forEach((member) => {
             member.potionCooldownMs = Math.max(0, member.potionCooldownMs - DUNGEON_SIMULATION_STEP_MS);
             const currentCooldown = Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0;
             member.attackCooldownMs = currentCooldown - DUNGEON_SIMULATION_STEP_MS;
+        });
+
+        if (run.floorPauseMs && run.floorPauseMs > 0) {
+            run.floorPauseMs = Math.max(0, run.floorPauseMs - DUNGEON_SIMULATION_STEP_MS);
+            if (run.floorPauseMs > 0) {
+                continue;
+            }
+            run.floorPauseMs = null;
+            run.floor += 1;
+            const initialized = initializeFloor(run, definition, inventory, itemDeltas);
+            inventory = initialized.inventory;
+            continue;
+        }
+
+        run.party.forEach((member) => {
+            combatActiveMsByPlayer[member.playerId] = (combatActiveMsByPlayer[member.playerId] ?? 0) + DUNGEON_SIMULATION_STEP_MS;
         });
 
         let targetEnemy = resolveTargetEnemy(run.enemies, run.targetEnemyId);
@@ -943,6 +974,7 @@ export const applyDungeonTick = (
                 addItemDelta(itemDeltas, "gold", bossGold);
                 run.status = "victory";
                 run.endReason = "victory";
+                run.floorPauseMs = null;
                 run.party = recoverRunParty(run.party);
                 pushEvent(run, {
                     type: "run_end",
@@ -954,9 +986,9 @@ export const applyDungeonTick = (
                 continue;
             }
 
-            run.floor += 1;
-            const initialized = initializeFloor(run, definition, inventory, itemDeltas);
-            inventory = initialized.inventory;
+            run.floorPauseMs = DUNGEON_FLOOR_PAUSE_MS;
+            run.enemies = [];
+            run.targetEnemyId = null;
             continue;
         }
 
