@@ -43,12 +43,6 @@ const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
         setEmail(value);
         saveStoredEmail(value);
     }, []);
-    const handleLoadCloud = useCallback(async () => {
-        const didLoad = await cloud.loadCloud();
-        if (didLoad) {
-            onClose();
-        }
-    }, [cloud, onClose]);
     const backendUnavailable = cloud.isAvailable && (!cloud.isBackendAwake || cloud.status === "warming");
     const badgeLabel = !cloud.isAvailable ? "Offline" : backendUnavailable ? "Warming" : "Online";
     const badgeTone = !cloud.isAvailable
@@ -92,7 +86,7 @@ const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
                     onRefresh={cloud.refreshCloud}
                     onWarmupRetryNow={cloud.retryWarmupNow}
                     onLogout={cloud.logout}
-                    onLoadCloud={handleLoadCloud}
+                    onLoadCloud={cloud.loadCloud}
                     onOverwriteCloud={cloud.overwriteCloud}
                 />
             </div>
