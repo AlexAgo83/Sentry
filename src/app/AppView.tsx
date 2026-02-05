@@ -21,6 +21,7 @@ export interface AppViewProps {
     onShowEquipment: () => void;
     onShowShop: () => void;
     onShowQuests: () => void;
+    heroMenuOpenSignal?: number;
     isDungeonRunActive: boolean;
     hasNewInventoryItems: boolean;
     roster: ReactNode;
@@ -73,6 +74,7 @@ export const AppView = (props: AppViewProps) => {
         onShowEquipment,
         onShowShop,
         onShowQuests,
+        heroMenuOpenSignal,
         isDungeonRunActive,
         hasNewInventoryItems,
         roster,
@@ -196,6 +198,7 @@ export const AppView = (props: AppViewProps) => {
                         onShowEquipment={onShowEquipment}
                         onShowShop={onShowShop}
                         onShowQuests={onShowQuests}
+                        openHeroMenuSignal={heroMenuOpenSignal}
                         badges={{
                             ...(hasNewInventoryItems ? { inventory: "New" } : {}),
                             ...(isDungeonRunActive ? { dungeon: "Live" } : {})

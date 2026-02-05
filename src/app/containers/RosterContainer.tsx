@@ -9,12 +9,14 @@ import { RosterPanel } from "../components/RosterPanel";
 
 type RosterContainerProps = {
     onAddPlayer: () => void;
+    onAfterSetActivePlayer?: () => void;
     getSkillLabel: (skillId: SkillId) => string;
     getRecipeLabel: (skillId: SkillId, recipeId: string) => string;
 };
 
 export const RosterContainer = ({
     onAddPlayer,
+    onAfterSetActivePlayer,
     getSkillLabel,
     getRecipeLabel,
 }: RosterContainerProps) => {
@@ -36,7 +38,10 @@ export const RosterContainer = ({
             rosterLimit={rosterLimit}
             isCollapsed={isCollapsed}
             onToggleCollapsed={() => setCollapsed((value) => !value)}
-            onSetActivePlayer={(playerId) => gameStore.dispatch({ type: "setActivePlayer", playerId })}
+            onSetActivePlayer={(playerId) => {
+                gameStore.dispatch({ type: "setActivePlayer", playerId });
+                onAfterSetActivePlayer?.();
+            }}
             onAddPlayer={onAddPlayer}
             getSkillLabel={(skillId) => getSkillLabel(skillId as SkillId)}
             getRecipeLabel={(skillId, recipeId) => getRecipeLabel(skillId as SkillId, recipeId)}

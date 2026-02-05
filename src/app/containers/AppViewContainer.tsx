@@ -25,11 +25,13 @@ type AppViewContainerProps = {
     onShowEquipment: () => void;
     onShowShop: () => void;
     onShowQuests: () => void;
+    heroMenuOpenSignal?: number;
     isDungeonRunActive: boolean;
     hasNewInventoryItems: boolean;
     newInventoryItemIds: string[];
     onMarkInventoryItemSeen: (itemId: string) => void;
     onAddPlayer: () => void;
+    onRosterPlayerSelect?: () => void;
     onChangeAction: () => void;
     onCloseActionSelection: () => void;
     onRenameHero: () => void;
@@ -52,11 +54,13 @@ export const AppViewContainer = ({
     onShowEquipment,
     onShowShop,
     onShowQuests,
+    heroMenuOpenSignal,
     isDungeonRunActive,
     hasNewInventoryItems,
     newInventoryItemIds,
     onMarkInventoryItemSeen,
     onAddPlayer,
+    onRosterPlayerSelect,
     onChangeAction,
     onCloseActionSelection,
     onRenameHero,
@@ -80,12 +84,14 @@ export const AppViewContainer = ({
                 onShowEquipment={onShowEquipment}
                 onShowShop={onShowShop}
                 onShowQuests={onShowQuests}
+                heroMenuOpenSignal={heroMenuOpenSignal}
                 isDungeonRunActive={isDungeonRunActive}
                 hasNewInventoryItems={hasNewInventoryItems}
                 roster={(
                     <DevProfiler id="RosterPanel">
                         <RosterContainer
                             onAddPlayer={onAddPlayer}
+                            onAfterSetActivePlayer={onRosterPlayerSelect}
                             getSkillLabel={getSkillLabel}
                             getRecipeLabel={getRecipeLabelNonNull}
                         />

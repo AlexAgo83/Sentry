@@ -58,6 +58,7 @@ TabButton.displayName = "TabButton";
 type SidePanelSwitcherProps = {
     active: "action" | "stats" | "inventory" | "equipment" | "shop" | "quests";
     isDungeonActive?: boolean;
+    openHeroMenuSignal?: number;
     onShowDungeon?: () => void;
     isDungeonLocked?: boolean;
     dungeonLockReason?: string;
@@ -83,6 +84,7 @@ type SidePanelSwitcherProps = {
 export const SidePanelSwitcher = memo(({
     active,
     isDungeonActive,
+    openHeroMenuSignal = 0,
     onShowDungeon,
     isDungeonLocked = false,
     dungeonLockReason,
@@ -203,6 +205,14 @@ export const SidePanelSwitcher = memo(({
         }
         setHeroMenuOpen(false);
     }, [active, useHeroMenu]);
+
+    useEffect(() => {
+        if (!useHeroMenu || openHeroMenuSignal <= 0) {
+            return;
+        }
+        setInventoryMenuOpen(false);
+        setHeroMenuOpen(true);
+    }, [openHeroMenuSignal, useHeroMenu]);
 
     const rootClassName = `ts-panel-switcher${useInventoryMenu ? " ts-panel-switcher--inventory-menu" : ""}${useHeroMenu ? " ts-panel-switcher--hero-menu" : ""}${showRosterButton ? " ts-panel-switcher--roster" : ""}${className ? ` ${className}` : ""}`;
 

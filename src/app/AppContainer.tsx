@@ -63,6 +63,7 @@ export const AppContainer = () => {
 
     const [onboardingHeroName, setOnboardingHeroName] = useState("");
     const [didAutoOpenDungeon, setDidAutoOpenDungeon] = useState(false);
+    const [heroMenuOpenSignal, setHeroMenuOpenSignal] = useState(0);
     const isOnboardingOpen = dungeonOnboardingRequired && playerCount < 4;
 
     const {
@@ -201,6 +202,10 @@ export const AppContainer = () => {
         gameRuntime.simulateOffline(30 * 60 * 1000);
     }, []);
 
+    const handleRosterPlayerSelect = useCallback(() => {
+        setHeroMenuOpenSignal((current) => current + 1);
+    }, []);
+
     const {
         closeOfflineSummary,
         resetSave,
@@ -272,11 +277,13 @@ export const AppContainer = () => {
                 onShowEquipment={showEquipmentPanel}
                 onShowShop={showShopPanel}
                 onShowQuests={showQuestsPanel}
+                heroMenuOpenSignal={heroMenuOpenSignal}
                 isDungeonRunActive={isDungeonRunActive}
                 hasNewInventoryItems={hasNewInventoryItems}
                 newInventoryItemIds={newInventoryItemIds}
                 onMarkInventoryItemSeen={markInventoryItemSeen}
                 onAddPlayer={openRecruit}
+                onRosterPlayerSelect={handleRosterPlayerSelect}
                 onChangeAction={handleOpenActionSelection}
                 onCloseActionSelection={closeActionSelection}
                 onRenameHero={openActiveRename}

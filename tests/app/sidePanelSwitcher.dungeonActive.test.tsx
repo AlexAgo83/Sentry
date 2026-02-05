@@ -50,4 +50,41 @@ describe("SidePanelSwitcher dungeon active state", () => {
         expect(screen.getByRole("menuitem", { name: "Inventory" }).className.includes("is-active")).toBe(false);
         expect(screen.getByRole("menuitem", { name: "Quests" }).className.includes("is-active")).toBe(false);
     });
+
+    it("opens the Hero menu when signaled externally", () => {
+        const { rerender } = render(
+            <SidePanelSwitcher
+                active="action"
+                onShowAction={vi.fn()}
+                onShowStats={vi.fn()}
+                onShowInventory={vi.fn()}
+                onShowEquipment={vi.fn()}
+                onShowShop={vi.fn()}
+                onShowQuests={vi.fn()}
+                useInventoryMenu
+                useHeroMenu
+                openHeroMenuSignal={0}
+            />
+        );
+
+        expect(screen.queryByRole("menuitem", { name: "Action" })).toBeNull();
+
+        rerender(
+            <SidePanelSwitcher
+                active="action"
+                onShowAction={vi.fn()}
+                onShowStats={vi.fn()}
+                onShowInventory={vi.fn()}
+                onShowEquipment={vi.fn()}
+                onShowShop={vi.fn()}
+                onShowQuests={vi.fn()}
+                useInventoryMenu
+                useHeroMenu
+                openHeroMenuSignal={1}
+            />
+        );
+
+        expect(screen.getByRole("menuitem", { name: "Action" })).toBeTruthy();
+        expect(screen.getByRole("menuitem", { name: "Stats" })).toBeTruthy();
+    });
 });

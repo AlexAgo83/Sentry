@@ -44,7 +44,7 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         origin: true,
         credentials: true,
         methods: ["GET", "POST", "PUT", "OPTIONS"],
-        allowedHeaders: ["Authorization", "Content-Type"]
+        allowedHeaders: ["Authorization", "Content-Type", CSRF_HEADER_NAME]
     });
 
     app.register(cookie, {

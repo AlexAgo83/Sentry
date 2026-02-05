@@ -343,6 +343,28 @@ describe("cloud API", () => {
         await app.close();
     });
 
+    it("accepts csrf header on CORS preflight for refresh", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        const preflight = await app.inject({
+            method: "OPTIONS",
+            url: "/api/v1/auth/refresh",
+            headers: {
+                origin: "http://localhost:5173",
+                "access-control-request-method": "POST",
+                "access-control-request-headers": "x-csrf-token,content-type"
+            }
+        });
+
+        expect(preflight.statusCode).toBe(204);
+        expect(String(preflight.headers["access-control-allow-origin"] ?? "")).toBe("http://localhost:5173");
+        expect(String(preflight.headers["access-control-allow-headers"] ?? "").toLowerCase()).toContain("x-csrf-token");
+
+        await app.close();
+    });
+
     it("rejects invalid save payloads", async () => {
         const prisma = buildMockPrisma();
         const { buildServer } = await loadServer();
