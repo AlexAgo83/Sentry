@@ -24,6 +24,7 @@ On large desktop screens the UI stretches too wide, which reduces readability an
 - Use an inner header container that owns background, border, and radius.
 - Reuse `--border-radius-harmonized` for constrained header bottom corners only.
 - Move topbar icon-only breakpoint to `1100px`.
+- Throttle dungeon screen cursor updates to ~30fps to reduce console violations in dev.
 
 # Acceptance criteria
 - On viewports > 1200px, the main content uses max-width 1200px and is centered.
@@ -31,6 +32,7 @@ On large desktop screens the UI stretches too wide, which reduces readability an
 - On viewports <= 1200px, layout and header remain full-width as they are today.
 - Mobile and safe-area behavior are unchanged.
 - Topbar labels collapse to icon-only at <= 1100px.
+- Dungeon screen cursor updates are throttled (30fps) with no gameplay impact.
 
 # Priority
 - Impact: Medium (UX polish + readability on desktop).

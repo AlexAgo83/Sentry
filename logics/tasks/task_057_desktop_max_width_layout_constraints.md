@@ -16,6 +16,7 @@ This task introduces a desktop max-width layout constraint (1200px) and aligns t
 - Keep backgrounds full-bleed and modals full-bleed.
 - Reuse `--border-radius-harmonized` for constrained header bottom corners only.
 - Move topbar icon-only breakpoint to `1100px`.
+- Throttle dungeon screen cursor updates to ~30fps to reduce console violations in dev.
 
 # Suggestions (v1 defaults)
 - Add a `--app-max-width` CSS variable in `styles/global.css` for reuse.
@@ -49,3 +50,4 @@ This task introduces a desktop max-width layout constraint (1200px) and aligns t
 - Introduced a constrained topbar surface with rounded corners that matches the layout width.
 - Kept full-bleed backgrounds and preserved mobile/bottom bar behavior.
 - Updated topbar label breakpoint to 1100px and limited header rounding to bottom corners only.
+- Throttled dungeon screen cursor updates to ~30fps to reduce dev console violations.

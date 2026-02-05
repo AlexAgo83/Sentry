@@ -54,6 +54,7 @@ export const DungeonScreen = memo(({
     onStartRun,
     onStopRun
 }: DungeonScreenProps) => {
+    const frameIntervalMs = 1000 / 30;
     const [liveCursorMs, setLiveCursorMs] = useState(0);
     const [replayPaused, setReplayPaused] = useState(true);
     const [replaySpeed, setReplaySpeed] = useState<1 | 2 | 4>(1);
@@ -98,21 +99,25 @@ export const DungeonScreen = memo(({
         }
         let rafId = 0;
         let lastTs = performance.now();
+        let lastRenderTs = lastTs;
         const animate = (nextTs: number) => {
             const deltaMs = Math.max(0, nextTs - lastTs);
             lastTs = nextTs;
-            setLiveCursorMs((previous) => {
-                const targetMs = liveTotalMsRef.current;
-                if (previous >= targetMs) {
-                    return targetMs;
-                }
-                return Math.min(targetMs, previous + deltaMs);
-            });
+            if (nextTs - lastRenderTs >= frameIntervalMs) {
+                lastRenderTs = nextTs;
+                setLiveCursorMs((previous) => {
+                    const targetMs = liveTotalMsRef.current;
+                    if (previous >= targetMs) {
+                        return targetMs;
+                    }
+                    return Math.min(targetMs, previous + deltaMs);
+                });
+            }
             rafId = window.requestAnimationFrame(animate);
         };
         rafId = window.requestAnimationFrame(animate);
         return () => window.cancelAnimationFrame(rafId);
-    }, [activeRunId]);
+    }, [activeRunId, frameIntervalMs]);
 
     useEffect(() => {
         if (!showReplay || !latestReplay || replayPaused || typeof window === "undefined") {
@@ -120,20 +125,24 @@ export const DungeonScreen = memo(({
         }
         let rafId = 0;
         let lastTs = performance.now();
+        let lastRenderTs = lastTs;
         const animate = (nextTs: number) => {
             const deltaMs = Math.max(0, nextTs - lastTs);
             lastTs = nextTs;
-            setReplayCursorMs((previous) => {
-                if (previous >= replayTotalMs) {
-                    return replayTotalMs;
-                }
-                return Math.min(replayTotalMs, previous + deltaMs * replaySpeed);
-            });
+            if (nextTs - lastRenderTs >= frameIntervalMs) {
+                lastRenderTs = nextTs;
+                setReplayCursorMs((previous) => {
+                    if (previous >= replayTotalMs) {
+                        return replayTotalMs;
+                    }
+                    return Math.min(replayTotalMs, previous + deltaMs * replaySpeed);
+                });
+            }
             rafId = window.requestAnimationFrame(animate);
         };
         rafId = window.requestAnimationFrame(animate);
         return () => window.cancelAnimationFrame(rafId);
-    }, [showReplay, latestReplay, latestReplay?.runId, replayPaused, replaySpeed, replayTotalMs]);
+    }, [showReplay, latestReplay, latestReplay?.runId, replayPaused, replaySpeed, replayTotalMs, frameIntervalMs]);
 
     useEffect(() => {
         if (!latestReplay || replayCursorMs < replayTotalMs) {

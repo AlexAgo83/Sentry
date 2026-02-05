@@ -23,6 +23,7 @@
 - Keep modals/full-screen overlays full-bleed (no max-width constraint).
 - Use existing `--border-radius-harmonized` for the constrained header bottom corners only.
 - Set topbar icon-only threshold to `1100px` to keep labels readable on wider desktops.
+- Throttle dungeon screen cursor updates to ~30fps to reduce console violations in dev.
 
 # Scope detail (draft)
 - Layout:
@@ -38,6 +39,7 @@
   - No changes to mobile bottom bar behavior.
   - Avoid double-padding when max-width is active (use existing shell padding as the outer gutter).
   - Move topbar icon-only breakpoint to `1100px` after adding the Dungeon button.
+  - Reduce dungeon screen cursor update frequency (30fps cap) to limit dev console noise.
 
 # Technical references to update
 - `styles/global.css` (layout + topbar constraints)
@@ -50,6 +52,7 @@
 - On viewports <= 1200px, layout and header remain full-width as they are today.
 - No regressions in mobile layout or safe-area spacing.
 - Topbar labels collapse to icon-only at <= 1100px.
+- Dungeon screen cursor updates are throttled (30fps) with no gameplay impact.
 
 # Risks / open points
 - Fixed header + centered layout may need an extra wrapper to avoid breaking current padding.
