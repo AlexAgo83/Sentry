@@ -82,7 +82,8 @@ describe("OfflineSummaryModal", () => {
                 recipeXpGained: 4,
                 skillLevelGained: 2,
                 recipeLevelGained: 1,
-                itemDeltas: { bones: 2 }
+                itemDeltas: { bones: 2 },
+                dungeonGains: { combatXp: 0, itemDeltas: {} }
             },
             {
                 playerId: "3",
@@ -93,7 +94,8 @@ describe("OfflineSummaryModal", () => {
                 recipeXpGained: 1,
                 skillLevelGained: 0,
                 recipeLevelGained: 0,
-                itemDeltas: {}
+                itemDeltas: {},
+                dungeonGains: { combatXp: 0, itemDeltas: {} }
             },
             {
                 playerId: "2",
@@ -104,7 +106,8 @@ describe("OfflineSummaryModal", () => {
                 recipeXpGained: Number.NaN,
                 skillLevelGained: 0,
                 recipeLevelGained: 0,
-                itemDeltas: {}
+                itemDeltas: {},
+                dungeonGains: { combatXp: 0, itemDeltas: {} }
             }
         ];
 
@@ -163,5 +166,44 @@ describe("OfflineSummaryModal", () => {
 
         expect(screen.getByText("Time away: 1m 0s")).toBeTruthy();
         expect(screen.getByText("Processed: 10s (capped)")).toBeTruthy();
+    });
+
+    it("renders dungeon gains when present", () => {
+        const summary = {
+            durationMs: 10_000,
+            processedMs: 10_000,
+            ticks: 5,
+            capped: false,
+            players: [],
+            totalItemDeltas: {}
+        };
+        const players: OfflinePlayerSummary[] = [
+            {
+                playerId: "1",
+                playerName: "Hero",
+                actionId: null,
+                recipeId: null,
+                skillXpGained: 0,
+                recipeXpGained: 0,
+                skillLevelGained: 0,
+                recipeLevelGained: 0,
+                itemDeltas: {},
+                dungeonGains: { combatXp: 12, itemDeltas: { gold: 3 } }
+            }
+        ];
+
+        render(
+            <OfflineSummaryModal
+                summary={summary}
+                players={players}
+                onClose={vi.fn()}
+                getSkillLabel={() => "Skill"}
+                getRecipeLabel={() => "Recipe"}
+            />
+        );
+
+        expect(screen.getByText(/Dungeon gains:/)).toBeTruthy();
+        expect(screen.getByText(/\+12 Combat XP/)).toBeTruthy();
+        expect(screen.getByText(/\+3 Gold/)).toBeTruthy();
     });
 });

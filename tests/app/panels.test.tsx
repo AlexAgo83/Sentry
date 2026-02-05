@@ -327,6 +327,33 @@ describe("panel components", () => {
         expect(strengthRow?.textContent).toContain("0 +0");
     });
 
+    it("CharacterStatsPanel renders combat breakdown values", () => {
+        const stats = createPlayerStatsState();
+        stats.base.Strength = 5;
+        stats.base.Agility = 5;
+
+        render(
+            <CharacterStatsPanel
+                skills={SKILL_DEFINITIONS}
+                skillLevels={{ Combat: 10 }}
+                skillProgress={{}}
+                stats={stats}
+                effectiveStats={computeEffectiveStats(stats)}
+                equipmentMods={[]}
+                now={0}
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+            />
+        );
+
+        expect(screen.getByText("Combat Lv")).toBeTruthy();
+        expect(screen.getByText("Attack cadence")).toBeTruthy();
+        expect(screen.getByText("Attacks/sec")).toBeTruthy();
+        expect(screen.getByText("Damage")).toBeTruthy();
+        expect(screen.getAllByText("455ms").length).toBeGreaterThan(0);
+        expect(screen.getAllByText("2.20").length).toBeGreaterThan(0);
+    });
+
     it("InventoryPanel selects items and paginates", async () => {
         const user = userEvent.setup();
         const onSelectItem = vi.fn();

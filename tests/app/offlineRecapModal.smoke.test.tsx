@@ -48,7 +48,8 @@ describe("Smoke: offline recap modal", () => {
                     recipeXpGained: 6,
                     skillLevelGained: 0,
                     recipeLevelGained: 0,
-                    itemDeltas: { bones: 2 }
+                    itemDeltas: { bones: 2 },
+                    dungeonGains: { combatXp: 0, itemDeltas: {} }
                 }
             ],
             totalItemDeltas: { bones: 2 }

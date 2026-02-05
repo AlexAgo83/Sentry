@@ -163,6 +163,7 @@ export interface DungeonRunPartyMemberState {
     hp: number;
     hpMax: number;
     potionCooldownMs: number;
+    attackCooldownMs: number;
 }
 
 export interface DungeonRunEnemyState {
@@ -183,6 +184,15 @@ export interface DungeonReplayEvent {
     targetId?: string;
     amount?: number;
     label?: string;
+}
+
+export interface DungeonCadenceSnapshotEntry {
+    playerId: PlayerId;
+    baseAttackMs: number;
+    agilityAtRunStart: number;
+    resolvedAttackIntervalMs: number;
+    minAttackMs: number;
+    maxAttackMs: number;
 }
 
 export interface DungeonRunState {
@@ -210,6 +220,8 @@ export interface DungeonRunState {
     };
     seed: number;
     events: DungeonReplayEvent[];
+    cadenceSnapshot: DungeonCadenceSnapshotEntry[];
+    truncatedEvents: number;
 }
 
 export interface DungeonReplayState {
@@ -236,6 +248,7 @@ export interface DungeonReplayState {
     events: DungeonReplayEvent[];
     truncated: boolean;
     fallbackCriticalOnly: boolean;
+    cadenceSnapshot: DungeonCadenceSnapshotEntry[];
 }
 
 export interface DungeonState {
@@ -336,6 +349,10 @@ export interface OfflinePlayerSummary {
     skillLevelGained: number;
     recipeLevelGained: number;
     itemDeltas: ItemDelta;
+    dungeonGains: {
+        combatXp: number;
+        itemDeltas: ItemDelta;
+    };
 }
 
 export interface OfflineSummaryState {
@@ -350,6 +367,8 @@ export interface OfflineSummaryState {
 export interface TickSummaryState {
     totalItemDeltas: ItemDelta;
     playerItemDeltas: Record<PlayerId, ItemDelta>;
+    dungeonItemDeltas: ItemDelta;
+    dungeonCombatXpByPlayer: Record<PlayerId, number>;
 }
 
 export interface GameSave {

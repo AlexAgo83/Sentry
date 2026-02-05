@@ -4,6 +4,7 @@ import { STAT_IDS } from "../../core/stats";
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { getSkillIconColor } from "../ui/skillColors";
+import { buildCombatDisplay } from "../selectors/combatSelectors";
 
 type CharacterStatsPanelProps = {
     skills: SkillDefinition[];
@@ -93,6 +94,26 @@ const formatStatValue = (value: number): string => {
     return Number.isInteger(value) ? String(value) : value.toFixed(1);
 };
 
+const formatCombatValue = (value: number, digits = 0): string => {
+    if (!Number.isFinite(value)) {
+        return "0";
+    }
+    if (digits > 0) {
+        return value.toFixed(digits);
+    }
+    return String(Math.round(value));
+};
+
+const formatCombatDelta = (value: number, digits = 0): string => {
+    if (!Number.isFinite(value) || value === 0) {
+        return "0";
+    }
+    const sign = value > 0 ? "+" : "-";
+    const abs = Math.abs(value);
+    const formatted = digits > 0 ? abs.toFixed(digits) : String(Math.round(abs));
+    return `${sign}${formatted}`;
+};
+
 const formatTimeLeft = (ms: number): string => {
     if (ms < 60000) {
         return `${Math.ceil(ms / 1000)}s`;
@@ -108,6 +129,7 @@ export const CharacterStatsPanel = memo(({
     skillLevels,
     skillProgress,
     stats,
+    effectiveStats,
     equipmentMods,
     now,
     isCollapsed,
@@ -117,6 +139,8 @@ export const CharacterStatsPanel = memo(({
     const tempTotals = accumulateTotals(stats.temporaryMods);
     const gearTotals = equipmentMods.length > 0 ? accumulateTotals(equipmentMods) : buildStatTotals();
     const tempMods = stats.temporaryMods;
+    const combatLevel = resolveSkillLevel(skillLevels, "Combat");
+    const combatDisplay = buildCombatDisplay(combatLevel, stats, effectiveStats);
 
     return (
         <section className="generic-panel ts-panel ts-panel-stats">
@@ -201,6 +225,113 @@ export const CharacterStatsPanel = memo(({
                                     })}
                                 </div>
                             ) : null}
+                            <div className="ts-combat-breakdown">
+                                <div className="ts-character-title">Combat</div>
+                                <div className="ts-combat-header">
+                                    <span>Metric</span>
+                                    <span>Base</span>
+                                    <span>Modifiers</span>
+                                    <span>Total</span>
+                                </div>
+                                <div className="ts-combat-grid">
+                                    <div className="ts-combat-row">
+                                        <div className="ts-combat-cell ts-combat-cell--stat">
+                                            <span className="ts-combat-cell-label">Metric</span>
+                                            <span className="ts-combat-cell-value">Combat Lv</span>
+                                        </div>
+                                        <div className="ts-combat-cell">
+                                            <span className="ts-combat-cell-label">Base</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.level.base)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--mods">
+                                            <span className="ts-combat-cell-label">Modifiers</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatDelta(combatDisplay.level.modifiers)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--total">
+                                            <span className="ts-combat-cell-label">Total</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.level.total)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-combat-row">
+                                        <div className="ts-combat-cell ts-combat-cell--stat">
+                                            <span className="ts-combat-cell-label">Metric</span>
+                                            <span className="ts-combat-cell-value">Attack cadence</span>
+                                        </div>
+                                        <div className="ts-combat-cell">
+                                            <span className="ts-combat-cell-label">Base</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.attackIntervalMs.base)}ms
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--mods">
+                                            <span className="ts-combat-cell-label">Modifiers</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatDelta(combatDisplay.attackIntervalMs.modifiers)}ms
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--total">
+                                            <span className="ts-combat-cell-label">Total</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.attackIntervalMs.total)}ms
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-combat-row">
+                                        <div className="ts-combat-cell ts-combat-cell--stat">
+                                            <span className="ts-combat-cell-label">Metric</span>
+                                            <span className="ts-combat-cell-value">Attacks/sec</span>
+                                        </div>
+                                        <div className="ts-combat-cell">
+                                            <span className="ts-combat-cell-label">Base</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.attacksPerSecond.base, 2)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--mods">
+                                            <span className="ts-combat-cell-label">Modifiers</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatDelta(combatDisplay.attacksPerSecond.modifiers, 2)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--total">
+                                            <span className="ts-combat-cell-label">Total</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.attacksPerSecond.total, 2)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-combat-row">
+                                        <div className="ts-combat-cell ts-combat-cell--stat">
+                                            <span className="ts-combat-cell-label">Metric</span>
+                                            <span className="ts-combat-cell-value">Damage</span>
+                                        </div>
+                                        <div className="ts-combat-cell">
+                                            <span className="ts-combat-cell-label">Base</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.damage.base)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--mods">
+                                            <span className="ts-combat-cell-label">Modifiers</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatDelta(combatDisplay.damage.modifiers)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--total">
+                                            <span className="ts-combat-cell-label">Total</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.damage.total)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </>

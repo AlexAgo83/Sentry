@@ -85,7 +85,9 @@ export class GameRuntime {
             result.ticks,
             result.capped,
             result.playerItemDeltas,
-            result.totalItemDeltas
+            result.totalItemDeltas,
+            result.dungeonItemDeltas,
+            result.dungeonCombatXpByPlayer
         );
         if (summary) {
             this.store.dispatch({ type: "setOfflineSummary", summary });
@@ -209,13 +211,15 @@ export class GameRuntime {
         let tickTime = from;
         const totalItemDeltas: ItemDelta = {};
         const playerItemDeltas: Record<string, ItemDelta> = {};
+        const dungeonItemDeltas: ItemDelta = {};
+        const dungeonCombatXpByPlayer: Record<string, number> = {};
 
         while (tickTime < end) {
             const nextTickTime = Math.min(end, tickTime + stepMs);
             const deltaMs = nextTickTime - tickTime;
             tickTime = nextTickTime;
             this.store.dispatch({ type: "tick", deltaMs, timestamp: tickTime });
-            this.collectTickDeltas(totalItemDeltas, playerItemDeltas);
+            this.collectTickDeltas(totalItemDeltas, playerItemDeltas, dungeonItemDeltas, dungeonCombatXpByPlayer);
         }
 
         const capped = processedMs < diff;
@@ -229,7 +233,9 @@ export class GameRuntime {
             capped,
             ticks: processedMs > 0 ? Math.ceil(processedMs / offlineInterval) : 0,
             totalItemDeltas,
-            playerItemDeltas
+            playerItemDeltas,
+            dungeonItemDeltas,
+            dungeonCombatXpByPlayer
         };
     };
 
@@ -279,7 +285,12 @@ export class GameRuntime {
         }
     };
 
-    private collectTickDeltas = (total: ItemDelta, perPlayer: Record<string, ItemDelta>) => {
+    private collectTickDeltas = (
+        total: ItemDelta,
+        perPlayer: Record<string, ItemDelta>,
+        dungeonTotals: ItemDelta,
+        dungeonCombatXpByPlayer: Record<string, number>
+    ) => {
         const summary = this.store.getState().lastTickSummary;
         if (!summary) {
             return;
@@ -293,6 +304,16 @@ export class GameRuntime {
                 bucket[itemId] = (bucket[itemId] ?? 0) + amount;
             });
             perPlayer[playerId] = bucket;
+        });
+        Object.entries(summary.dungeonItemDeltas).forEach(([itemId, amount]) => {
+            dungeonTotals[itemId] = (dungeonTotals[itemId] ?? 0) + amount;
+        });
+        Object.entries(summary.dungeonCombatXpByPlayer).forEach(([playerId, amount]) => {
+            const numeric = Number.isFinite(amount) ? amount : 0;
+            if (numeric <= 0) {
+                return;
+            }
+            dungeonCombatXpByPlayer[playerId] = (dungeonCombatXpByPlayer[playerId] ?? 0) + numeric;
         });
     };
 
@@ -329,7 +350,9 @@ export class GameRuntime {
                         result.ticks,
                         result.capped,
                         result.playerItemDeltas,
-                        result.totalItemDeltas
+                        result.totalItemDeltas,
+                        result.dungeonItemDeltas,
+                        result.dungeonCombatXpByPlayer
                     );
                     if (summary) {
                         this.store.dispatch({ type: "setOfflineSummary", summary });
@@ -421,7 +444,9 @@ export class GameRuntime {
         ticks: number,
         capped: boolean,
         playerItemDeltas: Record<string, ItemDelta>,
-        totalItemDeltas: ItemDelta
+        totalItemDeltas: ItemDelta,
+        dungeonItemDeltas: ItemDelta,
+        dungeonCombatXpByPlayer: Record<string, number>
     ): OfflineSummaryState | null => {
         const players = Object.keys(beforeState.players).reduce<OfflinePlayerSummary[]>((acc, playerId) => {
             const beforePlayer = beforeState.players[playerId];
@@ -445,7 +470,11 @@ export class GameRuntime {
                 recipeXpGained: beforeRecipe && afterRecipe ? afterRecipe.xp - beforeRecipe.xp : 0,
                 skillLevelGained: beforeSkill && afterSkill ? afterSkill.level - beforeSkill.level : 0,
                 recipeLevelGained: beforeRecipe && afterRecipe ? afterRecipe.level - beforeRecipe.level : 0,
-                itemDeltas: playerItemDeltas[playerId] ?? {}
+                itemDeltas: playerItemDeltas[playerId] ?? {},
+                dungeonGains: {
+                    combatXp: dungeonCombatXpByPlayer[playerId] ?? 0,
+                    itemDeltas: (dungeonCombatXpByPlayer[playerId] ?? 0) > 0 ? dungeonItemDeltas : {}
+                }
             };
 
             acc.push(summary);
@@ -496,7 +525,9 @@ export class GameRuntime {
             result.ticks,
             result.capped,
             result.playerItemDeltas,
-            result.totalItemDeltas
+            result.totalItemDeltas,
+            result.dungeonItemDeltas,
+            result.dungeonCombatXpByPlayer
         );
         if (summary) {
             if (this.isOfflineDebugEnabled()) {

@@ -1,7 +1,10 @@
 import { getDungeonDefinition, DUNGEON_DEFINITIONS } from "../data/dungeons";
 import { hashStringToSeed, seededRandom } from "./rng";
 import { XP_NEXT_MULTIPLIER } from "./constants";
+import { resolveEffectiveStats } from "./stats";
+import { getEquipmentModifiers } from "../data/equipment";
 import type {
+    DungeonCadenceSnapshotEntry,
     DungeonDefinition,
     DungeonReplayEvent,
     DungeonReplayState,
@@ -20,6 +23,11 @@ export const DUNGEON_SIMULATION_STEP_MS = 500;
 export const DUNGEON_AUTO_RESTART_DELAY_MS = 3000;
 export const DUNGEON_REPLAY_MAX_EVENTS = 5000;
 export const DUNGEON_REPLAY_MAX_BYTES = 2 * 1024 * 1024;
+export const DUNGEON_BASE_ATTACK_MS = DUNGEON_SIMULATION_STEP_MS;
+export const DUNGEON_ATTACK_INTERVAL_MIN_MS = 250;
+export const DUNGEON_ATTACK_INTERVAL_MAX_MS = 1400;
+export const DUNGEON_ATTACKS_PER_STEP_CAP = 3;
+export const DUNGEON_STEP_EVENT_CAP = 200;
 
 const POTION_PRIORITY: Array<"tonic" | "elixir" | "potion"> = ["tonic", "elixir", "potion"];
 const BOSS_BASE_DAMAGE_MULTIPLIER = 1.4;
@@ -116,7 +124,8 @@ const recoverRunParty = (party: DungeonRunState["party"]): DungeonRunState["part
     return party.map((member) => ({
         ...member,
         hp: member.hpMax,
-        potionCooldownMs: 0
+        potionCooldownMs: 0,
+        attackCooldownMs: 0
     }));
 };
 
@@ -177,10 +186,81 @@ const createEnemyWave = (
     return enemies;
 };
 
-const getHeroAttackDamage = (player: PlayerState) => {
-    const combatLevel = player.skills.Combat.level;
-    const strength = player.stats.base.Strength;
-    return Math.max(1, Math.round(10 + combatLevel * 1.6 + strength * 1.2));
+const clampNumber = (min: number, max: number, value: number) => {
+    if (!Number.isFinite(value)) {
+        return min;
+    }
+    return Math.min(max, Math.max(min, value));
+};
+
+export const resolveHeroAttackIntervalMs = (baseAttackMs: number, agility: number): number => {
+    const safeBase = Number.isFinite(baseAttackMs) && baseAttackMs > 0 ? baseAttackMs : DUNGEON_BASE_ATTACK_MS;
+    const safeAgility = Number.isFinite(agility) ? agility : 0;
+    const raw = Math.round(safeBase / (1 + safeAgility * 0.02));
+    return clampNumber(DUNGEON_ATTACK_INTERVAL_MIN_MS, DUNGEON_ATTACK_INTERVAL_MAX_MS, raw);
+};
+
+export const resolveHeroAttackDamage = (combatLevel: number, strength: number): number => {
+    const safeCombatLevel = Number.isFinite(combatLevel) ? combatLevel : 0;
+    const safeStrength = Number.isFinite(strength) ? strength : 0;
+    return Math.max(1, Math.round(10 + safeCombatLevel * 1.6 + safeStrength * 1.2));
+};
+
+const resolveHeroEffectiveStats = (player: PlayerState, timestamp: number) => {
+    const equipmentMods = player.equipment ? getEquipmentModifiers(player.equipment) : [];
+    return resolveEffectiveStats(player.stats, timestamp, equipmentMods).effective;
+};
+
+const buildCadenceSnapshot = (
+    party: DungeonRunState["party"],
+    players: Record<PlayerId, PlayerState>,
+    timestamp: number,
+    baseAttackMs: number
+): DungeonCadenceSnapshotEntry[] => {
+    return party.map((member) => {
+        const player = players[member.playerId];
+        const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
+        const agility = effective?.Agility ?? 0;
+        return {
+            playerId: member.playerId,
+            baseAttackMs,
+            agilityAtRunStart: agility,
+            resolvedAttackIntervalMs: resolveHeroAttackIntervalMs(baseAttackMs, agility),
+            minAttackMs: DUNGEON_ATTACK_INTERVAL_MIN_MS,
+            maxAttackMs: DUNGEON_ATTACK_INTERVAL_MAX_MS
+        };
+    });
+};
+
+const ensureRunCadenceState = (run: DungeonRunState, players: Record<PlayerId, PlayerState>, timestamp: number) => {
+    const baseAttackMs = DUNGEON_BASE_ATTACK_MS;
+    const hasSnapshot = Array.isArray(run.cadenceSnapshot) && run.cadenceSnapshot.length > 0;
+    if (!hasSnapshot) {
+        run.party = run.party.map((member) => {
+            const player = players[member.playerId];
+            const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
+            const agility = effective?.Agility ?? 0;
+            const attackIntervalMs = resolveHeroAttackIntervalMs(baseAttackMs, agility);
+            return {
+                ...member,
+                attackCooldownMs: attackIntervalMs
+            };
+        });
+        run.cadenceSnapshot = buildCadenceSnapshot(run.party, players, timestamp, baseAttackMs);
+        return;
+    }
+    run.party = run.party.map((member) => {
+        if (Number.isFinite(member.attackCooldownMs)) {
+            return member;
+        }
+        const player = players[member.playerId];
+        const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
+        const agility = effective?.Agility ?? 0;
+        return {
+            ...member,
+            attackCooldownMs: resolveHeroAttackIntervalMs(baseAttackMs, agility)
+        };
+    });
 };
 
 const healAmount = (hpMax: number) => Math.max(1, Math.round(hpMax * 0.4));
@@ -258,7 +338,7 @@ const buildReplay = (
     inventoryAtStart: ReturnType<typeof getRunStorageInventorySnapshot>
 ): DungeonReplayState => {
     let events = run.events.slice(0, DUNGEON_REPLAY_MAX_EVENTS);
-    let truncated = run.events.length > events.length;
+    let truncated = run.events.length > events.length || run.truncatedEvents > 0;
     let fallbackCriticalOnly = false;
     const bytes = encodeSize(events);
     if (bytes > DUNGEON_REPLAY_MAX_BYTES) {
@@ -315,7 +395,8 @@ const buildReplay = (
         startInventory: inventoryAtStart,
         events,
         truncated,
-        fallbackCriticalOnly
+        fallbackCriticalOnly,
+        cadenceSnapshot: run.cadenceSnapshot
     };
 };
 
@@ -452,8 +533,34 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
         1,
         Math.min(maxConcurrentSupported, Math.floor(input.policy?.maxConcurrentEnabled ?? fallback.policy.maxConcurrentEnabled))
     );
-    const runs = input.runs ?? {};
+    const rawRuns = input.runs ?? {};
+    const runs = Object.keys(rawRuns).reduce<Record<string, DungeonRunState>>((acc, runId) => {
+        const run = rawRuns[runId];
+        if (!run) {
+            return acc;
+        }
+        const party = Array.isArray(run.party)
+            ? run.party.map((member) => ({
+                ...member,
+                potionCooldownMs: Number.isFinite(member.potionCooldownMs) ? member.potionCooldownMs : 0,
+                attackCooldownMs: Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0
+            }))
+            : [];
+        acc[runId] = {
+            ...run,
+            party,
+            cadenceSnapshot: Array.isArray(run.cadenceSnapshot) ? run.cadenceSnapshot : [],
+            truncatedEvents: Number.isFinite(run.truncatedEvents) ? run.truncatedEvents : 0
+        };
+        return acc;
+    }, {});
     const activeRunId = input.activeRunId && runs[input.activeRunId] ? input.activeRunId : null;
+    const latestReplay = input.latestReplay
+        ? {
+            ...input.latestReplay,
+            cadenceSnapshot: Array.isArray(input.latestReplay.cadenceSnapshot) ? input.latestReplay.cadenceSnapshot : []
+        }
+        : null;
 
     return {
         onboardingRequired: Boolean(input.onboardingRequired),
@@ -464,7 +571,7 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
         },
         runs,
         activeRunId,
-        latestReplay: input.latestReplay ?? null,
+        latestReplay,
         policy: {
             maxConcurrentSupported,
             maxConcurrentEnabled
@@ -543,15 +650,21 @@ export const startDungeonRun = (
 
     const runId = `run-${timestamp}`;
     const runSeed = hashStringToSeed(`${runId}-${dungeonId}`);
+    const baseAttackMs = DUNGEON_BASE_ATTACK_MS;
     const party = uniquePartyIds.map((playerId) => {
         const player = state.players[playerId];
+        const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
+        const agility = effective?.Agility ?? 0;
+        const attackIntervalMs = resolveHeroAttackIntervalMs(baseAttackMs, agility);
         return {
             playerId,
             hp: Math.max(1, Math.round(player.hpMax)),
             hpMax: Math.max(1, Math.round(player.hpMax)),
-            potionCooldownMs: 0
+            potionCooldownMs: 0,
+            attackCooldownMs: attackIntervalMs
         };
     });
+    const cadenceSnapshot = buildCadenceSnapshot(party, state.players, timestamp, baseAttackMs);
 
     const run: DungeonRunState = {
         id: runId,
@@ -572,7 +685,9 @@ export const startDungeonRun = (
         runIndex: 1,
         startInventory: getRunStorageInventorySnapshot(state.inventory),
         seed: runSeed,
-        events: []
+        events: [],
+        cadenceSnapshot,
+        truncatedEvents: 0
     };
 
     const dungeon = {
@@ -697,11 +812,21 @@ export const applyDungeonTick = (
             run.stepCarryMs = 0;
             run.events = [];
             run.runIndex += 1;
-            run.party = run.party.map((member) => ({
-                ...member,
-                hp: member.hpMax,
-                potionCooldownMs: 0
-            }));
+            const baseAttackMs = DUNGEON_BASE_ATTACK_MS;
+            run.party = run.party.map((member) => {
+                const player = players[member.playerId];
+                const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
+                const agility = effective?.Agility ?? 0;
+                const attackIntervalMs = resolveHeroAttackIntervalMs(baseAttackMs, agility);
+                return {
+                    ...member,
+                    hp: member.hpMax,
+                    potionCooldownMs: 0,
+                    attackCooldownMs: attackIntervalMs
+                };
+            });
+            run.cadenceSnapshot = buildCadenceSnapshot(run.party, players, timestamp, baseAttackMs);
+            run.truncatedEvents = 0;
             run.startInventory = getRunStorageInventorySnapshot(inventory);
             const initialized = initializeFloor(run, definition, inventory, itemDeltas);
             inventory = initialized.inventory;
@@ -713,6 +838,8 @@ export const applyDungeonTick = (
         }
     }
 
+    ensureRunCadenceState(run, players, timestamp);
+
     run.stepCarryMs += Math.max(0, deltaMs);
 
     const steps = Math.floor(run.stepCarryMs / DUNGEON_SIMULATION_STEP_MS);
@@ -722,53 +849,78 @@ export const applyDungeonTick = (
         if (run.status !== "running") {
             break;
         }
+        let stepEventCount = 0;
+        const pushEventWithCap = (event: Omit<DungeonReplayEvent, "atMs">) => {
+            const isCritical = event.type === "death" || event.type === "run_end";
+            if (!isCritical && stepEventCount >= DUNGEON_STEP_EVENT_CAP) {
+                run.truncatedEvents += 1;
+                return;
+            }
+            pushEvent(run, event);
+            stepEventCount += 1;
+        };
         run.party.forEach((member) => {
             combatActiveMsByPlayer[member.playerId] = (combatActiveMsByPlayer[member.playerId] ?? 0) + DUNGEON_SIMULATION_STEP_MS;
         });
 
         run.elapsedMs += DUNGEON_SIMULATION_STEP_MS;
         run.encounterStep += 1;
-        run.party = run.party.map((member) => ({
-            ...member,
-            potionCooldownMs: Math.max(0, member.potionCooldownMs - DUNGEON_SIMULATION_STEP_MS)
-        }));
+        run.party.forEach((member) => {
+            member.potionCooldownMs = Math.max(0, member.potionCooldownMs - DUNGEON_SIMULATION_STEP_MS);
+            const currentCooldown = Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0;
+            member.attackCooldownMs = currentCooldown - DUNGEON_SIMULATION_STEP_MS;
+        });
 
         let targetEnemy = resolveTargetEnemy(run.enemies, run.targetEnemyId);
         if (!targetEnemy) {
             continue;
         }
 
-        // Heroes attack first.
+        // Heroes attack first (cooldown-based cadence).
         resolveAliveHeroIds(run).forEach((playerId) => {
             const player = players[playerId];
             const enemy = targetEnemy;
-            if (!player || !enemy || enemy.hp <= 0) {
+            const member = run.party.find((entry) => entry.playerId === playerId);
+            if (!player || !enemy || enemy.hp <= 0 || !member) {
                 return;
             }
-            const baseDamage = getHeroAttackDamage(player);
-            const reducedDamage = enemy.isBoss && enemy.mechanic === "shield" && run.encounterStep <= 3
-                ? Math.max(1, Math.round(baseDamage * 0.6))
-                : baseDamage;
-            enemy.hp = Math.max(0, enemy.hp - reducedDamage);
-            pushEvent(run, {
-                type: "attack",
-                sourceId: playerId,
-                targetId: enemy.id,
-                amount: reducedDamage,
-                label: player.name
-            });
-            pushEvent(run, {
-                type: "damage",
-                sourceId: playerId,
-                targetId: enemy.id,
-                amount: reducedDamage
-            });
-            if (enemy.hp <= 0) {
-                pushEvent(run, {
-                    type: "death",
-                    sourceId: enemy.id,
-                    label: enemy.name
+            const effective = resolveHeroEffectiveStats(player, timestamp);
+            const attackIntervalMs = resolveHeroAttackIntervalMs(DUNGEON_BASE_ATTACK_MS, effective.Agility ?? 0);
+            let attacks = 0;
+            while (member.attackCooldownMs <= 0 && attacks < DUNGEON_ATTACKS_PER_STEP_CAP) {
+                if (enemy.hp <= 0) {
+                    break;
+                }
+                const baseDamage = resolveHeroAttackDamage(player.skills.Combat.level, effective.Strength ?? 0);
+                const reducedDamage = enemy.isBoss && enemy.mechanic === "shield" && run.encounterStep <= 3
+                    ? Math.max(1, Math.round(baseDamage * 0.6))
+                    : baseDamage;
+                enemy.hp = Math.max(0, enemy.hp - reducedDamage);
+                pushEventWithCap({
+                    type: "attack",
+                    sourceId: playerId,
+                    targetId: enemy.id,
+                    amount: reducedDamage,
+                    label: player.name
                 });
+                pushEventWithCap({
+                    type: "damage",
+                    sourceId: playerId,
+                    targetId: enemy.id,
+                    amount: reducedDamage
+                });
+                if (enemy.hp <= 0) {
+                    pushEventWithCap({
+                        type: "death",
+                        sourceId: enemy.id,
+                        label: enemy.name
+                    });
+                }
+                member.attackCooldownMs += attackIntervalMs;
+                attacks += 1;
+            }
+            if (attacks >= DUNGEON_ATTACKS_PER_STEP_CAP && member.attackCooldownMs <= 0) {
+                member.attackCooldownMs = 0;
             }
         });
 
@@ -822,21 +974,21 @@ export const applyDungeonTick = (
                     enemyDamage = Math.round(enemyDamage * BOSS_ENRAGE_DAMAGE_MULTIPLIER);
                 }
                 hero.hp = Math.max(0, hero.hp - enemyDamage);
-                pushEvent(run, {
+                pushEventWithCap({
                     type: "attack",
                     sourceId: activeEnemy.id,
                     targetId: targetHeroId,
                     amount: enemyDamage,
                     label: activeEnemy.name
                 });
-                pushEvent(run, {
+                pushEventWithCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
                     targetId: targetHeroId,
                     amount: enemyDamage
                 });
                 if (hero.hp <= 0) {
-                    pushEvent(run, {
+                    pushEventWithCap({
                         type: "death",
                         sourceId: targetHeroId,
                         label: state.players[targetHeroId]?.name ?? targetHeroId
@@ -852,7 +1004,7 @@ export const applyDungeonTick = (
                 }
                 const poisonDamage = Math.max(1, Math.round(activeEnemy.damage * BOSS_POISON_DAMAGE_RATIO));
                 member.hp = Math.max(0, member.hp - poisonDamage);
-                pushEvent(run, {
+                pushEventWithCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
                     targetId: member.playerId,

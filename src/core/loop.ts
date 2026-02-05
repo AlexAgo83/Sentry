@@ -384,11 +384,6 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         }
     });
 
-    const lastTickSummary: TickSummaryState = {
-        totalItemDeltas,
-        playerItemDeltas
-    };
-
     const nextCraftCounts = { ...state.quests.craftCounts };
     Object.entries(totalItemDeltas).forEach(([itemId, amount]) => {
         if (!QUEST_CRAFT_ITEM_IDS.has(itemId) || amount <= 0) {
@@ -495,7 +490,12 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
             lastTick: timestamp
         },
         progression,
-        lastTickSummary,
+        lastTickSummary: {
+            totalItemDeltas,
+            playerItemDeltas,
+            dungeonItemDeltas: dungeonResult.itemDeltas,
+            dungeonCombatXpByPlayer: dungeonResult.combatXpByPlayer
+        },
         dungeon: dungeonResult.state.dungeon
     };
 };

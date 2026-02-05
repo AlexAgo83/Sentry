@@ -2,6 +2,7 @@ import { memo, useMemo, useState } from "react";
 import type { PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { SKILL_DEFINITIONS } from "../../data/definitions";
+import type { CombatDisplayModel } from "../selectors/combatSelectors";
 import { usePersistedPanelTab } from "../hooks/usePersistedPanelTab";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { GlobalProgressIcon, HeroProgressIcon, HeroStatsIcon } from "../ui/statsViewIcons";
@@ -15,6 +16,7 @@ type StatsDashboardPanelProps = {
     stats: PlayerStatsState;
     effectiveStats: Record<StatId, number>;
     equipmentMods: StatModifier[];
+    combatDisplay: CombatDisplayModel;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
 };
@@ -61,6 +63,26 @@ const formatStatValue = (value: number): string => {
     return Number.isInteger(value) ? String(value) : value.toFixed(1);
 };
 
+const formatCombatValue = (value: number, digits = 0): string => {
+    if (!Number.isFinite(value)) {
+        return "0";
+    }
+    if (digits > 0) {
+        return value.toFixed(digits);
+    }
+    return String(Math.round(value));
+};
+
+const formatCombatDelta = (value: number, digits = 0): string => {
+    if (!Number.isFinite(value) || value === 0) {
+        return "0";
+    }
+    const sign = value > 0 ? "+" : "-";
+    const abs = Math.abs(value);
+    const formatted = digits > 0 ? abs.toFixed(digits) : String(Math.round(abs));
+    return `${sign}${formatted}`;
+};
+
 const numberFormatter = new Intl.NumberFormat();
 
 const formatNumber = (value: number): string => {
@@ -91,6 +113,7 @@ export const StatsDashboardPanel = memo(({
     stats,
     effectiveStats,
     equipmentMods,
+    combatDisplay,
     isCollapsed,
     onToggleCollapsed
 }: StatsDashboardPanelProps) => {
@@ -221,57 +244,167 @@ export const StatsDashboardPanel = memo(({
             {!isCollapsed ? (
                 <div className="ts-panel-body">
                     {resolvedTab === "hero-stats" ? (
-                        <div className="ts-character-breakdown">
-                            <div className="ts-character-header">
-                                <span>Stat</span>
-                                <span>Base</span>
-                                <span>Perm</span>
-                                <span>Temp</span>
-                                <span>Gear</span>
-                                <span>Total</span>
+                        <div className="ts-character-stack">
+                            <div className="ts-character-breakdown">
+                                <div className="ts-character-title">Attributes</div>
+                                <div className="ts-character-header">
+                                    <span>Stat</span>
+                                    <span>Base</span>
+                                    <span>Perm</span>
+                                    <span>Temp</span>
+                                    <span>Gear</span>
+                                    <span>Total</span>
+                                </div>
+                                <div className="ts-character-grid">
+                                    {STAT_IDS.map((statId) => {
+                                        const baseValue = stats.base[statId] ?? 0;
+                                        const perm = permTotals[statId];
+                                        const temp = tempTotals[statId];
+                                        const gear = gearTotals[statId];
+                                        const totalValue = effectiveStats[statId] ?? baseValue;
+                                        return (
+                                            <div key={statId} className="ts-character-row">
+                                                <div className="ts-character-cell ts-character-cell--stat">
+                                                    <span className="ts-character-cell-label">Stat</span>
+                                                    <span className="ts-character-cell-value">{statId}</span>
+                                                </div>
+                                                <div className="ts-character-cell">
+                                                    <span className="ts-character-cell-label">Base</span>
+                                                    <span className="ts-character-cell-value">{formatStatValue(baseValue)}</span>
+                                                </div>
+                                                <div className="ts-character-cell ts-character-cell--perm">
+                                                    <span className="ts-character-cell-label">Perm</span>
+                                                    <span className="ts-character-cell-value">
+                                                        {formatModSummary(perm.flat, perm.mult)}
+                                                    </span>
+                                                </div>
+                                                <div className="ts-character-cell ts-character-cell--temp">
+                                                    <span className="ts-character-cell-label">Temp</span>
+                                                    <span className="ts-character-cell-value">
+                                                        {formatModSummary(temp.flat, temp.mult)}
+                                                    </span>
+                                                </div>
+                                                <div className="ts-character-cell ts-character-cell--gear">
+                                                    <span className="ts-character-cell-label">Gear</span>
+                                                    <span className="ts-character-cell-value">
+                                                        {formatModSummary(gear.flat, gear.mult)}
+                                                    </span>
+                                                </div>
+                                                <div className="ts-character-cell ts-character-cell--total">
+                                                    <span className="ts-character-cell-label">Total</span>
+                                                    <span className="ts-character-cell-value">{formatStatValue(totalValue)}</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                            <div className="ts-character-grid">
-                                {STAT_IDS.map((statId) => {
-                                    const baseValue = stats.base[statId] ?? 0;
-                                    const perm = permTotals[statId];
-                                    const temp = tempTotals[statId];
-                                    const gear = gearTotals[statId];
-                                    const totalValue = effectiveStats[statId] ?? baseValue;
-                                    return (
-                                        <div key={statId} className="ts-character-row">
-                                            <div className="ts-character-cell ts-character-cell--stat">
-                                                <span className="ts-character-cell-label">Stat</span>
-                                                <span className="ts-character-cell-value">{statId}</span>
-                                            </div>
-                                            <div className="ts-character-cell">
-                                                <span className="ts-character-cell-label">Base</span>
-                                                <span className="ts-character-cell-value">{formatStatValue(baseValue)}</span>
-                                            </div>
-                                            <div className="ts-character-cell ts-character-cell--perm">
-                                                <span className="ts-character-cell-label">Perm</span>
-                                                <span className="ts-character-cell-value">
-                                                    {formatModSummary(perm.flat, perm.mult)}
-                                                </span>
-                                            </div>
-                                            <div className="ts-character-cell ts-character-cell--temp">
-                                                <span className="ts-character-cell-label">Temp</span>
-                                                <span className="ts-character-cell-value">
-                                                    {formatModSummary(temp.flat, temp.mult)}
-                                                </span>
-                                            </div>
-                                            <div className="ts-character-cell ts-character-cell--gear">
-                                                <span className="ts-character-cell-label">Gear</span>
-                                                <span className="ts-character-cell-value">
-                                                    {formatModSummary(gear.flat, gear.mult)}
-                                                </span>
-                                            </div>
-                                            <div className="ts-character-cell ts-character-cell--total">
-                                                <span className="ts-character-cell-label">Total</span>
-                                                <span className="ts-character-cell-value">{formatStatValue(totalValue)}</span>
-                                            </div>
+                            <div className="ts-combat-breakdown">
+                                <div className="ts-character-title">Combat</div>
+                                <div className="ts-combat-header">
+                                    <span>Metric</span>
+                                    <span>Base</span>
+                                    <span>Modifiers</span>
+                                    <span>Total</span>
+                                </div>
+                                <div className="ts-combat-grid">
+                                    <div className="ts-combat-row">
+                                        <div className="ts-combat-cell ts-combat-cell--stat">
+                                            <span className="ts-combat-cell-label">Metric</span>
+                                            <span className="ts-combat-cell-value">Combat Lv</span>
                                         </div>
-                                    );
-                                })}
+                                        <div className="ts-combat-cell">
+                                            <span className="ts-combat-cell-label">Base</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.level.base)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--mods">
+                                            <span className="ts-combat-cell-label">Modifiers</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatDelta(combatDisplay.level.modifiers)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--total">
+                                            <span className="ts-combat-cell-label">Total</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.level.total)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-combat-row">
+                                        <div className="ts-combat-cell ts-combat-cell--stat">
+                                            <span className="ts-combat-cell-label">Metric</span>
+                                            <span className="ts-combat-cell-value">Attack cadence</span>
+                                        </div>
+                                        <div className="ts-combat-cell">
+                                            <span className="ts-combat-cell-label">Base</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.attackIntervalMs.base)}ms
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--mods">
+                                            <span className="ts-combat-cell-label">Modifiers</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatDelta(combatDisplay.attackIntervalMs.modifiers)}ms
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--total">
+                                            <span className="ts-combat-cell-label">Total</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.attackIntervalMs.total)}ms
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-combat-row">
+                                        <div className="ts-combat-cell ts-combat-cell--stat">
+                                            <span className="ts-combat-cell-label">Metric</span>
+                                            <span className="ts-combat-cell-value">Attacks/sec</span>
+                                        </div>
+                                        <div className="ts-combat-cell">
+                                            <span className="ts-combat-cell-label">Base</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.attacksPerSecond.base, 2)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--mods">
+                                            <span className="ts-combat-cell-label">Modifiers</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatDelta(combatDisplay.attacksPerSecond.modifiers, 2)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--total">
+                                            <span className="ts-combat-cell-label">Total</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.attacksPerSecond.total, 2)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-combat-row">
+                                        <div className="ts-combat-cell ts-combat-cell--stat">
+                                            <span className="ts-combat-cell-label">Metric</span>
+                                            <span className="ts-combat-cell-value">Damage</span>
+                                        </div>
+                                        <div className="ts-combat-cell">
+                                            <span className="ts-combat-cell-label">Base</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.damage.base)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--mods">
+                                            <span className="ts-combat-cell-label">Modifiers</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatDelta(combatDisplay.damage.modifiers)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-combat-cell ts-combat-cell--total">
+                                            <span className="ts-combat-cell-label">Total</span>
+                                            <span className="ts-combat-cell-value">
+                                                {formatCombatValue(combatDisplay.damage.total)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ) : (

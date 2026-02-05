@@ -16,10 +16,10 @@ const getBaseRun = (): DungeonRunState => ({
     floor: 2,
     floorCount: 10,
     party: [
-        { playerId: "1", hp: 100, hpMax: 100, potionCooldownMs: 0 },
-        { playerId: "2", hp: 100, hpMax: 100, potionCooldownMs: 0 },
-        { playerId: "3", hp: 100, hpMax: 100, potionCooldownMs: 0 },
-        { playerId: "4", hp: 100, hpMax: 100, potionCooldownMs: 0 }
+        { playerId: "1", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 },
+        { playerId: "2", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 },
+        { playerId: "3", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 },
+        { playerId: "4", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 }
     ],
     enemies: [
         { id: "mob-1", name: "Mob 1", hp: 40, hpMax: 80, damage: 10, isBoss: false, mechanic: null, spawnIndex: 0 }
@@ -34,7 +34,9 @@ const getBaseRun = (): DungeonRunState => ({
         { atMs: 0, type: "floor_start", label: "Floor 2" },
         { atMs: 0, type: "spawn", sourceId: "mob-1", label: "Mob 1" },
         { atMs: 500, type: "damage", sourceId: "1", targetId: "mob-1", amount: 40 }
-    ]
+    ],
+    cadenceSnapshot: [],
+    truncatedEvents: 0
 });
 
 const getReplay = (): DungeonReplayState => ({
@@ -55,7 +57,8 @@ const getReplay = (): DungeonReplayState => ({
         { atMs: 1_200, type: "run_end", label: "wipe" }
     ],
     truncated: false,
-    fallbackCriticalOnly: false
+    fallbackCriticalOnly: false,
+    cadenceSnapshot: []
 });
 
 describe("DungeonScreen controls", () => {

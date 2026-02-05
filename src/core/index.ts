@@ -9,6 +9,7 @@ export type {
     DungeonReplayEvent,
     DungeonReplayState,
     DungeonRunState,
+    DungeonCadenceSnapshotEntry,
     DungeonState,
     GameSave,
     GameState,

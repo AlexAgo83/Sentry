@@ -4,6 +4,7 @@ import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } 
 import { useGameStore } from "../hooks/useGameStore";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { selectActivePlayer, selectHeroVirtualScore, selectVirtualScore } from "../selectors/gameSelectors";
+import { buildCombatDisplay } from "../selectors/combatSelectors";
 import { StatsDashboardPanel } from "../components/StatsDashboardPanel";
 import { HeroSkinPanelContainer } from "./HeroSkinPanelContainer";
 
@@ -29,6 +30,9 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
     const globalVirtualScore = useGameStore(selectVirtualScore);
     const heroVirtualScore = useGameStore(selectHeroVirtualScore);
     const heroProgression = activePlayer?.progression ?? globalProgression;
+    const combatDisplay = activePlayer
+        ? buildCombatDisplay(activePlayer.skills.Combat.level, statsState, effectiveStats)
+        : buildCombatDisplay(0, statsState, effectiveStats);
 
     return (
         <>
@@ -41,6 +45,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
                 stats={statsState}
                 effectiveStats={effectiveStats}
                 equipmentMods={equipmentMods}
+                combatDisplay={combatDisplay}
                 isCollapsed={isCollapsed}
                 onToggleCollapsed={() => setCollapsed((value) => !value)}
             />

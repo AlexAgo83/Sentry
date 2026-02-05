@@ -25,10 +25,10 @@ describe("dungeon arena playback", () => {
             floor: 10,
             floorCount: 10,
             party: [
-                { playerId: "1", hp: 120, hpMax: 200, potionCooldownMs: 0 },
-                { playerId: "2", hp: 180, hpMax: 200, potionCooldownMs: 0 },
-                { playerId: "3", hp: 200, hpMax: 200, potionCooldownMs: 0 },
-                { playerId: "4", hp: 200, hpMax: 200, potionCooldownMs: 0 }
+                { playerId: "1", hp: 120, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500 },
+                { playerId: "2", hp: 180, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500 },
+                { playerId: "3", hp: 200, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500 },
+                { playerId: "4", hp: 200, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500 }
             ],
             enemies: [
                 {
@@ -55,7 +55,9 @@ describe("dungeon arena playback", () => {
                 { atMs: 700, type: "attack", sourceId: "1", targetId: "boss-1", amount: 30, label: "Hero" },
                 { atMs: 700, type: "damage", sourceId: "1", targetId: "boss-1", amount: 30 },
                 { atMs: 900, type: "damage", sourceId: "boss-1", targetId: "1", amount: 80 }
-            ]
+            ],
+            cadenceSnapshot: [],
+            truncatedEvents: 0
         };
 
         const frame = buildDungeonArenaLiveFrame(run, state.players, 1_000);
@@ -99,7 +101,8 @@ describe("dungeon arena playback", () => {
                 { atMs: 1_200, type: "run_end", label: "wipe" }
             ],
             truncated: false,
-            fallbackCriticalOnly: false
+            fallbackCriticalOnly: false,
+            cadenceSnapshot: []
         };
 
         const beforeHeal = buildDungeonArenaReplayFrame(replay, state.players, 200);

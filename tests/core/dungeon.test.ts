@@ -184,7 +184,7 @@ describe("dungeon flow", () => {
                 encounterStep: 0,
                 floor: 1,
                 floorCount: 10,
-                party: [{ playerId: "1", hp: 100, hpMax: 100, potionCooldownMs: 0 }],
+                party: [{ playerId: "1", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 }],
                 enemies: [],
                 targetEnemyId: null,
                 autoRestart: true,
@@ -192,7 +192,9 @@ describe("dungeon flow", () => {
                 runIndex: 1,
                 startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
                 seed: 1,
-                events: []
+                events: [],
+                cadenceSnapshot: [],
+                truncatedEvents: 0
             },
             "run-b": {
                 id: "run-b",
@@ -205,7 +207,7 @@ describe("dungeon flow", () => {
                 encounterStep: 0,
                 floor: 10,
                 floorCount: 10,
-                party: [{ playerId: "2", hp: 100, hpMax: 100, potionCooldownMs: 0 }],
+                party: [{ playerId: "2", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 }],
                 enemies: [],
                 targetEnemyId: null,
                 autoRestart: true,
@@ -213,7 +215,9 @@ describe("dungeon flow", () => {
                 runIndex: 1,
                 startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
                 seed: 2,
-                events: []
+                events: [],
+                cadenceSnapshot: [],
+                truncatedEvents: 0
             },
             "run-c": {
                 id: "run-c",
@@ -226,7 +230,7 @@ describe("dungeon flow", () => {
                 encounterStep: 0,
                 floor: 3,
                 floorCount: 10,
-                party: [{ playerId: "3", hp: 0, hpMax: 100, potionCooldownMs: 0 }],
+                party: [{ playerId: "3", hp: 0, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 }],
                 enemies: [],
                 targetEnemyId: null,
                 autoRestart: false,
@@ -234,7 +238,9 @@ describe("dungeon flow", () => {
                 runIndex: 1,
                 startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
                 seed: 3,
-                events: []
+                events: [],
+                cadenceSnapshot: [],
+                truncatedEvents: 0
             }
         };
         state.dungeon.activeRunId = "run-a";

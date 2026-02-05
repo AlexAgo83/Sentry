@@ -85,6 +85,21 @@ export const OfflineSummaryModal = memo(({
                     const itemLabelFull = itemEntries.length > 0
                         ? formatItemDeltaEntriesFull(itemEntries)
                         : itemLabel;
+                    const dungeonEntries = getItemDeltaEntries(ITEM_DEFINITIONS, player.dungeonGains.itemDeltas);
+                    const dungeonItemLabel = dungeonEntries.length > 0
+                        ? formatItemDeltaEntries(dungeonEntries)
+                        : "None";
+                    const dungeonItemLabelFull = dungeonEntries.length > 0
+                        ? formatItemDeltaEntriesFull(dungeonEntries)
+                        : dungeonItemLabel;
+                    const dungeonParts: string[] = [];
+                    if (player.dungeonGains.combatXp !== 0) {
+                        dungeonParts.push(`+${formatXp(player.dungeonGains.combatXp)} Combat XP`);
+                    }
+                    if (dungeonEntries.length > 0) {
+                        dungeonParts.push(dungeonItemLabel);
+                    }
+                    const dungeonLabel = dungeonParts.length > 0 ? dungeonParts.join("; ") : null;
 
                     return (
                         <div key={player.playerId} className="ts-offline-player">
@@ -93,6 +108,11 @@ export const OfflineSummaryModal = memo(({
                             <div className="ts-offline-gains">
                                 Items: <span title={itemLabelFull}>{itemLabel}</span>
                             </div>
+                            {dungeonLabel ? (
+                                <div className="ts-offline-gains">
+                                    Dungeon gains: <span title={dungeonItemLabelFull}>{dungeonLabel}</span>
+                                </div>
+                            ) : null}
                             <div className="ts-offline-gains">
                                 Skill +{formatXp(player.skillXpGained)} XP{skillLevelLabel} - Recipe +{formatXp(player.recipeXpGained)} XP{recipeLevelLabel}
                             </div>
