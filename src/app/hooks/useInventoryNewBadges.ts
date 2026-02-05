@@ -1,50 +1,79 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const STORAGE_PREFIX = "sentry:seen-items";
+const GLOBAL_STORAGE_KEY = `${STORAGE_PREFIX}:global`;
 
-const getStorageKey = (version: string) => `${STORAGE_PREFIX}:${version}`;
+const getLegacyStorageKey = (version: string) => `${STORAGE_PREFIX}:${version}`;
 
 type StoredBadgeState = {
     itemIds: string[];
     menuIds: string[];
 };
 
-const readStoredIds = (version: string): StoredBadgeState | null => {
-    if (typeof window === "undefined") {
+const parseStoredState = (raw: string | null): StoredBadgeState | null => {
+    if (!raw) {
         return null;
     }
-    try {
-        const raw = window.localStorage.getItem(getStorageKey(version));
-        if (!raw) {
-            return null;
-        }
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-            const filtered = parsed.filter((entry) => typeof entry === "string");
-            return { itemIds: filtered, menuIds: filtered };
-        }
-        if (!parsed || typeof parsed !== "object") {
-            return null;
-        }
-        const itemIds = Array.isArray(parsed.itemIds)
-            ? parsed.itemIds.filter((entry: unknown) => typeof entry === "string")
-            : [];
-        const menuIds = Array.isArray(parsed.menuIds)
-            ? parsed.menuIds.filter((entry: unknown) => typeof entry === "string")
-            : itemIds;
-        return { itemIds, menuIds };
-    } catch {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+        const filtered = parsed.filter((entry) => typeof entry === "string");
+        return { itemIds: filtered, menuIds: filtered };
+    }
+    if (!parsed || typeof parsed !== "object") {
         return null;
+    }
+    const itemIds = Array.isArray(parsed.itemIds)
+        ? parsed.itemIds.filter((entry: unknown) => typeof entry === "string")
+        : [];
+    const menuIds = Array.isArray(parsed.menuIds)
+        ? parsed.menuIds.filter((entry: unknown) => typeof entry === "string")
+        : itemIds;
+    return { itemIds, menuIds };
+};
+
+type ReadStoredIdsResult = {
+    state: StoredBadgeState | null;
+    source: "global" | "legacy" | null;
+};
+
+const readStoredIds = (version: string): ReadStoredIdsResult => {
+    if (typeof window === "undefined") {
+        return { state: null, source: null };
+    }
+    try {
+        const globalState = parseStoredState(window.localStorage.getItem(GLOBAL_STORAGE_KEY));
+        if (globalState) {
+            return { state: globalState, source: "global" };
+        }
+
+        const versionLegacyState = parseStoredState(window.localStorage.getItem(getLegacyStorageKey(version)));
+        if (versionLegacyState) {
+            return { state: versionLegacyState, source: "legacy" };
+        }
+
+        for (let index = 0; index < window.localStorage.length; index += 1) {
+            const key = window.localStorage.key(index);
+            if (!key || key === GLOBAL_STORAGE_KEY || !key.startsWith(`${STORAGE_PREFIX}:`)) {
+                continue;
+            }
+            const legacyState = parseStoredState(window.localStorage.getItem(key));
+            if (legacyState) {
+                return { state: legacyState, source: "legacy" };
+            }
+        }
+        return { state: null, source: null };
+    } catch {
+        return { state: null, source: null };
     }
 };
 
-const writeStoredIds = (version: string, itemIds: Set<string>, menuIds: Set<string>) => {
+const writeStoredIds = (itemIds: Set<string>, menuIds: Set<string>) => {
     if (typeof window === "undefined") {
         return;
     }
     try {
         window.localStorage.setItem(
-            getStorageKey(version),
+            GLOBAL_STORAGE_KEY,
             JSON.stringify({ itemIds: Array.from(itemIds), menuIds: Array.from(menuIds) })
         );
     } catch {
@@ -53,17 +82,27 @@ const writeStoredIds = (version: string, itemIds: Set<string>, menuIds: Set<stri
 };
 
 export const useInventoryNewBadges = (inventoryItems: Record<string, number>, version: string) => {
-    const storedState = readStoredIds(version);
-    const [seenItemIds, setSeenItemIds] = useState<Set<string>>(() => new Set(storedState?.itemIds ?? []));
-    const [seenMenuIds, setSeenMenuIds] = useState<Set<string>>(() => new Set(storedState?.menuIds ?? []));
-    const hasStorageRef = useRef(storedState !== null);
+    const storedStateResult = readStoredIds(version);
+    const [seenItemIds, setSeenItemIds] = useState<Set<string>>(() => new Set(storedStateResult.state?.itemIds ?? []));
+    const [seenMenuIds, setSeenMenuIds] = useState<Set<string>>(() => new Set(storedStateResult.state?.menuIds ?? []));
+    const hasStorageRef = useRef(storedStateResult.state !== null);
+    const [isBootstrapPassComplete, setBootstrapPassComplete] = useState(false);
 
     useEffect(() => {
-        const nextStored = readStoredIds(version);
-        if (nextStored) {
-            setSeenItemIds(new Set(nextStored.itemIds));
-            setSeenMenuIds(new Set(nextStored.menuIds));
+        setBootstrapPassComplete(true);
+    }, []);
+
+    useEffect(() => {
+        const nextStoredResult = readStoredIds(version);
+        if (nextStoredResult.state) {
+            const nextItemIds = new Set(nextStoredResult.state.itemIds);
+            const nextMenuIds = new Set(nextStoredResult.state.menuIds);
+            setSeenItemIds(nextItemIds);
+            setSeenMenuIds(nextMenuIds);
             hasStorageRef.current = true;
+            if (nextStoredResult.source === "legacy") {
+                writeStoredIds(nextItemIds, nextMenuIds);
+            }
             return;
         }
         setSeenItemIds(new Set());
@@ -72,7 +111,7 @@ export const useInventoryNewBadges = (inventoryItems: Record<string, number>, ve
     }, [version]);
 
     useEffect(() => {
-        if (hasStorageRef.current) {
+        if (!isBootstrapPassComplete || hasStorageRef.current) {
             return;
         }
         const baselineIds = Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0);
@@ -82,9 +121,9 @@ export const useInventoryNewBadges = (inventoryItems: Record<string, number>, ve
         const nextSet = new Set(baselineIds);
         setSeenItemIds(nextSet);
         setSeenMenuIds(nextSet);
-        writeStoredIds(version, nextSet, nextSet);
+        writeStoredIds(nextSet, nextSet);
         hasStorageRef.current = true;
-    }, [inventoryItems, version]);
+    }, [inventoryItems, isBootstrapPassComplete]);
 
     const newItemIds = useMemo(() => (
         Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0 && !seenItemIds.has(itemId))
@@ -100,9 +139,9 @@ export const useInventoryNewBadges = (inventoryItems: Record<string, number>, ve
         const nextSet = new Set(seenItemIds);
         nextSet.add(itemId);
         setSeenItemIds(nextSet);
-        writeStoredIds(version, nextSet, seenMenuIds);
+        writeStoredIds(nextSet, seenMenuIds);
         hasStorageRef.current = true;
-    }, [seenItemIds, seenMenuIds, version]);
+    }, [seenItemIds, seenMenuIds]);
 
     const markMenuSeen = useCallback(() => {
         const allIds = Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0);
@@ -121,9 +160,9 @@ export const useInventoryNewBadges = (inventoryItems: Record<string, number>, ve
             return;
         }
         setSeenMenuIds(nextSet);
-        writeStoredIds(version, seenItemIds, nextSet);
+        writeStoredIds(seenItemIds, nextSet);
         hasStorageRef.current = true;
-    }, [inventoryItems, seenItemIds, seenMenuIds, version]);
+    }, [inventoryItems, seenItemIds, seenMenuIds]);
 
     return {
         newItemIds,

@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { ModalShell } from "./ModalShell";
 import { CloudSavePanel } from "./CloudSavePanel";
 import { useCloudSave } from "../hooks/useCloudSave";
@@ -7,14 +7,42 @@ type CloudSaveModalProps = {
     onClose: () => void;
 };
 
+const CLOUD_EMAIL_STORAGE_KEY = "sentry.cloud.lastEmail";
+
+const loadStoredEmail = () => {
+    if (typeof window === "undefined") {
+        return "";
+    }
+    try {
+        return window.localStorage.getItem(CLOUD_EMAIL_STORAGE_KEY) ?? "";
+    } catch {
+        return "";
+    }
+};
+
+const saveStoredEmail = (value: string) => {
+    if (typeof window === "undefined") {
+        return;
+    }
+    try {
+        window.localStorage.setItem(CLOUD_EMAIL_STORAGE_KEY, value);
+    } catch {
+        // Ignore localStorage failures.
+    }
+};
+
 export const CloudSaveModal = memo(({ onClose }: CloudSaveModalProps) => (
     <CloudSaveModalBody onClose={onClose} />
 ));
 
 const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState(loadStoredEmail);
     const [password, setPassword] = useState("");
     const cloud = useCloudSave();
+    const handleEmailChange = useCallback((value: string) => {
+        setEmail(value);
+        saveStoredEmail(value);
+    }, []);
     const backendUnavailable = cloud.isAvailable && (!cloud.isBackendAwake || cloud.status === "warming");
     const badgeLabel = !cloud.isAvailable ? "Offline" : backendUnavailable ? "Warming" : "Online";
     const badgeTone = !cloud.isAvailable
@@ -46,7 +74,7 @@ const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
                     localHasActiveDungeonRun={cloud.localHasActiveDungeonRun}
                     cloudHasActiveDungeonRun={cloud.cloudHasActiveDungeonRun}
                     showHeader={false}
-                    onEmailChange={setEmail}
+                    onEmailChange={handleEmailChange}
                     onPasswordChange={setPassword}
                     onLogin={() => cloud.authenticate("login", email, password)}
                     onRegister={() => cloud.authenticate("register", email, password)}
