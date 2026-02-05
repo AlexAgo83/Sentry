@@ -14,7 +14,8 @@ export type CombatDisplayModel = {
     damage: CombatDisplayValue;
 };
 
-const toNumber = (value: number | undefined) => (Number.isFinite(value) ? value : 0);
+const toNumber = (value: number | undefined): number =>
+    typeof value === "number" && Number.isFinite(value) ? value : 0;
 
 export const buildCombatDisplay = (
     combatLevel: number | undefined,

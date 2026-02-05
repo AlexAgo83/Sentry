@@ -20,8 +20,7 @@ import {
     PlayerState,
     RecipeState,
     SkillState,
-    SkillId,
-    TickSummaryState
+    SkillId
 } from "./types";
 import { hashStringToSeed, seededRandom } from "./rng";
 import { applyDungeonTick, getActiveDungeonRuns } from "./dungeon";
