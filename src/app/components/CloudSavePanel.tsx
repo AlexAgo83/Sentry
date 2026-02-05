@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, type FormEvent } from "react";
 import type { CloudSaveMeta } from "../hooks/useCloudSave";
 import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
@@ -147,6 +147,11 @@ export const CloudSavePanel = memo(({
         return "Active dungeon run detected in save conflict. Prefer the newest save to avoid losing run progress.";
     })();
 
+    const handleAuthSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        onLogin();
+    };
+
     return (
         <div className="ts-system-cloud">
             {showHeader ? (
@@ -161,15 +166,26 @@ export const CloudSavePanel = memo(({
                         <p className="ts-system-cloud-auth-copy">
                             Sign in to sync this save across devices.
                         </p>
-                        <div className="ts-system-cloud-form">
+                        <form
+                            className="ts-system-cloud-form"
+                            onSubmit={handleAuthSubmit}
+                            method="post"
+                            autoComplete="on"
+                        >
                             <label className="ts-system-cloud-field">
                                 <span>Email</span>
                                 <input
                                     className="generic-field input ts-system-cloud-input"
                                     type="email"
+                                    id="cloud-auth-email"
+                                    name="email"
                                     value={email}
                                     onChange={(event) => onEmailChange(event.currentTarget.value)}
                                     placeholder="you@example.com"
+                                    autoComplete="username"
+                                    autoCapitalize="off"
+                                    autoCorrect="off"
+                                    spellCheck={false}
                                     disabled={disabled}
                                     data-testid="cloud-email"
                                 />
@@ -179,9 +195,12 @@ export const CloudSavePanel = memo(({
                                 <input
                                     className="generic-field input ts-system-cloud-input"
                                     type="password"
+                                    id="cloud-auth-password"
+                                    name="password"
                                     value={password}
                                     onChange={(event) => onPasswordChange(event.currentTarget.value)}
                                     placeholder="••••••"
+                                    autoComplete="current-password"
                                     disabled={disabled}
                                     data-testid="cloud-password"
                                 />
@@ -197,16 +216,15 @@ export const CloudSavePanel = memo(({
                                     Register
                                 </button>
                                 <button
-                                    type="button"
+                                    type="submit"
                                     className="generic-field button ts-devtools-button ts-cloud-login-button ts-focusable"
-                                    onClick={onLogin}
                                     disabled={disabled}
                                     data-testid="cloud-login"
                                 >
                                     Login
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 ) : null
             ) : (

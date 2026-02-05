@@ -77,6 +77,17 @@ describe("CloudSavePanel", () => {
         expect(screen.getByRole("button", { name: "Retry now" })).toBeTruthy();
     });
 
+    it("exposes password-manager friendly auth field attributes", () => {
+        render(<CloudSavePanel {...baseProps} isAuthenticated={false} />);
+        const email = screen.getByTestId("cloud-email");
+        const password = screen.getByTestId("cloud-password");
+
+        expect(email.getAttribute("name")).toBe("email");
+        expect(email.getAttribute("autocomplete")).toBe("username");
+        expect(password.getAttribute("name")).toBe("password");
+        expect(password.getAttribute("autocomplete")).toBe("current-password");
+    });
+
     it("shows logout when authenticated", () => {
         render(<CloudSavePanel {...baseProps} />);
         expect(screen.getByRole("button", { name: "Logout" })).toBeTruthy();
