@@ -9,6 +9,21 @@ Derived from `logics/backlog/item_067_add_combat_breakdown_panel_in_character_st
 
 This task adds a dedicated Combat block in hero stats to expose Combat level, attack cadence, and damage composition in a readable base/modifiers/total format.
 
+# Decisions (v1)
+- Render `Attack cadence` in ms and `Attacks/sec` with 2 decimals.
+- Centralize combat display math in selectors so UI only formats values.
+- Always show base/modifiers/total rows even when values are zero.
+
+# Suggestions (v1 defaults)
+- Render `Attack cadence` as milliseconds (rounded to nearest 1ms) and `Attacks/sec` as a derived value with 2 decimals.
+- Source `Combat Lv`, cadence, and damage from shared selectors that read core domain values, not UI math.
+- Show `base`, `modifiers`, and `total` in a consistent three-column row format to match the existing stats panel style.
+- For empty or unavailable values, prefer `0` with a muted style rather than hiding rows to keep layout stable.
+
+# Open questions to confirm
+- Do we want `Attack cadence` to show both ms and seconds, or ms only?
+- Should `Damage` modifiers include temporary buffs/debuffs or only persistent gear modifiers?
+
 # Plan
 - [ ] 1. Define Combat display model:
   - Centralize selectors/helpers for Combat display values (Lv, cooldown, attacks/sec, damage breakdown).

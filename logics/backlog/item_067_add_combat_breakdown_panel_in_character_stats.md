@@ -21,6 +21,20 @@ Players cannot easily understand combat power composition from the current stats
   - Large redesign of all hero stats screens.
   - Non-combat metric additions unrelated to req_020.
 
+# Decisions (v1)
+- Render `Attack cadence` in ms and `Attacks/sec` with 2 decimals.
+- Centralize combat display math in selectors so UI only formats values.
+- Always show base/modifiers/total rows even when values are zero.
+
+# Recommended defaults (v1)
+- Render `Attack cadence` in ms and `Attacks/sec` as a derived value with 2 decimals.
+- Centralize combat display math in selectors so UI only formats values.
+- Keep rows stable even when values are zero to avoid layout shifts.
+
+# Open questions
+- Should temporary buffs/debuffs be included in `modifiers` for `Damage` and `Combat Lv`?
+- Do we want `Attack cadence` to show both ms and seconds or ms only?
+
 # Acceptance criteria
 - Character stats view contains a dedicated Combat block with readable breakdown rows.
 - Combat panel values are non-empty and consistent with runtime formulas.

@@ -22,6 +22,20 @@ The cadence refactor changes core battle pacing and offline reward throughput, s
   - Broad unrelated test suite refactors.
   - One-off manual balancing without reproducible scenario matrix.
 
+# Decisions (v1)
+- Add minimal tests: cadence formula bounds, multi-proc, per-hero cap, event cap, replay determinism, recap mixed gains.
+- Use fixed seeds with identical party and gear for `low`, `mid`, `high` Agility bands.
+- Store tuning results in `logics/tuning/combat_cadence_matrix.md`.
+
+# Recommended defaults (v1)
+- Use fixed seeds and identical party/equipment across bands to isolate Agility impact.
+- Record results in a single table doc (suggested: `logics/tuning/combat_cadence_matrix.md`).
+- Capture median and 90th percentile for clear time and rewards to surface outliers.
+
+# Open questions
+- Preferred storage location for tuning results (new `logics/tuning/` folder vs task appendix)?
+- Any required seeds/scenarios beyond the standard trio?
+
 # Acceptance criteria
 - Automated tests cover cadence logic, replay determinism, and offline recap dungeon attribution.
 - Tuning matrix results are documented and used to validate economy/balance impact.

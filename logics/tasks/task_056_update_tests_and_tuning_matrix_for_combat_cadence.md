@@ -9,6 +9,21 @@ Derived from `logics/backlog/item_070_update_tests_and_tuning_matrix_for_combat_
 
 This task secures the cadence rollout with automated coverage and a reproducible tuning matrix to validate pacing and economy impact.
 
+# Decisions (v1)
+- Add minimal tests: cadence formula bounds, multi-proc, per-hero cap, event cap, replay determinism, recap mixed gains.
+- Use fixed seeds with identical party and gear for `low`, `mid`, `high` Agility bands.
+- Store tuning results in `logics/tuning/combat_cadence_matrix.md`.
+
+# Suggestions (v1 defaults)
+- Fix a deterministic seed set for `low`, `mid`, `high` Agility bands to keep results comparable across runs.
+- Capture results in a single doc (suggested: `logics/tuning/combat_cadence_matrix.md`) with a stable table format.
+- Record both median and 90th percentile for floor clear time and rewards to detect outlier inflation.
+- Use the same party composition/equipment baseline for all bands to isolate Agility effects.
+
+# Open questions to confirm
+- Do we want to store tuning results in `logics/tuning/` or under `logics/tasks/` as an appendix?
+- Any preferred seed(s) or scenario definitions for the matrix runs?
+
 # Plan
 - [ ] 1. Add unit tests for cadence core logic:
   - Agility scaling behavior and clamp bounds.

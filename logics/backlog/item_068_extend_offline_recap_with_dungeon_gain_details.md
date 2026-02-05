@@ -18,6 +18,21 @@ Offline recap currently emphasizes action-loop gains and does not clearly expose
   - New modal flows or separate recap screens.
   - Long-term historical analytics across multiple sessions.
 
+# Decisions (v1)
+- Add `dungeonGains` per player with `combatXp` and `itemDeltas` (gold + items).
+- Render a single `Dungeon gains` line only when any dungeon delta is non-zero.
+- Keep dungeon deltas folded into `totalItemDeltas`.
+- Use a compact format: `Dungeon: +X Combat XP; +Y gold; +Z items`.
+
+# Recommended defaults (v1)
+- Add a `dungeonGains` payload per player with `combatXp` and `itemDeltas`.
+- Render a single-line `Dungeon gains` row only when any dungeon delta is non-zero.
+- Keep `totalItemDeltas` consistent by folding dungeon deltas into the existing aggregate.
+
+# Open questions
+- Should item deltas be summarized (gold + item count) or list key item types?
+- Do we show dungeon gains even when action gains are zero, or only when dungeon gains exist?
+
 # Acceptance criteria
 - Offline recap shows dungeon-derived gains when dungeon progression occurred offline.
 - Mixed sessions show both action and dungeon gains in the same recap cycle.
