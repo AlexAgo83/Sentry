@@ -54,7 +54,12 @@ const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
     return (
         <ModalShell
             kicker={<span className={`ts-system-cloud-badge ${badgeTone}`}>{badgeLabel}</span>}
-            title="Cloud save"
+            title={(
+                <span className="ts-cloud-modal-title">
+                    <span>Cloud</span>
+                    <span className="ts-cloud-modal-title-suffix"> Save</span>
+                </span>
+            )}
             onClose={onClose}
         >
             <div className="ts-system-cloud-modal">

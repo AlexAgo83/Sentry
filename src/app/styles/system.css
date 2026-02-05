@@ -37,6 +37,10 @@
     color: var(--color-text-muted);
 }
 
+.ts-system-helper-success {
+    color: rgba(143, 209, 79, 0.95);
+}
+
 .ts-panel-body + .ts-system-cloud {
     margin-top: var(--m8);
 }
@@ -45,6 +49,11 @@
     margin-top: 0;
     padding-top: 0;
     border-top: none;
+}
+
+.ts-cloud-modal-title {
+    display: inline-flex;
+    align-items: baseline;
 }
 
 .ts-system-footer {

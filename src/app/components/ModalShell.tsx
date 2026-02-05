@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 let openModalCount = 0;
 
 type ModalShellProps = {
-    kicker: ReactNode;
+    kicker?: ReactNode;
     title: ReactNode;
     onClose: () => void;
     children: ReactNode;
@@ -24,6 +24,8 @@ export const ModalShell = memo(({
     onBackdropClick,
     onEscape
 }: ModalShellProps) => {
+    const hasKicker = kicker !== null && kicker !== undefined && kicker !== false && kicker !== "";
+
     useEffect(() => {
         openModalCount += 1;
         document.documentElement.classList.add("ts-any-modal-open");
@@ -55,7 +57,9 @@ export const ModalShell = memo(({
             <div className="ts-modal" onClick={(event) => event.stopPropagation()}>
                 <div className="ts-modal-header">
                     <div>
-                        <p className="ts-modal-kicker">{kicker}</p>
+                        {hasKicker ? (
+                            <p className="ts-modal-kicker">{kicker}</p>
+                        ) : null}
                         <h2 className="ts-modal-title">{title}</h2>
                     </div>
                     {showClose ? (

@@ -12,14 +12,20 @@ type UseSaveManagementOptions = {
     closeSafeMode: () => void;
 };
 
-const copyTextToClipboard = (raw: string, promptLabel: string) => {
+export type SaveCopyResult = "clipboard" | "prompt";
+
+const copyTextToClipboard = async (raw: string, promptLabel: string): Promise<SaveCopyResult> => {
     if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(raw).catch(() => {
+        try {
+            await navigator.clipboard.writeText(raw);
+            return "clipboard";
+        } catch {
             window.prompt(promptLabel, raw);
-        });
-        return;
+            return "prompt";
+        }
     }
     window.prompt(promptLabel, raw);
+    return "prompt";
 };
 
 export const useSaveManagement = ({
@@ -46,11 +52,11 @@ export const useSaveManagement = ({
         refreshLoadReport();
     }, [closeActionSelection, closeAllHeroNameModals, closeOfflineSummary, closeSafeMode, refreshLoadReport]);
 
-    const exportSave = useCallback(() => {
+    const exportSave = useCallback(async () => {
         const save = toGameSave(gameStore.getState());
         const envelope = createSaveEnvelopeV2(save);
         const raw = JSON.stringify(envelope);
-        copyTextToClipboard(raw, "Copy your save data:");
+        return copyTextToClipboard(raw, "Copy your save data:");
     }, []);
 
     const importSave = useCallback(() => {
@@ -76,7 +82,7 @@ export const useSaveManagement = ({
             window.alert("No current save found.");
             return;
         }
-        copyTextToClipboard(raw, "Copy current save (raw):");
+        void copyTextToClipboard(raw, "Copy current save (raw):");
     }, []);
 
     const copyLastGoodRawSave = useCallback(() => {
@@ -85,7 +91,7 @@ export const useSaveManagement = ({
             window.alert("No last good save found.");
             return;
         }
-        copyTextToClipboard(raw, "Copy last good save (raw):");
+        void copyTextToClipboard(raw, "Copy last good save (raw):");
     }, []);
 
     return {
