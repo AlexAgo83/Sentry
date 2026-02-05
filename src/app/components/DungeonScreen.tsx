@@ -269,6 +269,10 @@ export const DungeonScreen = memo(({
             </div>
             <div className="ts-dungeon-replay-meta-row">
                 <span className="ts-dungeon-replay-meta-pill">
+                    <span className="ts-dungeon-replay-meta-label">Floor</span>
+                    <span className="ts-dungeon-replay-meta-value">{replayFrame?.floorLabel ?? "—"}</span>
+                </span>
+                <span className="ts-dungeon-replay-meta-pill">
                     <span className="ts-dungeon-replay-meta-label">Reason</span>
                     <span className="ts-dungeon-replay-meta-value">{latestReplay.endReason ?? "unknown"}</span>
                 </span>

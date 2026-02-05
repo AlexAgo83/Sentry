@@ -16,6 +16,11 @@ type UnitNode = {
     targetRing: any;
     deathMark: any;
     label: any;
+    lastHp?: number;
+    damageAtMs?: number;
+    damageRatio?: number;
+    spawnAtMs?: number;
+    shakeSeed?: number;
 };
 
 type PixiRuntime = {
@@ -28,12 +33,19 @@ type PixiRuntime = {
     floatingPool: any[];
     floatingById: Map<string, any>;
     resizeObserver: ResizeObserver | null;
+    lastSeen: Set<string>;
 };
 
 const WORLD_WIDTH = 1_000;
 const WORLD_HEIGHT = 560;
 const MAX_FLOAT_POOL = 24;
 const PHASE_LABEL_Y = 38;
+const ENEMY_SPAWN_FADE_MS = 280;
+const DAMAGE_TINT_MS = 360;
+const DAMAGE_SHAKE_MS = 240;
+const DAMAGE_TINT_COLOR = 0xff3b3b;
+const ATTACK_LUNGE_MS = 220;
+const ATTACK_LUNGE_DISTANCE = 18;
 
 const toWorldX = (x: number) => x * WORLD_WIDTH;
 const toWorldY = (y: number) => y * WORLD_HEIGHT;
@@ -55,6 +67,30 @@ const buildStarPolygon = (points: number, outerRadius: number, innerRadius: numb
         vertices.push(Math.cos(angle) * radius, Math.sin(angle) * radius);
     }
     return vertices;
+};
+
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+const hashString = (value: string) => {
+    let hash = 0;
+    for (let i = 0; i < value.length; i += 1) {
+        hash = (hash * 31 + value.charCodeAt(i)) % 1_000_000;
+    }
+    return hash;
+};
+
+const mixColors = (base: number, overlay: number, amount: number) => {
+    const clamped = clamp(amount, 0, 1);
+    const br = (base >> 16) & 0xff;
+    const bg = (base >> 8) & 0xff;
+    const bb = base & 0xff;
+    const or = (overlay >> 16) & 0xff;
+    const og = (overlay >> 8) & 0xff;
+    const ob = overlay & 0xff;
+    const r = Math.round(br + (or - br) * clamped);
+    const g = Math.round(bg + (og - bg) * clamped);
+    const b = Math.round(bb + (ob - bb) * clamped);
+    return (r << 16) + (g << 8) + b;
 };
 
 const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
@@ -211,17 +247,33 @@ const getAutoFitScale = (viewportWidth: number, viewportHeight: number, units: D
 const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     drawArena(runtime.arena, frame);
 
+    const unitById = new Map(frame.units.map((unit) => [unit.id, unit]));
+    const attackBySource = new Map(frame.attackCues.map((cue) => [cue.sourceId, cue]));
     const seen = new Set<string>();
+    const lastSeen = runtime.lastSeen;
     frame.units.forEach((unit) => {
         const node = runtime.unitNodes.get(unit.id) ?? createUnitNode(runtime.PIXI, runtime.world);
         if (!runtime.unitNodes.has(unit.id)) {
             runtime.unitNodes.set(unit.id, node);
         }
+        const wasVisible = lastSeen.has(unit.id);
         seen.add(unit.id);
         node.container.visible = true;
-        node.container.position.set(toWorldX(unit.x), toWorldY(unit.y));
+        const baseX = toWorldX(unit.x);
+        const baseY = toWorldY(unit.y);
         node.label.text = unit.name;
         node.label.alpha = unit.alive ? 1 : 0.5;
+
+        if (!wasVisible && unit.isEnemy) {
+            node.spawnAtMs = frame.atMs;
+        }
+
+        const lastHp = Number(node.lastHp);
+        if (Number.isFinite(lastHp) && unit.hp < lastHp) {
+            node.damageAtMs = frame.atMs;
+            node.damageRatio = clamp((lastHp - unit.hp) / Math.max(1, unit.hpMax), 0, 1);
+        }
+        node.lastHp = unit.hp;
 
         if (unit.isEnemy) {
             drawEnemyBody(node, unit);
@@ -230,14 +282,83 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         }
         drawHp(node, unit.hp, unit.hpMax);
         drawTargetAndDeath(node, frame.targetEnemyId === unit.id, unit.alive);
-        node.container.alpha = unit.alive ? 1 : 0.6;
+        const baseAlpha = unit.alive ? 1 : 0.6;
+        let spawnAlpha = 1;
+        if (unit.isEnemy && Number.isFinite(node.spawnAtMs)) {
+            const spawnAge = frame.atMs - Number(node.spawnAtMs);
+            if (spawnAge >= ENEMY_SPAWN_FADE_MS) {
+                node.spawnAtMs = undefined;
+            } else {
+                spawnAlpha = clamp(spawnAge / ENEMY_SPAWN_FADE_MS, 0, 1);
+            }
+        }
+        node.container.alpha = baseAlpha * spawnAlpha;
+
+        const damageAt = Number(node.damageAtMs);
+        let damagePulse = 0;
+        let shakeProgress = 0;
+        if (Number.isFinite(damageAt)) {
+            const damageAge = frame.atMs - damageAt;
+            if (damageAge >= 0 && damageAge <= DAMAGE_TINT_MS) {
+                damagePulse = clamp(1 - damageAge / DAMAGE_TINT_MS, 0, 1);
+            }
+            if (damageAge >= 0 && damageAge <= DAMAGE_SHAKE_MS) {
+                shakeProgress = clamp(1 - damageAge / DAMAGE_SHAKE_MS, 0, 1);
+            }
+            if (damageAge > DAMAGE_TINT_MS && damageAge > DAMAGE_SHAKE_MS) {
+                node.damageAtMs = undefined;
+                node.damageRatio = undefined;
+            }
+        }
+
+        const tintStrength = damagePulse * 0.85;
+        node.body.tint = tintStrength > 0 ? mixColors(0xffffff, DAMAGE_TINT_COLOR, tintStrength) : 0xffffff;
+
+        if (!Number.isFinite(node.shakeSeed)) {
+            node.shakeSeed = hashString(unit.id);
+        }
+        const shakeSeed = Number(node.shakeSeed);
+        const damageRatio = Number(node.damageRatio) || 0;
+        const shakeAmplitude = shakeProgress * (3 + damageRatio * 6);
+        const shakeTime = (frame.atMs + shakeSeed) * 0.08;
+        const offsetX = Math.sin(shakeTime) * shakeAmplitude;
+        const offsetY = Math.cos(shakeTime * 1.1) * shakeAmplitude;
+
+        let lungeX = 0;
+        let lungeY = 0;
+        const attackCue = attackBySource.get(unit.id);
+        if (attackCue) {
+            const age = frame.atMs - attackCue.atMs;
+            if (age >= 0 && age <= ATTACK_LUNGE_MS) {
+                const target = unitById.get(attackCue.targetId);
+                if (target) {
+                    const targetX = toWorldX(target.x);
+                    const targetY = toWorldY(target.y);
+                    const dx = targetX - baseX;
+                    const dy = targetY - baseY;
+                    const length = Math.hypot(dx, dy) || 1;
+                    const phase = clamp(age / ATTACK_LUNGE_MS, 0, 1);
+                    const ease = Math.sin(Math.PI * phase);
+                    const distance = ATTACK_LUNGE_DISTANCE * (unit.isBoss ? 1.15 : 1);
+                    lungeX = (dx / length) * distance * ease;
+                    lungeY = (dy / length) * distance * ease;
+                }
+            }
+        }
+
+        node.container.position.set(baseX + offsetX + lungeX, baseY + offsetY + lungeY);
     });
 
     runtime.unitNodes.forEach((node, id) => {
         if (!seen.has(id)) {
             node.container.visible = false;
+            node.lastHp = undefined;
+            node.damageAtMs = undefined;
+            node.damageRatio = undefined;
+            node.spawnAtMs = undefined;
         }
     });
+    runtime.lastSeen = seen;
 
     if (runtime.floatingPool.length === 0) {
         for (let i = 0; i < MAX_FLOAT_POOL; i += 1) {
@@ -411,7 +532,8 @@ export const DungeonArenaRenderer = memo(({
                     unitNodes: new Map(),
                     floatingPool: [],
                     floatingById: new Map(),
-                    resizeObserver
+                    resizeObserver,
+                    lastSeen: new Set()
                 };
                 setDisabled(false);
             } catch {

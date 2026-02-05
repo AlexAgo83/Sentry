@@ -10,6 +10,7 @@ import { getHairColor, getSkinColor } from "../../ui/heroHair";
 
 export const DUNGEON_FLOAT_WINDOW_MS = 1_400;
 const FLOAT_MAX_COUNT = 20;
+const ATTACK_LUNGE_WINDOW_MS = 260;
 
 const PARTY_LAYOUT: Array<{ x: number; y: number }> = [
     { x: 0.2, y: 0.23 },
@@ -49,6 +50,12 @@ export type DungeonArenaFloatingText = {
     progress: number;
 };
 
+export type DungeonArenaAttackCue = {
+    sourceId: string;
+    targetId: string;
+    atMs: number;
+};
+
 export type DungeonArenaUnit = {
     id: string;
     name: string;
@@ -74,6 +81,7 @@ export type DungeonArenaFrame = {
     statusLabel: string | null;
     units: DungeonArenaUnit[];
     floatingTexts: DungeonArenaFloatingText[];
+    attackCues: DungeonArenaAttackCue[];
 };
 
 export type DungeonReplayJumpMarks = {
@@ -293,6 +301,7 @@ const buildFrameFromEvents = ({
     let statusLabel: string | null = overrideStatusLabel ?? null;
     let targetEnemyId: string | null = overrideTargetEnemyId ?? null;
     let bossId: string | null = null;
+    const latestAttacks = new Map<string, DungeonArenaAttackCue>();
 
     partySeeds.forEach((seed, index) => {
         states[seed.id] = {
@@ -356,6 +365,13 @@ const buildFrameFromEvents = ({
         }
 
         if (event.type === "attack") {
+            if (event.sourceId && event.targetId) {
+                latestAttacks.set(event.sourceId, {
+                    sourceId: event.sourceId,
+                    targetId: event.targetId,
+                    atMs: event.atMs
+                });
+            }
             if (event.targetId && !isPartyEntity(partyIds, event.targetId)) {
                 targetEnemyId = event.targetId;
             }
@@ -401,6 +417,9 @@ const buildFrameFromEvents = ({
     const units = toUnitPositionMap(toSortedEntities(states));
     const boss = units.find((unit) => unit.id === bossId) ?? units.find((unit) => unit.isBoss);
     const floatingTime = Number.isFinite(floatingAtMs) ? Math.max(0, floatingAtMs ?? atMs) : atMs;
+    const attackCues = [...latestAttacks.values()].filter((cue) => (
+        cue.atMs <= atMs && atMs - cue.atMs <= ATTACK_LUNGE_WINDOW_MS
+    ));
 
     return {
         atMs,
@@ -411,7 +430,8 @@ const buildFrameFromEvents = ({
         floorLabel,
         statusLabel,
         units,
-        floatingTexts: buildFloatingTexts(events, floatingTime)
+        floatingTexts: buildFloatingTexts(events, floatingTime),
+        attackCues
     };
 };
 
