@@ -9,6 +9,7 @@ import { DungeonArenaRenderer } from "./dungeon/DungeonArenaRenderer";
 import {
     buildDungeonArenaLiveFrame,
     buildDungeonArenaReplayFrame,
+    DUNGEON_FLOAT_WINDOW_MS,
     getDungeonReplayJumpMarks
 } from "./dungeon/arenaPlayback";
 
@@ -114,12 +115,14 @@ export const DungeonScreen = memo(({
         let lastTs = performance.now();
         let lastRenderTs = lastTs;
         let cursorMs = liveCursorRef.current;
+        const allowOverrun = Boolean(activeRun?.restartAt);
         const animate = (nextTs: number) => {
             const deltaMs = Math.max(0, nextTs - lastTs);
             lastTs = nextTs;
             const targetMs = liveTotalMsRef.current;
+            const overrunCap = targetMs + DUNGEON_FLOAT_WINDOW_MS * 2;
             if (cursorMs >= targetMs) {
-                cursorMs = targetMs;
+                cursorMs = allowOverrun ? Math.min(overrunCap, cursorMs + deltaMs) : targetMs;
             } else {
                 cursorMs = Math.min(targetMs, cursorMs + deltaMs);
             }
@@ -134,7 +137,7 @@ export const DungeonScreen = memo(({
         };
         rafId = window.requestAnimationFrame(animate);
         return () => window.cancelAnimationFrame(rafId);
-    }, [activeRunId, frameIntervalMs]);
+    }, [activeRunId, activeRun?.restartAt, frameIntervalMs]);
 
     useEffect(() => {
         if (!showReplay || !latestReplay || replayPaused || typeof window === "undefined") {

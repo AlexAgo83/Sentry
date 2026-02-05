@@ -8,7 +8,7 @@ import type {
 } from "../../../core/types";
 import { getHairColor, getSkinColor } from "../../ui/heroHair";
 
-const FLOAT_WINDOW_MS = 1_400;
+export const DUNGEON_FLOAT_WINDOW_MS = 1_400;
 const FLOAT_MAX_COUNT = 20;
 
 const PARTY_LAYOUT: Array<{ x: number; y: number }> = [
@@ -229,7 +229,7 @@ const buildFloatingTexts = (
     const lastFloorStart = [...events]
         .reverse()
         .find((event) => event.type === "floor_start" && event.atMs <= atMs)?.atMs ?? -Infinity;
-    const windowStart = Math.max(atMs - FLOAT_WINDOW_MS, lastFloorStart);
+    const windowStart = Math.max(atMs - DUNGEON_FLOAT_WINDOW_MS, lastFloorStart);
 
     return events
         .map((event, eventIndex) => ({ event, eventIndex }))
@@ -250,7 +250,7 @@ const buildFloatingTexts = (
                 targetId: event.targetId ?? event.sourceId ?? "",
                 amount: Math.max(1, Math.round(event.amount ?? 0)),
                 kind,
-                progress: clamp(age / FLOAT_WINDOW_MS, 0, 1)
+                progress: clamp(age / DUNGEON_FLOAT_WINDOW_MS, 0, 1)
             };
         })
         .filter((entry) => Boolean(entry.targetId));
@@ -270,6 +270,7 @@ type BuildFrameInput = {
     partySeeds: HeroSeed[];
     totalMs: number;
     atMs: number;
+    floatingAtMs?: number;
     overrideTargetEnemyId?: string | null;
     overrideStatusLabel?: string | null;
 };
@@ -279,6 +280,7 @@ const buildFrameFromEvents = ({
     partySeeds,
     totalMs,
     atMs,
+    floatingAtMs,
     overrideTargetEnemyId,
     overrideStatusLabel
 }: BuildFrameInput): DungeonArenaFrame => {
@@ -398,6 +400,7 @@ const buildFrameFromEvents = ({
 
     const units = toUnitPositionMap(toSortedEntities(states));
     const boss = units.find((unit) => unit.id === bossId) ?? units.find((unit) => unit.isBoss);
+    const floatingTime = Number.isFinite(floatingAtMs) ? Math.max(0, floatingAtMs ?? atMs) : atMs;
 
     return {
         atMs,
@@ -408,14 +411,15 @@ const buildFrameFromEvents = ({
         floorLabel,
         statusLabel,
         units,
-        floatingTexts: buildFloatingTexts(events, atMs)
+        floatingTexts: buildFloatingTexts(events, floatingTime)
     };
 };
 
 export const buildDungeonArenaLiveFrame = (
     run: DungeonRunState,
     players: Record<PlayerId, PlayerState>,
-    atMs: number
+    atMs: number,
+    floatingAtMs?: number
 ): DungeonArenaFrame => {
     const partySeeds = run.party.map((member) => {
         const player = players[member.playerId];
@@ -427,6 +431,7 @@ export const buildDungeonArenaLiveFrame = (
         partySeeds,
         totalMs: Math.max(run.elapsedMs, run.events.at(-1)?.atMs ?? 0),
         atMs: boundedAtMs,
+        floatingAtMs: floatingAtMs ?? atMs,
         overrideTargetEnemyId: run.targetEnemyId,
         overrideStatusLabel: run.status
     });
