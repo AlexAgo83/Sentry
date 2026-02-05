@@ -2,7 +2,7 @@
 > From version: 0.9.2
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Roaming still depends on the legacy `Combat` skill wiring, which creates player confusion (wrong mental model), data ambiguity, and UI inconsistency across Action/Dungeon/Stats screens.
@@ -34,3 +34,4 @@ Roaming still depends on the legacy `Combat` skill wiring, which creates player 
 # Notes
 - Source request: `logics/request/req_019_dungeon_combat_xp_and_roaming_skill_split.md`
 - Derived from `logics/request/req_019_dungeon_combat_xp_and_roaming_skill_split.md`.
+- Delivered in implementation branch with split model, action exclusions, UI mapping updates, and dedicated assets.

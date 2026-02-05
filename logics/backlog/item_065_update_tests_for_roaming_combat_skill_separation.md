@@ -2,7 +2,7 @@
 > From version: 0.9.2
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 The roaming/combat split changes core progression semantics and can silently regress without targeted test coverage across runtime, UI, persistence, and offline paths.
@@ -29,3 +29,4 @@ The roaming/combat split changes core progression semantics and can silently reg
 # Notes
 - Source request: `logics/request/req_019_dungeon_combat_xp_and_roaming_skill_split.md`
 - Derived from `logics/request/req_019_dungeon_combat_xp_and_roaming_skill_split.md`.
+- Delivered with test updates across loop, dungeon, serialization/hydration, and UI fixtures; CI validated.

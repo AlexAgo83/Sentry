@@ -2,26 +2,26 @@
 > From version: 0.9.2
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Skill ID split (`Combat` + `Roaming`) can break old save compatibility if legacy save shapes are loaded without a deterministic transition strategy.
 
 # Scope
 - In:
-  - Apply v1 strategy: clean save reset for this split (no best-effort migration path in implementation).
-  - Bump persistence version/envelope marker to invalidate incompatible pre-split saves.
-  - Ensure post-reset initialization contains both `Combat` and `Roaming` skill states.
-  - Add explicit user-facing messaging for reset impact.
+  - Apply deterministic split transition for legacy saves.
+  - Detect pre-split save shape and reset only split skills (`Combat` + `Roaming`).
+  - Preserve non-split save data (`inventory`, other skills, roster, dungeon, progression, etc.).
+  - Remap legacy `selectedActionId: Combat` to `Roaming`.
 - Out:
-  - Transitional legacy migration logic (`Combat -> Roaming`) for old saves.
+  - Full-save wipe.
   - Mixed-version cloud merge support for incompatible schemas.
 
 # Acceptance criteria
-- Loading an incompatible pre-split save follows a deterministic reset path.
-- Fresh state after reset includes valid `Combat` and `Roaming` skill structures.
+- Loading an incompatible pre-split save follows a deterministic split-skill reset path.
+- Hydrated state includes valid `Combat` and `Roaming` skill structures.
 - App does not throw runtime errors from missing legacy skill fields after reset.
-- Reset behavior and rationale are documented in release notes/changelog artifacts.
+- Transition behavior and rationale are documented in logics artifacts.
 
 # Priority
 - Impact: High (stability and rollout safety).
@@ -30,4 +30,4 @@ Skill ID split (`Combat` + `Roaming`) can break old save compatibility if legacy
 # Notes
 - Source request: `logics/request/req_019_dungeon_combat_xp_and_roaming_skill_split.md`
 - Derived from `logics/request/req_019_dungeon_combat_xp_and_roaming_skill_split.md`.
-- Locked decision alignment: clean reset is preferred and selected for v1.
+- Implemented with selective split-skill reset + action remap during hydration.

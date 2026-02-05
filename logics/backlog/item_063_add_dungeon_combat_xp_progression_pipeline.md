@@ -2,7 +2,7 @@
 > From version: 0.9.2
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Dungeon gameplay currently uses `Combat` level for scaling but does not consistently grant `Combat` XP as a first-class progression loop, reducing clarity and long-term progression payoff.
@@ -33,3 +33,4 @@ Dungeon gameplay currently uses `Combat` level for scaling but does not consiste
 # Notes
 - Source request: `logics/request/req_019_dungeon_combat_xp_and_roaming_skill_split.md`
 - Derived from `logics/request/req_019_dungeon_combat_xp_and_roaming_skill_split.md`.
+- Delivered in dungeon runtime with floor/boss milestone XP grants and coverage tests.
