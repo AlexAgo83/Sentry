@@ -314,13 +314,22 @@ export const useCloudSave = () => {
         void probeBackend();
     }, [accessToken, isAvailable, isBackendAwake, probeBackend, status]);
 
-    const loadCloud = useCallback(async () => {
+    const loadCloud = useCallback(async (): Promise<boolean> => {
         if (!cloudPayload) {
             setError("No cloud save available.");
-            return;
+            return false;
         }
-        gameRuntime.importSave(cloudPayload as any);
-    }, [cloudPayload]);
+        try {
+            gameRuntime.importSave(cloudPayload as any);
+            setError(null);
+            setStatus("ready");
+            setLastSyncAt(new Date());
+            return true;
+        } catch (err) {
+            applyRequestError(err, "Failed to load cloud save.");
+            return false;
+        }
+    }, [applyRequestError, cloudPayload]);
 
     const overwriteCloud = useCallback(async () => {
         lastRequestRef.current = overwriteCloud;
@@ -404,7 +413,7 @@ export const useCloudSave = () => {
     } satisfies CloudSaveState & {
         authenticate: (mode: "login" | "register", email: string, password: string) => Promise<void>;
         refreshCloud: () => Promise<void>;
-        loadCloud: () => Promise<void>;
+        loadCloud: () => Promise<boolean>;
         overwriteCloud: () => Promise<void>;
         logout: () => void;
         retryWarmupNow: () => void;

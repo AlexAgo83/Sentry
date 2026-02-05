@@ -25,7 +25,7 @@ export type CloudSavePanelProps = {
     onRefresh: () => void;
     onWarmupRetryNow: () => void;
     onLogout: () => void;
-    onLoadCloud: () => void;
+    onLoadCloud: () => void | Promise<unknown>;
     onOverwriteCloud: () => void;
 };
 
