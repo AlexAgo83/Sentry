@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyTick } from "../../src/core/loop";
-import { createInitialGameState } from "../../src/core/state";
+import { createInitialGameState, createPlayerState } from "../../src/core/state";
 import { gameReducer } from "../../src/core/reducer";
 import { getDayKey, buildRollingDayKeys, applyProgressionDelta, createProgressionState } from "../../src/core/progression";
 import { DEFAULT_STAT_BASE, MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../src/core/constants";
@@ -71,5 +71,27 @@ describe("progression tracking", () => {
         expect(bucket?.gold ?? 0).toBeGreaterThan(0);
         expect(bucket?.activeMs ?? 0).toBeGreaterThan(0);
         expect(bucket?.skillActiveMs.Roaming ?? 0).toBeGreaterThan(0);
+    });
+
+    it("tracks Combat active time in progression while dungeon is running", () => {
+        let state = createInitialGameState("0.9.3");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const now = Date.now();
+        const next = applyTick(state, 500, now);
+        const bucket = next.players["1"].progression.buckets.find((entry) => entry.dayKey === getDayKey(now));
+        const globalBucket = next.progression.buckets.find((entry) => entry.dayKey === getDayKey(now));
+        expect(bucket?.skillActiveMs.Combat ?? 0).toBeGreaterThan(0);
+        expect(globalBucket?.skillActiveMs.Combat ?? 0).toBeGreaterThan(0);
     });
 });

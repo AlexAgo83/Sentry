@@ -175,6 +175,11 @@
         bottom: calc(var(--m28) + env(safe-area-inset-bottom));
         transform: none;
         width: min(240px, calc(100vw - var(--m8) - var(--m8)));
+        gap: var(--m3);
+    }
+
+    .app-bottom-bar .ts-bank-menu-item {
+        margin: 0;
     }
 
     .ts-panel-header {

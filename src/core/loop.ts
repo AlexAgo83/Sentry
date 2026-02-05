@@ -334,33 +334,47 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
 
     sortedIds.forEach((id) => {
         const player = state.players[id];
-        const playerForTick = lockedDungeonPlayerIds.has(id)
+        const isLockedInDungeon = lockedDungeonPlayerIds.has(id);
+        const playerForTick = isLockedInDungeon
             ? { ...player, selectedActionId: null }
             : player;
         const result = applyActionTick(playerForTick, inventory, deltaMs, timestamp);
+        const progressionDelta = isLockedInDungeon
+            ? {
+                xpGained: 0,
+                activeMs: 0,
+                idleMs: 0,
+                skillId: null as SkillId | null
+            }
+            : {
+                xpGained: result.xpGained,
+                activeMs: result.activeMs,
+                idleMs: result.idleMs,
+                skillId: result.skillId
+            };
         const playerSkillActiveMs: Partial<Record<SkillId, number>> = {};
-        if (result.skillId && result.activeMs > 0) {
-            playerSkillActiveMs[result.skillId] = result.activeMs;
+        if (progressionDelta.skillId && progressionDelta.activeMs > 0) {
+            playerSkillActiveMs[progressionDelta.skillId] = progressionDelta.activeMs;
         }
         const playerProgression = applyProgressionDelta(
             player.progression ?? createProgressionState(timestamp),
             {
-                xp: result.xpGained,
+                xp: progressionDelta.xpGained,
                 gold: result.itemDeltas.gold ?? 0,
-                activeMs: result.activeMs,
-                idleMs: result.idleMs,
+                activeMs: progressionDelta.activeMs,
+                idleMs: progressionDelta.idleMs,
                 skillActiveMs: playerSkillActiveMs
             },
             timestamp
         );
         players[id] = { ...result.player, progression: playerProgression };
         inventory = result.inventory;
-        totalXpGained += result.xpGained;
-        totalActiveMs += result.activeMs;
-        totalIdleMs += result.idleMs;
-        if (result.skillId && result.activeMs > 0) {
-            const current = skillActiveMs[result.skillId] ?? 0;
-            skillActiveMs[result.skillId] = current + result.activeMs;
+        totalXpGained += progressionDelta.xpGained;
+        totalActiveMs += progressionDelta.activeMs;
+        totalIdleMs += progressionDelta.idleMs;
+        if (progressionDelta.skillId && progressionDelta.activeMs > 0) {
+            const current = skillActiveMs[progressionDelta.skillId] ?? 0;
+            skillActiveMs[progressionDelta.skillId] = current + progressionDelta.activeMs;
         }
         if (Object.keys(result.itemDeltas).length > 0) {
             playerItemDeltas[id] = result.itemDeltas;
@@ -408,10 +422,51 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         deltaMs,
         timestamp
     );
-    const nextPlayers = dungeonResult.state.players;
+    let nextPlayers = dungeonResult.state.players;
     inventory = dungeonResult.state.inventory;
     Object.entries(dungeonResult.itemDeltas).forEach(([itemId, amount]) => {
         addItemDelta(totalItemDeltas, itemId, amount);
+    });
+    const dungeonProgressPlayerIds = new Set([
+        ...Object.keys(dungeonResult.combatActiveMsByPlayer),
+        ...Object.keys(dungeonResult.combatXpByPlayer)
+    ]);
+    dungeonProgressPlayerIds.forEach((playerId) => {
+        const typedPlayerId = playerId as PlayerId;
+        const activeMs = dungeonResult.combatActiveMsByPlayer[typedPlayerId] ?? 0;
+        const xp = dungeonResult.combatXpByPlayer[typedPlayerId] ?? 0;
+        if ((!Number.isFinite(activeMs) || activeMs <= 0) && (!Number.isFinite(xp) || xp <= 0)) {
+            return;
+        }
+        const player = nextPlayers[typedPlayerId];
+        if (!player) {
+            return;
+        }
+        const playerSkillActiveMs: Partial<Record<SkillId, number>> = activeMs > 0 ? { Combat: activeMs } : {};
+        nextPlayers = {
+            ...nextPlayers,
+            [typedPlayerId]: {
+                ...player,
+                progression: applyProgressionDelta(
+                    player.progression ?? createProgressionState(timestamp),
+                    {
+                        xp,
+                        gold: 0,
+                        activeMs,
+                        idleMs: 0,
+                        skillActiveMs: playerSkillActiveMs
+                    },
+                    timestamp
+                )
+            }
+        };
+        if (xp > 0) {
+            totalXpGained += xp;
+        }
+        if (activeMs > 0) {
+            totalActiveMs += activeMs;
+            skillActiveMs.Combat = (skillActiveMs.Combat ?? 0) + activeMs;
+        }
     });
 
     const goldDelta = totalItemDeltas.gold ?? 0;

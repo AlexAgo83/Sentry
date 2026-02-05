@@ -474,6 +474,54 @@ describe("panel components", () => {
         expect(screen.getByText("80/100")).toBeTruthy();
     });
 
+    it("InventoryPanel renders sell actions in the item detail area", () => {
+        const { container } = render(
+            <InventoryPanel
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                entries={[]}
+                gridEntries={[]}
+                selectedItem={{
+                    id: "cloth_cap",
+                    name: "Cloth Cap",
+                    count: 3,
+                    description: "A basic cap.",
+                    iconId: "cloth_cap",
+                    usedBy: [],
+                    obtainedBy: ["Tailoring"]
+                }}
+                selectedItemId="cloth_cap"
+                selectedItemCharges={null}
+                onSelectItem={vi.fn()}
+                onClearSelection={vi.fn()}
+                sellQuantity={1}
+                onSellQuantityChange={vi.fn()}
+                onSellSelected={vi.fn()}
+                canSellSelected={true}
+                sellGoldGain={7}
+                unitValue={7}
+                sellDisabledReason={null}
+                onSellAll={vi.fn()}
+                sort="Name"
+                onSortChange={vi.fn()}
+                search=""
+                onSearchChange={vi.fn()}
+                page={1}
+                pageCount={1}
+                onPageChange={vi.fn()}
+                totalItems={0}
+                emptyState="No items available"
+                selectionHint={null}
+            />
+        );
+
+        const panelHeader = container.querySelector(".ts-panel-header");
+        expect(panelHeader?.querySelector("[data-testid='inventory-sell']")).toBeNull();
+        expect(panelHeader?.querySelector("[data-testid='inventory-sell-all']")).toBeNull();
+        expect(screen.getByTestId("inventory-sell")).toBeTruthy();
+        expect(screen.getByTestId("inventory-sell-all")).toBeTruthy();
+    });
+
     it("EquipmentPanel triggers equip and unequip actions", async () => {
         const user = userEvent.setup();
         const onEquipItem = vi.fn();

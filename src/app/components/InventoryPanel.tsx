@@ -130,7 +130,7 @@ export const InventoryPanel = memo(({
         <span className="ts-inventory-action-tooltip" title={sellDisabledReason}>
             <button
                 type="button"
-                className="ts-icon-button ts-panel-action-button ts-focusable ts-inventory-header-button ts-inventory-sell"
+                className="generic-field button ts-focusable ts-inventory-sell ts-inventory-sell-action"
                 onClick={onSellSelected}
                 disabled={!canSellSelected}
                 data-testid="inventory-sell"
@@ -141,7 +141,7 @@ export const InventoryPanel = memo(({
     ) : (
         <button
             type="button"
-            className="ts-icon-button ts-panel-action-button ts-focusable ts-inventory-header-button ts-inventory-sell"
+            className="generic-field button ts-focusable ts-inventory-sell ts-inventory-sell-action"
             onClick={onSellSelected}
             disabled={!canSellSelected}
             data-testid="inventory-sell"
@@ -160,21 +160,6 @@ export const InventoryPanel = memo(({
             <div className="ts-panel-header">
                 <h2 className="ts-panel-title">Inventory</h2>
                 <div className="ts-panel-actions ts-panel-actions-inline ts-inventory-header-actions">
-                    {selectedItem ? (
-                        <>
-                            {sellButton}
-                            {canSellAll ? (
-                                <button
-                                    type="button"
-                                    className="ts-icon-button ts-panel-action-button ts-focusable ts-inventory-header-button ts-inventory-sell"
-                                    onClick={onSellAll}
-                                    data-testid="inventory-sell-all"
-                                >
-                                    Sell all
-                                </button>
-                            ) : null}
-                        </>
-                    ) : null}
                     <button
                         type="button"
                         className="ts-collapse-button ts-focusable"
@@ -331,6 +316,19 @@ export const InventoryPanel = memo(({
                                         <span className="ts-inventory-sell-gain" aria-label={`Gain ${formattedSellGoldGainFull} gold`}>
                                             +{formattedSellGoldGain}g
                                         </span>
+                                    ) : null}
+                                </div>
+                                <div className="ts-inventory-sell-actions">
+                                    {sellButton}
+                                    {canSellAll ? (
+                                        <button
+                                            type="button"
+                                            className="generic-field button ts-focusable ts-inventory-sell ts-inventory-sell-action"
+                                            onClick={onSellAll}
+                                            data-testid="inventory-sell-all"
+                                        >
+                                            Sell all
+                                        </button>
                                     ) : null}
                                 </div>
                             </div>

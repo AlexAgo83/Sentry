@@ -210,7 +210,8 @@ const getFloorCombatXp = (tier: number, floor: number) => {
 const grantCombatXpToParty = (
     players: Record<PlayerId, PlayerState>,
     party: DungeonRunState["party"],
-    xp: number
+    xp: number,
+    combatXpByPlayer?: Record<PlayerId, number>
 ) => {
     if (!Number.isFinite(xp) || xp <= 0) {
         return players;
@@ -232,6 +233,9 @@ const grantCombatXpToParty = (
             combatSkill.xpNext,
             combatSkill.maxLevel
         );
+        if (combatXpByPlayer) {
+            combatXpByPlayer[member.playerId] = (combatXpByPlayer[member.playerId] ?? 0) + xp;
+        }
         nextPlayers[member.playerId] = {
             ...player,
             skills: {
@@ -654,15 +658,20 @@ export const applyDungeonTick = (
     state: GameState,
     deltaMs: number,
     timestamp: number
-): { state: GameState; itemDeltas: ItemDelta } => {
+): {
+    state: GameState;
+    itemDeltas: ItemDelta;
+    combatActiveMsByPlayer: Record<PlayerId, number>;
+    combatXpByPlayer: Record<PlayerId, number>;
+} => {
     const activeRun = getActiveDungeonRun(state.dungeon);
     if (!activeRun) {
-        return { state, itemDeltas: {} };
+        return { state, itemDeltas: {}, combatActiveMsByPlayer: {}, combatXpByPlayer: {} };
     }
 
     const definition = getDungeonDefinition(activeRun.dungeonId);
     if (!definition) {
-        return { state, itemDeltas: {} };
+        return { state, itemDeltas: {}, combatActiveMsByPlayer: {}, combatXpByPlayer: {} };
     }
 
     const run: DungeonRunState = {
@@ -673,6 +682,8 @@ export const applyDungeonTick = (
     };
     let inventory = cloneInventory(state.inventory);
     const itemDeltas: ItemDelta = {};
+    const combatActiveMsByPlayer: Record<PlayerId, number> = {};
+    const combatXpByPlayer: Record<PlayerId, number> = {};
     let players = state.players;
 
     if (run.restartAt && timestamp >= run.restartAt && run.autoRestart) {
@@ -711,6 +722,9 @@ export const applyDungeonTick = (
         if (run.status !== "running") {
             break;
         }
+        run.party.forEach((member) => {
+            combatActiveMsByPlayer[member.playerId] = (combatActiveMsByPlayer[member.playerId] ?? 0) + DUNGEON_SIMULATION_STEP_MS;
+        });
 
         run.elapsedMs += DUNGEON_SIMULATION_STEP_MS;
         run.encounterStep += 1;
@@ -764,7 +778,12 @@ export const applyDungeonTick = (
         if (!targetEnemy) {
             const floorCombatXp = getFloorCombatXp(definition.tier, run.floor);
             const bossBonusCombatXp = run.floor >= run.floorCount ? floorCombatXp * 2 : 0;
-            players = grantCombatXpToParty(players, run.party, floorCombatXp + bossBonusCombatXp);
+            players = grantCombatXpToParty(
+                players,
+                run.party,
+                floorCombatXp + bossBonusCombatXp,
+                combatXpByPlayer
+            );
 
             if (run.floor >= run.floorCount) {
                 const bossGold = Math.max(25, definition.tier * 75);
@@ -919,6 +938,8 @@ export const applyDungeonTick = (
             inventory,
             dungeon
         },
-        itemDeltas
+        itemDeltas,
+        combatActiveMsByPlayer,
+        combatXpByPlayer
     };
 };

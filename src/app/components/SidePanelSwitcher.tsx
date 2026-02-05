@@ -117,22 +117,24 @@ export const SidePanelSwitcher = memo(({
 
     const canShowDungeon = Boolean(onShowDungeon);
     const dungeonTooltip = dungeonLockReason ?? "Requires 4 heroes to unlock";
+    const isDungeonMode = Boolean(isDungeonActive);
     const [isInventoryMenuOpen, setInventoryMenuOpen] = useState(false);
     const [isHeroMenuOpen, setHeroMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
     const heroMenuRef = useRef<HTMLDivElement | null>(null);
     const shouldShowEquipmentInHero = useHeroMenu && heroIncludesEquipment;
+    const isPanelSelected = (panel: SidePanelSwitcherProps["active"]) => !isDungeonMode && active === panel;
     const isInventorySelected = !isRosterActive && (
-        active === "inventory"
-        || (!shouldShowEquipmentInHero && active === "equipment")
-        || active === "shop"
-        || active === "quests"
+        isPanelSelected("inventory")
+        || (!shouldShowEquipmentInHero && isPanelSelected("equipment"))
+        || isPanelSelected("shop")
+        || isPanelSelected("quests")
     );
     const isHeroSelected = !isRosterActive && (
-        active === "action"
-        || active === "stats"
-        || (shouldShowEquipmentInHero && active === "equipment")
-        || Boolean(isDungeonActive)
+        isPanelSelected("action")
+        || isPanelSelected("stats")
+        || (shouldShowEquipmentInHero && isPanelSelected("equipment"))
+        || isDungeonMode
     );
     const resolvedHeroLabel = heroLabel ?? "Hero";
     const inventoryIconKind: TabIconKind =
@@ -239,7 +241,7 @@ export const SidePanelSwitcher = memo(({
                                 <button
                                     type="button"
                                     role="menuitem"
-                                    className={`ts-bank-menu-item${active === "equipment" ? " is-active" : ""}`}
+                                    className={`ts-bank-menu-item${isPanelSelected("equipment") ? " is-active" : ""}`}
                                     onClick={() => {
                                         setHeroMenuOpen(false);
                                         onShowEquipment();
@@ -257,7 +259,7 @@ export const SidePanelSwitcher = memo(({
                             <button
                                 type="button"
                                 role="menuitem"
-                                className={`ts-bank-menu-item${active === "stats" ? " is-active" : ""}`}
+                                className={`ts-bank-menu-item${isPanelSelected("stats") ? " is-active" : ""}`}
                                 onClick={() => {
                                     setHeroMenuOpen(false);
                                     onShowStats();
@@ -271,7 +273,7 @@ export const SidePanelSwitcher = memo(({
                             <button
                                 type="button"
                                 role="menuitem"
-                                className={`ts-bank-menu-item${active === "action" ? " is-active" : ""}`}
+                                className={`ts-bank-menu-item${isPanelSelected("action") ? " is-active" : ""}`}
                                 onClick={() => {
                                     setHeroMenuOpen(false);
                                     onShowAction();
@@ -324,14 +326,14 @@ export const SidePanelSwitcher = memo(({
                         id="action"
                         label={resolvedLabels.action}
                         badge={badges?.action}
-                        isSelected={active === "action"}
+                        isSelected={isPanelSelected("action")}
                         onClick={onShowAction}
                     />
                     <TabButton
                         id="stats"
                         label={resolvedLabels.stats}
                         badge={badges?.stats}
-                        isSelected={active === "stats"}
+                        isSelected={isPanelSelected("stats")}
                         onClick={onShowStats}
                     />
                 </>
@@ -362,7 +364,7 @@ export const SidePanelSwitcher = memo(({
                             <button
                                 type="button"
                                 role="menuitem"
-                                className={`ts-bank-menu-item${active === "shop" ? " is-active" : ""}`}
+                                className={`ts-bank-menu-item${isPanelSelected("shop") ? " is-active" : ""}`}
                                 onClick={() => {
                                     setInventoryMenuOpen(false);
                                     onShowShop();
@@ -379,7 +381,7 @@ export const SidePanelSwitcher = memo(({
                             <button
                                 type="button"
                                 role="menuitem"
-                                className={`ts-bank-menu-item${active === "inventory" ? " is-active" : ""}`}
+                                className={`ts-bank-menu-item${isPanelSelected("inventory") ? " is-active" : ""}`}
                                 onClick={() => {
                                     setInventoryMenuOpen(false);
                                     onShowInventory();
@@ -396,7 +398,7 @@ export const SidePanelSwitcher = memo(({
                             <button
                                 type="button"
                                 role="menuitem"
-                                className={`ts-bank-menu-item${active === "quests" ? " is-active" : ""}`}
+                                className={`ts-bank-menu-item${isPanelSelected("quests") ? " is-active" : ""}`}
                                 onClick={() => {
                                     setInventoryMenuOpen(false);
                                     onShowQuests();
@@ -411,7 +413,7 @@ export const SidePanelSwitcher = memo(({
                                 <button
                                     type="button"
                                     role="menuitem"
-                                    className={`ts-bank-menu-item${active === "equipment" ? " is-active" : ""}`}
+                                    className={`ts-bank-menu-item${isPanelSelected("equipment") ? " is-active" : ""}`}
                                     onClick={() => {
                                         setInventoryMenuOpen(false);
                                         onShowEquipment();
@@ -437,14 +439,14 @@ export const SidePanelSwitcher = memo(({
                                 id="equipment"
                                 label={resolvedLabels.equipment}
                                 badge={badges?.equipment}
-                                isSelected={active === "equipment"}
+                                isSelected={isPanelSelected("equipment")}
                                 onClick={onShowEquipment}
                             />
                             <TabButton
                                 id="inventory"
                                 label={resolvedLabels.inventory}
                                 badge={badges?.inventory}
-                                isSelected={active === "inventory"}
+                                isSelected={isPanelSelected("inventory")}
                                 onClick={onShowInventory}
                             />
                         </>
@@ -454,14 +456,14 @@ export const SidePanelSwitcher = memo(({
                                 id="inventory"
                                 label={resolvedLabels.inventory}
                                 badge={badges?.inventory}
-                                isSelected={active === "inventory"}
+                                isSelected={isPanelSelected("inventory")}
                                 onClick={onShowInventory}
                             />
                             <TabButton
                                 id="equipment"
                                 label={resolvedLabels.equipment}
                                 badge={badges?.equipment}
-                                isSelected={active === "equipment"}
+                                isSelected={isPanelSelected("equipment")}
                                 onClick={onShowEquipment}
                             />
                         </>
@@ -470,14 +472,14 @@ export const SidePanelSwitcher = memo(({
                         id="shop"
                         label={resolvedLabels.shop}
                         badge={badges?.shop}
-                        isSelected={active === "shop"}
+                        isSelected={isPanelSelected("shop")}
                         onClick={onShowShop}
                     />
                     <TabButton
                         id="quests"
                         label={resolvedLabels.quests}
                         badge={badges?.quests}
-                        isSelected={active === "quests"}
+                        isSelected={isPanelSelected("quests")}
                         onClick={onShowQuests}
                     />
                 </>

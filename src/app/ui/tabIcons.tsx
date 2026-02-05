@@ -29,7 +29,7 @@ export const TabIcon = memo(({ kind }: TabIconProps) => {
         case "dungeon":
             return (
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href={`${UI_ICON_PATH}tab-action.svg#icon`} />
+                    <use href={`${UI_ICON_PATH}tab-dungeon.svg#icon`} />
                 </svg>
             );
         case "stats":
