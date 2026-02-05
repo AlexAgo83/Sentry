@@ -25,6 +25,7 @@ body {
     --app-topbar-offset: var(--m22);
     --app-shell-pad-x: 15px;
     --app-shell-pad-y: var(--m5);
+    --app-max-width: 1200px;
 }
 
 .app-shell {
@@ -67,6 +68,10 @@ body {
     background: rgba(9, 12, 24, 0.72);
     border-bottom: 1px solid rgba(242, 193, 78, 0.18);
     backdrop-filter: blur(10px);
+}
+
+.app-topbar-surface {
+    width: 100%;
 }
 
 .app-topbar-inner {
@@ -192,7 +197,7 @@ body {
     }
 }
 
-@media (min-width: 721px) and (max-width: 960px) {
+@media (min-width: 721px) and (max-width: 1100px) {
     .app-topbar .ts-topbar-switcher .ts-chip-text {
         display: none;
     }
@@ -209,6 +214,31 @@ body {
     grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
     gap: var(--m12);
     align-items: start;
+}
+
+@media (min-width: 1200px) {
+    .app-layout {
+        max-width: var(--app-max-width);
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .app-topbar {
+        padding: env(safe-area-inset-top) 0 0;
+        background: transparent;
+        border-bottom: none;
+        backdrop-filter: none;
+    }
+
+    .app-topbar-surface {
+        max-width: var(--app-max-width);
+        margin: 0 auto;
+        padding: var(--m4) var(--m14);
+        border-radius: 0 0 var(--border-radius-harmonized) var(--border-radius-harmonized);
+        border: 1px solid rgba(242, 193, 78, 0.18);
+        background: rgba(9, 12, 24, 0.72);
+        backdrop-filter: blur(10px);
+    }
 }
 
 .sidebar {

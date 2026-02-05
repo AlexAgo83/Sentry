@@ -2,7 +2,7 @@
 > From version: 0.9.6
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 On large desktop screens the UI stretches too wide, which reduces readability and visual cohesion. The header also feels detached from the main layout because it remains full-bleed.
@@ -22,13 +22,15 @@ On large desktop screens the UI stretches too wide, which reduces readability an
 - Use a shared layout token (e.g. `--app-max-width: 1200px`) for layout + header.
 - Apply the constraint only when viewport width exceeds 1200px.
 - Use an inner header container that owns background, border, and radius.
-- Reuse `--border-radius-harmonized` for constrained header corners.
+- Reuse `--border-radius-harmonized` for constrained header bottom corners only.
+- Move topbar icon-only breakpoint to `1100px`.
 
 # Acceptance criteria
 - On viewports > 1200px, the main content uses max-width 1200px and is centered.
-- On viewports > 1200px, the header matches the same width and shows rounded corners.
+- On viewports > 1200px, the header matches the same width and shows rounded bottom corners.
 - On viewports <= 1200px, layout and header remain full-width as they are today.
 - Mobile and safe-area behavior are unchanged.
+- Topbar labels collapse to icon-only at <= 1100px.
 
 # Priority
 - Impact: Medium (UX polish + readability on desktop).

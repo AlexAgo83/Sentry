@@ -21,7 +21,8 @@
 - Keep backgrounds full-bleed; only the content container is constrained.
 - Constrain the header via an inner container that owns background/border/radius.
 - Keep modals/full-screen overlays full-bleed (no max-width constraint).
-- Use existing `--border-radius-harmonized` for the constrained header corners.
+- Use existing `--border-radius-harmonized` for the constrained header bottom corners only.
+- Set topbar icon-only threshold to `1100px` to keep labels readable on wider desktops.
 
 # Scope detail (draft)
 - Layout:
@@ -30,12 +31,13 @@
   - Keep the background/ambient gradients full-bleed (not cropped).
 - Header:
   - Constrain the header container to the same max-width.
-  - Add rounded corners in constrained mode, matching the existing `--border-radius-harmonized` language.
+  - Add rounded corners to the bottom edge only, matching `--border-radius-harmonized`.
   - Ensure the fixed header still aligns with `app-topbar` offset logic and safe-area padding.
 - Responsive:
   - Preserve current behavior on widths <= 1200px.
   - No changes to mobile bottom bar behavior.
   - Avoid double-padding when max-width is active (use existing shell padding as the outer gutter).
+  - Move topbar icon-only breakpoint to `1100px` after adding the Dungeon button.
 
 # Technical references to update
 - `styles/global.css` (layout + topbar constraints)
@@ -44,9 +46,10 @@
 
 # Acceptance criteria
 - On viewports > 1200px, the main content uses max-width 1200px and is centered.
-- On viewports > 1200px, the header matches the same width and shows rounded corners.
+- On viewports > 1200px, the header matches the same width and shows rounded bottom corners.
 - On viewports <= 1200px, layout and header remain full-width as they are today.
 - No regressions in mobile layout or safe-area spacing.
+- Topbar labels collapse to icon-only at <= 1100px.
 
 # Risks / open points
 - Fixed header + centered layout may need an extra wrapper to avoid breaking current padding.

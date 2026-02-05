@@ -94,56 +94,58 @@ export const AppView = (props: AppViewProps) => {
     return (
         <>
             <header className="app-topbar">
-                <div className="app-topbar-inner">
-                    <div className="app-topbar-left">
-                        <div className="app-title-block">
-                            <h1 className="app-title">Sentry</h1>
+                <div className="app-topbar-surface">
+                    <div className="app-topbar-inner">
+                        <div className="app-topbar-left">
+                            <div className="app-title-block">
+                                <h1 className="app-title">Sentry</h1>
+                            </div>
                         </div>
-                    </div>
-                    <div className="app-topbar-center">
-                        {!isMobile ? (
-                            <SidePanelSwitcher
-                                active={activeSidePanel}
-                                isDungeonActive={activeScreen === "dungeon"}
-                                onShowDungeon={onShowDungeon}
-                                isDungeonLocked={isDungeonLocked}
-                                onShowAction={onShowAction}
-                                onShowStats={onShowStats}
-                                onShowInventory={onShowInventory}
-                                onShowEquipment={onShowEquipment}
-                                onShowShop={onShowShop}
-                                onShowQuests={onShowQuests}
-                                badges={{
-                                    ...(hasNewInventoryItems ? { inventory: "New" } : {}),
-                                    ...(isDungeonRunActive ? { dungeon: "Live" } : {})
-                                }}
-                                className="ts-topbar-switcher"
-                                inventoryOrder="equipment-first"
-                                labels={{
-                                    action: "Action",
-                                    dungeon: "Dungeon",
-                                    stats: "Stats",
-                                    inventory: "Inv",
-                                    equipment: "Equip",
-                                    shop: "Shop",
-                                    quests: "Quests"
-                                }}
-                            />
-                        ) : null}
-                    </div>
-                    <div className="app-topbar-right">
-                        <button
-                            type="button"
-                            className="app-version-tag app-version-button ts-focusable"
-                            onClick={onOpenSystem}
-                            aria-label="Open system telemetry"
-                            data-testid="open-system-telemetry"
-                        >
-                            <span className="app-version-icon" aria-hidden="true">
-                                <SystemIcon />
-                            </span>
-                            <span>{version}</span>
-                        </button>
+                        <div className="app-topbar-center">
+                            {!isMobile ? (
+                                <SidePanelSwitcher
+                                    active={activeSidePanel}
+                                    isDungeonActive={activeScreen === "dungeon"}
+                                    onShowDungeon={onShowDungeon}
+                                    isDungeonLocked={isDungeonLocked}
+                                    onShowAction={onShowAction}
+                                    onShowStats={onShowStats}
+                                    onShowInventory={onShowInventory}
+                                    onShowEquipment={onShowEquipment}
+                                    onShowShop={onShowShop}
+                                    onShowQuests={onShowQuests}
+                                    badges={{
+                                        ...(hasNewInventoryItems ? { inventory: "New" } : {}),
+                                        ...(isDungeonRunActive ? { dungeon: "Live" } : {})
+                                    }}
+                                    className="ts-topbar-switcher"
+                                    inventoryOrder="equipment-first"
+                                    labels={{
+                                        action: "Action",
+                                        dungeon: "Dungeon",
+                                        stats: "Stats",
+                                        inventory: "Inv",
+                                        equipment: "Equip",
+                                        shop: "Shop",
+                                        quests: "Quests"
+                                    }}
+                                />
+                            ) : null}
+                        </div>
+                        <div className="app-topbar-right">
+                            <button
+                                type="button"
+                                className="app-version-tag app-version-button ts-focusable"
+                                onClick={onOpenSystem}
+                                aria-label="Open system telemetry"
+                                data-testid="open-system-telemetry"
+                            >
+                                <span className="app-version-icon" aria-hidden="true">
+                                    <SystemIcon />
+                                </span>
+                                <span>{version}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
