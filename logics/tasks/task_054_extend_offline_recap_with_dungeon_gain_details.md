@@ -2,7 +2,7 @@
 > From version: 0.9.5
 > Understanding: 95%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_068_extend_offline_recap_with_dungeon_gain_details.md`.
@@ -26,23 +26,29 @@ This task upgrades the offline recap model/UI so dungeon gains are explicitly vi
 - Should item deltas be summarized (count + gold) or list top item types?
 
 # Plan
-- [ ] 1. Extend offline summary domain model:
+- [x] 1. Extend offline summary domain model:
   - Add explicit dungeon gain fields per player (Combat XP + dungeon item/gold deltas).
   - Keep backward-compatible defaults for previous save/runtime shapes.
-- [ ] 2. Update recap aggregation pipeline:
+- [x] 2. Update recap aggregation pipeline:
   - Merge action-loop and dungeon-loop gains in one recap build.
   - Preserve total delta coherence with global `totalItemDeltas`.
-- [ ] 3. Update recap UI rendering:
+- [x] 3. Update recap UI rendering:
   - Add separated lines/sections for `Action gains` and `Dungeon gains`.
   - Keep compact mobile-friendly display.
-- [ ] 4. Validate mixed scenarios:
+- [x] 4. Validate mixed scenarios:
   - Action-only, dungeon-only, and mixed gains in same recap.
-- [ ] 5. Add/update tests for model aggregation and UI output.
-- [ ] FINAL: Update related Logics docs
+- [x] 5. Add/update tests for model aggregation and UI output.
+- [x] FINAL: Update related Logics docs
 
 # Validation
 - npm run lint
 - npm run typecheck
 - npm run tests
 - npm run build
+
+# Report
+- Added `dungeonGains` per player (Combat XP + item deltas) to offline summary models.
+- Aggregated dungeon deltas into recap output while preserving total item delta coherence.
+- Rendered `Dungeon gains` in the offline recap modal when any dungeon delta is non-zero.
+- Added regression tests covering dungeon gains and mixed action+dungeon sessions.
 

@@ -2,7 +2,7 @@
 > From version: 0.9.5
 > Understanding: 95%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Dungeon combat still relies on a mostly fixed attack rhythm, which limits the gameplay value of Agility and makes encounters feel too static.
@@ -50,4 +50,5 @@ Dungeon combat still relies on a mostly fixed attack rhythm, which limits the ga
 # Notes
 - Source request: `logics/request/req_020_combat_system_improvements_stats_and_offline_recap.md`
 - Derived from `logics/request/req_020_combat_system_improvements_stats_and_offline_recap.md`.
+- Implemented via `logics/tasks/task_052_add_agility_based_attack_cadence_runtime.md`.
 

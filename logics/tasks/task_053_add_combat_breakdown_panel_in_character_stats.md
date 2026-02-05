@@ -2,7 +2,7 @@
 > From version: 0.9.5
 > Understanding: 94%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Context
 Derived from `logics/backlog/item_067_add_combat_breakdown_panel_in_character_stats.md`.
@@ -25,22 +25,28 @@ This task adds a dedicated Combat block in hero stats to expose Combat level, at
 - Should `Damage` modifiers include temporary buffs/debuffs or only persistent gear modifiers?
 
 # Plan
-- [ ] 1. Define Combat display model:
+- [x] 1. Define Combat display model:
   - Centralize selectors/helpers for Combat display values (Lv, cooldown, attacks/sec, damage breakdown).
   - Keep formulas sourced from core domain values (no duplicated UI math drift).
-- [ ] 2. Implement Character Stats UI panel:
+- [x] 2. Implement Character Stats UI panel:
   - Add a Combat sub-panel under the current stats panel.
   - Render rows for `Combat Lv`, `Attack cadence`, `Attacks/sec`, `Damage` with base/modifiers/total.
-- [ ] 3. Ensure responsive rendering quality:
+- [x] 3. Ensure responsive rendering quality:
   - Preserve existing mobile/desktop readability and spacing.
   - Avoid overflow for long labels/values.
-- [ ] 4. Wire data flow through container components/selectors.
-- [ ] 5. Add focused UI/component tests for Combat panel rendering and value coherence.
-- [ ] FINAL: Update related Logics docs
+- [x] 4. Wire data flow through container components/selectors.
+- [x] 5. Add focused UI/component tests for Combat panel rendering and value coherence.
+- [x] FINAL: Update related Logics docs
 
 # Validation
 - npm run lint
 - npm run typecheck
 - npm run tests
 - npm run build
+
+# Report
+- Added a shared combat display selector and formatting for base/modifier/total values.
+- Rendered the Combat breakdown in both StatsDashboardPanel and CharacterStatsPanel.
+- Updated stats panel styles for aligned combat columns and responsive layout.
+- Added UI tests to assert Combat breakdown rows and values render as expected.
 

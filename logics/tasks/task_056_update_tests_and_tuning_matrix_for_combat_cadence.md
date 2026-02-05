@@ -2,7 +2,7 @@
 > From version: 0.9.5
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 80%
 
 # Context
 Derived from `logics/backlog/item_070_update_tests_and_tuning_matrix_for_combat_cadence.md`.
@@ -25,11 +25,11 @@ This task secures the cadence rollout with automated coverage and a reproducible
 - Any preferred seed(s) or scenario definitions for the matrix runs?
 
 # Plan
-- [ ] 1. Add unit tests for cadence core logic:
+- [x] 1. Add unit tests for cadence core logic:
   - Agility scaling behavior and clamp bounds.
   - Multi-proc cooldown path.
   - Per-hero and global cap protections.
-- [ ] 2. Add integration/regression tests:
+- [x] 2. Add integration/regression tests:
   - Replay determinism with cooldown-based cadence.
   - Offline recap includes dungeon gains (including mixed action+dungeon sessions).
   - Combat panel values render coherently in character stats.
@@ -44,4 +44,10 @@ This task secures the cadence rollout with automated coverage and a reproducible
 - npm run typecheck
 - npm run test:ci
 - npm run build
+
+# Report
+- Added cadence unit tests (bounds, multi-proc, per-hero cap, event cap) plus replay determinism checks.
+- Added regression tests for combat panel rendering and offline recap dungeon gains.
+- Created a tuning matrix template in `logics/tuning/combat_cadence_matrix.md`.
+- Pending: run the tuning matrix scenarios and fill in the results/bounds.
 

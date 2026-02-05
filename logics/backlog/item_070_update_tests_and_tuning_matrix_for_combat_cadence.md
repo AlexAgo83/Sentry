@@ -2,7 +2,7 @@
 > From version: 0.9.5
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 80%
 
 # Problem
 The cadence refactor changes core battle pacing and offline reward throughput, so dedicated coverage and balancing checks are required to avoid hidden regressions.
@@ -48,4 +48,6 @@ The cadence refactor changes core battle pacing and offline reward throughput, s
 # Notes
 - Source request: `logics/request/req_020_combat_system_improvements_stats_and_offline_recap.md`
 - Derived from `logics/request/req_020_combat_system_improvements_stats_and_offline_recap.md`.
+- Implemented tests + template via `logics/tasks/task_056_update_tests_and_tuning_matrix_for_combat_cadence.md`.
+- Pending: run the tuning matrix scenarios and record results/bounds.
 

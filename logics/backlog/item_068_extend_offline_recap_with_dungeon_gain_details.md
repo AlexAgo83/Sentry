@@ -2,7 +2,7 @@
 > From version: 0.9.5
 > Understanding: 95%
 > Confidence: 91%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Offline recap currently emphasizes action-loop gains and does not clearly expose dungeon-derived gains per player, which hides combat progression performed while offline.
@@ -46,4 +46,5 @@ Offline recap currently emphasizes action-loop gains and does not clearly expose
 # Notes
 - Source request: `logics/request/req_020_combat_system_improvements_stats_and_offline_recap.md`
 - Derived from `logics/request/req_020_combat_system_improvements_stats_and_offline_recap.md`.
+- Implemented via `logics/tasks/task_054_extend_offline_recap_with_dungeon_gain_details.md`.
 

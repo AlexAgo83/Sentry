@@ -2,7 +2,7 @@
 > From version: 0.9.5
 > Understanding: 94%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 
 # Problem
 Players cannot easily understand combat power composition from the current stats screen, especially for cadence and damage contributors.
@@ -48,4 +48,5 @@ Players cannot easily understand combat power composition from the current stats
 # Notes
 - Source request: `logics/request/req_020_combat_system_improvements_stats_and_offline_recap.md`
 - Derived from `logics/request/req_020_combat_system_improvements_stats_and_offline_recap.md`.
+- Implemented via `logics/tasks/task_053_add_combat_breakdown_panel_in_character_stats.md`.
 
