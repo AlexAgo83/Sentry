@@ -59,6 +59,12 @@ export const DungeonScreen = memo(({
     const [replayPaused, setReplayPaused] = useState(true);
     const [replaySpeed, setReplaySpeed] = useState<1 | 2 | 4>(1);
     const [replayCursorMs, setReplayCursorMs] = useState(0);
+    const liveCursorRef = useRef(0);
+    const replayCursorRef = useRef(0);
+    const setReplayCursor = (next: number) => {
+        replayCursorRef.current = next;
+        setReplayCursorMs(next);
+    };
 
     const selectedDungeon = definitions.find((definition) => definition.id === selectedDungeonId) ?? definitions[0] ?? null;
     const sortedPlayers = Object.values(players).sort((a, b) => Number(a.id) - Number(b.id));
@@ -84,11 +90,18 @@ export const DungeonScreen = memo(({
         if (!activeRunId) {
             return;
         }
-        setLiveCursorMs(liveTotalMsRef.current);
+        setLiveCursorMs(() => {
+            const next = liveTotalMsRef.current;
+            liveCursorRef.current = next;
+            return next;
+        });
     }, [activeRunId]);
 
     useEffect(() => {
-        setReplayCursorMs(0);
+        setReplayCursorMs(() => {
+            replayCursorRef.current = 0;
+            return 0;
+        });
         setReplayPaused(true);
         setReplaySpeed(1);
     }, [latestReplay?.runId]);
@@ -100,17 +113,21 @@ export const DungeonScreen = memo(({
         let rafId = 0;
         let lastTs = performance.now();
         let lastRenderTs = lastTs;
+        let cursorMs = liveCursorRef.current;
         const animate = (nextTs: number) => {
             const deltaMs = Math.max(0, nextTs - lastTs);
             lastTs = nextTs;
+            const targetMs = liveTotalMsRef.current;
+            if (cursorMs >= targetMs) {
+                cursorMs = targetMs;
+            } else {
+                cursorMs = Math.min(targetMs, cursorMs + deltaMs);
+            }
             if (nextTs - lastRenderTs >= frameIntervalMs) {
                 lastRenderTs = nextTs;
-                setLiveCursorMs((previous) => {
-                    const targetMs = liveTotalMsRef.current;
-                    if (previous >= targetMs) {
-                        return targetMs;
-                    }
-                    return Math.min(targetMs, previous + deltaMs);
+                setLiveCursorMs(() => {
+                    liveCursorRef.current = cursorMs;
+                    return cursorMs;
                 });
             }
             rafId = window.requestAnimationFrame(animate);
@@ -126,16 +143,20 @@ export const DungeonScreen = memo(({
         let rafId = 0;
         let lastTs = performance.now();
         let lastRenderTs = lastTs;
+        let cursorMs = replayCursorRef.current;
         const animate = (nextTs: number) => {
             const deltaMs = Math.max(0, nextTs - lastTs);
             lastTs = nextTs;
+            if (cursorMs >= replayTotalMs) {
+                cursorMs = replayTotalMs;
+            } else {
+                cursorMs = Math.min(replayTotalMs, cursorMs + deltaMs * replaySpeed);
+            }
             if (nextTs - lastRenderTs >= frameIntervalMs) {
                 lastRenderTs = nextTs;
-                setReplayCursorMs((previous) => {
-                    if (previous >= replayTotalMs) {
-                        return replayTotalMs;
-                    }
-                    return Math.min(replayTotalMs, previous + deltaMs * replaySpeed);
+                setReplayCursorMs(() => {
+                    replayCursorRef.current = cursorMs;
+                    return cursorMs;
                 });
             }
             rafId = window.requestAnimationFrame(animate);
@@ -189,7 +210,7 @@ export const DungeonScreen = memo(({
     const isReplayScreen = !activeRun && showReplay && Boolean(latestReplay);
     const handleReplayPlayPause = () => {
         if (replayPaused && replayCursorMs >= replayTotalMs) {
-            setReplayCursorMs(0);
+            setReplayCursor(0);
         }
         setReplayPaused((value) => !value);
     };
@@ -224,7 +245,7 @@ export const DungeonScreen = memo(({
                 onChange={(event) => {
                     const next = Number(event.target.value);
                     if (Number.isFinite(next)) {
-                        setReplayCursorMs(next);
+                        setReplayCursor(next);
                     }
                 }}
             />
@@ -235,7 +256,7 @@ export const DungeonScreen = memo(({
                     disabled={replayJumpMarks.firstDeathAtMs === null}
                     onClick={() => {
                         if (replayJumpMarks.firstDeathAtMs !== null) {
-                            setReplayCursorMs(replayJumpMarks.firstDeathAtMs);
+                            setReplayCursor(replayJumpMarks.firstDeathAtMs);
                             setReplayPaused(true);
                         }
                     }}
