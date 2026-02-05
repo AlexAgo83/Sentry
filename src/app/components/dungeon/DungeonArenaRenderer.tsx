@@ -265,6 +265,8 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         }
         (freeNode as any).__floatingId = id;
         (freeNode as any).__floatingStaleFrames = 0;
+        (freeNode as any).__lastX = undefined;
+        (freeNode as any).__lastY = undefined;
         runtime.floatingById.set(id, freeNode);
         return freeNode;
     };
@@ -275,14 +277,10 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         if (!text) {
             return;
         }
-        visibleFloatingIds.add(floating.id);
         const target = frame.units.find((unit) => unit.id === floating.targetId);
         const alpha = Math.max(0.03, 1 - Math.pow(floating.progress, 1.35));
-        text.alpha = alpha;
         text.text = `${floating.kind === "heal" ? "+" : "-"}${floating.amount}`;
         text.tint = floating.kind === "heal" ? 0x5ed9aa : 0xf07d73;
-        text.visible = true;
-
         if (target) {
             const x = toWorldX(target.x);
             const y = toWorldY(target.y) - 42 - floating.progress * 28;
@@ -290,11 +288,18 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             (text as any).__lastX = x;
             (text as any).__lastY = y;
         } else {
-            const lastX = Number((text as any).__lastX ?? WORLD_WIDTH / 2);
-            const lastY = Number((text as any).__lastY ?? WORLD_HEIGHT / 2) - 0.4;
+            const lastX = Number((text as any).__lastX);
+            const lastY = Number((text as any).__lastY);
+            if (!Number.isFinite(lastX) || !Number.isFinite(lastY)) {
+                text.visible = false;
+                return;
+            }
             text.position.set(lastX, lastY);
-            (text as any).__lastY = lastY;
+            (text as any).__lastY = lastY - 0.4;
         }
+        visibleFloatingIds.add(floating.id);
+        text.alpha = alpha;
+        text.visible = true;
         (text as any).__floatingStaleFrames = 0;
     });
 

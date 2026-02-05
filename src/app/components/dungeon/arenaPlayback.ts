@@ -226,12 +226,17 @@ const buildFloatingTexts = (
     events: DungeonReplayEvent[],
     atMs: number
 ): DungeonArenaFloatingText[] => {
+    const lastFloorStart = [...events]
+        .reverse()
+        .find((event) => event.type === "floor_start" && event.atMs <= atMs)?.atMs ?? -Infinity;
+    const windowStart = Math.max(atMs - FLOAT_WINDOW_MS, lastFloorStart);
+
     return events
         .map((event, eventIndex) => ({ event, eventIndex }))
         .filter(({ event }) => (
             (event.type === "damage" || event.type === "heal")
             && event.atMs <= atMs
-            && event.atMs >= atMs - FLOAT_WINDOW_MS
+            && event.atMs >= windowStart
             && typeof event.amount === "number"
             && Number.isFinite(event.amount)
             && event.amount > 0
