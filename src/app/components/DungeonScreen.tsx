@@ -9,8 +9,7 @@ import { DungeonArenaRenderer } from "./dungeon/DungeonArenaRenderer";
 import {
     buildDungeonArenaLiveFrame,
     buildDungeonArenaReplayFrame,
-    DUNGEON_FLOAT_WINDOW_MS,
-    getDungeonReplayJumpMarks
+    DUNGEON_FLOAT_WINDOW_MS
 } from "./dungeon/arenaPlayback";
 
 type DungeonScreenProps = {
@@ -81,7 +80,53 @@ export const DungeonScreen = memo(({
     const replayTotalMs = latestReplay ? Math.max(latestReplay.elapsedMs, latestReplay.events.at(-1)?.atMs ?? 0) : 0;
     const activeRunId = activeRun?.id ?? null;
     const liveTotalMsRef = useRef(0);
-    const replayJumpMarks = useMemo(() => getDungeonReplayJumpMarks(latestReplay), [latestReplay]);
+    const replayFloorMarks = useMemo(() => {
+        if (!latestReplay || replayTotalMs <= 0) {
+            return [];
+        }
+        const events = latestReplay.events;
+        const floorStartIndices: number[] = [];
+        events.forEach((event, index) => {
+            if (event.type === "floor_start") {
+                floorStartIndices.push(index);
+            }
+        });
+        return floorStartIndices
+            .map((startIndex, index) => {
+                const nextIndex = floorStartIndices[index + 1] ?? events.length;
+                let hasBoss = false;
+                for (let i = startIndex + 1; i < nextIndex; i += 1) {
+                    if (events[i].type === "boss_start") {
+                        hasBoss = true;
+                        break;
+                    }
+                }
+                return {
+                    atMs: events[startIndex].atMs,
+                    label: hasBoss ? "BOSS" : String(index + 1)
+                };
+            })
+            .filter((mark) => Number.isFinite(mark.atMs) && mark.atMs >= 0);
+    }, [latestReplay, replayTotalMs]);
+    const replayDeathMarks = useMemo(() => {
+        if (!latestReplay || replayTotalMs <= 0) {
+            return [];
+        }
+        const partyIds = new Set(latestReplay.partyPlayerIds);
+        return latestReplay.events
+            .map((event, index) => ({ event, index }))
+            .filter(({ event }) => (
+                event.type === "death"
+                && Boolean(event.sourceId)
+                && partyIds.has(event.sourceId!)
+            ))
+            .map(({ event, index }) => ({
+                atMs: event.atMs,
+                label: event.label ?? players[event.sourceId!]?.name ?? event.sourceId ?? "Hero",
+                id: `${event.atMs}-${event.sourceId}-${index}`
+            }))
+            .filter((mark) => Number.isFinite(mark.atMs) && mark.atMs >= 0);
+    }, [latestReplay, replayTotalMs, players]);
 
     useEffect(() => {
         liveTotalMsRef.current = liveTotalMs;
@@ -238,34 +283,52 @@ export const DungeonScreen = memo(({
             <label className="ts-field-label" htmlFor="dungeon-replay-scrub">
                 Replay timeline
             </label>
-            <input
-                id="dungeon-replay-scrub"
-                type="range"
-                min={0}
-                max={Math.max(1, replayTotalMs)}
-                step={100}
-                value={Math.min(replayCursorMs, replayTotalMs)}
-                onChange={(event) => {
-                    const next = Number(event.target.value);
-                    if (Number.isFinite(next)) {
-                        setReplayCursor(next);
-                    }
-                }}
-            />
-            <div className="ts-dungeon-control-row">
-                <button
-                    type="button"
-                    className="ts-icon-button ts-panel-action-button ts-focusable ts-dungeon-replay-button"
-                    disabled={replayJumpMarks.firstDeathAtMs === null}
-                    onClick={() => {
-                        if (replayJumpMarks.firstDeathAtMs !== null) {
-                            setReplayCursor(replayJumpMarks.firstDeathAtMs);
-                            setReplayPaused(true);
+            <div className="ts-dungeon-replay-timeline">
+                <input
+                    id="dungeon-replay-scrub"
+                    className="ts-dungeon-replay-scrub"
+                    type="range"
+                    min={0}
+                    max={Math.max(1, replayTotalMs)}
+                    step={100}
+                    value={Math.min(replayCursorMs, replayTotalMs)}
+                    onChange={(event) => {
+                        const next = Number(event.target.value);
+                        if (Number.isFinite(next)) {
+                            setReplayCursor(next);
                         }
                     }}
-                >
-                    Skip to first death
-                </button>
+                />
+                {replayFloorMarks.length > 0 ? (
+                    <div className="ts-dungeon-replay-markers" aria-hidden="true">
+                        {replayFloorMarks.map((mark) => (
+                            <span
+                                key={`${mark.atMs}-${mark.label}`}
+                                className="ts-dungeon-replay-marker"
+                                style={{
+                                    left: `${Math.max(0, Math.min(100, (mark.atMs / replayTotalMs) * 100))}%`
+                                }}
+                                title={mark.label}
+                            >
+                                <span className="ts-dungeon-replay-marker-label">{mark.label}</span>
+                            </span>
+                        ))}
+                        {replayDeathMarks.map((mark) => (
+                            <span
+                                key={mark.id}
+                                className="ts-dungeon-replay-marker is-death"
+                                style={{
+                                    left: `${Math.max(0, Math.min(100, (mark.atMs / replayTotalMs) * 100))}%`
+                                }}
+                                title={`Death: ${mark.label}`}
+                            >
+                                <span className="ts-dungeon-replay-marker-label is-death">☠</span>
+                            </span>
+                        ))}
+                    </div>
+                ) : null}
+            </div>
+            <div className="ts-dungeon-control-row">
             </div>
             <div className="ts-dungeon-replay-meta-row">
                 <span className="ts-dungeon-replay-meta-pill">

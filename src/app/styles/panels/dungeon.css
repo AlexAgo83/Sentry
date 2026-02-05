@@ -303,6 +303,78 @@
     gap: var(--m2);
 }
 
+.ts-dungeon-replay-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ts-dungeon-replay-scrub {
+    width: 100%;
+}
+
+.ts-dungeon-replay-markers {
+    position: relative;
+    height: 24px;
+}
+
+.ts-dungeon-replay-marker {
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 10px;
+    border-left: 2px solid rgba(239, 77, 67, 0.75);
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(239, 77, 67, 0.3);
+}
+
+.ts-dungeon-replay-marker::after {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(239, 77, 67, 0.85);
+    box-shadow: 0 0 8px rgba(239, 77, 67, 0.4);
+}
+
+.ts-dungeon-replay-marker.is-death {
+    height: 6px;
+    border-left-color: rgba(255, 128, 120, 0.9);
+    box-shadow: 0 0 6px rgba(255, 128, 120, 0.4);
+}
+
+.ts-dungeon-replay-marker.is-death::after {
+    content: "";
+    top: -2px;
+    left: -3px;
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 128, 120, 0.95);
+    box-shadow: 0 0 6px rgba(255, 128, 120, 0.45);
+    border-radius: 999px;
+}
+
+.ts-dungeon-replay-marker-label.is-death {
+    font-size: 10px;
+    color: rgba(255, 176, 168, 0.95);
+}
+
+.ts-dungeon-replay-marker-label {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(255, 198, 186, 0.92);
+    text-shadow: 0 0 8px rgba(239, 77, 67, 0.35);
+    pointer-events: none;
+}
+
 .ts-dungeon-replay-button {
     border-color: rgba(93, 217, 193, 0.4);
     background: rgba(13, 19, 33, 0.9);

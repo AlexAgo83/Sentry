@@ -158,6 +158,40 @@ const createEnemyWave = (
     runSeed: number,
     runIndex: number
 ): DungeonRunEnemyState[] => {
+    const mobNameAdjectives = [
+        "Ashen",
+        "Bitter",
+        "Cinder",
+        "Feral",
+        "Gloom",
+        "Grim",
+        "Hollow",
+        "Ragged",
+        "Sly",
+        "Wild"
+    ];
+    const mobNameTypes = [
+        "Brute",
+        "Crawler",
+        "Gnoll",
+        "Marauder",
+        "Ravager",
+        "Reaver",
+        "Shade",
+        "Skirmisher",
+        "Stalker",
+        "Wretch"
+    ];
+    const pickNamePart = (parts: string[], seed: number) => {
+        const index = Math.floor(seededRandom(seed) * parts.length);
+        return parts[Math.max(0, Math.min(parts.length - 1, index))];
+    };
+    const buildMobName = (seed: number, offset: number) => {
+        const adjective = pickNamePart(mobNameAdjectives, seed + offset * 19);
+        const type = pickNamePart(mobNameTypes, seed + offset * 37);
+        return `${adjective} ${type}`;
+    };
+
     const isBoss = floor === definition.floorCount;
     if (isBoss) {
         const hpBase = floorMobHp(definition.tier, floor);
@@ -186,7 +220,7 @@ const createEnemyWave = (
         const dmgVariance = 0.9 + seededRandom(varianceSeed + 3) * 0.2;
         enemies.push({
             id: `mob-${runIndex}-${floor}-${i + 1}`,
-            name: `Mob ${i + 1}`,
+            name: buildMobName(runSeed + floor * 101, i),
             hp: Math.max(1, Math.round(hp * hpVariance)),
             hpMax: Math.max(1, Math.round(hp * hpVariance)),
             damage: Math.max(1, Math.round(damage * dmgVariance)),
