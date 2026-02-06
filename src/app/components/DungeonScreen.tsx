@@ -5,12 +5,15 @@ import { ChangeIcon } from "../ui/changeIcon";
 import { AutoRestartOffIcon, AutoRestartOnIcon } from "../ui/dungeonIcons";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { StartActionIcon } from "../ui/startActionIcon";
+import { SkillIcon } from "../ui/skillIcons";
+import { getSkillIconColor } from "../ui/skillColors";
 import { DungeonArenaRenderer } from "./dungeon/DungeonArenaRenderer";
 import {
     buildDungeonArenaLiveFrame,
     buildDungeonArenaReplayFrame,
     DUNGEON_FLOAT_WINDOW_MS
 } from "./dungeon/arenaPlayback";
+import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
 
 type DungeonScreenProps = {
     definitions: DungeonDefinition[];
@@ -55,6 +58,11 @@ export const DungeonScreen = memo(({
     onStopRun
 }: DungeonScreenProps) => {
     const frameIntervalMs = 1000 / 30;
+    const combatLabelBySkillId: Partial<Record<string, string>> = {
+        CombatMelee: "Melee",
+        CombatRanged: "Ranged",
+        CombatMagic: "Magic"
+    };
     const [liveCursorMs, setLiveCursorMs] = useState(0);
     const [replayPaused, setReplayPaused] = useState(true);
     const [replaySpeed, setReplaySpeed] = useState<1 | 2 | 4>(1);
@@ -474,6 +482,10 @@ export const DungeonScreen = memo(({
                         <div className="ts-dungeon-party-list">
                             {sortedPlayers.map((player) => {
                                 const selected = selectedPartyPlayerIds.includes(player.id);
+                                const combatSkillId = getCombatSkillIdForWeaponType(getEquippedWeaponType(player.equipment));
+                                const combatLabel = combatLabelBySkillId[combatSkillId] ?? "Melee";
+                                const combatLevel = player.skills[combatSkillId]?.level ?? 0;
+                                const combatColor = getSkillIconColor(combatSkillId);
                                 return (
                                     <button
                                         key={player.id}
@@ -483,9 +495,11 @@ export const DungeonScreen = memo(({
                                     >
                                         <strong>{player.name}</strong>
                                         <div className="ts-dungeon-party-combat">
-                                            <span>Melee Lv {player.skills.CombatMelee.level}</span>
-                                            <span>Ranged Lv {player.skills.CombatRanged.level}</span>
-                                            <span>Magic Lv {player.skills.CombatMagic.level}</span>
+                                            <span className="ts-dungeon-party-combat-icon" aria-hidden="true">
+                                                <SkillIcon skillId={combatSkillId} color={combatColor} />
+                                            </span>
+                                            <span className="ts-dungeon-party-combat-label">{combatLabel}</span>
+                                            <span className="ts-dungeon-party-combat-badge">{combatLevel}</span>
                                         </div>
                                     </button>
                                 );

@@ -4,8 +4,10 @@ import type {
     DungeonRunState,
     PlayerEquipmentState,
     PlayerId,
-    PlayerState
+    PlayerState,
+    WeaponType
 } from "../../../core/types";
+import { getEquippedWeaponType } from "../../../data/equipment";
 import { getHairColor, getSkinColor } from "../../ui/heroHair";
 
 export const DUNGEON_FLOAT_WINDOW_MS = 1_400;
@@ -26,6 +28,7 @@ type HeroSeed = {
     skinColor: string;
     hairColor: string;
     helmetVisible: boolean;
+    weaponType: WeaponType;
 };
 
 type ArenaEntityState = {
@@ -40,6 +43,7 @@ type ArenaEntityState = {
     skinColor?: string;
     hairColor?: string;
     helmetVisible?: boolean;
+    weaponType?: WeaponType;
 };
 
 export type DungeonArenaFloatingText = {
@@ -69,6 +73,7 @@ export type DungeonArenaUnit = {
     skinColor?: string;
     hairColor?: string;
     helmetVisible?: boolean;
+    weaponType?: WeaponType;
 };
 
 export type DungeonArenaFrame = {
@@ -113,13 +118,15 @@ const createHeroSeed = (
     const appearance = player?.appearance;
     const showHelmet = appearance?.showHelmet ?? true;
     const helmetVisible = showHelmet && hasHelmetEquipped(fallbackEquipment ?? player?.equipment);
+    const weaponType = getEquippedWeaponType(fallbackEquipment ?? player?.equipment);
     return {
         id: playerId,
         name: fallbackName ?? player?.name ?? `Hero ${playerId}`,
         hpMax: normalizeHpMax(fallbackHpMax ?? player?.hpMax),
         skinColor: appearance?.skinColor ?? getSkinColor(playerId),
         hairColor: appearance?.hairColor ?? getHairColor(playerId),
-        helmetVisible
+        helmetVisible,
+        weaponType
     };
 };
 
@@ -151,7 +158,8 @@ const toUnitPositionMap = (entities: ArenaEntityState[]) => {
             y: slot.y,
             skinColor: entity.skinColor,
             hairColor: entity.hairColor,
-            helmetVisible: entity.helmetVisible
+            helmetVisible: entity.helmetVisible,
+            weaponType: entity.weaponType
         });
     });
 
@@ -315,7 +323,8 @@ const buildFrameFromEvents = ({
             spawnOrder: index,
             skinColor: seed.skinColor,
             hairColor: seed.hairColor,
-            helmetVisible: seed.helmetVisible
+            helmetVisible: seed.helmetVisible,
+            weaponType: seed.weaponType
         };
         spawnOrder = index + 1;
     });

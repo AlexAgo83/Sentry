@@ -1,5 +1,8 @@
 import { memo, useEffect, useRef, useState } from "react";
 import type { DungeonArenaFrame } from "./arenaPlayback";
+import { getCombatSkillIdForWeaponType } from "../../../data/equipment";
+import { getSkillIconColor } from "../../ui/skillColors";
+import type { WeaponType } from "../../../core/types";
 
 type PixiModule = typeof import("pixi.js");
 
@@ -16,6 +19,7 @@ type UnitNode = {
     targetRing: any;
     deathMark: any;
     label: any;
+    combatIcon: any;
     lastHp?: number;
     damageAtMs?: number;
     damageRatio?: number;
@@ -89,6 +93,7 @@ const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     const hpFill = new PIXI.Graphics();
     const targetRing = new PIXI.Graphics();
     const deathMark = new PIXI.Graphics();
+    const combatIcon = new PIXI.Graphics();
     const label = new PIXI.Text("", {
         fill: 0xdde6f6,
         fontSize: 11,
@@ -99,13 +104,14 @@ const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
 
     container.addChild(targetRing);
     container.addChild(body);
+    container.addChild(combatIcon);
     container.addChild(hpBack);
     container.addChild(hpFill);
     container.addChild(deathMark);
     container.addChild(label);
     world.addChild(container);
 
-    return { container, body, hpBack, hpFill, targetRing, deathMark, label };
+    return { container, body, hpBack, hpFill, targetRing, deathMark, label, combatIcon };
 };
 
 const drawHeroBody = (node: UnitNode, unit: NonNullable<DungeonArenaFrame>["units"][number]) => {
@@ -227,6 +233,56 @@ const drawTargetAndDeath = (node: UnitNode, isTarget: boolean, isAlive: boolean)
     }
 };
 
+const drawCombatTypeIcon = (
+    node: UnitNode,
+    weaponType: WeaponType | undefined,
+    isAlive: boolean,
+    labelX: number,
+    labelY: number,
+    labelWidth: number
+) => {
+    node.combatIcon.clear();
+    if (!weaponType) {
+        node.combatIcon.visible = false;
+        return;
+    }
+
+    const skillId = getCombatSkillIdForWeaponType(weaponType);
+    const color = parseHexColor(getSkillIconColor(skillId), 0xf2c14e);
+    const alpha = isAlive ? 0.95 : 0.45;
+    node.combatIcon.visible = true;
+    const iconOffset = 14;
+    const labelLeft = labelX - labelWidth / 2;
+    node.combatIcon.position.set(labelLeft - iconOffset, labelY);
+
+    node.combatIcon.lineStyle(1.2, mixColors(0xffffff, color, 0.7), alpha);
+    node.combatIcon.beginFill(0x0b1220, 0.85 * alpha);
+    node.combatIcon.drawCircle(0, 0, 8);
+    node.combatIcon.endFill();
+
+    node.combatIcon.lineStyle(1.4, color, alpha);
+    if (weaponType === "Ranged") {
+        node.combatIcon.beginFill(color, 0.15 * alpha);
+        node.combatIcon.drawPolygon([-4, -3, 4, 0, -4, 3, -2, 0]);
+        node.combatIcon.endFill();
+        node.combatIcon.moveTo(-4, -3);
+        node.combatIcon.lineTo(3, 0);
+        node.combatIcon.lineTo(-4, 3);
+    } else if (weaponType === "Magic") {
+        node.combatIcon.beginFill(color, 0.2 * alpha);
+        node.combatIcon.drawPolygon([0, -4, 4, 0, 0, 4, -4, 0]);
+        node.combatIcon.endFill();
+        node.combatIcon.drawPolygon([0, -4, 4, 0, 0, 4, -4, 0]);
+    } else {
+        node.combatIcon.moveTo(-3, 4);
+        node.combatIcon.lineTo(3, -4);
+        node.combatIcon.moveTo(-1, 2);
+        node.combatIcon.lineTo(1, 4);
+        node.combatIcon.moveTo(-4, -1);
+        node.combatIcon.lineTo(-1, 2);
+    }
+};
+
 const MOBILE_VIEWPORT_MAX = 520;
 
 const drawArena = (arena: any, frame: DungeonArenaFrame, isCompact: boolean) => {
@@ -338,6 +394,18 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             drawEnemyBody(node, unit);
         } else {
             drawHeroBody(node, unit);
+        }
+        if (!unit.isEnemy) {
+            drawCombatTypeIcon(
+                node,
+                unit.weaponType ?? "Melee",
+                unit.alive,
+                node.label.x,
+                node.label.y,
+                node.label.width ?? 0
+            );
+        } else {
+            node.combatIcon.visible = false;
         }
         drawHp(node, unit.hp, unit.hpMax);
         drawTargetAndDeath(node, frame.targetEnemyId === unit.id, unit.alive);

@@ -675,16 +675,18 @@
 .ts-combat-skill-lines {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--m2);
+    gap: var(--m4);
+    margin-bottom: var(--m6);
 }
 
 .ts-combat-skill-line {
     display: flex;
     align-items: center;
     gap: var(--m2);
-    padding: var(--m2) var(--m3);
+    padding: var(--m1) var(--m5);
+    min-height: 34px;
     border-radius: 10px;
-    border: 1px solid rgba(87, 212, 255, 0.18);
+    border: 1px dashed rgba(87, 212, 255, 0.32);
     background: rgba(8, 16, 28, 0.7);
 }
 
@@ -694,6 +696,7 @@
     display: grid;
     place-items: center;
     flex-shrink: 0;
+    margin-left: var(--m2);
 }
 
 .ts-combat-skill-icon svg {
@@ -710,6 +713,7 @@
 
 .ts-combat-skill-level {
     margin-left: auto;
+    margin-right: var(--m2);
     font-size: var(--text-xs-size);
     font-family: var(--display-font);
     letter-spacing: 0.08em;
