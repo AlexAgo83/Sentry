@@ -145,19 +145,62 @@ const drawHeroBody = (node: UnitNode, unit: NonNullable<DungeonArenaFrame>["unit
     }
 };
 
+const drawMobIcon = (gfx: any, baseColor: number, accentColor: number, alpha: number) => {
+    gfx.lineStyle(2, 0x2a0d0d, alpha);
+    gfx.beginFill(baseColor, alpha);
+    gfx.drawRoundedRect(-16, -14, 32, 28, 8);
+    gfx.endFill();
+
+    gfx.beginFill(accentColor, alpha);
+    gfx.drawPolygon([-14, -14, -6, -24, 2, -14]);
+    gfx.drawPolygon([14, -14, 6, -24, -2, -14]);
+    gfx.endFill();
+
+    gfx.beginFill(0x131722, 0.8 * alpha);
+    gfx.drawCircle(-6, -2, 2);
+    gfx.drawCircle(6, -2, 2);
+    gfx.endFill();
+
+    gfx.lineStyle(2, accentColor, alpha);
+    gfx.moveTo(-4, 6);
+    gfx.lineTo(-2, 10);
+    gfx.moveTo(4, 6);
+    gfx.lineTo(2, 10);
+};
+
+const drawBossIcon = (gfx: any, baseColor: number, accentColor: number, alpha: number) => {
+    gfx.lineStyle(2.5, 0x2a0d0d, alpha);
+    gfx.beginFill(baseColor, alpha);
+    gfx.drawRoundedRect(-24, -20, 48, 40, 10);
+    gfx.endFill();
+
+    gfx.beginFill(accentColor, alpha);
+    gfx.drawPolygon([-20, -20, -10, -34, 0, -20, 10, -34, 20, -20, 20, -10, -20, -10]);
+    gfx.drawPolygon([-24, -6, -34, 0, -24, 6]);
+    gfx.drawPolygon([24, -6, 34, 0, 24, 6]);
+    gfx.endFill();
+
+    gfx.beginFill(0xf7d27c, alpha);
+    gfx.drawCircle(0, 2, 7);
+    gfx.endFill();
+
+    gfx.beginFill(0x1a1f2e, 0.85 * alpha);
+    gfx.drawCircle(-8, -4, 2.2);
+    gfx.drawCircle(8, -4, 2.2);
+    gfx.endFill();
+};
+
 const drawEnemyBody = (node: UnitNode, unit: NonNullable<DungeonArenaFrame>["units"][number]) => {
     const baseColor = unit.isBoss ? 0xb02f2f : 0x9f5f2e;
     const accentColor = unit.isBoss ? 0xea6f5f : 0xc98b4e;
     const alpha = unit.alive ? 1 : 0.5;
 
     node.body.clear();
-    node.body.lineStyle(2, 0x2a0d0d, alpha);
-    node.body.beginFill(baseColor, alpha);
-    node.body.drawCircle(0, 0, unit.isBoss ? 23 : 16);
-    node.body.endFill();
-    node.body.beginFill(accentColor, alpha);
-    node.body.drawPolygon(buildStarPolygon(5, unit.isBoss ? 11 : 8, unit.isBoss ? 4.5 : 3.5));
-    node.body.endFill();
+    if (unit.isBoss) {
+        drawBossIcon(node.body, baseColor, accentColor, alpha);
+    } else {
+        drawMobIcon(node.body, baseColor, accentColor, alpha);
+    }
 };
 
 const drawHp = (node: UnitNode, hp: number, hpMax: number) => {
