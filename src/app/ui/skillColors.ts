@@ -2,8 +2,8 @@ import type { SkillId } from "../../core/types";
 
 const SKILL_ICON_COLORS: Record<SkillId, string> = {
     CombatMelee: "#f2c14e",
-    CombatRanged: "#7cc6ff",
-    CombatMagic: "#8db8ff",
+    CombatRanged: "#8ac926",
+    CombatMagic: "#7cc6ff",
     Roaming: "#78d6ff",
     Hunting: "#5dd9c1",
     Cooking: "#f07f4f",

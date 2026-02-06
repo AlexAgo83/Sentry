@@ -477,6 +477,10 @@
     font-size: var(--text-xs-size);
 }
 
+.ts-player-skill-label.is-combat {
+    color: rgba(239, 77, 67, 0.95);
+}
+
 .ts-player-skill-badge {
     display: inline-block;
     margin-left: var(--m2);
@@ -488,6 +492,12 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-primary);
+}
+
+.ts-player-skill-badge.is-combat {
+    border-color: rgba(239, 77, 67, 0.7);
+    color: rgba(239, 77, 67, 0.95);
+    background: rgba(239, 77, 67, 0.12);
 }
 
 .ts-player-actions {

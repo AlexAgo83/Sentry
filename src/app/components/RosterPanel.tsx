@@ -38,6 +38,11 @@ export const RosterPanel = memo(({
     const rosterCount = players.length;
     const canAddPlayer = rosterCount < rosterLimit;
     const activeDungeonPartySet = new Set(activeDungeonPartyPlayerIds);
+    const combatLabelBySkillId: Partial<Record<string, string>> = {
+        CombatMelee: "Melee",
+        CombatRanged: "Ranged",
+        CombatMagic: "Magic"
+    };
 
     return (
         <section className="generic-panel ts-panel" data-testid="roster-panel">
@@ -69,13 +74,15 @@ export const RosterPanel = memo(({
                             const displaySkillId = isAssignedToDungeon ? combatSkillId : currentAction;
                             const currentSkill = displaySkillId ? player.skills[displaySkillId] : null;
                             const currentRecipe = currentSkill?.selectedRecipeId ?? null;
-                            const actionLabel = displaySkillId ? getSkillLabel(displaySkillId) : "";
+                            const combatLabel = displaySkillId ? combatLabelBySkillId[displaySkillId] : null;
+                            const actionLabel = combatLabel ?? (displaySkillId ? getSkillLabel(displaySkillId) : "");
                             const recipeLabel = displaySkillId && currentRecipe
                                 ? getRecipeLabel(displaySkillId, currentRecipe)
                                 : null;
                             const metaLabel = isAssignedToDungeon ? "Dungeon run" : (recipeLabel ?? "No recipe");
                             const skillColor = getSkillIconColor(displaySkillId);
                             const skillLevel = displaySkillId ? currentSkill?.level ?? 0 : 0;
+                            const isCombatLabel = Boolean(combatLabel);
                             const faceIndex = player.appearance?.faceIndex ?? getFaceIndex(player.id);
                             const hairIndex = player.appearance?.hairIndex ?? getHairIndex(player.id);
                             const hairColor = player.appearance?.hairColor ?? getHairColor(player.id);
@@ -109,9 +116,9 @@ export const RosterPanel = memo(({
                                             <span className="ts-player-skill-icon" aria-hidden="true">
                                                 <SkillIcon skillId={displaySkillId ?? ""} color={skillColor} />
                                             </span>
-                                            <span className="ts-player-skill-label">
+                                            <span className={`ts-player-skill-label${isCombatLabel ? " is-combat" : ""}`}>
                                                 {actionLabel}
-                                                <span className="ts-player-skill-badge">{skillLevel}</span>
+                                                <span className={`ts-player-skill-badge${isCombatLabel ? " is-combat" : ""}`}>{skillLevel}</span>
                                             </span>
                                         </div>
                                     ) : null}

@@ -705,7 +705,7 @@
     font-size: var(--text-xs-size);
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: rgba(87, 212, 255, 0.9);
+    color: currentColor;
 }
 
 .ts-combat-skill-level {
