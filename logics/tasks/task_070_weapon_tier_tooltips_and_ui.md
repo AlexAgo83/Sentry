@@ -2,8 +2,8 @@
 > From version: 0.9.9
 > Owner: —
 > Status: Ready
-> Understanding: 84%
-> Confidence: 76%
+> Understanding: 90%
+> Confidence: 84%
 > Progress: 0%
 
 # Summary
@@ -17,6 +17,10 @@ Expose new weapon tiers in the crafting UI and item tooltips, including the new 
 1. Ensure new tiers appear in crafting lists in `src/data/definitions/recipes/index.ts` ordering.
 2. Update `src/app/ui/inventoryMeta.ts` tooltip content for new tiers.
 3. Add a “New component: <ItemName>” line to the tooltip.
+
+# Decisions
+- Show “New component: <ItemName>” in both recipe tooltip and item detail tooltip.
+- Order tiers strictly by unlock level.
 
 # Acceptance criteria
 - Crafting list shows the new tiers in unlock order.

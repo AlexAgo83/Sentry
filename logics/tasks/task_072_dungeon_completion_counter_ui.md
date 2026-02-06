@@ -2,8 +2,8 @@
 > From version: 0.9.9
 > Owner: —
 > Status: Ready
-> Understanding: 84%
-> Confidence: 76%
+> Understanding: 90%
+> Confidence: 84%
 > Progress: 0%
 
 # Summary
@@ -18,6 +18,11 @@ Display `xN` completion badges in the dungeon selection list and run/replay view
 2. Add `xN` badge near dungeon meta row in run/replay view.
 3. Hide badge when count is 0.
 4. Style using existing dungeon pill styles.
+
+# Decisions
+- Selection badge: right-aligned within the dungeon cell.
+- Run/replay badge: placed in the meta row next to the Dungeon pill.
+- Badge uses `xN` with a small star icon prefix.
 
 # Acceptance criteria
 - Selection list shows badge for dungeons with count > 0.

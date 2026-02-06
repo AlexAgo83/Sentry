@@ -2,8 +2,8 @@
 > From version: 0.9.9
 > Owner: —
 > Status: Ready
-> Understanding: 86%
-> Confidence: 78%
+> Understanding: 92%
+> Confidence: 86%
 > Progress: 0%
 
 # Summary
@@ -19,6 +19,12 @@ Define and add two higher-tier variants for each existing weapon item, plus reci
 3. Update `src/data/definitions/items.ts` and `src/app/ui/inventoryMeta.ts` for new items.
 4. Validate unlock tiers and crafting costs.
 5. Update tests if any item lists are referenced.
+
+# Decisions
+- Base weapons to extend: `rusty_blade`, `simple_bow`, `apprentice_staff`.
+- Naming pattern: `Refined <Base Name>` (tier+1), `Masterwork <Base Name>` (tier+2).
+- Item ID suffixes: `_refined` and `_masterwork`.
+- Stat scaling: +1 primary stat per tier only.
 
 # Acceptance criteria
 - New weapon tiers are craftable and appear in item lists.
