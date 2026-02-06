@@ -45,6 +45,51 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         recommendedPower: 2700,
         bossName: "Crimson Warden",
         bossMechanic: "enrage"
+    },
+    {
+        id: "dungeon_bastion_ardent",
+        name: "Ember Bastion",
+        tier: 6,
+        floorCount: 10,
+        recommendedPower: 3300,
+        bossName: "Cinder Sovereign",
+        bossMechanic: "burst"
+    },
+    {
+        id: "dungeon_gouffre_abyssal",
+        name: "Abyssal Depths",
+        tier: 7,
+        floorCount: 10,
+        recommendedPower: 4000,
+        bossName: "Abyssal Reaper",
+        bossMechanic: "poison"
+    },
+    {
+        id: "dungeon_trone_braise",
+        name: "Ember Throne",
+        tier: 8,
+        floorCount: 10,
+        recommendedPower: 4800,
+        bossName: "Ashen Monarch",
+        bossMechanic: "shield"
+    },
+    {
+        id: "dungeon_cloitre_sans_nuit",
+        name: "Nightless Cloister",
+        tier: 9,
+        floorCount: 10,
+        recommendedPower: 5700,
+        bossName: "Umbral Choir",
+        bossMechanic: "summon"
+    },
+    {
+        id: "dungeon_aiguille_givre",
+        name: "Frostspire Apex",
+        tier: 10,
+        floorCount: 10,
+        recommendedPower: 6700,
+        bossName: "Glacier Tyrant",
+        bossMechanic: "enrage"
     }
 ];
 

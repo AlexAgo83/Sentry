@@ -227,28 +227,32 @@ const drawTargetAndDeath = (node: UnitNode, isTarget: boolean, isAlive: boolean)
     }
 };
 
-const drawArena = (arena: any, frame: DungeonArenaFrame) => {
+const MOBILE_VIEWPORT_MAX = 520;
+
+const drawArena = (arena: any, frame: DungeonArenaFrame, isCompact: boolean) => {
     arena.clear();
 
-    arena.beginFill(0x0b111a, 1);
-    arena.drawRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    arena.endFill();
+    if (!isCompact) {
+        arena.beginFill(0x0b111a, 1);
+        arena.drawRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+        arena.endFill();
 
-    arena.beginFill(0x142235, 0.55);
-    arena.drawCircle(WORLD_WIDTH * 0.22, WORLD_HEIGHT * 0.22, 260);
-    arena.endFill();
+        arena.beginFill(0x142235, 0.55);
+        arena.drawCircle(WORLD_WIDTH * 0.22, WORLD_HEIGHT * 0.22, 260);
+        arena.endFill();
 
-    arena.beginFill(0x2b1b13, 0.35);
-    arena.drawCircle(WORLD_WIDTH * 0.85, WORLD_HEIGHT * 0.72, 300);
-    arena.endFill();
+        arena.beginFill(0x2b1b13, 0.35);
+        arena.drawCircle(WORLD_WIDTH * 0.85, WORLD_HEIGHT * 0.72, 300);
+        arena.endFill();
 
-    arena.beginFill(0x0b0f16, 0.35);
-    arena.drawRoundedRect(12, 12, WORLD_WIDTH - 24, WORLD_HEIGHT - 24, 26);
-    arena.endFill();
+        arena.beginFill(0x0b0f16, 0.35);
+        arena.drawRoundedRect(12, 12, WORLD_WIDTH - 24, WORLD_HEIGHT - 24, 26);
+        arena.endFill();
 
-    arena.beginFill(0x203651, 0.1);
-    arena.drawEllipse(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 460, 255);
-    arena.endFill();
+        arena.beginFill(0x203651, 0.1);
+        arena.drawEllipse(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 460, 255);
+        arena.endFill();
+    }
 
     arena.lineStyle(2, 0x1f334d, 0.8);
     arena.drawEllipse(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 420, 230);
@@ -297,7 +301,10 @@ const getAutoFitScale = (viewportWidth: number, viewportHeight: number, units: D
 };
 
 const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
-    drawArena(runtime.arena, frame);
+    const viewportWidth = runtime.app.screen?.width ?? runtime.app.renderer.width;
+    const viewportHeight = runtime.app.screen?.height ?? runtime.app.renderer.height;
+    const isCompact = Math.min(viewportWidth, viewportHeight) <= MOBILE_VIEWPORT_MAX;
+    drawArena(runtime.arena, frame, isCompact);
 
     const unitById = new Map(frame.units.map((unit) => [unit.id, unit]));
     const attackBySource = new Map(frame.attackCues.map((cue) => [cue.sourceId, cue]));
@@ -499,8 +506,6 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     runtime.phaseLabel.text = frame.bossPhaseLabel ?? "";
     runtime.phaseLabel.position.set(WORLD_WIDTH / 2, PHASE_LABEL_Y);
 
-    const viewportWidth = runtime.app.screen?.width ?? runtime.app.renderer.width;
-    const viewportHeight = runtime.app.screen?.height ?? runtime.app.renderer.height;
     runtime.world.scale.set(getAutoFitScale(viewportWidth, viewportHeight, frame.units));
     runtime.world.pivot.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
     runtime.world.position.set(viewportWidth / 2, viewportHeight / 2);
