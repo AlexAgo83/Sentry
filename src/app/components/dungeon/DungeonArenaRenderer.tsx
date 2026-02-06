@@ -230,6 +230,26 @@ const drawTargetAndDeath = (node: UnitNode, isTarget: boolean, isAlive: boolean)
 const drawArena = (arena: any, frame: DungeonArenaFrame) => {
     arena.clear();
 
+    arena.beginFill(0x0b111a, 1);
+    arena.drawRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    arena.endFill();
+
+    arena.beginFill(0x142235, 0.55);
+    arena.drawCircle(WORLD_WIDTH * 0.22, WORLD_HEIGHT * 0.22, 260);
+    arena.endFill();
+
+    arena.beginFill(0x2b1b13, 0.35);
+    arena.drawCircle(WORLD_WIDTH * 0.85, WORLD_HEIGHT * 0.72, 300);
+    arena.endFill();
+
+    arena.beginFill(0x0b0f16, 0.35);
+    arena.drawRoundedRect(12, 12, WORLD_WIDTH - 24, WORLD_HEIGHT - 24, 26);
+    arena.endFill();
+
+    arena.beginFill(0x203651, 0.1);
+    arena.drawEllipse(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 460, 255);
+    arena.endFill();
+
     arena.lineStyle(2, 0x1f334d, 0.8);
     arena.drawEllipse(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 420, 230);
 
