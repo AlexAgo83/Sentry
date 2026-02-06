@@ -121,15 +121,15 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
         iconId: "invocation_tablet"
     },
     rusty_blade: {
-        description: "A basic blade with a weathered edge.",
+        description: "Melee weapon. +25% threat from damage. -10% damage taken.",
         iconId: "rusty_blade"
     },
     simple_bow: {
-        description: "A light bow for ranged strikes.",
+        description: "Ranged weapon. 50% faster dungeon attacks. +25% damage taken.",
         iconId: "simple_bow"
     },
     apprentice_staff: {
-        description: "A staff tuned for beginner magic.",
+        description: "Magic weapon. Heals allies below 70% HP every 4s. +10% damage taken.",
         iconId: "apprentice_staff"
     },
     furniture: {

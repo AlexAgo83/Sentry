@@ -9,7 +9,7 @@ describe("Avatar", () => {
             <Avatar
                 variant="large"
                 isPlaceholder
-                skillId="Combat"
+                skillId="CombatMelee"
                 skillColor="#111111"
                 style={{ "--ts-avatar-skin": "#ffffff" } as CSSProperties}
             />

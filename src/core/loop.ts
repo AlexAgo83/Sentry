@@ -1,5 +1,5 @@
 import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
-import { getEquipmentModifiers } from "../data/equipment";
+import { getCombatSkillIdForWeaponType, getEquippedWeaponType, getEquipmentModifiers } from "../data/equipment";
 import { QUEST_CRAFT_ITEM_IDS, QUEST_DEFINITIONS, getQuestProgress, getSharedSkillLevels } from "../data/quests";
 import { createActionProgress } from "./state";
 import { applyProgressionDelta, createProgressionState } from "./progression";
@@ -60,7 +60,15 @@ const addItemDelta = (target: ItemDelta, itemId: string, amount: number) => {
     target[itemId] = (target[itemId] ?? 0) + amount;
 };
 
-const STRENGTH_SKILLS = new Set<SkillId>(["Combat", "Roaming", "Hunting", "Excavation", "MetalWork"]);
+const STRENGTH_SKILLS = new Set<SkillId>([
+    "CombatMelee",
+    "CombatRanged",
+    "CombatMagic",
+    "Roaming",
+    "Hunting",
+    "Excavation",
+    "MetalWork"
+]);
 const INTELLECT_SKILLS = new Set<SkillId>([
     "Cooking",
     "Alchemy",
@@ -428,7 +436,11 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
     dungeonProgressPlayerIds.forEach((playerId) => {
         const typedPlayerId = playerId as PlayerId;
         const activeMs = dungeonResult.combatActiveMsByPlayer[typedPlayerId] ?? 0;
-        const xp = dungeonResult.combatXpByPlayer[typedPlayerId] ?? 0;
+        const xpBySkill = dungeonResult.combatXpByPlayer[typedPlayerId] ?? {};
+        const xp = Object.values(xpBySkill).reduce((sum, value) => {
+            const numeric = Number.isFinite(value) ? value : 0;
+            return sum + (numeric > 0 ? numeric : 0);
+        }, 0);
         if ((!Number.isFinite(activeMs) || activeMs <= 0) && (!Number.isFinite(xp) || xp <= 0)) {
             return;
         }
@@ -436,7 +448,10 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         if (!player) {
             return;
         }
-        const playerSkillActiveMs: Partial<Record<SkillId, number>> = activeMs > 0 ? { Combat: activeMs } : {};
+        const combatSkillId = getCombatSkillIdForWeaponType(getEquippedWeaponType(player.equipment));
+        const playerSkillActiveMs: Partial<Record<SkillId, number>> = activeMs > 0
+            ? { [combatSkillId]: activeMs }
+            : {};
         nextPlayers = {
             ...nextPlayers,
             [typedPlayerId]: {
@@ -459,7 +474,7 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         }
         if (activeMs > 0) {
             totalActiveMs += activeMs;
-            skillActiveMs.Combat = (skillActiveMs.Combat ?? 0) + activeMs;
+            skillActiveMs[combatSkillId] = (skillActiveMs[combatSkillId] ?? 0) + activeMs;
         }
     });
 

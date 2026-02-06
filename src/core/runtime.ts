@@ -1,4 +1,4 @@
-import { GameSave, GameState, ItemDelta, OfflinePlayerSummary, OfflineSummaryState, PerformanceState } from "./types";
+import { CombatSkillId, GameSave, GameState, ItemDelta, OfflinePlayerSummary, OfflineSummaryState, PerformanceState } from "./types";
 import { createInitialGameState } from "./state";
 import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
@@ -212,7 +212,7 @@ export class GameRuntime {
         const totalItemDeltas: ItemDelta = {};
         const playerItemDeltas: Record<string, ItemDelta> = {};
         const dungeonItemDeltas: ItemDelta = {};
-        const dungeonCombatXpByPlayer: Record<string, number> = {};
+        const dungeonCombatXpByPlayer: Record<string, Partial<Record<CombatSkillId, number>>> = {};
 
         while (tickTime < end) {
             const nextTickTime = Math.min(end, tickTime + stepMs);
@@ -289,7 +289,7 @@ export class GameRuntime {
         total: ItemDelta,
         perPlayer: Record<string, ItemDelta>,
         dungeonTotals: ItemDelta,
-        dungeonCombatXpByPlayer: Record<string, number>
+        dungeonCombatXpByPlayer: Record<string, Partial<Record<CombatSkillId, number>>>
     ) => {
         const summary = this.store.getState().lastTickSummary;
         if (!summary) {
@@ -308,12 +308,17 @@ export class GameRuntime {
         Object.entries(summary.dungeonItemDeltas).forEach(([itemId, amount]) => {
             dungeonTotals[itemId] = (dungeonTotals[itemId] ?? 0) + amount;
         });
-        Object.entries(summary.dungeonCombatXpByPlayer).forEach(([playerId, amount]) => {
-            const numeric = Number.isFinite(amount) ? amount : 0;
-            if (numeric <= 0) {
-                return;
-            }
-            dungeonCombatXpByPlayer[playerId] = (dungeonCombatXpByPlayer[playerId] ?? 0) + numeric;
+        Object.entries(summary.dungeonCombatXpByPlayer).forEach(([playerId, xpBySkill]) => {
+            const bucket = dungeonCombatXpByPlayer[playerId] ?? {};
+            Object.entries(xpBySkill ?? {}).forEach(([skillId, amount]) => {
+                const numeric = Number.isFinite(amount) ? amount : 0;
+                if (numeric <= 0) {
+                    return;
+                }
+                const typedSkillId = skillId as CombatSkillId;
+                bucket[typedSkillId] = (bucket[typedSkillId] ?? 0) + numeric;
+            });
+            dungeonCombatXpByPlayer[playerId] = bucket;
         });
     };
 
@@ -446,7 +451,7 @@ export class GameRuntime {
         playerItemDeltas: Record<string, ItemDelta>,
         totalItemDeltas: ItemDelta,
         dungeonItemDeltas: ItemDelta,
-        dungeonCombatXpByPlayer: Record<string, number>
+        dungeonCombatXpByPlayer: Record<string, Partial<Record<CombatSkillId, number>>>
     ): OfflineSummaryState | null => {
         const players = Object.keys(beforeState.players).reduce<OfflinePlayerSummary[]>((acc, playerId) => {
             const beforePlayer = beforeState.players[playerId];
@@ -461,6 +466,8 @@ export class GameRuntime {
             const beforeRecipe = recipeId && beforeSkill ? beforeSkill.recipes[recipeId] : null;
             const afterRecipe = recipeId && afterSkill ? afterSkill.recipes[recipeId] : null;
 
+            const combatXpBySkill = dungeonCombatXpByPlayer[playerId] ?? {};
+            const hasCombatXp = Object.values(combatXpBySkill).some((value) => Number(value) > 0);
             const summary = {
                 playerId,
                 playerName: beforePlayer.name,
@@ -472,8 +479,8 @@ export class GameRuntime {
                 recipeLevelGained: beforeRecipe && afterRecipe ? afterRecipe.level - beforeRecipe.level : 0,
                 itemDeltas: playerItemDeltas[playerId] ?? {},
                 dungeonGains: {
-                    combatXp: dungeonCombatXpByPlayer[playerId] ?? 0,
-                    itemDeltas: (dungeonCombatXpByPlayer[playerId] ?? 0) > 0 ? dungeonItemDeltas : {}
+                    combatXp: combatXpBySkill,
+                    itemDeltas: hasCombatXp ? dungeonItemDeltas : {}
                 }
             };
 

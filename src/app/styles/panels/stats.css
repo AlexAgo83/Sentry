@@ -672,6 +672,50 @@
     background: rgba(10, 18, 34, 0.86);
 }
 
+.ts-combat-skill-lines {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--m2);
+}
+
+.ts-combat-skill-line {
+    display: flex;
+    align-items: center;
+    gap: var(--m2);
+    padding: var(--m2) var(--m3);
+    border-radius: 10px;
+    border: 1px solid rgba(87, 212, 255, 0.18);
+    background: rgba(8, 16, 28, 0.7);
+}
+
+.ts-combat-skill-icon {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.ts-combat-skill-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.ts-combat-skill-label {
+    font-size: var(--text-xs-size);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(87, 212, 255, 0.9);
+}
+
+.ts-combat-skill-level {
+    margin-left: auto;
+    font-size: var(--text-xs-size);
+    font-family: var(--display-font);
+    letter-spacing: 0.08em;
+    color: var(--color-primary);
+}
+
 .ts-character-header--combat {
     display: grid;
     grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
@@ -711,6 +755,12 @@
     align-items: flex-start;
     text-align: left;
     font-variant-numeric: normal;
+}
+
+@media (max-width: 720px) {
+    .ts-combat-skill-lines {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .ts-character-cell--mods {

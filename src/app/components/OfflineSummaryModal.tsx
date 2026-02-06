@@ -93,8 +93,11 @@ export const OfflineSummaryModal = memo(({
                         ? formatItemDeltaEntriesFull(dungeonEntries)
                         : dungeonItemLabel;
                     const dungeonParts: string[] = [];
-                    if (player.dungeonGains.combatXp !== 0) {
-                        dungeonParts.push(`+${formatXp(player.dungeonGains.combatXp)} Combat XP`);
+                    const combatXpEntries = Object.entries(player.dungeonGains.combatXp ?? {})
+                        .filter(([, value]) => Number.isFinite(value) && Number(value) > 0)
+                        .map(([skillId, value]) => `+${formatXp(Number(value))} ${getSkillLabel(skillId as SkillId)} XP`);
+                    if (combatXpEntries.length > 0) {
+                        dungeonParts.push(combatXpEntries.join(", "));
                     }
                     if (dungeonEntries.length > 0) {
                         dungeonParts.push(dungeonItemLabel);

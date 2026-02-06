@@ -188,7 +188,7 @@ describe("OfflineSummaryModal", () => {
                 skillLevelGained: 0,
                 recipeLevelGained: 0,
                 itemDeltas: {},
-                dungeonGains: { combatXp: 12, itemDeltas: { gold: 3 } }
+                dungeonGains: { combatXp: { CombatMelee: 12 }, itemDeltas: { gold: 3 } }
             }
         ];
 
@@ -203,7 +203,7 @@ describe("OfflineSummaryModal", () => {
         );
 
         expect(screen.getByText(/Dungeon gains:/)).toBeTruthy();
-        expect(screen.getByText(/\+12 Combat XP/)).toBeTruthy();
+        expect(screen.getByText(/\+12 Skill XP/)).toBeTruthy();
         expect(screen.getByText(/\+3 Gold/)).toBeTruthy();
     });
 });

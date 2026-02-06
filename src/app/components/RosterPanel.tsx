@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { CSSProperties } from "react";
 import type { PlayerState } from "../../core/types";
+import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
 import { getSkillIconColor } from "../ui/skillColors";
 import { getFaceIndex, getFaceUrlByIndex } from "../ui/heroFaces";
 import { getHairColor, getHairIndex, getHairUrlByIndex, getSkinColor } from "../ui/heroHair";
@@ -64,7 +65,8 @@ export const RosterPanel = memo(({
                         {players.map((player) => {
                             const isAssignedToDungeon = activeDungeonPartySet.has(player.id);
                             const currentAction = player.selectedActionId;
-                            const displaySkillId = isAssignedToDungeon ? "Combat" : currentAction;
+                            const combatSkillId = getCombatSkillIdForWeaponType(getEquippedWeaponType(player.equipment));
+                            const displaySkillId = isAssignedToDungeon ? combatSkillId : currentAction;
                             const currentSkill = displaySkillId ? player.skills[displaySkillId] : null;
                             const currentRecipe = currentSkill?.selectedRecipeId ?? null;
                             const actionLabel = displaySkillId ? getSkillLabel(displaySkillId) : "";

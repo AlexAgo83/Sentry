@@ -11,7 +11,7 @@ describe("item usage map (mocked branches)", () => {
                 { id: "wood", name: "Wood" }
             ];
             const SKILL_DEFINITIONS = [
-                { id: "Combat", name: "Combat", baseInterval: 1000 },
+                { id: "CombatMelee", name: "Combat - Melee", baseInterval: 1000 },
                 { id: "Hunting", name: "Combat", baseInterval: 1000 }
             ];
             const getActionDefinition = (skillId: string) => ({
@@ -53,7 +53,7 @@ describe("item usage map (mocked branches)", () => {
 
         const { ITEM_USAGE_MAP } = await import("../../src/app/ui/itemUsage");
 
-        expect(ITEM_USAGE_MAP.apple.usedBy).toContain("Action: Combat");
+        expect(ITEM_USAGE_MAP.apple.usedBy).toContain("Action: Combat - Melee");
         expect(ITEM_USAGE_MAP.apple.obtainedBy.some((label) => label.includes("Craft"))).toBe(true);
         expect(ITEM_USAGE_MAP.gold.obtainedBy.some((label) => label.includes("Action"))).toBe(true);
         expect(ITEM_USAGE_MAP.gold.obtainedBy.some((label) => label.includes("Craft"))).toBe(true);

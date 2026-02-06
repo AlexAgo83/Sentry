@@ -29,7 +29,9 @@ const [
 ]);
 
 const RECIPES_BY_SKILL: Record<SkillId, RecipeDefinition[]> = {
-    Combat: [],
+    CombatMelee: [],
+    CombatRanged: [],
+    CombatMagic: [],
     Roaming: roamingRecipes,
     Hunting: huntingRecipes,
     Cooking: cookingRecipes,

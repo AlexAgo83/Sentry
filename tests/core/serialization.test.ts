@@ -63,7 +63,7 @@ describe("serialization", () => {
         expect(hydrated.dungeon.setup.selectedPartyPlayerIds).toHaveLength(4);
     });
 
-    it("resets only Combat/Roaming when hydrating a pre-split save", () => {
+    it("splits legacy Combat progress while preserving non-combat skills", () => {
         const state = createInitialGameState("0.9.0");
         const playerId = state.activePlayerId ?? "1";
         const save = toGameSave(state);
@@ -71,10 +71,13 @@ describe("serialization", () => {
 
         player.selectedActionId = "Combat";
         player.skills.Combat = {
-            ...player.skills.Combat,
+            ...player.skills.CombatMelee,
             level: 25,
             xp: 123
         };
+        delete player.skills.CombatMelee;
+        delete player.skills.CombatRanged;
+        delete player.skills.CombatMagic;
         player.skills.Hunting = {
             ...player.skills.Hunting,
             level: 7,
@@ -85,8 +88,9 @@ describe("serialization", () => {
         const hydrated = hydrateGameState("0.9.0", save);
         const hydratedPlayer = hydrated.players[playerId];
 
-        expect(hydratedPlayer.skills.Combat.level).toBe(1);
-        expect(hydratedPlayer.skills.Combat.xp).toBe(0);
+        expect(hydratedPlayer.skills.CombatMelee.level).toBeGreaterThan(1);
+        expect(hydratedPlayer.skills.CombatRanged.level).toBe(hydratedPlayer.skills.CombatMelee.level);
+        expect(hydratedPlayer.skills.CombatMagic.level).toBe(hydratedPlayer.skills.CombatMelee.level);
         expect(hydratedPlayer.skills.Roaming.level).toBe(1);
         expect(hydratedPlayer.skills.Roaming.xp).toBe(0);
         expect(hydratedPlayer.skills.Hunting.level).toBe(7);

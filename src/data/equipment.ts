@@ -2,6 +2,7 @@ import type {
     EquipmentItemDefinition,
     PlayerEquipmentState,
     StatModifier,
+    SkillId,
     WeaponType
 } from "../core/types";
 
@@ -129,4 +130,29 @@ export const resolveWeaponSlotLabel = (weaponType?: WeaponType): string => {
         return "Weapon";
     }
     return `${weaponType} Weapon`;
+};
+
+export const DEFAULT_WEAPON_TYPE: WeaponType = "Melee";
+
+export const getEquippedWeaponType = (equipment?: PlayerEquipmentState | null): WeaponType => {
+    const weaponId = equipment?.slots?.Weapon;
+    if (!weaponId) {
+        return DEFAULT_WEAPON_TYPE;
+    }
+    const weapon = getEquipmentDefinition(weaponId);
+    return weapon?.weaponType ?? DEFAULT_WEAPON_TYPE;
+};
+
+export const getCombatSkillIdForWeaponType = (weaponType?: WeaponType | null): SkillId => {
+    if (weaponType === "Ranged") {
+        return "CombatRanged";
+    }
+    if (weaponType === "Magic") {
+        return "CombatMagic";
+    }
+    return "CombatMelee";
+};
+
+export const getCombatSkillIdForEquipment = (equipment?: PlayerEquipmentState | null): SkillId => {
+    return getCombatSkillIdForWeaponType(getEquippedWeaponType(equipment));
 };

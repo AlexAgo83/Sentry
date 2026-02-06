@@ -1,8 +1,8 @@
 ## task_065_split_combat_skills_and_migration - Split combat skills and migrate saves
 > From version: 0.9.9
-> Understanding: 94%
-> Confidence: 91%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Context
@@ -26,3 +26,5 @@ Derived from `logics/backlog/item_079_split_combat_skills_and_migration.md`
 - npm run lint
 
 # Report
+- Added CombatMelee/CombatRanged/CombatMagic skill IDs and definitions, removed Combat from active progression.
+- Implemented save migration to split legacy Combat progress across the three skills with xpNext recomputation.

@@ -1,6 +1,7 @@
 import {
     ActionId,
     ActionProgressState,
+    CombatSkillId,
     GameSave,
     GameState,
     InventoryState,
@@ -24,7 +25,8 @@ import {
     OFFLINE_INTERVAL,
     OFFLINE_THRESHOLD,
     RECIPE_MAX_LEVEL,
-    SKILL_MAX_LEVEL
+    SKILL_MAX_LEVEL,
+    XP_NEXT_MULTIPLIER
 } from "./constants";
 import { SKILL_DEFINITIONS, getActionDefinition, getRecipesForSkill } from "../data/definitions";
 import { createPlayerStatsState, normalizePlayerStats } from "./stats";
@@ -80,6 +82,53 @@ const createSkillState = (id: SkillId): SkillState => {
     };
 };
 
+const COMBAT_SKILL_IDS: CombatSkillId[] = ["CombatMelee", "CombatRanged", "CombatMagic"];
+
+const splitXpEvenly = (total: number, parts: number): number[] => {
+    const safeTotal = Math.max(0, Math.floor(total));
+    const safeParts = Math.max(1, Math.floor(parts));
+    const base = Math.floor(safeTotal / safeParts);
+    const remainder = safeTotal - base * safeParts;
+    return Array.from({ length: safeParts }, (_, index) => base + (index < remainder ? 1 : 0));
+};
+
+const computeTotalSkillXp = (level: number, xp: number): number => {
+    const safeLevel = Math.max(1, Math.floor(level));
+    let total = Math.max(0, Math.floor(xp));
+    let xpNext = DEFAULT_SKILL_XP_NEXT;
+    let currentLevel = 1;
+    while (currentLevel < safeLevel) {
+        total += xpNext;
+        xpNext = Math.floor(xpNext * XP_NEXT_MULTIPLIER);
+        currentLevel += 1;
+    }
+    return total;
+};
+
+const buildSkillProgressFromXp = (xp: number): Pick<SkillState, "xp" | "level" | "xpNext"> => {
+    let remaining = Math.max(0, Math.floor(xp));
+    let level = 1;
+    let xpNext = DEFAULT_SKILL_XP_NEXT;
+    while (remaining >= xpNext && level < SKILL_MAX_LEVEL) {
+        remaining -= xpNext;
+        level += 1;
+        xpNext = Math.floor(xpNext * XP_NEXT_MULTIPLIER);
+    }
+    return { xp: remaining, level, xpNext };
+};
+
+const splitLegacyCombatProgress = (legacySkill?: SkillState) => {
+    if (!legacySkill) {
+        return null;
+    }
+    const totalXp = computeTotalSkillXp(legacySkill.level, legacySkill.xp);
+    const splits = splitXpEvenly(totalXp, COMBAT_SKILL_IDS.length);
+    return COMBAT_SKILL_IDS.reduce<Record<CombatSkillId, Pick<SkillState, "xp" | "level" | "xpNext">>>((acc, id, index) => {
+        acc[id] = buildSkillProgressFromXp(splits[index] ?? 0);
+        return acc;
+    }, {} as Record<CombatSkillId, Pick<SkillState, "xp" | "level" | "xpNext">>);
+};
+
 const mergeRecipes = (skillId: SkillId, savedRecipes: Record<string, RecipeState> | undefined) => {
     const normalizedSaved = Object.values(savedRecipes ?? {}).reduce<Record<string, RecipeState>>((acc, recipe) => {
         acc[recipe.id] = { ...recipe };
@@ -108,7 +157,10 @@ const normalizeSkillState = (skillId: SkillId, savedSkill?: SkillState): SkillSt
 };
 
 const normalizeSelectedActionId = (selectedActionId: unknown): ActionId | null => {
-    if (selectedActionId === "Combat") {
+    if (selectedActionId === "Combat"
+        || selectedActionId === "CombatMelee"
+        || selectedActionId === "CombatRanged"
+        || selectedActionId === "CombatMagic") {
         return "Roaming";
     }
     if (typeof selectedActionId !== "string") {
@@ -212,19 +264,35 @@ export const createInitialGameState = (version: string, options: InitialGameStat
 const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
     const { storage, skills, ...rest } = player as PlayerSaveState & {
         storage?: { gold?: number };
-        skills?: Record<SkillId, SkillState>;
+        skills?: Record<string, SkillState>;
     };
-    const hasRoamingSkillInSave = Boolean(skills && "Roaming" in skills);
+    const savedSkills = skills ?? {};
+    const hasRoamingSkillInSave = Boolean(savedSkills && "Roaming" in savedSkills);
+    const hasCombatSplitSkills = Boolean(
+        savedSkills
+        && ("CombatMelee" in savedSkills || "CombatRanged" in savedSkills || "CombatMagic" in savedSkills)
+    );
+    const legacyCombatProgress = !hasCombatSplitSkills
+        ? splitLegacyCombatProgress(savedSkills.Combat)
+        : null;
     const progression = normalizeProgressionState(
         (player as PlayerSaveState & { progression?: ProgressionState }).progression,
         Date.now()
     );
     const normalizedSkills = SKILL_DEFINITIONS.reduce<Record<SkillId, SkillState>>((acc, skill) => {
-        const isSplitSkill = skill.id === "Combat" || skill.id === "Roaming";
-        const shouldResetSplitSkill = isSplitSkill && !hasRoamingSkillInSave;
-        acc[skill.id] = shouldResetSplitSkill
+        const combatProgress = legacyCombatProgress?.[skill.id as CombatSkillId];
+        if (combatProgress) {
+            const baseSkill = createSkillState(skill.id);
+            acc[skill.id] = {
+                ...baseSkill,
+                ...combatProgress
+            };
+            return acc;
+        }
+        const shouldResetRoaming = skill.id === "Roaming" && !hasRoamingSkillInSave;
+        acc[skill.id] = shouldResetRoaming
             ? createSkillState(skill.id)
-            : normalizeSkillState(skill.id, skills?.[skill.id]);
+            : normalizeSkillState(skill.id, savedSkills[skill.id]);
         return acc;
     }, {} as Record<SkillId, SkillState>);
     return {

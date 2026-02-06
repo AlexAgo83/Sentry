@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { getEquipmentModifiers } from "../../data/equipment";
+import { getCombatSkillIdForWeaponType, getEquippedWeaponType, getEquipmentModifiers } from "../../data/equipment";
 import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../../core/stats";
 import { useGameStore } from "../hooks/useGameStore";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
@@ -30,9 +30,25 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
     const globalVirtualScore = useGameStore(selectVirtualScore);
     const heroVirtualScore = useGameStore(selectHeroVirtualScore);
     const heroProgression = activePlayer?.progression ?? globalProgression;
+    const weaponType = activePlayer ? getEquippedWeaponType(activePlayer.equipment) : null;
+    const combatSkillId = activePlayer
+        ? getCombatSkillIdForWeaponType(weaponType)
+        : null;
     const combatDisplay = activePlayer
-        ? buildCombatDisplay(activePlayer.skills.Combat.level, statsState, effectiveStats)
-        : buildCombatDisplay(0, statsState, effectiveStats);
+        ? buildCombatDisplay(
+            activePlayer.skills[combatSkillId ?? "CombatMelee"]?.level ?? 0,
+            statsState,
+            effectiveStats,
+            weaponType
+        )
+        : buildCombatDisplay(0, statsState, effectiveStats, weaponType);
+    const combatSkillLevels = activePlayer
+        ? {
+            CombatMelee: activePlayer.skills.CombatMelee?.level ?? 0,
+            CombatRanged: activePlayer.skills.CombatRanged?.level ?? 0,
+            CombatMagic: activePlayer.skills.CombatMagic?.level ?? 0
+        }
+        : {};
 
     return (
         <>
@@ -46,6 +62,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
                 effectiveStats={effectiveStats}
                 equipmentMods={equipmentMods}
                 combatDisplay={combatDisplay}
+                combatSkillLevels={combatSkillLevels}
                 isCollapsed={isCollapsed}
                 onToggleCollapsed={() => setCollapsed((value) => !value)}
             />

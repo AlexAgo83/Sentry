@@ -1,8 +1,8 @@
 ## task_066_route_dungeon_xp_by_weapon_type - Route dungeon XP by weapon type
 > From version: 0.9.9
-> Understanding: 93%
-> Confidence: 90%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 94%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Context
@@ -24,3 +24,5 @@ Derived from `logics/backlog/item_080_route_dungeon_xp_by_weapon_type.md`
 - npm run lint
 
 # Report
+- Routed dungeon combat XP to the weapon-type combat skill, with immediate updates on weapon changes.
+- Updated offline/replay aggregation to track combat XP by skill deterministically.

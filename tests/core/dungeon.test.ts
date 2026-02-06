@@ -70,7 +70,7 @@ describe("dungeon flow", () => {
         expect(state.dungeon.activeRunId).toBeNull();
     });
 
-    it("grants Combat XP on floor clear with boss bonus on the last floor", () => {
+    it("grants combat XP on floor clear with boss bonus on the last floor", () => {
         let state = createInitialGameState("0.4.0");
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
@@ -92,8 +92,8 @@ describe("dungeon flow", () => {
 
         const partyIds = run.party.map((member) => member.playerId);
         partyIds.forEach((playerId) => {
-            state.players[playerId].skills.Combat.xp = 0;
-            state.players[playerId].skills.Combat.xpNext = 999_999;
+            state.players[playerId].skills.CombatMelee.xp = 0;
+            state.players[playerId].skills.CombatMelee.xpNext = 999_999;
         });
 
         run.floor = run.floorCount;
@@ -115,7 +115,7 @@ describe("dungeon flow", () => {
         const expectedTotalXp = expectedFloorXp + (expectedFloorXp * 2);
 
         partyIds.forEach((playerId) => {
-            expect(result.state.players[playerId].skills.Combat.xp).toBe(expectedTotalXp);
+            expect(result.state.players[playerId].skills.CombatMelee.xp).toBe(expectedTotalXp);
         });
     });
 
@@ -640,8 +640,8 @@ describe("dungeon flow", () => {
         expect(largeTickResult.state.inventory.items.gold).toBe(splitTickState.inventory.items.gold);
         const partyIds = largeRun?.party.map((member) => member.playerId) ?? [];
         partyIds.forEach((playerId) => {
-            expect(largeTickResult.state.players[playerId].skills.Combat.xp)
-                .toBe(splitTickState.players[playerId].skills.Combat.xp);
+            expect(largeTickResult.state.players[playerId].skills.CombatMelee.xp)
+                .toBe(splitTickState.players[playerId].skills.CombatMelee.xp);
         });
     });
 

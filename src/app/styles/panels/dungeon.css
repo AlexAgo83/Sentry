@@ -93,6 +93,14 @@
     padding: 10px;
 }
 
+.ts-dungeon-party-combat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--text-xs-size);
+    color: var(--color-text-fade);
+}
+
 .ts-dungeon-option,
 .ts-dungeon-party-option {
     cursor: pointer;

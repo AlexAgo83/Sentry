@@ -1,11 +1,13 @@
 import { memo, useMemo, useState } from "react";
-import type { PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier } from "../../core/types";
+import type { CombatSkillId, PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { SKILL_DEFINITIONS } from "../../data/definitions";
 import type { CombatDisplayModel } from "../selectors/combatSelectors";
 import { usePersistedPanelTab } from "../hooks/usePersistedPanelTab";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { GlobalProgressIcon, HeroProgressIcon, HeroStatsIcon } from "../ui/statsViewIcons";
+import { SkillIcon } from "../ui/skillIcons";
+import { getSkillIconColor } from "../ui/skillColors";
 import { ProgressionTrendChart } from "./ProgressionTrendChart";
 
 type StatsDashboardPanelProps = {
@@ -17,6 +19,7 @@ type StatsDashboardPanelProps = {
     effectiveStats: Record<StatId, number>;
     equipmentMods: StatModifier[];
     combatDisplay: CombatDisplayModel;
+    combatSkillLevels: Partial<Record<CombatSkillId, number>>;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
 };
@@ -83,6 +86,13 @@ const formatCombatDelta = (value: number, digits = 0): string => {
     return `${sign}${formatted}`;
 };
 
+const COMBAT_SKILL_IDS: CombatSkillId[] = ["CombatMelee", "CombatRanged", "CombatMagic"];
+const COMBAT_SKILL_LABELS: Record<CombatSkillId, string> = {
+    CombatMelee: "Melee",
+    CombatRanged: "Ranged",
+    CombatMagic: "Magic"
+};
+
 const numberFormatter = new Intl.NumberFormat();
 
 const formatNumber = (value: number): string => {
@@ -114,6 +124,7 @@ export const StatsDashboardPanel = memo(({
     effectiveStats,
     equipmentMods,
     combatDisplay,
+    combatSkillLevels,
     isCollapsed,
     onToggleCollapsed
 }: StatsDashboardPanelProps) => {
@@ -301,6 +312,21 @@ export const StatsDashboardPanel = memo(({
                             </div>
                             <div className="ts-character-breakdown ts-character-breakdown--combat">
                                 <div className="ts-character-title">Combat</div>
+                                <div className="ts-combat-skill-lines">
+                                    {COMBAT_SKILL_IDS.map((skillId) => {
+                                        const color = getSkillIconColor(skillId);
+                                        const level = combatSkillLevels[skillId] ?? 0;
+                                        return (
+                                            <div key={skillId} className="ts-combat-skill-line">
+                                                <span className="ts-combat-skill-icon" style={{ color }}>
+                                                    <SkillIcon skillId={skillId} color={color} />
+                                                </span>
+                                                <span className="ts-combat-skill-label">{COMBAT_SKILL_LABELS[skillId]}</span>
+                                                <span className="ts-combat-skill-level">Lv {level}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                                 <div className="ts-character-header ts-character-header--combat">
                                     <span>Metric</span>
                                     <span>Base</span>

@@ -54,9 +54,9 @@ describe("app gameSelectors", () => {
         const state = createInitialGameState("test");
         const player2 = createPlayerState("2");
         state.players[player2.id] = player2;
-        const baseCombat1 = state.players["1"].skills.Combat;
+        const baseCombat1 = state.players["1"].skills.CombatMelee;
         const baseCooking1 = state.players["1"].skills.Cooking;
-        const baseCombat2 = state.players["2"].skills.Combat;
+        const baseCombat2 = state.players["2"].skills.CombatMelee;
         const baseScore = (() => {
             const questCount = Object.values(state.quests.completed).filter(Boolean).length;
             const questScore = questCount * 5;
@@ -73,16 +73,16 @@ describe("app gameSelectors", () => {
             return skillScore + questScore;
         })();
 
-        state.players["1"].skills.Combat.level = baseCombat1.level + 2;
-        state.players["1"].skills.Combat.xp = 50;
-        state.players["1"].skills.Combat.xpNext = 100;
+        state.players["1"].skills.CombatMelee.level = baseCombat1.level + 2;
+        state.players["1"].skills.CombatMelee.xp = 50;
+        state.players["1"].skills.CombatMelee.xpNext = 100;
         state.players["1"].skills.Cooking.level = baseCooking1.level + 1;
         const cookingRecipeId = Object.keys(state.players["1"].skills.Cooking.recipes)[0];
         state.players["1"].skills.Cooking.recipes[cookingRecipeId].level += 3;
 
-        state.players["2"].skills.Combat.level = baseCombat2.level + 4;
-        state.players["2"].skills.Combat.xp = 10;
-        state.players["2"].skills.Combat.xpNext = 10;
+        state.players["2"].skills.CombatMelee.level = baseCombat2.level + 4;
+        state.players["2"].skills.CombatMelee.xp = 10;
+        state.players["2"].skills.CombatMelee.xpNext = 10;
 
         state.quests.completed["quest-alpha"] = true;
         state.quests.completed["quest-beta"] = true;
@@ -103,15 +103,15 @@ describe("app gameSelectors", () => {
         state.players[player2.id] = player2;
         state.activePlayerId = "1";
 
-        state.players["1"].skills.Combat.level += 2;
-        state.players["1"].skills.Combat.xp = 25;
-        state.players["1"].skills.Combat.xpNext = 100;
+        state.players["1"].skills.CombatMelee.level += 2;
+        state.players["1"].skills.CombatMelee.xp = 25;
+        state.players["1"].skills.CombatMelee.xpNext = 100;
         const cookingRecipeId = Object.keys(state.players["1"].skills.Cooking.recipes)[0];
         state.players["1"].skills.Cooking.recipes[cookingRecipeId].level += 4;
 
-        state.players["2"].skills.Combat.level += 5;
-        state.players["2"].skills.Combat.xp = 100;
-        state.players["2"].skills.Combat.xpNext = 100;
+        state.players["2"].skills.CombatMelee.level += 5;
+        state.players["2"].skills.CombatMelee.xp = 100;
+        state.players["2"].skills.CombatMelee.xpNext = 100;
 
         state.quests.completed["quest-alpha"] = true;
 

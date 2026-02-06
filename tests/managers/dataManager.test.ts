@@ -34,7 +34,7 @@ describe("LocalStorageAdapter", () => {
             const state = createInitialGameState("0.4.0");
             const activePlayerId = state.activePlayerId ?? "1";
             state.players[activePlayerId].name = "Hero";
-            state.players[activePlayerId].skills.Combat.xp = 42;
+            state.players[activePlayerId].skills.CombatMelee.xp = 42;
             const save = toGameSave(state);
 
             adapter.save(save);
@@ -42,7 +42,7 @@ describe("LocalStorageAdapter", () => {
 
             expect(loaded?.lastTick).toBe(save.lastTick);
             expect(loaded?.players?.[activePlayerId]?.name).toBe("Hero");
-            expect(loaded?.players?.[activePlayerId]?.skills?.Combat?.xp).toBe(42);
+            expect(loaded?.players?.[activePlayerId]?.skills?.CombatMelee?.xp).toBe(42);
         } finally {
             localStorageMock.clear();
             if (localStorageBackup === undefined) {

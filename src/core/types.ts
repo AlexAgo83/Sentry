@@ -1,6 +1,7 @@
 export type PlayerId = string;
+export type CombatSkillId = "CombatMelee" | "CombatRanged" | "CombatMagic";
 export type SkillId =
-    | "Combat"
+    | CombatSkillId
     | "Roaming"
     | "Hunting"
     | "Cooking"
@@ -13,7 +14,7 @@ export type SkillId =
     | "Carpentry"
     | "Leatherworking"
     | "Invocation";
-export type ActionId = Exclude<SkillId, "Combat">;
+export type ActionId = Exclude<SkillId, CombatSkillId>;
 export type RecipeId = string;
 export type ItemId = string;
 export type QuestId = string;
@@ -164,9 +165,11 @@ export interface DungeonRunPartyMemberState {
     hpMax: number;
     potionCooldownMs: number;
     attackCooldownMs: number;
+    magicHealCooldownMs: number;
     tauntUntilMs?: number | null;
     tauntBonus?: number | null;
     tauntStartedAtMs?: number | null;
+    stunnedUntilMs?: number | null;
 }
 
 export interface DungeonRunEnemyState {
@@ -358,7 +361,7 @@ export interface OfflinePlayerSummary {
     recipeLevelGained: number;
     itemDeltas: ItemDelta;
     dungeonGains: {
-        combatXp: number;
+        combatXp: Partial<Record<CombatSkillId, number>>;
         itemDeltas: ItemDelta;
     };
 }
@@ -376,7 +379,7 @@ export interface TickSummaryState {
     totalItemDeltas: ItemDelta;
     playerItemDeltas: Record<PlayerId, ItemDelta>;
     dungeonItemDeltas: ItemDelta;
-    dungeonCombatXpByPlayer: Record<PlayerId, number>;
+    dungeonCombatXpByPlayer: Record<PlayerId, Partial<Record<CombatSkillId, number>>>;
 }
 
 export interface GameSave {

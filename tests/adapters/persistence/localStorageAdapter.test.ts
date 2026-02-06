@@ -65,12 +65,17 @@ describe("createLocalStorageAdapter", () => {
     it("parses stored saves", () => {
         const storage = createMemoryStorage();
         const save = toGameSave(createInitialGameState("0.4.0"));
-        storage.setItem(storageKey, JSON.stringify(save));
+        const legacySave = { ...save, schemaVersion: 1 };
+        storage.setItem(storageKey, JSON.stringify(legacySave));
         (globalThis as { localStorage?: LocalStorageStub }).localStorage = storage;
         const adapter = createLocalStorageAdapter(storageKey);
 
-        expect(adapter.load()).toEqual(save);
-        expect(getPersistenceLoadReport().status).toBe("ok");
+        const loaded = adapter.load();
+        expect(loaded).not.toBeNull();
+        expect(loaded?.schemaVersion).toBe(2);
+        expect(loaded?.version).toBe(save.version);
+        expect(Object.keys(loaded?.players ?? {})).toEqual(Object.keys(save.players));
+        expect(getPersistenceLoadReport().status).toBe("migrated");
     });
 
     it("handles invalid JSON and logs the error", () => {
@@ -95,7 +100,11 @@ describe("createLocalStorageAdapter", () => {
         const adapter = createLocalStorageAdapter(storageKey);
         const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-        expect(adapter.load()).toEqual(save);
+        const loaded = adapter.load();
+        expect(loaded).not.toBeNull();
+        expect(loaded?.schemaVersion).toBe(2);
+        expect(loaded?.version).toBe(save.version);
+        expect(Object.keys(loaded?.players ?? {})).toEqual(Object.keys(save.players));
         expect(getPersistenceLoadReport().status).toBe("recovered_last_good");
         expect(getPersistenceLoadReport().recoveredFromLastGood).toBe(true);
         expect(errorSpy).not.toHaveBeenCalled();

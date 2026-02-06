@@ -1,8 +1,8 @@
 ## task_063_weapon_category_combat_effects - Weapon category combat effects
 > From version: 0.9.9
-> Understanding: 95%
-> Confidence: 92%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 96%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Context
@@ -31,3 +31,5 @@ Derived from `logics/backlog/item_077_weapon_category_combat_effects.md`
 - npm run lint
 
 # Report
+- Applied weapon category effects in dungeon combat: magic ally heals with cooldown/threshold, ranged attack speed multiplier, melee threat bonus, and per-category damage taken modifiers.
+- Added per-hero magic heal cooldown state with deterministic targeting and replay-safe events.

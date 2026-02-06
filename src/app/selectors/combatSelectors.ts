@@ -1,5 +1,10 @@
-import type { PlayerStatsState, StatId } from "../../core/types";
-import { DUNGEON_BASE_ATTACK_MS, resolveHeroAttackDamage, resolveHeroAttackIntervalMs } from "../../core/dungeon";
+import type { PlayerStatsState, StatId, WeaponType } from "../../core/types";
+import {
+    DUNGEON_BASE_ATTACK_MS,
+    resolveHeroAttackDamage,
+    resolveHeroAttackIntervalMs,
+    resolveHeroAttackIntervalMsWithMultiplier
+} from "../../core/dungeon";
 
 export type CombatDisplayValue = {
     base: number;
@@ -20,7 +25,8 @@ const toNumber = (value: number | undefined): number =>
 export const buildCombatDisplay = (
     combatLevel: number | undefined,
     stats: PlayerStatsState,
-    effectiveStats: Record<StatId, number>
+    effectiveStats: Record<StatId, number>,
+    weaponType?: WeaponType | null
 ): CombatDisplayModel => {
     const baseStrength = toNumber(stats.base.Strength);
     const baseAgility = toNumber(stats.base.Agility);
@@ -29,7 +35,12 @@ export const buildCombatDisplay = (
     const level = toNumber(combatLevel);
 
     const baseInterval = resolveHeroAttackIntervalMs(DUNGEON_BASE_ATTACK_MS, baseAgility);
-    const totalInterval = resolveHeroAttackIntervalMs(DUNGEON_BASE_ATTACK_MS, totalAgility);
+    const attackIntervalMultiplier = weaponType === "Ranged" ? 0.5 : 1;
+    const totalInterval = resolveHeroAttackIntervalMsWithMultiplier(
+        DUNGEON_BASE_ATTACK_MS,
+        totalAgility,
+        attackIntervalMultiplier
+    );
     const baseAttacksPerSecond = baseInterval > 0 ? 1000 / baseInterval : 0;
     const totalAttacksPerSecond = totalInterval > 0 ? 1000 / totalInterval : 0;
 

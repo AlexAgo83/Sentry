@@ -1,8 +1,8 @@
 ## task_067_ui_combat_skill_split_display - UI display for split combat skills
 > From version: 0.9.9
-> Understanding: 93%
-> Confidence: 90%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 94%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Context
@@ -26,3 +26,5 @@ Derived from `logics/backlog/item_081_ui_combat_skill_split_display.md`
 - npm run lint
 
 # Report
+- Surfaced melee/ranged/magic combat skills in Stats with a single Combat section and new icons/colors.
+- Updated dungeon party selection to show a compact combat skill mini-stack.

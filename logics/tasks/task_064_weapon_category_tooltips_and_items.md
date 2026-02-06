@@ -1,8 +1,8 @@
 ## task_064_weapon_category_tooltips_and_items - Weapon category tooltips and items
 > From version: 0.9.9
-> Understanding: 93%
-> Confidence: 90%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 95%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Context
@@ -23,3 +23,5 @@ Derived from `logics/backlog/item_078_weapon_category_tooltips_and_items.md`
 - npm run lint
 
 # Report
+- Updated weapon item detail tooltips to include category effects and tradeoffs.
+- Kept existing Magic weapon (Apprentice Staff) as the v1 magic category item.

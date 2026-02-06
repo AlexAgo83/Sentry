@@ -2,7 +2,9 @@ import type { ActionDefinition, ActionId, SkillDefinition, SkillId } from "../..
 import { SKILL_DEFINITIONS } from "./skills";
 
 const isActionSkill = (skill: SkillDefinition): skill is SkillDefinition & { id: ActionId } => {
-    return skill.id !== "Combat";
+    return skill.id !== "CombatMelee"
+        && skill.id !== "CombatRanged"
+        && skill.id !== "CombatMagic";
 };
 
 export const ACTION_SKILL_DEFINITIONS: Array<SkillDefinition & { id: ActionId }> = SKILL_DEFINITIONS.filter(isActionSkill);

@@ -482,7 +482,11 @@ export const DungeonScreen = memo(({
                                         onClick={() => onTogglePartyPlayer(player.id)}
                                     >
                                         <strong>{player.name}</strong>
-                                        <span>Combat Lv {player.skills.Combat.level}</span>
+                                        <div className="ts-dungeon-party-combat">
+                                            <span>Melee Lv {player.skills.CombatMelee.level}</span>
+                                            <span>Ranged Lv {player.skills.CombatRanged.level}</span>
+                                            <span>Magic Lv {player.skills.CombatMagic.level}</span>
+                                        </div>
                                     </button>
                                 );
                             })}

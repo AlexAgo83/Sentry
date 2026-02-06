@@ -4,13 +4,15 @@ import type {
     InventoryState,
     PlayerId,
     PlayerSaveState,
-    QuestProgressState
+    QuestProgressState,
+    SkillState
 } from "../../core/types";
 import type { ProgressionState } from "../../core/types";
 import { normalizeProgressionState } from "../../core/progression";
 import { normalizeDungeonState } from "../../core/dungeon";
+import { DEFAULT_SKILL_XP_NEXT, SKILL_MAX_LEVEL, XP_NEXT_MULTIPLIER } from "../../core/constants";
 
-export const LATEST_SAVE_SCHEMA_VERSION = 1;
+export const LATEST_SAVE_SCHEMA_VERSION = 2;
 
 const isObject = (value: unknown): value is Record<string, unknown> => {
     return Boolean(value) && typeof value === "object";
@@ -88,6 +90,76 @@ const normalizeQuests = (value: unknown): QuestProgressState | undefined => {
     return { craftCounts, completed };
 };
 
+const COMBAT_SKILL_IDS = ["CombatMelee", "CombatRanged", "CombatMagic"] as const;
+
+const computeTotalSkillXp = (level: number, xp: number): number => {
+    const safeLevel = Math.max(1, Math.floor(level));
+    let total = Math.max(0, Math.floor(xp));
+    let xpNext = DEFAULT_SKILL_XP_NEXT;
+    let currentLevel = 1;
+    while (currentLevel < safeLevel) {
+        total += xpNext;
+        xpNext = Math.floor(xpNext * XP_NEXT_MULTIPLIER);
+        currentLevel += 1;
+    }
+    return total;
+};
+
+const buildSkillProgressFromXp = (xp: number): Pick<SkillState, "xp" | "level" | "xpNext"> => {
+    let remaining = Math.max(0, Math.floor(xp));
+    let level = 1;
+    let xpNext = DEFAULT_SKILL_XP_NEXT;
+    while (remaining >= xpNext && level < SKILL_MAX_LEVEL) {
+        remaining -= xpNext;
+        level += 1;
+        xpNext = Math.floor(xpNext * XP_NEXT_MULTIPLIER);
+    }
+    return { xp: remaining, level, xpNext };
+};
+
+const splitLegacyCombatProgress = (legacy: SkillState) => {
+    const totalXp = computeTotalSkillXp(legacy.level, legacy.xp);
+    const base = Math.floor(totalXp / COMBAT_SKILL_IDS.length);
+    const remainder = totalXp - base * COMBAT_SKILL_IDS.length;
+    return COMBAT_SKILL_IDS.reduce<Record<string, Pick<SkillState, "xp" | "level" | "xpNext">>>((acc, skillId, index) => {
+        const splitXp = base + (index < remainder ? 1 : 0);
+        acc[skillId] = buildSkillProgressFromXp(splitXp);
+        return acc;
+    }, {});
+};
+
+const migrateCombatSkills = (players: Record<PlayerId, PlayerSaveState>) => {
+    Object.values(players).forEach((player) => {
+        const skills = (player as PlayerSaveState & { skills?: Record<string, SkillState> }).skills;
+        if (!skills) {
+            return;
+        }
+        const hasSplit = "CombatMelee" in skills || "CombatRanged" in skills || "CombatMagic" in skills;
+        const legacy = skills.Combat;
+        if (hasSplit || !legacy) {
+            return;
+        }
+        const progressBySkill = splitLegacyCombatProgress(legacy);
+        COMBAT_SKILL_IDS.forEach((skillId) => {
+            const progress = progressBySkill[skillId];
+            skills[skillId] = {
+                id: skillId,
+                xp: progress.xp,
+                level: progress.level,
+                xpNext: progress.xpNext,
+                maxLevel: SKILL_MAX_LEVEL,
+                baseInterval: 5000,
+                selectedRecipeId: null,
+                recipes: {}
+            };
+        });
+        delete skills.Combat;
+        if (player.selectedActionId === "Combat") {
+            player.selectedActionId = "Roaming";
+        }
+    });
+};
+
 const legacyGoldFromPlayers = (players: Record<PlayerId, PlayerSaveState>): number => {
     return Object.values(players).reduce((acc, player) => {
         const storage = (player as unknown as { storage?: unknown }).storage;
@@ -154,6 +226,9 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
     const candidateActivePlayerId = toNullableString(input.activePlayerId);
     const schemaVersionRaw = typeof input.schemaVersion === "number" ? input.schemaVersion : Number(input.schemaVersion);
     const schemaVersion = Number.isFinite(schemaVersionRaw) ? schemaVersionRaw : 0;
+    if (schemaVersion < LATEST_SAVE_SCHEMA_VERSION) {
+        migrateCombatSkills(players);
+    }
 
     const inventory = normalizeInventory(input.inventory);
     const legacyGold = legacyGoldFromPlayers(players);

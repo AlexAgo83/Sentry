@@ -168,14 +168,21 @@ export const parseSaveEnvelopeOrLegacy = (raw: string): SaveLoadResult => {
 
     if (isObject(parsed) && parsed.schemaVersion === 2) {
         const envelope = parsed as Partial<SaveEnvelopeV2>;
-        if (!isGameSaveLike(envelope.payload) || typeof envelope.checksum !== "string") {
+        if (isGameSaveLike(envelope.payload) && typeof envelope.checksum === "string") {
+            const computed = sha256Hex(JSON.stringify(envelope.payload));
+            if (computed !== envelope.checksum) {
+                return { status: "corrupt", save: null };
+            }
+            const migrated = migrateAndValidateSave(envelope.payload);
+            if (!migrated.ok) {
+                return { status: "corrupt", save: null };
+            }
+            return { status: migrated.migrated ? "migrated" : "ok", save: migrated.save };
+        }
+        if (!isGameSaveLike(parsed)) {
             return { status: "corrupt", save: null };
         }
-        const computed = sha256Hex(JSON.stringify(envelope.payload));
-        if (computed !== envelope.checksum) {
-            return { status: "corrupt", save: null };
-        }
-        const migrated = migrateAndValidateSave(envelope.payload);
+        const migrated = migrateAndValidateSave(parsed);
         if (!migrated.ok) {
             return { status: "corrupt", save: null };
         }

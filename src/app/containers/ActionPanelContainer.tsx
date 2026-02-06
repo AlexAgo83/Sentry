@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { getActionDefinition, ITEM_DEFINITIONS } from "../../data/definitions";
-import { getEquipmentModifiers } from "../../data/equipment";
+import { getCombatSkillIdForWeaponType, getEquippedWeaponType, getEquipmentModifiers } from "../../data/equipment";
 import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../core/constants";
 import { isPlayerAssignedToActiveDungeonRun } from "../../core/dungeon";
 import type { ActionDefinition, SkillId, SkillState } from "../../core/types";
@@ -153,8 +153,13 @@ export const ActionPanelContainer = ({
     const stunTimeLabel = activePlayer && activePlayer.stamina <= 0 && activeActionDef?.stunTime
         ? formatActionDuration(activeActionDef.stunTime)
         : null;
-    const displaySkillId = isInDungeon && !activeSkillId ? "Combat" : activeSkillId;
-    const activeSkillName = displaySkillId ? getSkillLabel(displaySkillId as SkillId) : "None";
+    const combatSkillId = activePlayer
+        ? getCombatSkillIdForWeaponType(getEquippedWeaponType(activePlayer.equipment))
+        : null;
+    const displaySkillId = isInDungeon && !activeSkillId ? combatSkillId : activeSkillId;
+    const activeSkillName = displaySkillId
+        ? (isInDungeon && !activeSkillId ? "Combat" : getSkillLabel(displaySkillId as SkillId))
+        : "None";
     const skillIconColor = getSkillIconColor(displaySkillId);
     const canInterruptAction = Boolean(activePlayer?.selectedActionId);
     const showDungeonShortcut = isInDungeon && !activeSkillId;

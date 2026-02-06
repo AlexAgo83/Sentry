@@ -1,5 +1,5 @@
 import { memo, type CSSProperties } from "react";
-import type { PlayerStatsState, SkillDefinition, SkillId, StatId, StatModifier } from "../../core/types";
+import type { CombatSkillId, PlayerStatsState, SkillDefinition, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
@@ -20,6 +20,13 @@ type CharacterStatsPanelProps = {
 
 const resolveSkillLevel = (levels: Partial<Record<SkillId, number>>, skillId: SkillId) => {
     return levels[skillId] ?? 0;
+};
+
+const COMBAT_SKILL_IDS: CombatSkillId[] = ["CombatMelee", "CombatRanged", "CombatMagic"];
+const COMBAT_SKILL_LABELS: Record<CombatSkillId, string> = {
+    CombatMelee: "Melee",
+    CombatRanged: "Ranged",
+    CombatMagic: "Magic"
 };
 
 type StatRowProps = {
@@ -139,8 +146,14 @@ export const CharacterStatsPanel = memo(({
     const tempTotals = accumulateTotals(stats.temporaryMods);
     const gearTotals = equipmentMods.length > 0 ? accumulateTotals(equipmentMods) : buildStatTotals();
     const tempMods = stats.temporaryMods;
-    const combatLevel = resolveSkillLevel(skillLevels, "Combat");
-    const combatDisplay = buildCombatDisplay(combatLevel, stats, effectiveStats);
+    const combatLevel = resolveSkillLevel(skillLevels, "CombatMelee");
+    const combatDisplay = buildCombatDisplay(combatLevel, stats, effectiveStats, null);
+    const combatSkills = COMBAT_SKILL_IDS.map((skillId) => ({
+        id: skillId,
+        name: COMBAT_SKILL_LABELS[skillId],
+        level: resolveSkillLevel(skillLevels, skillId)
+    }));
+    const displaySkills = skills.filter((skill) => !COMBAT_SKILL_IDS.includes(skill.id as CombatSkillId));
 
     return (
         <section className="generic-panel ts-panel ts-panel-stats">
@@ -166,7 +179,7 @@ export const CharacterStatsPanel = memo(({
                     <div className="ts-stats-layout">
                         <div className="ts-stats-column ts-stats-skills">
                             <div className="ts-stat-grid">
-                                {skills.map((skill) => {
+                                {displaySkills.map((skill) => {
                                     const level = resolveSkillLevel(skillLevels, skill.id);
                                     const color = getSkillIconColor(skill.id);
                                     const progress = skillProgress[skill.id] ?? 0;
@@ -227,6 +240,20 @@ export const CharacterStatsPanel = memo(({
                             ) : null}
                             <div className="ts-character-breakdown ts-character-breakdown--combat">
                                 <div className="ts-character-title">Combat</div>
+                                <div className="ts-combat-skill-lines">
+                                    {combatSkills.map((skill) => {
+                                        const color = getSkillIconColor(skill.id);
+                                        return (
+                                            <div key={skill.id} className="ts-combat-skill-line">
+                                                <span className="ts-combat-skill-icon" style={{ color }}>
+                                                    <SkillIcon skillId={skill.id} color={color} />
+                                                </span>
+                                                <span className="ts-combat-skill-label">{skill.name}</span>
+                                                <span className="ts-combat-skill-level">Lv {skill.level}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                                 <div className="ts-character-header ts-character-header--combat">
                                     <span>Metric</span>
                                     <span>Base</span>

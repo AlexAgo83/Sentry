@@ -53,8 +53,8 @@ describe("panel components", () => {
 
         render(
             <ActionStatusPanel
-                activeSkillId={"Combat" as SkillId}
-                activeSkillName="Combat"
+                activeSkillId={"CombatMelee" as SkillId}
+                activeSkillName="Combat - Melee"
                 activeRecipeLabel="Border Skirmish"
                 activeConsumptionLabel="1 Food"
                 activeProductionLabel="1 Gold"
@@ -103,8 +103,8 @@ describe("panel components", () => {
         const onInterruptAction = vi.fn();
         render(
             <ActionStatusPanel
-                activeSkillId={"Combat" as SkillId}
-                activeSkillName="Combat"
+                activeSkillId={"CombatMelee" as SkillId}
+                activeSkillName="Combat - Melee"
                 activeRecipeLabel="Border Skirmish"
                 activeConsumptionLabel="1 Food"
                 activeProductionLabel="1 Gold"
@@ -145,8 +145,8 @@ describe("panel components", () => {
     it("ActionStatusPanel hides details when collapsed", () => {
         render(
             <ActionStatusPanel
-                activeSkillId={"Combat" as SkillId}
-                activeSkillName="Combat"
+                activeSkillId={"CombatMelee" as SkillId}
+                activeSkillName="Combat - Melee"
                 activeRecipeLabel="Border Skirmish"
                 activeConsumptionLabel="1 Food"
                 activeProductionLabel="1 Gold"
@@ -335,7 +335,7 @@ describe("panel components", () => {
         render(
             <CharacterStatsPanel
                 skills={SKILL_DEFINITIONS}
-                skillLevels={{ Combat: 10 }}
+                skillLevels={{ CombatMelee: 10, CombatRanged: 5, CombatMagic: 3 }}
                 skillProgress={{}}
                 stats={stats}
                 effectiveStats={computeEffectiveStats(stats)}
@@ -371,7 +371,7 @@ describe("panel components", () => {
                         description: "Coins",
                         iconId: "gold",
                         usedBy: [],
-                        obtainedBy: ["Action: Combat"]
+                        obtainedBy: ["Action: Roaming"]
                     }
                 ]}
                 gridEntries={[
@@ -382,7 +382,7 @@ describe("panel components", () => {
                         description: "Coins",
                         iconId: "gold",
                         usedBy: [],
-                        obtainedBy: ["Action: Combat"]
+                        obtainedBy: ["Action: Roaming"]
                     }
                 ]}
                 selectedItem={null}

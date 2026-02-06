@@ -2,8 +2,9 @@ import { getDungeonDefinition, DUNGEON_DEFINITIONS } from "../data/dungeons";
 import { hashStringToSeed, seededRandom } from "./rng";
 import { XP_NEXT_MULTIPLIER } from "./constants";
 import { resolveEffectiveStats } from "./stats";
-import { getEquipmentModifiers } from "../data/equipment";
+import { getCombatSkillIdForWeaponType, getEquippedWeaponType, getEquipmentModifiers } from "../data/equipment";
 import type {
+    CombatSkillId,
     DungeonCadenceSnapshotEntry,
     DungeonDefinition,
     DungeonReplayEvent,
@@ -16,7 +17,8 @@ import type {
     InventoryState,
     ItemDelta,
     PlayerId,
-    PlayerState
+    PlayerState,
+    WeaponType
 } from "./types";
 
 export const DUNGEON_SIMULATION_STEP_MS = 500;
@@ -44,6 +46,14 @@ const TAUNT_THREAT_BONUS = 200;
 export const TAUNT_DURATION_MS = 2500;
 const STICKY_THRESHOLD_NORMAL = 0.10;
 const STICKY_THRESHOLD_BOSS = 0.15;
+const MAGIC_HEAL_COOLDOWN_MS = 4000;
+const MAGIC_HEAL_TRIGGER_THRESHOLD = 0.7;
+const MAGIC_HEAL_RATIO = 0.25;
+const MAGIC_DAMAGE_TAKEN_MULTIPLIER = 1.1;
+const RANGED_DAMAGE_TAKEN_MULTIPLIER = 1.25;
+const MELEE_DAMAGE_TAKEN_MULTIPLIER = 0.9;
+const RANGED_ATTACK_INTERVAL_MULTIPLIER = 0.5;
+const MELEE_THREAT_MULTIPLIER = 1.25;
 
 const normalizeInventoryCount = (value: number | undefined) => {
     const numeric = typeof value === "number" ? value : Number.NaN;
@@ -192,7 +202,9 @@ const recoverRunParty = (party: DungeonRunState["party"]): DungeonRunState["part
         ...member,
         hp: member.hpMax,
         potionCooldownMs: 0,
-        attackCooldownMs: 0
+        attackCooldownMs: 0,
+        magicHealCooldownMs: 0,
+        stunnedUntilMs: null
     }));
 };
 
@@ -346,6 +358,45 @@ export const resolveHeroAttackIntervalMs = (baseAttackMs: number, agility: numbe
     return clampNumber(DUNGEON_ATTACK_INTERVAL_MIN_MS, DUNGEON_ATTACK_INTERVAL_MAX_MS, raw);
 };
 
+export const resolveHeroAttackIntervalMsWithMultiplier = (
+    baseAttackMs: number,
+    agility: number,
+    multiplier = 1
+): number => {
+    const safeMultiplier = Number.isFinite(multiplier) && multiplier > 0 ? multiplier : 1;
+    const baseInterval = resolveHeroAttackIntervalMs(baseAttackMs, agility);
+    const adjusted = Math.round(baseInterval * safeMultiplier);
+    return clampNumber(DUNGEON_ATTACK_INTERVAL_MIN_MS, DUNGEON_ATTACK_INTERVAL_MAX_MS, adjusted);
+};
+
+const resolveAttackIntervalMultiplier = (weaponType: WeaponType | null | undefined) => {
+    return weaponType === "Ranged" ? RANGED_ATTACK_INTERVAL_MULTIPLIER : 1;
+};
+
+const resolveDamageTakenMultiplier = (weaponType: WeaponType | null | undefined) => {
+    if (weaponType === "Ranged") {
+        return RANGED_DAMAGE_TAKEN_MULTIPLIER;
+    }
+    if (weaponType === "Magic") {
+        return MAGIC_DAMAGE_TAKEN_MULTIPLIER;
+    }
+    return MELEE_DAMAGE_TAKEN_MULTIPLIER;
+};
+
+const resolveThreatMultiplier = (weaponType: WeaponType | null | undefined) => {
+    return weaponType === "Melee" ? MELEE_THREAT_MULTIPLIER : 1;
+};
+
+const resolveHeroAttackIntervalMsForWeapon = (
+    baseAttackMs: number,
+    agility: number,
+    weaponType: WeaponType | null | undefined
+) => {
+    return resolveHeroAttackIntervalMsWithMultiplier(baseAttackMs, agility, resolveAttackIntervalMultiplier(weaponType));
+};
+
+const resolveMagicHealAmount = (hpMax: number) => Math.max(1, Math.round(hpMax * MAGIC_HEAL_RATIO));
+
 export const resolveHeroAttackDamage = (combatLevel: number, strength: number): number => {
     const safeCombatLevel = Number.isFinite(combatLevel) ? combatLevel : 0;
     const safeStrength = Number.isFinite(strength) ? strength : 0;
@@ -367,11 +418,12 @@ const buildCadenceSnapshot = (
         const player = players[member.playerId];
         const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
         const agility = effective?.Agility ?? 0;
+        const weaponType = player ? getEquippedWeaponType(player.equipment) : "Melee";
         return {
             playerId: member.playerId,
             baseAttackMs,
             agilityAtRunStart: agility,
-            resolvedAttackIntervalMs: resolveHeroAttackIntervalMs(baseAttackMs, agility),
+            resolvedAttackIntervalMs: resolveHeroAttackIntervalMsForWeapon(baseAttackMs, agility, weaponType),
             minAttackMs: DUNGEON_ATTACK_INTERVAL_MIN_MS,
             maxAttackMs: DUNGEON_ATTACK_INTERVAL_MAX_MS
         };
@@ -386,7 +438,8 @@ const ensureRunCadenceState = (run: DungeonRunState, players: Record<PlayerId, P
             const player = players[member.playerId];
             const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
             const agility = effective?.Agility ?? 0;
-            const attackIntervalMs = resolveHeroAttackIntervalMs(baseAttackMs, agility);
+            const weaponType = player ? getEquippedWeaponType(player.equipment) : "Melee";
+            const attackIntervalMs = resolveHeroAttackIntervalMsForWeapon(baseAttackMs, agility, weaponType);
             return {
                 ...member,
                 attackCooldownMs: attackIntervalMs
@@ -402,9 +455,10 @@ const ensureRunCadenceState = (run: DungeonRunState, players: Record<PlayerId, P
         const player = players[member.playerId];
         const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
         const agility = effective?.Agility ?? 0;
+        const weaponType = player ? getEquippedWeaponType(player.equipment) : "Melee";
         return {
             ...member,
-            attackCooldownMs: resolveHeroAttackIntervalMs(baseAttackMs, agility)
+            attackCooldownMs: resolveHeroAttackIntervalMsForWeapon(baseAttackMs, agility, weaponType)
         };
     });
 };
@@ -450,7 +504,7 @@ const grantCombatXpToParty = (
     players: Record<PlayerId, PlayerState>,
     party: DungeonRunState["party"],
     xp: number,
-    combatXpByPlayer?: Record<PlayerId, number>
+    combatXpByPlayer?: Record<PlayerId, Partial<Record<CombatSkillId, number>>>
 ) => {
     if (!Number.isFinite(xp) || xp <= 0) {
         return players;
@@ -462,7 +516,9 @@ const grantCombatXpToParty = (
         if (!player) {
             return;
         }
-        const combatSkill = player.skills.Combat;
+        const weaponType = getEquippedWeaponType(player.equipment);
+        const combatSkillId = getCombatSkillIdForWeaponType(weaponType);
+        const combatSkill = player.skills[combatSkillId];
         if (!combatSkill) {
             return;
         }
@@ -473,13 +529,15 @@ const grantCombatXpToParty = (
             combatSkill.maxLevel
         );
         if (combatXpByPlayer) {
-            combatXpByPlayer[member.playerId] = (combatXpByPlayer[member.playerId] ?? 0) + xp;
+            const playerXp = combatXpByPlayer[member.playerId] ?? {};
+            playerXp[combatSkillId] = (playerXp[combatSkillId] ?? 0) + xp;
+            combatXpByPlayer[member.playerId] = playerXp;
         }
         nextPlayers[member.playerId] = {
             ...player,
             skills: {
                 ...player.skills,
-                Combat: {
+                [combatSkillId]: {
                     ...combatSkill,
                     xp: leveled.xp,
                     level: leveled.level,
@@ -718,9 +776,11 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
                 ...member,
                 potionCooldownMs: Number.isFinite(member.potionCooldownMs) ? member.potionCooldownMs : 0,
                 attackCooldownMs: Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0,
+                magicHealCooldownMs: Number.isFinite(member.magicHealCooldownMs) ? member.magicHealCooldownMs : 0,
                 tauntUntilMs: Number.isFinite(member.tauntUntilMs) ? member.tauntUntilMs : null,
                 tauntBonus: Number.isFinite(member.tauntBonus) ? member.tauntBonus : null,
-                tauntStartedAtMs: Number.isFinite(member.tauntStartedAtMs) ? member.tauntStartedAtMs : null
+                tauntStartedAtMs: Number.isFinite(member.tauntStartedAtMs) ? member.tauntStartedAtMs : null,
+                stunnedUntilMs: Number.isFinite(member.stunnedUntilMs) ? member.stunnedUntilMs : null
             }))
             : [];
         const floorPauseMs = Number.isFinite(run.floorPauseMs)
@@ -844,16 +904,19 @@ export const startDungeonRun = (
         const player = state.players[playerId];
         const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
         const agility = effective?.Agility ?? 0;
-        const attackIntervalMs = resolveHeroAttackIntervalMs(baseAttackMs, agility);
+        const weaponType = player ? getEquippedWeaponType(player.equipment) : "Melee";
+        const attackIntervalMs = resolveHeroAttackIntervalMsForWeapon(baseAttackMs, agility, weaponType);
         return {
             playerId,
             hp: Math.max(1, Math.round(player.hpMax)),
             hpMax: Math.max(1, Math.round(player.hpMax)),
             potionCooldownMs: 0,
             attackCooldownMs: attackIntervalMs,
+            magicHealCooldownMs: 0,
             tauntUntilMs: null,
             tauntBonus: null,
-            tauntStartedAtMs: null
+            tauntStartedAtMs: null,
+            stunnedUntilMs: null
         };
     });
     const cadenceSnapshot = buildCadenceSnapshot(party, state.players, timestamp, baseAttackMs);
@@ -975,7 +1038,7 @@ export const applyDungeonTick = (
     state: GameState;
     itemDeltas: ItemDelta;
     combatActiveMsByPlayer: Record<PlayerId, number>;
-    combatXpByPlayer: Record<PlayerId, number>;
+    combatXpByPlayer: Record<PlayerId, Partial<Record<CombatSkillId, number>>>;
 } => {
     const activeRun = getActiveDungeonRun(state.dungeon);
     if (!activeRun) {
@@ -996,7 +1059,7 @@ export const applyDungeonTick = (
     let inventory = cloneInventory(state.inventory);
     const itemDeltas: ItemDelta = {};
     const combatActiveMsByPlayer: Record<PlayerId, number> = {};
-    const combatXpByPlayer: Record<PlayerId, number> = {};
+    const combatXpByPlayer: Record<PlayerId, Partial<Record<CombatSkillId, number>>> = {};
     let players = state.players;
 
     if (run.restartAt && timestamp >= run.restartAt && run.autoRestart) {
@@ -1016,15 +1079,18 @@ export const applyDungeonTick = (
                 const player = players[member.playerId];
                 const effective = player ? resolveHeroEffectiveStats(player, timestamp) : null;
                 const agility = effective?.Agility ?? 0;
-                const attackIntervalMs = resolveHeroAttackIntervalMs(baseAttackMs, agility);
+                const weaponType = player ? getEquippedWeaponType(player.equipment) : "Melee";
+                const attackIntervalMs = resolveHeroAttackIntervalMsForWeapon(baseAttackMs, agility, weaponType);
                 return {
                     ...member,
                     hp: member.hpMax,
                     potionCooldownMs: 0,
                     attackCooldownMs: attackIntervalMs,
+                    magicHealCooldownMs: 0,
                     tauntUntilMs: null,
                     tauntBonus: null,
-                    tauntStartedAtMs: null
+                    tauntStartedAtMs: null,
+                    stunnedUntilMs: null
                 };
             });
             run.cadenceSnapshot = buildCadenceSnapshot(run.party, players, timestamp, baseAttackMs);
@@ -1053,6 +1119,7 @@ export const applyDungeonTick = (
     const steps = Math.floor(run.stepCarryMs / DUNGEON_SIMULATION_STEP_MS);
     run.stepCarryMs -= steps * DUNGEON_SIMULATION_STEP_MS;
     const partyById = new Map(run.party.map((member) => [member.playerId, member]));
+    const partyOrderIndex = new Map(run.party.map((member, index) => [member.playerId, index]));
 
     for (let step = 0; step < steps; step += 1) {
         if (run.status !== "running") {
@@ -1079,6 +1146,8 @@ export const applyDungeonTick = (
             member.potionCooldownMs = Math.max(0, member.potionCooldownMs - DUNGEON_SIMULATION_STEP_MS);
             const currentCooldown = Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0;
             member.attackCooldownMs = currentCooldown - DUNGEON_SIMULATION_STEP_MS;
+            const magicCooldown = Number.isFinite(member.magicHealCooldownMs) ? member.magicHealCooldownMs : 0;
+            member.magicHealCooldownMs = Math.max(0, magicCooldown - DUNGEON_SIMULATION_STEP_MS);
         });
 
         if (run.floorPauseMs && run.floorPauseMs > 0) {
@@ -1114,16 +1183,35 @@ export const applyDungeonTick = (
             }
         });
 
-        const heroStepCache = new Map<PlayerId, { attackIntervalMs: number; baseDamage: number }>();
+        const heroStepCache = new Map<PlayerId, {
+            attackIntervalMs: number;
+            baseDamage: number;
+            threatMultiplier: number;
+            damageTakenMultiplier: number;
+            weaponType: WeaponType;
+        }>();
         aliveHeroIds.forEach((playerId) => {
             const player = players[playerId];
             if (!player) {
                 return;
             }
             const effective = resolveHeroEffectiveStats(player, timestamp);
-            const attackIntervalMs = resolveHeroAttackIntervalMs(DUNGEON_BASE_ATTACK_MS, effective.Agility ?? 0);
-            const baseDamage = resolveHeroAttackDamage(player.skills.Combat.level, effective.Strength ?? 0);
-            heroStepCache.set(playerId, { attackIntervalMs, baseDamage });
+            const weaponType = getEquippedWeaponType(player.equipment);
+            const combatSkillId = getCombatSkillIdForWeaponType(weaponType);
+            const attackIntervalMs = resolveHeroAttackIntervalMsForWeapon(
+                DUNGEON_BASE_ATTACK_MS,
+                effective.Agility ?? 0,
+                weaponType
+            );
+            const combatLevel = player.skills[combatSkillId]?.level ?? 0;
+            const baseDamage = resolveHeroAttackDamage(combatLevel, effective.Strength ?? 0);
+            heroStepCache.set(playerId, {
+                attackIntervalMs,
+                baseDamage,
+                threatMultiplier: resolveThreatMultiplier(weaponType),
+                damageTakenMultiplier: resolveDamageTakenMultiplier(weaponType),
+                weaponType
+            });
         });
 
         let targetEnemy = resolveTargetEnemy(run.enemies, run.targetEnemyId);
@@ -1151,7 +1239,7 @@ export const applyDungeonTick = (
                     ? Math.max(1, Math.round(baseDamage * 0.6))
                     : baseDamage;
                 enemy.hp = Math.max(0, enemy.hp - reducedDamage);
-                addThreat(run.threatByHeroId, playerId, reducedDamage);
+                addThreat(run.threatByHeroId, playerId, reducedDamage * cached.threatMultiplier);
                 pushEventWithStepCap({
                     type: "attack",
                     sourceId: playerId,
@@ -1224,6 +1312,7 @@ export const applyDungeonTick = (
         if (targetHeroId) {
             const hero = partyById.get(targetHeroId);
             if (hero) {
+                const cached = heroStepCache.get(targetHeroId);
                 let enemyDamage = activeEnemy.damage;
                 if (activeEnemy.isBoss && activeEnemy.mechanic === "burst" && run.encounterStep % 4 === 0) {
                     enemyDamage = Math.round(enemyDamage * BOSS_BURST_DAMAGE_MULTIPLIER);
@@ -1231,19 +1320,21 @@ export const applyDungeonTick = (
                 if (activeEnemy.isBoss && activeEnemy.mechanic === "enrage" && activeEnemy.hp / activeEnemy.hpMax <= 0.3) {
                     enemyDamage = Math.round(enemyDamage * BOSS_ENRAGE_DAMAGE_MULTIPLIER);
                 }
-                hero.hp = Math.max(0, hero.hp - enemyDamage);
+                const damageMultiplier = cached?.damageTakenMultiplier ?? 1;
+                const adjustedDamage = Math.max(1, Math.round(enemyDamage * damageMultiplier));
+                hero.hp = Math.max(0, hero.hp - adjustedDamage);
                 pushEventWithStepCap({
                     type: "attack",
                     sourceId: activeEnemy.id,
                     targetId: targetHeroId,
-                    amount: enemyDamage,
+                    amount: adjustedDamage,
                     label: activeEnemy.name
                 });
                 pushEventWithStepCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
                     targetId: targetHeroId,
-                    amount: enemyDamage
+                    amount: adjustedDamage
                 });
                 if (hero.hp <= 0) {
                     pushEventWithStepCap({
@@ -1261,12 +1352,15 @@ export const applyDungeonTick = (
                     return;
                 }
                 const poisonDamage = Math.max(1, Math.round(activeEnemy.damage * BOSS_POISON_DAMAGE_RATIO));
-                member.hp = Math.max(0, member.hp - poisonDamage);
+                const cached = heroStepCache.get(member.playerId);
+                const damageMultiplier = cached?.damageTakenMultiplier ?? 1;
+                const adjustedDamage = Math.max(1, Math.round(poisonDamage * damageMultiplier));
+                member.hp = Math.max(0, member.hp - adjustedDamage);
                 pushEventWithStepCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
                     targetId: member.playerId,
-                    amount: poisonDamage,
+                    amount: adjustedDamage,
                     label: "Poison"
                 });
             });
@@ -1292,6 +1386,52 @@ export const applyDungeonTick = (
                 label: summon.name
             });
         }
+
+        // Magic weapon ally heal (cooldown-based).
+        run.party.forEach((member) => {
+            const cached = heroStepCache.get(member.playerId);
+            if (!cached || cached.weaponType !== "Magic") {
+                return;
+            }
+            if (member.hp <= 0) {
+                return;
+            }
+            if (Number(member.stunnedUntilMs) > nowMs) {
+                return;
+            }
+            if (member.magicHealCooldownMs > 0) {
+                return;
+            }
+            const candidates = run.party
+                .filter((ally) => ally.playerId !== member.playerId && ally.hp > 0 && ally.hp < ally.hpMax)
+                .filter((ally) => ally.hp / ally.hpMax < MAGIC_HEAL_TRIGGER_THRESHOLD)
+                .sort((a, b) => {
+                    const ratioDiff = (a.hp / a.hpMax) - (b.hp / b.hpMax);
+                    if (ratioDiff !== 0) {
+                        return ratioDiff;
+                    }
+                    return (partyOrderIndex.get(a.playerId) ?? 0) - (partyOrderIndex.get(b.playerId) ?? 0);
+                });
+            const target = candidates[0];
+            if (!target) {
+                return;
+            }
+            const amount = resolveMagicHealAmount(target.hpMax);
+            const actualHeal = Math.max(0, Math.min(amount, target.hpMax - target.hp));
+            if (actualHeal <= 0) {
+                return;
+            }
+            target.hp = Math.min(target.hpMax, target.hp + actualHeal);
+            member.magicHealCooldownMs = MAGIC_HEAL_COOLDOWN_MS;
+            addThreat(run.threatByHeroId, member.playerId, actualHeal * HEAL_THREAT_RATIO);
+            pushEventWithStepCap({
+                type: "heal",
+                sourceId: member.playerId,
+                targetId: target.playerId,
+                amount: actualHeal,
+                label: "Magic"
+            });
+        });
 
         // Potion auto-use below 50% HP.
         run.party.forEach((member) => {

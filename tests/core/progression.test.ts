@@ -73,7 +73,7 @@ describe("progression tracking", () => {
         expect(bucket?.skillActiveMs.Roaming ?? 0).toBeGreaterThan(0);
     });
 
-    it("tracks Combat active time in progression while dungeon is running", () => {
+    it("tracks combat active time in progression while dungeon is running", () => {
         let state = createInitialGameState("0.9.3");
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
@@ -91,7 +91,7 @@ describe("progression tracking", () => {
         const next = applyTick(state, 500, now);
         const bucket = next.players["1"].progression.buckets.find((entry) => entry.dayKey === getDayKey(now));
         const globalBucket = next.progression.buckets.find((entry) => entry.dayKey === getDayKey(now));
-        expect(bucket?.skillActiveMs.Combat ?? 0).toBeGreaterThan(0);
-        expect(globalBucket?.skillActiveMs.Combat ?? 0).toBeGreaterThan(0);
+        expect(bucket?.skillActiveMs.CombatMelee ?? 0).toBeGreaterThan(0);
+        expect(globalBucket?.skillActiveMs.CombatMelee ?? 0).toBeGreaterThan(0);
     });
 });
