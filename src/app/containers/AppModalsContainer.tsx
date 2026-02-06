@@ -21,6 +21,8 @@ type AppModalsContainerProps = {
     onExportSave: () => void;
     onImportSave: () => void;
     onSimulateOffline: () => void;
+    onSimulateOfflineHour: () => void;
+    onSimulateOfflineDay: () => void;
     onResetSave: () => void;
     onCloseSystem: () => void;
     onOpenDevTools: () => void;
@@ -73,6 +75,8 @@ export const AppModalsContainer = ({
     onExportSave,
     onImportSave,
     onSimulateOffline,
+    onSimulateOfflineHour,
+    onSimulateOfflineDay,
     onResetSave,
     onCloseSystem,
     onOpenDevTools,
@@ -176,7 +180,12 @@ export const AppModalsContainer = ({
                 <CloudSaveModal onClose={onCloseCloudSave} />
             ) : null}
             {import.meta.env.DEV && isDevToolsOpen ? (
-                <DevToolsModal onClose={onCloseDevTools} onSimulateOffline={onSimulateOffline} />
+                <DevToolsModal
+                    onClose={onCloseDevTools}
+                    onSimulateOffline={onSimulateOffline}
+                    onSimulateOfflineHour={onSimulateOfflineHour}
+                    onSimulateOfflineDay={onSimulateOfflineDay}
+                />
             ) : null}
             {offlineSummary ? (
                 <OfflineSummaryModal

@@ -11,10 +11,17 @@ import {
 
 type DevToolsModalProps = {
     onSimulateOffline: () => void;
+    onSimulateOfflineHour: () => void;
+    onSimulateOfflineDay: () => void;
     onClose: () => void;
 };
 
-export const DevToolsModal = memo(({ onSimulateOffline, onClose }: DevToolsModalProps) => {
+export const DevToolsModal = memo(({
+    onSimulateOffline,
+    onSimulateOfflineHour,
+    onSimulateOfflineDay,
+    onClose
+}: DevToolsModalProps) => {
     const [isRenderCountsEnabled, setIsRenderCountsEnabled] = useState(() => (
         import.meta.env.DEV ? isDebugEnabled(RENDER_COUNTS_ENABLE_KEY) : false
     ));
@@ -56,6 +63,20 @@ export const DevToolsModal = memo(({ onSimulateOffline, onClose }: DevToolsModal
                     onClick={onSimulateOffline}
                 >
                     Simulate +30 min
+                </button>
+                <button
+                    type="button"
+                    className="generic-field button ts-devtools-button ts-focusable"
+                    onClick={onSimulateOfflineHour}
+                >
+                    Simulate +1h
+                </button>
+                <button
+                    type="button"
+                    className="generic-field button ts-devtools-button ts-focusable"
+                    onClick={onSimulateOfflineDay}
+                >
+                    Simulate +24h
                 </button>
             </div>
             <div className="ts-action-row ts-system-actions ts-action-stack ts-devtools-actions">

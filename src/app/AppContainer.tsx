@@ -207,6 +207,14 @@ export const AppContainer = () => {
         gameRuntime.simulateOffline(30 * 60 * 1000);
     }, []);
 
+    const handleSimulateOfflineHour = useCallback(() => {
+        gameRuntime.simulateOffline(60 * 60 * 1000);
+    }, []);
+
+    const handleSimulateOfflineDay = useCallback(() => {
+        gameRuntime.simulateOffline(24 * 60 * 60 * 1000);
+    }, []);
+
     const handleRosterPlayerSelect = useCallback(() => {
         setHeroMenuOpenSignal((current) => current + 1);
     }, []);
@@ -305,6 +313,8 @@ export const AppContainer = () => {
                 onExportSave={exportSave}
                 onImportSave={importSave}
                 onSimulateOffline={handleSimulateOffline}
+                onSimulateOfflineHour={handleSimulateOfflineHour}
+                onSimulateOfflineDay={handleSimulateOfflineDay}
                 onResetSave={resetSave}
                 onCloseSystem={closeSystem}
                 onOpenDevTools={openDevTools}
