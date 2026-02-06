@@ -278,7 +278,7 @@ export const ActionSelectionScreenContainer = ({
 
     return (
         <>
-            <HeroSkinPanelContainer onRenameHero={onRenameHero} />
+            <HeroSkinPanelContainer onRenameHero={onRenameHero} useDungeonProgress />
             <ActionSelectionScreen
                 activePlayer={activePlayer}
                 skills={ACTION_SKILL_DEFINITIONS}

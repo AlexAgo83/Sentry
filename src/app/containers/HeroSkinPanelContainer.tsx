@@ -3,6 +3,7 @@ import { useGameStore } from "../hooks/useGameStore";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { CharacterSkinPanel } from "../components/CharacterSkinPanel";
+import { getActiveDungeonRuns } from "../../core/dungeon";
 import { getSkillIconColor } from "../ui/skillColors";
 import { getSkillBackgroundUrl } from "../ui/skillBackgrounds";
 import { getFaceIndex, normalizeFaceIndex } from "../ui/heroFaces";
@@ -10,13 +11,32 @@ import { getHairColor, getHairIndex, getSkinColor, normalizeHairIndex } from "..
 
 type HeroSkinPanelContainerProps = {
     onRenameHero: () => void;
+    useDungeonProgress?: boolean;
 };
 
-export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerProps) => {
+export const HeroSkinPanelContainer = ({ onRenameHero, useDungeonProgress = false }: HeroSkinPanelContainerProps) => {
     const activePlayer = useGameStore(selectActivePlayer);
     const activePlayerId = activePlayer?.id ?? null;
     const [isSkinCollapsed, setSkinCollapsed] = usePersistedCollapse("skin", false);
     const [isSkinEditMode, setSkinEditMode] = usePersistedCollapse("skin-edit", false);
+    const dungeonProgressPercent = useGameStore((state) => {
+        if (!useDungeonProgress) {
+            return null;
+        }
+        const playerId = state.activePlayerId;
+        if (!playerId) {
+            return null;
+        }
+        const run = getActiveDungeonRuns(state.dungeon)
+            .find((candidate) => candidate.party.some((member) => member.playerId === playerId));
+        if (!run) {
+            return null;
+        }
+        const floorCount = Math.max(1, Math.floor(run.floorCount || 0));
+        const floor = Math.max(1, Math.min(floorCount, Math.floor(run.floor || 1)));
+        const progress = floorCount > 0 ? (floor / floorCount) * 100 : 0;
+        return Math.max(0, Math.min(100, Math.round(progress)));
+    });
 
     const avatarColor = getSkillIconColor(activePlayer?.selectedActionId);
     const faceIndex = activePlayer?.appearance?.faceIndex ?? getFaceIndex(activePlayerId ?? "default");
@@ -25,7 +45,10 @@ export const HeroSkinPanelContainer = ({ onRenameHero }: HeroSkinPanelContainerP
     const skinColor = activePlayer?.appearance?.skinColor ?? getSkinColor(activePlayerId ?? "default");
     const showHelmet = activePlayer?.appearance?.showHelmet ?? true;
     const skillBackgroundUrl = getSkillBackgroundUrl(activePlayer?.selectedActionId ?? null);
-    const progressPercent = activePlayer?.actionProgress?.progressPercent ?? 0;
+    const actionProgressPercent = activePlayer?.actionProgress?.progressPercent ?? 0;
+    const progressPercent = Number.isFinite(dungeonProgressPercent ?? Number.NaN)
+        ? (dungeonProgressPercent as number)
+        : actionProgressPercent;
     const isStunned = Boolean(activePlayer?.selectedActionId) && (activePlayer?.stamina ?? 0) <= 0;
 
     const handleNextFace = () => {

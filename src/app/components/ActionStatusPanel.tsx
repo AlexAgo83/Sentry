@@ -6,6 +6,7 @@ import { CollapseIcon } from "../ui/collapseIcon";
 import { ChangeIcon } from "../ui/changeIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { ItemIcon } from "../ui/itemIcon";
+import { TabIcon } from "../ui/tabIcons";
 import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
 type ItemEntry = {
@@ -16,6 +17,7 @@ type ItemEntry = {
 
 type ActionStatusPanelProps = {
     activeSkillId: SkillId | "";
+    displaySkillId?: SkillId | "";
     activeSkillName: string;
     activeRecipeLabel: string;
     activeConsumptionLabel: string;
@@ -48,10 +50,15 @@ type ActionStatusPanelProps = {
     canChangeAction: boolean;
     onInterruptAction: () => void;
     canInterruptAction: boolean;
+    showChangeAction?: boolean;
+    showInterruptAction?: boolean;
+    showDungeonShortcut?: boolean;
+    onOpenDungeon?: () => void;
 };
 
 export const ActionStatusPanel = memo(({
     activeSkillId,
+    displaySkillId = "",
     activeSkillName,
     activeRecipeLabel,
     activeConsumptionLabel,
@@ -83,9 +90,15 @@ export const ActionStatusPanel = memo(({
     onChangeAction,
     canChangeAction,
     onInterruptAction,
-    canInterruptAction
+    canInterruptAction,
+    showChangeAction = true,
+    showInterruptAction = true,
+    showDungeonShortcut = false,
+    onOpenDungeon
 }: ActionStatusPanelProps) => {
     const hasActiveAction = Boolean(activeSkillId);
+    const resolvedDisplaySkillId = displaySkillId || activeSkillId;
+    const canShowDungeonShortcut = showDungeonShortcut && typeof onOpenDungeon === "function";
     const changeActionClassName = [
         "ts-collapse-button",
         "ts-focusable",
@@ -135,32 +148,49 @@ export const ActionStatusPanel = memo(({
 	                <h2 className="ts-panel-title">Action</h2>
 	            </div>
 	            <div className="ts-panel-actions ts-panel-actions-inline">
-                    <button
-                        type="button"
-                        className={`${changeActionClassName} ts-action-button`}
-                        onClick={onChangeAction}
-                        disabled={!canChangeAction}
-                        aria-label="Change"
-                        title="Change"
-                    >
-                        <span className="ts-collapse-label">
-                            <ChangeIcon />
-                        </span>
-                        <span className="ts-action-button-label">Change</span>
-                    </button>
-                    <button
-                        type="button"
-                        className={`ts-collapse-button ts-focusable ts-action-stop ts-action-button${canInterruptAction ? " is-ready-stop" : ""}`}
-                        onClick={onInterruptAction}
-                        disabled={!canInterruptAction}
-                        aria-label="Interrupt"
-                        title="Interrupt"
-                    >
-                        <span className="ts-collapse-label">
-                            <InterruptIcon />
-                        </span>
-                        <span className="ts-action-button-label">Interrupt</span>
-                    </button>
+                    {showChangeAction ? (
+                        <button
+                            type="button"
+                            className={`${changeActionClassName} ts-action-button`}
+                            onClick={onChangeAction}
+                            disabled={!canChangeAction}
+                            aria-label="Change"
+                            title="Change"
+                        >
+                            <span className="ts-collapse-label">
+                                <ChangeIcon />
+                            </span>
+                            <span className="ts-action-button-label">Change</span>
+                        </button>
+                    ) : null}
+                    {canShowDungeonShortcut ? (
+                        <button
+                            type="button"
+                            className="ts-collapse-button ts-focusable ts-action-dungeon ts-action-button"
+                            onClick={onOpenDungeon}
+                            aria-label="Dungeon"
+                            title="Dungeon"
+                        >
+                            <span className="ts-collapse-label">
+                                <TabIcon kind="dungeon" />
+                            </span>
+                            <span className="ts-action-button-label">Dungeon</span>
+                        </button>
+                    ) : showInterruptAction ? (
+                        <button
+                            type="button"
+                            className={`ts-collapse-button ts-focusable ts-action-stop ts-action-button${canInterruptAction ? " is-ready-stop" : ""}`}
+                            onClick={onInterruptAction}
+                            disabled={!canInterruptAction}
+                            aria-label="Interrupt"
+                            title="Interrupt"
+                        >
+                            <span className="ts-collapse-label">
+                                <InterruptIcon />
+                            </span>
+                            <span className="ts-action-button-label">Interrupt</span>
+                        </button>
+                    ) : null}
 	                <button
 	                    type="button"
 	                    className="ts-collapse-button ts-focusable"
@@ -177,7 +207,7 @@ export const ActionStatusPanel = memo(({
             <>
                 <div className="ts-skill-card">
                     <div className="ts-skill-icon" style={{ borderColor: skillIconColor }} aria-hidden="true">
-                        <SkillIcon skillId={activeSkillId} color={skillIconColor} />
+                        <SkillIcon skillId={resolvedDisplaySkillId} color={skillIconColor} />
                     </div>
                     <div className="ts-skill-copy">
                         <div className="ts-skill-label">Selected skill</div>

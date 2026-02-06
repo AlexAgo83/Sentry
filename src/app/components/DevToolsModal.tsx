@@ -111,9 +111,6 @@ export const DevToolsModal = memo(({
                     Toggle profiler
                 </button>
             </div>
-            <p>
-                localStorage keys: <code>{RENDER_COUNTS_ENABLE_KEY}</code> / <code>{PROFILER_ENABLE_KEY}</code>
-            </p>
         </ModalShell>
     );
 });

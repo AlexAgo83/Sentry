@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 import { getActionDefinition, ITEM_DEFINITIONS } from "../../data/definitions";
 import { getEquipmentModifiers } from "../../data/equipment";
 import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../core/constants";
+import { isPlayerAssignedToActiveDungeonRun } from "../../core/dungeon";
 import type { ActionDefinition, SkillId, SkillState } from "../../core/types";
 import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../../core/stats";
 import { useGameStore } from "../hooks/useGameStore";
@@ -17,6 +18,7 @@ import { HeroSkinPanelContainer } from "./HeroSkinPanelContainer";
 type ActionPanelContainerProps = {
     onChangeAction: () => void;
     onRenameHero: () => void;
+    onOpenDungeon: () => void;
     getSkillLabel: (skillId: SkillId) => string;
     getRecipeLabel: (skillId: SkillId, recipeId: string | null) => string;
 };
@@ -32,6 +34,7 @@ const INTELLECT_SKILLS = new Set<SkillId>([
 export const ActionPanelContainer = ({
     onChangeAction,
     onRenameHero,
+    onOpenDungeon,
     getSkillLabel,
     getRecipeLabel
 }: ActionPanelContainerProps) => {
@@ -62,6 +65,9 @@ export const ActionPanelContainer = ({
         recipeStyle,
         isStunned
     } = useActionStatus(activePlayer);
+    const isInDungeon = useGameStore((state) => (
+        activePlayer?.id ? isPlayerAssignedToActiveDungeonRun(state, activePlayer.id) : false
+    ));
 
     const formatActionDuration = useCallback((durationMs: number): string => {
         if (!Number.isFinite(durationMs) || durationMs <= 0) {
@@ -147,9 +153,13 @@ export const ActionPanelContainer = ({
     const stunTimeLabel = activePlayer && activePlayer.stamina <= 0 && activeActionDef?.stunTime
         ? formatActionDuration(activeActionDef.stunTime)
         : null;
-    const activeSkillName = activeSkillId ? getSkillLabel(activeSkillId as SkillId) : "None";
-    const skillIconColor = getSkillIconColor(activeSkillId);
+    const displaySkillId = isInDungeon && !activeSkillId ? "Combat" : activeSkillId;
+    const activeSkillName = displaySkillId ? getSkillLabel(displaySkillId as SkillId) : "None";
+    const skillIconColor = getSkillIconColor(displaySkillId);
     const canInterruptAction = Boolean(activePlayer?.selectedActionId);
+    const showDungeonShortcut = isInDungeon && !activeSkillId;
+    const showChangeAction = !isInDungeon;
+    const showInterruptAction = !isInDungeon;
     const handleInterruptAction = useCallback(() => {
         if (!activePlayer) {
             return;
@@ -159,9 +169,10 @@ export const ActionPanelContainer = ({
 
     return (
         <>
-            <HeroSkinPanelContainer onRenameHero={onRenameHero} />
+            <HeroSkinPanelContainer onRenameHero={onRenameHero} useDungeonProgress />
             <ActionStatusPanel
                 activeSkillId={activeSkillId as SkillId | ""}
+                displaySkillId={displaySkillId as SkillId | ""}
                 activeSkillName={activeSkillName}
                 activeRecipeLabel={activeRecipeLabel}
                 activeConsumptionLabel={activeConsumptionLabel}
@@ -194,6 +205,10 @@ export const ActionPanelContainer = ({
                 canChangeAction={Boolean(activePlayer)}
                 onInterruptAction={handleInterruptAction}
                 canInterruptAction={canInterruptAction}
+                showChangeAction={showChangeAction}
+                showInterruptAction={showInterruptAction}
+                showDungeonShortcut={showDungeonShortcut}
+                onOpenDungeon={onOpenDungeon}
             />
         </>
     );

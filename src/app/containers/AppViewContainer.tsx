@@ -101,6 +101,7 @@ export const AppViewContainer = ({
                     <DevProfiler id="ActionPanel">
                         <ActionPanelContainer
                             onChangeAction={onChangeAction}
+                            onOpenDungeon={onShowDungeon}
                             onRenameHero={onRenameHero}
                             getSkillLabel={getSkillLabel}
                             getRecipeLabel={getRecipeLabel}
