@@ -52,7 +52,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
 
     return (
         <>
-            <HeroSkinPanelContainer onRenameHero={onRenameHero} />
+            <HeroSkinPanelContainer onRenameHero={onRenameHero} useDungeonProgress />
             <StatsDashboardPanel
                 heroProgression={heroProgression}
                 globalProgression={globalProgression}

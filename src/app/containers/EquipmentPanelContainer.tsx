@@ -42,7 +42,7 @@ export const EquipmentPanelContainer = ({ onRenameHero }: EquipmentPanelContaine
 
     return (
         <>
-            <HeroSkinPanelContainer onRenameHero={onRenameHero} />
+            <HeroSkinPanelContainer onRenameHero={onRenameHero} useDungeonProgress />
             <EquipmentPanel
                 isCollapsed={isEquipmentCollapsed}
                 onToggleCollapsed={() => setEquipmentCollapsed((value) => !value)}

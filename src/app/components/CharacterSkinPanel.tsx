@@ -26,6 +26,7 @@ type CharacterSkinPanelProps = {
     equipment: PlayerEquipmentState | null;
     skillBackgroundUrl?: string | null;
     progressPercent?: number;
+    progressColor?: string;
     isStunned?: boolean;
     heroName?: string | null;
     isPlaceholder: boolean;
@@ -52,6 +53,7 @@ export const CharacterSkinPanel = memo(({
     equipment,
     skillBackgroundUrl,
     progressPercent = 0,
+    progressColor,
     isStunned = false,
     heroName,
     isPlaceholder,
@@ -75,10 +77,13 @@ export const CharacterSkinPanel = memo(({
         "--ts-avatar-skin": skinColor,
         ...getEquipmentSkinVars(equipment, { showHelmet })
     } as CSSProperties;
+    const ringColor = isStunned
+        ? "rgba(199, 74, 61, 0.8)"
+        : (progressColor ?? avatarColor);
     const panelStyle = {
         "--ts-skin-background": skillBackgroundUrl ? `url("${skillBackgroundUrl}")` : "none",
         "--ts-skin-progress": `${Math.max(0, Math.min(100, progressPercent))}%`,
-        "--ts-skin-progress-color": isStunned ? "rgba(199, 74, 61, 0.8)" : avatarColor
+        "--ts-skin-progress-color": ringColor
     } as CSSProperties;
     return (
         <section
