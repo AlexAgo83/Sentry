@@ -40,6 +40,7 @@ Use the following indicators in request/backlog/task items:
 * `Understanding: ??%` : Your estimated understanding of the need.
 * `Confidence: ??%` : Your confidence in solving the need.
 * `Progress: ??%` : Your progress toward completing the backlog item or task.
+* When editing any request/backlog/task doc, update `Understanding` and `Confidence` (and `Progress` for backlog/task).
 
 ## Automation
 
