@@ -1,13 +1,16 @@
 # Sentry
 
-Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fantasy UI.
+Sentry is a TypeScript + React idle RPG with roster progression, dungeon combat, and offline catch-up. PWA-first with a modern fantasy UI.
 
 [![CI](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml) [![License](https://img.shields.io/github/license/AlexAgo83/Sentry)](LICENSE)
 
 ## Features
 
-* Multi-player roster with skills, recipes, and actions.
-* Offline catch-up and recap summary on return.
+* Multi-hero roster with skills, recipes, and actions.
+* Party-based dungeon runs with headless combat simulation.
+* Live dungeon arena + latest-run replay with timeline scrub.
+* Combat XP progression in dungeons; Roaming remains the action loop.
+* Offline catch-up with recap summary on return (action + dungeon gains).
 * Local persistence via localStorage adapter.
 * Cloud saves with conflict UI (date/score/version), last sync, and warmup handling.
 * PWA support (manifest + service worker).
@@ -23,11 +26,13 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 * Vite (build/dev server) + `@vitejs/plugin-react-swc` (fast React/TS transforms).
 * Custom CSS (global styles in `styles/` + app styles in `src/app/styles/`).
 * SweetAlert2 (dialogs/confirm flows).
+* PixiJS (dungeon arena renderer + replay playback).
 
 ### Game engine & state
 
 * Reducer-driven state machine: `src/core/reducer.ts`.
 * Runtime tick loop + offline catch-up: `src/core/runtime.ts`, `src/core/loop.ts`.
+* Dungeon simulation + replay generation: `src/core/dungeon.ts`.
 * Lightweight store (subscribe/dispatch): `src/store/gameStore.ts`.
 * Persistence + save migrations: `src/adapters/persistence/*`, `src/core/state.ts`.
 
@@ -48,6 +53,7 @@ Sentry is a TypeScript + React idle game with a PWA-first setup and a modern fan
 ## Project Structure
 
 * `src/app`: React UI (components, hooks, styles).
+* `src/app/components/dungeon`: Dungeon UI, arena renderer, replay controls.
 * `src/core`: Game loop, state, runtime, serialization, types.
 * `src/data`: Definitions for skills, recipes, and actions.
 * `src/store`: Lightweight store for the game state.
@@ -123,6 +129,7 @@ DB utilities:
 * `npm run coverage`: Run coverage with local config.
 * `npm run coverage:ci`: Run coverage with CI config (same thresholds as tests).
 * `npm run lint`: Run ESLint on `src` and `tests`.
+* `npm run bundle:check`: Check bundle size thresholds.
 * `npm audit --audit-level=moderate`: Check for vulnerabilities (CI fails on moderate+).
 * `npm run backend:dev`: Start the Fastify cloud API server.
 * `npm run prisma:generate`: Generate Prisma client.
