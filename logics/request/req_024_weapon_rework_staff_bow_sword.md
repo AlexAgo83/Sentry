@@ -1,7 +1,7 @@
 ## req_024_weapon_rework_staff_bow_sword - Weapon rework (staff, bow, sword)
 > From version: 0.9.9
-> Understanding: 92%
-> Confidence: 88%
+> Understanding: 96%
+> Confidence: 93%
 
 # Needs
 - Apply the new modifiers primarily at the weapon category level (Melee/Ranged/Magic).
@@ -28,11 +28,12 @@
     - Cooldown: `4000ms`.
     - Target: lowest %HP ally (excluding self); deterministic tie-break by party order (or seeded order).
     - Heal amount: `25%` of target max HP (min 1), only if target is missing HP.
+    - No revive, no overheal.
 - Ranged weapons (bow category):
-  - Attacks 50% faster.
+  - Attacks 50% faster (dungeon combat only).
   - Wearer takes +25% damage received.
 - Melee weapons (sword category):
-  - +25% threat generation.
+  - +25% threat generation (damage-only).
   - Wearer takes -10% damage received.
 
 # Scope detail (draft)
@@ -42,8 +43,8 @@
   - Update item tooltips to reflect category effects (not just specific items).
 - Combat logic:
   - Apply damage-taken modifiers per equipped weapon.
-  - Apply attack speed modifier for bows.
-  - Apply threat modifier for swords.
+  - Apply attack speed modifier for bows (dungeon only).
+  - Apply threat modifier for swords (damage-only).
   - Add magic-weapon heal behavior with a fixed cooldown; deterministic target selection required.
 - UI:
   - Add tooltip text in item detail to describe weapon effects and tradeoffs.
@@ -58,8 +59,9 @@
 # Acceptance criteria
 - Magic weapons heal a party member on cooldown; wearer takes +10% damage.
 - Magic heal targets the lowest %HP ally (excluding self) with deterministic tie-breaks.
+- Magic heal does not revive or overheal.
 - Ranged weapons attack 50% faster; wearer takes +25% damage.
-- Melee weapons increase threat by 25% and reduce damage taken by 10%.
+- Melee weapons increase threat by 25% (damage-only) and reduce damage taken by 10%.
 - Tooltips explicitly list these effects in the item detail view, tied to the weapon category.
 - Combat/replay determinism is preserved.
 
