@@ -53,19 +53,26 @@ export const SafeModeModal = memo(({
 
     return (
     <ModalShell kicker="Save" title={titleFor(report.status)} onClose={onClose}>
-        <ul className="ts-list">
-            <li>Status: {report.status}</li>
-            <li>Recovered from last good: {report.recoveredFromLastGood ? "yes" : "no"}</li>
-            <li>{messageFor(report.status, allowRawExport)}</li>
-        </ul>
-        <div className="ts-action-row">
-            <button
-                type="button"
-                className="generic-field button ts-focusable"
-                onClick={onClose}
-            >
-                OK
-            </button>
+        <div className="ts-safe-mode">
+            <ul className="ts-list ts-safe-mode-list">
+                <li>
+                    <span className="ts-safe-mode-label">Status</span>
+                    <span className="ts-safe-mode-value">{report.status}</span>
+                </li>
+                <li>
+                    <span className="ts-safe-mode-label">Recovered from last good</span>
+                    <span className="ts-safe-mode-value">{report.recoveredFromLastGood ? "yes" : "no"}</span>
+                </li>
+                <li className="ts-safe-mode-message">{messageFor(report.status, allowRawExport)}</li>
+            </ul>
+            <div className="ts-action-row ts-safe-mode-actions">
+                <button
+                    type="button"
+                    className="generic-field button ts-focusable ts-safe-mode-primary"
+                    onClick={onClose}
+                >
+                    OK
+                </button>
             {allowRawExport ? (
                 <>
                     <button
@@ -89,12 +96,13 @@ export const SafeModeModal = memo(({
             {report.status !== "ok" ? (
                 <button
                     type="button"
-                    className="generic-field button ts-focusable"
+                    className="generic-field button ts-focusable ts-reset"
                     onClick={onResetSave}
                 >
                     Reset save
                 </button>
             ) : null}
+            </div>
         </div>
     </ModalShell>
     );
