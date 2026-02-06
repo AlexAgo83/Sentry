@@ -58,17 +58,6 @@ const parseHexColor = (value: string | undefined, fallback: number) => {
     return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const buildStarPolygon = (points: number, outerRadius: number, innerRadius: number): number[] => {
-    const vertices: number[] = [];
-    const total = points * 2;
-    for (let i = 0; i < total; i += 1) {
-        const angle = (Math.PI / points) * i - Math.PI / 2;
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        vertices.push(Math.cos(angle) * radius, Math.sin(angle) * radius);
-    }
-    return vertices;
-};
-
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 const hashString = (value: string) => {

@@ -1,8 +1,8 @@
 ## item_076_dungeon_taunt_targeting_rules - Dungeon taunt + targeting rules
 > From version: 0.9.8
-> Understanding: 93%
-> Confidence: 91%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 93%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Problem

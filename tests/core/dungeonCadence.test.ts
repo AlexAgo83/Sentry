@@ -6,12 +6,14 @@ import {
     DUNGEON_ATTACK_INTERVAL_MIN_MS,
     DUNGEON_BASE_ATTACK_MS,
     DUNGEON_STEP_EVENT_CAP,
+    DUNGEON_TOTAL_EVENT_CAP,
     resolveHeroAttackIntervalMs
 } from "../../src/core/dungeon";
 import { gameReducer } from "../../src/core/reducer";
 import type { DungeonRunState, PlayerId } from "../../src/core/types";
 
 const buildLargePartyRun = (playerIds: PlayerId[]): DungeonRunState => {
+    const threatByHeroId = Object.fromEntries(playerIds.map((playerId) => [playerId, 0]));
     return {
         id: "run-cap",
         dungeonId: "dungeon_ruines_humides",
@@ -43,6 +45,7 @@ const buildLargePartyRun = (playerIds: PlayerId[]): DungeonRunState => {
             }
         ],
         targetEnemyId: "mob-cap",
+        targetHeroId: null,
         autoRestart: false,
         restartAt: null,
         runIndex: 1,
@@ -57,7 +60,10 @@ const buildLargePartyRun = (playerIds: PlayerId[]): DungeonRunState => {
             minAttackMs: DUNGEON_ATTACK_INTERVAL_MIN_MS,
             maxAttackMs: DUNGEON_ATTACK_INTERVAL_MAX_MS
         })),
-        truncatedEvents: 0
+        truncatedEvents: 0,
+        nonCriticalEventCount: 0,
+        threatByHeroId,
+        threatTieOrder: playerIds
     };
 };
 
@@ -139,6 +145,59 @@ describe("dungeon cadence", () => {
         const attackEvents = nextRun.events.filter((event) => event.type === "attack" || event.type === "damage");
 
         expect(attackEvents.length).toBeLessThanOrEqual(DUNGEON_STEP_EVENT_CAP);
+        expect(nextRun.truncatedEvents).toBeGreaterThan(0);
+    });
+
+    it("keeps critical events after the global non-critical event cap", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = state.dungeon.activeRunId ? state.dungeon.runs[state.dungeon.activeRunId] : null;
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+
+        run.events = [];
+        run.truncatedEvents = 0;
+        run.nonCriticalEventCount = DUNGEON_TOTAL_EVENT_CAP;
+        run.enemies = [
+            {
+                id: "mob-cap",
+                name: "Cap Mob",
+                hp: 1_000,
+                hpMax: 1_000,
+                damage: 999,
+                isBoss: false,
+                mechanic: null,
+                spawnIndex: 0
+            }
+        ];
+        run.targetEnemyId = "mob-cap";
+
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = 9999;
+            member.hp = index === 0 ? 1 : 0;
+        });
+
+        const result = applyDungeonTick(state, 500, 1_500);
+        const nextRun = result.state.dungeon.runs[run.id];
+        const eventTypes = nextRun.events.map((event) => event.type);
+
+        expect(eventTypes).toContain("death");
+        expect(eventTypes).toContain("run_end");
+        expect(eventTypes).not.toContain("attack");
+        expect(eventTypes).not.toContain("damage");
         expect(nextRun.truncatedEvents).toBeGreaterThan(0);
     });
 });

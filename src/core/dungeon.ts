@@ -23,6 +23,7 @@ export const DUNGEON_SIMULATION_STEP_MS = 500;
 export const DUNGEON_AUTO_RESTART_DELAY_MS = 3000;
 export const DUNGEON_REPLAY_MAX_EVENTS = 5000;
 export const DUNGEON_REPLAY_MAX_BYTES = 2 * 1024 * 1024;
+export const DUNGEON_TOTAL_EVENT_CAP = 10_000;
 export const DUNGEON_BASE_ATTACK_MS = DUNGEON_SIMULATION_STEP_MS;
 export const DUNGEON_FLOOR_PAUSE_MS = 800;
 export const DUNGEON_ATTACK_INTERVAL_MIN_MS = 250;
@@ -37,6 +38,12 @@ const BOSS_ENRAGE_DAMAGE_MULTIPLIER = 1.25;
 const BOSS_POISON_DAMAGE_RATIO = 0.15;
 const COMBAT_XP_BASE = 6;
 const COMBAT_XP_TIER_FACTOR = 3;
+const THREAT_DECAY = 0.95;
+const HEAL_THREAT_RATIO = 0.6;
+const TAUNT_THREAT_BONUS = 200;
+export const TAUNT_DURATION_MS = 2500;
+const STICKY_THRESHOLD_NORMAL = 0.10;
+const STICKY_THRESHOLD_BOSS = 0.15;
 
 const normalizeInventoryCount = (value: number | undefined) => {
     const numeric = typeof value === "number" ? value : Number.NaN;
@@ -88,6 +95,18 @@ const getReplayCriticalEvents = (events: DungeonReplayEvent[]) => {
     });
 };
 
+const isCriticalEventType = (type: DungeonReplayEvent["type"]) => {
+    return type === "floor_start"
+        || type === "boss_start"
+        || type === "heal"
+        || type === "death"
+        || type === "run_end";
+};
+
+const countNonCriticalEvents = (events: DungeonReplayEvent[]) => {
+    return events.reduce((total, event) => total + (isCriticalEventType(event.type) ? 0 : 1), 0);
+};
+
 const encodeSize = (value: unknown): number => {
     try {
         return new TextEncoder().encode(JSON.stringify(value)).length;
@@ -130,6 +149,42 @@ const resolveTargetEnemy = (enemies: DungeonRunEnemyState[], targetEnemyId: stri
         .sort((a, b) => (a.hp - b.hp) || (a.spawnIndex - b.spawnIndex))[0] ?? null;
 };
 
+const buildThreatTieOrder = (seed: number, partyIds: PlayerId[]): PlayerId[] => {
+    return partyIds
+        .slice()
+        .sort((a, b) => {
+            const seedA = hashStringToSeed(`${seed}-${a}`);
+            const seedB = hashStringToSeed(`${seed}-${b}`);
+            return seedA - seedB || a.localeCompare(b);
+        });
+};
+
+const buildThreatByHeroId = (
+    party: DungeonRunState["party"],
+    existing?: Record<PlayerId, number> | null
+): Record<PlayerId, number> => {
+    const next: Record<PlayerId, number> = {};
+    party.forEach((member) => {
+        const prior = existing?.[member.playerId];
+        next[member.playerId] = Number.isFinite(prior) ? (prior as number) : 0;
+    });
+    return next;
+};
+
+const decayThreat = (threatByHeroId: Record<PlayerId, number>) => {
+    Object.keys(threatByHeroId).forEach((playerId) => {
+        const current = threatByHeroId[playerId as PlayerId] ?? 0;
+        threatByHeroId[playerId as PlayerId] = Math.max(0, current * THREAT_DECAY);
+    });
+};
+
+const addThreat = (threatByHeroId: Record<PlayerId, number>, playerId: PlayerId, amount: number) => {
+    if (!Number.isFinite(amount) || amount <= 0) {
+        return;
+    }
+    threatByHeroId[playerId] = (threatByHeroId[playerId] ?? 0) + amount;
+};
+
 const resolveAliveHeroIds = (run: DungeonRunState) => run.party.filter((member) => member.hp > 0).map((member) => member.playerId);
 
 const recoverRunParty = (party: DungeonRunState["party"]): DungeonRunState["party"] => {
@@ -145,11 +200,56 @@ const isRunActive = (run: DungeonRunState): boolean => {
     return run.status === "running" || run.restartAt !== null;
 };
 
-const resolveTargetHeroId = (run: DungeonRunState): PlayerId | null => {
-    const alive = run.party
-        .filter((member) => member.hp > 0)
-        .sort((a, b) => (a.hp - b.hp) || a.playerId.localeCompare(b.playerId));
-    return alive[0]?.playerId ?? null;
+const resolveTargetHeroId = (run: DungeonRunState, nowMs: number, isBoss: boolean): PlayerId | null => {
+    const aliveMembers = run.party.filter((member) => member.hp > 0);
+    if (aliveMembers.length === 0) {
+        return null;
+    }
+
+    const tieOrder = run.threatTieOrder?.length
+        ? run.threatTieOrder
+        : buildThreatTieOrder(run.seed, aliveMembers.map((member) => member.playerId));
+    const tieIndex = new Map(tieOrder.map((playerId, index) => [playerId, index]));
+    const threatByHeroId = run.threatByHeroId ?? {};
+
+    const tauntTargets = aliveMembers
+        .filter((member) => Number(member.tauntUntilMs) > nowMs)
+        .sort((a, b) => {
+            const bonusA = a.tauntBonus ?? TAUNT_THREAT_BONUS;
+            const bonusB = b.tauntBonus ?? TAUNT_THREAT_BONUS;
+            if (bonusB !== bonusA) {
+                return bonusB - bonusA;
+            }
+            return (tieIndex.get(a.playerId) ?? 0) - (tieIndex.get(b.playerId) ?? 0);
+        });
+    if (tauntTargets.length > 0) {
+        return tauntTargets[0]?.playerId ?? null;
+    }
+
+    const sortedByThreat = aliveMembers.slice().sort((a, b) => {
+        const threatA = threatByHeroId[a.playerId] ?? 0;
+        const threatB = threatByHeroId[b.playerId] ?? 0;
+        if (threatB !== threatA) {
+            return threatB - threatA;
+        }
+        return (tieIndex.get(a.playerId) ?? 0) - (tieIndex.get(b.playerId) ?? 0);
+    });
+    const topTargetId = sortedByThreat[0]?.playerId ?? null;
+    if (!topTargetId) {
+        return null;
+    }
+
+    const currentTargetId = run.targetHeroId;
+    if (currentTargetId && aliveMembers.some((member) => member.playerId === currentTargetId)) {
+        const topThreat = threatByHeroId[topTargetId] ?? 0;
+        const currentThreat = threatByHeroId[currentTargetId] ?? 0;
+        const threshold = isBoss ? STICKY_THRESHOLD_BOSS : STICKY_THRESHOLD_NORMAL;
+        if (topThreat <= 0 || currentThreat >= topThreat * (1 - threshold)) {
+            return currentTargetId;
+        }
+    }
+
+    return topTargetId;
 };
 
 const createEnemyWave = (
@@ -309,6 +409,19 @@ const ensureRunCadenceState = (run: DungeonRunState, players: Record<PlayerId, P
     });
 };
 
+const ensureRunThreatState = (run: DungeonRunState) => {
+    run.threatByHeroId = buildThreatByHeroId(run.party, run.threatByHeroId);
+    if (!Array.isArray(run.threatTieOrder) || run.threatTieOrder.length === 0) {
+        run.threatTieOrder = buildThreatTieOrder(run.seed, run.party.map((member) => member.playerId));
+    }
+    if (!Number.isFinite(run.nonCriticalEventCount)) {
+        run.nonCriticalEventCount = countNonCriticalEvents(run.events ?? []);
+    }
+    if (typeof run.targetHeroId !== "string") {
+        run.targetHeroId = null;
+    }
+};
+
 const healAmount = (hpMax: number) => Math.max(1, Math.round(hpMax * 0.4));
 
 const applySkillLevelUps = (xp: number, level: number, xpNext: number, maxLevel: number) => {
@@ -453,6 +566,19 @@ const pushEvent = (run: DungeonRunState, event: Omit<DungeonReplayEvent, "atMs">
     });
 };
 
+const pushEventWithGlobalCap = (run: DungeonRunState, event: Omit<DungeonReplayEvent, "atMs">) => {
+    const isCritical = isCriticalEventType(event.type);
+    if (!isCritical && run.nonCriticalEventCount >= DUNGEON_TOTAL_EVENT_CAP) {
+        run.truncatedEvents += 1;
+        return false;
+    }
+    pushEvent(run, event);
+    if (!isCritical) {
+        run.nonCriticalEventCount += 1;
+    }
+    return true;
+};
+
 const withRecoveredHeroes = (players: Record<PlayerId, PlayerState>, party: DungeonRunState["party"]) => {
     const nextPlayers = { ...players };
     party.forEach((member) => {
@@ -507,7 +633,7 @@ const initializeFloor = (
         run.status = "failed";
         run.endReason = "out_of_food";
         run.party = run.party.map((member) => ({ ...member, hp: 0 }));
-        pushEvent(run, {
+        pushEventWithGlobalCap(run, {
             type: "run_end",
             label: "Out of food"
         });
@@ -519,13 +645,15 @@ const initializeFloor = (
 
     run.enemies = createEnemyWave(definition, run.floor, run.seed, run.runIndex);
     run.targetEnemyId = run.enemies[0]?.id ?? null;
+    run.targetHeroId = null;
+    run.threatByHeroId = buildThreatByHeroId(run.party);
     run.encounterStep = 0;
-    pushEvent(run, {
+    pushEventWithGlobalCap(run, {
         type: "floor_start",
         label: `Floor ${run.floor}`
     });
     if (run.enemies[0]?.isBoss) {
-        pushEvent(run, {
+        pushEventWithGlobalCap(run, {
             type: "boss_start",
             sourceId: run.enemies[0].id,
             label: run.enemies[0].name
@@ -533,7 +661,7 @@ const initializeFloor = (
     }
 
     run.enemies.forEach((enemy) => {
-        pushEvent(run, {
+        pushEventWithGlobalCap(run, {
             type: "spawn",
             sourceId: enemy.id,
             label: enemy.name
@@ -589,7 +717,10 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
             ? run.party.map((member) => ({
                 ...member,
                 potionCooldownMs: Number.isFinite(member.potionCooldownMs) ? member.potionCooldownMs : 0,
-                attackCooldownMs: Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0
+                attackCooldownMs: Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0,
+                tauntUntilMs: Number.isFinite(member.tauntUntilMs) ? member.tauntUntilMs : null,
+                tauntBonus: Number.isFinite(member.tauntBonus) ? member.tauntBonus : null,
+                tauntStartedAtMs: Number.isFinite(member.tauntStartedAtMs) ? member.tauntStartedAtMs : null
             }))
             : [];
         const floorPauseMs = Number.isFinite(run.floorPauseMs)
@@ -600,7 +731,15 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
             party,
             floorPauseMs,
             cadenceSnapshot: Array.isArray(run.cadenceSnapshot) ? run.cadenceSnapshot : [],
-            truncatedEvents: Number.isFinite(run.truncatedEvents) ? run.truncatedEvents : 0
+            truncatedEvents: Number.isFinite(run.truncatedEvents) ? run.truncatedEvents : 0,
+            nonCriticalEventCount: Number.isFinite(run.nonCriticalEventCount)
+                ? Math.max(0, Math.floor(run.nonCriticalEventCount))
+                : countNonCriticalEvents(run.events ?? []),
+            threatByHeroId: buildThreatByHeroId(party, run.threatByHeroId ?? null),
+            threatTieOrder: Array.isArray(run.threatTieOrder)
+                ? run.threatTieOrder.map(String)
+                : buildThreatTieOrder(run.seed ?? 0, party.map((member) => member.playerId)),
+            targetHeroId: typeof run.targetHeroId === "string" ? run.targetHeroId : null
         };
         return acc;
     }, {});
@@ -711,10 +850,14 @@ export const startDungeonRun = (
             hp: Math.max(1, Math.round(player.hpMax)),
             hpMax: Math.max(1, Math.round(player.hpMax)),
             potionCooldownMs: 0,
-            attackCooldownMs: attackIntervalMs
+            attackCooldownMs: attackIntervalMs,
+            tauntUntilMs: null,
+            tauntBonus: null,
+            tauntStartedAtMs: null
         };
     });
     const cadenceSnapshot = buildCadenceSnapshot(party, state.players, timestamp, baseAttackMs);
+    const threatTieOrder = buildThreatTieOrder(runSeed, party.map((member) => member.playerId));
 
     const run: DungeonRunState = {
         id: runId,
@@ -731,6 +874,7 @@ export const startDungeonRun = (
         party,
         enemies: [],
         targetEnemyId: null,
+        targetHeroId: null,
         autoRestart: state.dungeon.setup.autoRestart,
         restartAt: null,
         runIndex: 1,
@@ -738,7 +882,10 @@ export const startDungeonRun = (
         seed: runSeed,
         events: [],
         cadenceSnapshot,
-        truncatedEvents: 0
+        truncatedEvents: 0,
+        nonCriticalEventCount: 0,
+        threatByHeroId: buildThreatByHeroId(party),
+        threatTieOrder
     };
 
     const dungeon = {
@@ -791,7 +938,7 @@ export const stopDungeonRun = (state: GameState, reason: DungeonRunEndReason = "
         endReason: reason,
         restartAt: null
     };
-    pushEvent(stoppedRun, {
+    pushEventWithGlobalCap(stoppedRun, {
         type: "run_end",
         label: reason
     });
@@ -874,11 +1021,18 @@ export const applyDungeonTick = (
                     ...member,
                     hp: member.hpMax,
                     potionCooldownMs: 0,
-                    attackCooldownMs: attackIntervalMs
+                    attackCooldownMs: attackIntervalMs,
+                    tauntUntilMs: null,
+                    tauntBonus: null,
+                    tauntStartedAtMs: null
                 };
             });
             run.cadenceSnapshot = buildCadenceSnapshot(run.party, players, timestamp, baseAttackMs);
             run.truncatedEvents = 0;
+            run.nonCriticalEventCount = 0;
+            run.threatByHeroId = buildThreatByHeroId(run.party);
+            run.threatTieOrder = buildThreatTieOrder(run.seed, run.party.map((member) => member.playerId));
+            run.targetHeroId = null;
             run.startInventory = getRunStorageInventorySnapshot(inventory);
             const initialized = initializeFloor(run, definition, inventory, itemDeltas);
             inventory = initialized.inventory;
@@ -887,33 +1041,40 @@ export const applyDungeonTick = (
             run.endReason = "stopped";
             run.restartAt = null;
             run.floorPauseMs = null;
-            pushEvent(run, { type: "run_end", label: "Auto-restart canceled" });
+            pushEventWithGlobalCap(run, { type: "run_end", label: "Auto-restart canceled" });
         }
     }
 
     ensureRunCadenceState(run, players, timestamp);
+    ensureRunThreatState(run);
 
     run.stepCarryMs += Math.max(0, deltaMs);
 
     const steps = Math.floor(run.stepCarryMs / DUNGEON_SIMULATION_STEP_MS);
     run.stepCarryMs -= steps * DUNGEON_SIMULATION_STEP_MS;
+    const partyById = new Map(run.party.map((member) => [member.playerId, member]));
 
     for (let step = 0; step < steps; step += 1) {
         if (run.status !== "running") {
             break;
         }
         let stepEventCount = 0;
-        const pushEventWithCap = (event: Omit<DungeonReplayEvent, "atMs">) => {
-            const isCritical = event.type === "death" || event.type === "run_end";
+        const pushEventWithStepCap = (event: Omit<DungeonReplayEvent, "atMs">) => {
+            const isCritical = isCriticalEventType(event.type);
             if (!isCritical && stepEventCount >= DUNGEON_STEP_EVENT_CAP) {
                 run.truncatedEvents += 1;
                 return;
             }
-            pushEvent(run, event);
-            stepEventCount += 1;
+            if (!pushEventWithGlobalCap(run, event)) {
+                return;
+            }
+            if (!isCritical) {
+                stepEventCount += 1;
+            }
         };
         run.elapsedMs += DUNGEON_SIMULATION_STEP_MS;
         run.encounterStep += 1;
+        const nowMs = run.elapsedMs;
         run.party.forEach((member) => {
             member.potionCooldownMs = Math.max(0, member.potionCooldownMs - DUNGEON_SIMULATION_STEP_MS);
             const currentCooldown = Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0;
@@ -932,8 +1093,37 @@ export const applyDungeonTick = (
             continue;
         }
 
+        const aliveHeroIds = resolveAliveHeroIds(run);
+        aliveHeroIds.forEach((playerId) => {
+            combatActiveMsByPlayer[playerId] = (combatActiveMsByPlayer[playerId] ?? 0) + DUNGEON_SIMULATION_STEP_MS;
+        });
+
+        decayThreat(run.threatByHeroId);
         run.party.forEach((member) => {
-            combatActiveMsByPlayer[member.playerId] = (combatActiveMsByPlayer[member.playerId] ?? 0) + DUNGEON_SIMULATION_STEP_MS;
+            if (Number(member.tauntUntilMs) > nowMs) {
+                if (!Number.isFinite(member.tauntStartedAtMs)) {
+                    member.tauntStartedAtMs = nowMs;
+                    addThreat(run.threatByHeroId, member.playerId, member.tauntBonus ?? TAUNT_THREAT_BONUS);
+                }
+                return;
+            }
+            if (Number.isFinite(member.tauntStartedAtMs)) {
+                member.tauntStartedAtMs = null;
+                member.tauntUntilMs = null;
+                member.tauntBonus = null;
+            }
+        });
+
+        const heroStepCache = new Map<PlayerId, { attackIntervalMs: number; baseDamage: number }>();
+        aliveHeroIds.forEach((playerId) => {
+            const player = players[playerId];
+            if (!player) {
+                return;
+            }
+            const effective = resolveHeroEffectiveStats(player, timestamp);
+            const attackIntervalMs = resolveHeroAttackIntervalMs(DUNGEON_BASE_ATTACK_MS, effective.Agility ?? 0);
+            const baseDamage = resolveHeroAttackDamage(player.skills.Combat.level, effective.Strength ?? 0);
+            heroStepCache.set(playerId, { attackIntervalMs, baseDamage });
         });
 
         let targetEnemy = resolveTargetEnemy(run.enemies, run.targetEnemyId);
@@ -942,40 +1132,41 @@ export const applyDungeonTick = (
         }
 
         // Heroes attack first (cooldown-based cadence).
-        resolveAliveHeroIds(run).forEach((playerId) => {
+        aliveHeroIds.forEach((playerId) => {
             const player = players[playerId];
             const enemy = targetEnemy;
-            const member = run.party.find((entry) => entry.playerId === playerId);
-            if (!player || !enemy || enemy.hp <= 0 || !member) {
+            const member = partyById.get(playerId);
+            const cached = heroStepCache.get(playerId);
+            if (!player || !enemy || enemy.hp <= 0 || !member || !cached) {
                 return;
             }
-            const effective = resolveHeroEffectiveStats(player, timestamp);
-            const attackIntervalMs = resolveHeroAttackIntervalMs(DUNGEON_BASE_ATTACK_MS, effective.Agility ?? 0);
+            const attackIntervalMs = cached.attackIntervalMs;
             let attacks = 0;
             while (member.attackCooldownMs <= 0 && attacks < DUNGEON_ATTACKS_PER_STEP_CAP) {
                 if (enemy.hp <= 0) {
                     break;
                 }
-                const baseDamage = resolveHeroAttackDamage(player.skills.Combat.level, effective.Strength ?? 0);
+                const baseDamage = cached.baseDamage;
                 const reducedDamage = enemy.isBoss && enemy.mechanic === "shield" && run.encounterStep <= 3
                     ? Math.max(1, Math.round(baseDamage * 0.6))
                     : baseDamage;
                 enemy.hp = Math.max(0, enemy.hp - reducedDamage);
-                pushEventWithCap({
+                addThreat(run.threatByHeroId, playerId, reducedDamage);
+                pushEventWithStepCap({
                     type: "attack",
                     sourceId: playerId,
                     targetId: enemy.id,
                     amount: reducedDamage,
                     label: player.name
                 });
-                pushEventWithCap({
+                pushEventWithStepCap({
                     type: "damage",
                     sourceId: playerId,
                     targetId: enemy.id,
                     amount: reducedDamage
                 });
                 if (enemy.hp <= 0) {
-                    pushEventWithCap({
+                    pushEventWithStepCap({
                         type: "death",
                         sourceId: enemy.id,
                         label: enemy.name
@@ -1010,7 +1201,7 @@ export const applyDungeonTick = (
                 run.endReason = "victory";
                 run.floorPauseMs = null;
                 run.party = recoverRunParty(run.party);
-                pushEvent(run, {
+                pushEventWithGlobalCap(run, {
                     type: "run_end",
                     label: "victory"
                 });
@@ -1028,9 +1219,10 @@ export const applyDungeonTick = (
 
         // Enemy attacks party.
         const activeEnemy = targetEnemy;
-        const targetHeroId = resolveTargetHeroId(run);
+        const targetHeroId = resolveTargetHeroId(run, nowMs, activeEnemy.isBoss);
+        run.targetHeroId = targetHeroId;
         if (targetHeroId) {
-            const hero = run.party.find((member) => member.playerId === targetHeroId);
+            const hero = partyById.get(targetHeroId);
             if (hero) {
                 let enemyDamage = activeEnemy.damage;
                 if (activeEnemy.isBoss && activeEnemy.mechanic === "burst" && run.encounterStep % 4 === 0) {
@@ -1040,21 +1232,21 @@ export const applyDungeonTick = (
                     enemyDamage = Math.round(enemyDamage * BOSS_ENRAGE_DAMAGE_MULTIPLIER);
                 }
                 hero.hp = Math.max(0, hero.hp - enemyDamage);
-                pushEventWithCap({
+                pushEventWithStepCap({
                     type: "attack",
                     sourceId: activeEnemy.id,
                     targetId: targetHeroId,
                     amount: enemyDamage,
                     label: activeEnemy.name
                 });
-                pushEventWithCap({
+                pushEventWithStepCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
                     targetId: targetHeroId,
                     amount: enemyDamage
                 });
                 if (hero.hp <= 0) {
-                    pushEventWithCap({
+                    pushEventWithStepCap({
                         type: "death",
                         sourceId: targetHeroId,
                         label: state.players[targetHeroId]?.name ?? targetHeroId
@@ -1070,7 +1262,7 @@ export const applyDungeonTick = (
                 }
                 const poisonDamage = Math.max(1, Math.round(activeEnemy.damage * BOSS_POISON_DAMAGE_RATIO));
                 member.hp = Math.max(0, member.hp - poisonDamage);
-                pushEventWithCap({
+                pushEventWithStepCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
                     targetId: member.playerId,
@@ -1094,7 +1286,7 @@ export const applyDungeonTick = (
                 spawnIndex: run.enemies.length
             };
             run.enemies.push(summon);
-            pushEvent(run, {
+            pushEventWithStepCap({
                 type: "spawn",
                 sourceId: summon.id,
                 label: summon.name
@@ -1115,7 +1307,8 @@ export const applyDungeonTick = (
             const amount = healAmount(member.hpMax);
             member.hp = Math.min(member.hpMax, member.hp + amount);
             member.potionCooldownMs = 500;
-            pushEvent(run, {
+            addThreat(run.threatByHeroId, member.playerId, amount * HEAL_THREAT_RATIO);
+            pushEventWithStepCap({
                 type: "heal",
                 sourceId: member.playerId,
                 amount,
@@ -1126,7 +1319,7 @@ export const applyDungeonTick = (
         if (resolveAliveHeroIds(run).length === 0) {
             run.status = "failed";
             run.endReason = "wipe";
-            pushEvent(run, {
+            pushEventWithGlobalCap(run, {
                 type: "run_end",
                 label: "wipe"
             });

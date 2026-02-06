@@ -1,8 +1,8 @@
 ## item_074_dungeon_progression_parity_tests - Dungeon progression attribution + parity tests
 > From version: 0.9.8
-> Understanding: 92%
-> Confidence: 91%
-> Progress: 0%
+> Understanding: 94%
+> Confidence: 93%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Problem

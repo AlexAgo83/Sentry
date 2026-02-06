@@ -1,8 +1,8 @@
 ## item_075_dungeon_threat_model - Dungeon threat model
 > From version: 0.9.8
-> Understanding: 93%
-> Confidence: 91%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 93%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Problem

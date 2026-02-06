@@ -164,6 +164,9 @@ export interface DungeonRunPartyMemberState {
     hpMax: number;
     potionCooldownMs: number;
     attackCooldownMs: number;
+    tauntUntilMs?: number | null;
+    tauntBonus?: number | null;
+    tauntStartedAtMs?: number | null;
 }
 
 export interface DungeonRunEnemyState {
@@ -210,6 +213,7 @@ export interface DungeonRunState {
     party: DungeonRunPartyMemberState[];
     enemies: DungeonRunEnemyState[];
     targetEnemyId: string | null;
+    targetHeroId: PlayerId | null;
     autoRestart: boolean;
     restartAt: number | null;
     runIndex: number;
@@ -223,6 +227,9 @@ export interface DungeonRunState {
     events: DungeonReplayEvent[];
     cadenceSnapshot: DungeonCadenceSnapshotEntry[];
     truncatedEvents: number;
+    nonCriticalEventCount: number;
+    threatByHeroId: Record<PlayerId, number>;
+    threatTieOrder: PlayerId[];
 }
 
 export interface DungeonReplayState {

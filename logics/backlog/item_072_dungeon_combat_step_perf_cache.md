@@ -1,8 +1,8 @@
 ## item_072_dungeon_combat_step_perf_cache - Dungeon combat per-step perf caching
 > From version: 0.9.8
-> Understanding: 92%
-> Confidence: 91%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 94%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Problem

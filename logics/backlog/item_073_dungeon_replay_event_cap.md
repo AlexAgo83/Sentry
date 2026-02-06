@@ -1,8 +1,8 @@
 ## item_073_dungeon_replay_event_cap - Dungeon replay global event cap
 > From version: 0.9.8
-> Understanding: 93%
-> Confidence: 92%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 94%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Problem

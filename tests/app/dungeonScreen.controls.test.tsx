@@ -25,6 +25,7 @@ const getBaseRun = (): DungeonRunState => ({
         { id: "mob-1", name: "Mob 1", hp: 40, hpMax: 80, damage: 10, isBoss: false, mechanic: null, spawnIndex: 0 }
     ],
     targetEnemyId: "mob-1",
+    targetHeroId: null,
     autoRestart: true,
     restartAt: null,
     runIndex: 1,
@@ -36,7 +37,10 @@ const getBaseRun = (): DungeonRunState => ({
         { atMs: 500, type: "damage", sourceId: "1", targetId: "mob-1", amount: 40 }
     ],
     cadenceSnapshot: [],
-    truncatedEvents: 0
+    truncatedEvents: 0,
+    nonCriticalEventCount: 0,
+    threatByHeroId: { "1": 0, "2": 0, "3": 0, "4": 0 },
+    threatTieOrder: ["1", "2", "3", "4"]
 });
 
 const getReplay = (): DungeonReplayState => ({

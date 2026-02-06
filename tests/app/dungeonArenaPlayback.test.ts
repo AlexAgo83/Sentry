@@ -43,6 +43,7 @@ describe("dungeon arena playback", () => {
                 }
             ],
             targetEnemyId: "boss-1",
+            targetHeroId: null,
             autoRestart: true,
             restartAt: null,
             runIndex: 1,
@@ -57,7 +58,10 @@ describe("dungeon arena playback", () => {
                 { atMs: 900, type: "damage", sourceId: "boss-1", targetId: "1", amount: 80 }
             ],
             cadenceSnapshot: [],
-            truncatedEvents: 0
+            truncatedEvents: 0,
+            nonCriticalEventCount: 0,
+            threatByHeroId: { "1": 0, "2": 0, "3": 0, "4": 0 },
+            threatTieOrder: ["1", "2", "3", "4"]
         };
 
         const frame = buildDungeonArenaLiveFrame(run, state.players, 1_000);
