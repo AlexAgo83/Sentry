@@ -1,7 +1,7 @@
 ## item_076_dungeon_taunt_targeting_rules - Dungeon taunt + targeting rules
 > From version: 0.9.8
-> Understanding: 88%
-> Confidence: 86%
+> Understanding: 93%
+> Confidence: 91%
 > Progress: 0%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
@@ -16,6 +16,11 @@ Threat alone does not guarantee readable targeting. We need explicit taunt and s
 - Target selection logic based on threat + stickiness.
 - Out:
 - No non-deterministic randomness.
+
+# Decisions
+- Taunt source: simple v1 flag or item (e.g., taunt horn).
+- Taunt duration: `TAUNT_DURATION_MS = 2500`.
+- Bosses always respect taunt.
 
 # Acceptance criteria
 - Taunt forces target selection for its duration.

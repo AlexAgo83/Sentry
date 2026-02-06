@@ -1,7 +1,7 @@
 ## item_073_dungeon_replay_event_cap - Dungeon replay global event cap
 > From version: 0.9.8
-> Understanding: 90%
-> Confidence: 88%
+> Understanding: 93%
+> Confidence: 92%
 > Progress: 0%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
@@ -15,6 +15,11 @@ Long offline catch-up sessions can generate very large replay event arrays, incr
 - Track dropped non-critical events via `truncatedEvents` (or a dedicated counter).
 - Out:
 - No changes to combat outcomes.
+
+# Decisions
+- Cap applies only to non-critical events.
+- Switch to critical-only logging immediately when cap is reached.
+- Reuse `truncatedEvents` to count dropped non-critical events.
 
 # Acceptance criteria
 - Non-critical `run.events` never exceed `DUNGEON_TOTAL_EVENT_CAP`.

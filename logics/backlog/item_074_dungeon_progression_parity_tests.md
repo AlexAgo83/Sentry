@@ -1,7 +1,7 @@
 ## item_074_dungeon_progression_parity_tests - Dungeon progression attribution + parity tests
 > From version: 0.9.8
-> Understanding: 88%
-> Confidence: 86%
+> Understanding: 92%
+> Confidence: 91%
 > Progress: 0%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
@@ -15,6 +15,11 @@ Combat-active time can be credited to dead heroes, and offline catch-up parity i
 - Add automated test for event-cap critical-only logging.
 - Out:
 - No combat rule changes.
+
+# Decisions
+- Parity compares full end state (status, floor, party HP, inventory deltas, Combat XP).
+- `combatActiveMsByPlayer` uses alive-at-step-start rule.
+- Tests live in `tests/core/dungeon/*.test.ts` (or a dedicated dungeon test file).
 
 # Acceptance criteria
 - Dead heroes do not receive combat-active time.

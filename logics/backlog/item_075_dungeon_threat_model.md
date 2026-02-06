@@ -1,7 +1,7 @@
 ## item_075_dungeon_threat_model - Dungeon threat model
 > From version: 0.9.8
-> Understanding: 88%
-> Confidence: 86%
+> Understanding: 93%
+> Confidence: 91%
 > Progress: 0%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
@@ -16,6 +16,11 @@ Enemy targeting feels artificial because it defaults to a deterministic but unna
 - Deterministic seeded tie-break order.
 - Out:
 - No UI overhaul.
+
+# Decisions
+- Threat scope is per floor wave (shared across enemies).
+- Healing threat includes potion auto-heal.
+- Decay rate: `THREAT_DECAY = 0.95` per step.
 
 # Acceptance criteria
 - Threat accumulates deterministically from damage and healing.
