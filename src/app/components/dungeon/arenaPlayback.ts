@@ -13,10 +13,10 @@ const FLOAT_MAX_COUNT = 20;
 const ATTACK_LUNGE_WINDOW_MS = 260;
 
 const PARTY_LAYOUT: Array<{ x: number; y: number }> = [
-    { x: 0.2, y: 0.23 },
-    { x: 0.2, y: 0.5 },
-    { x: 0.2, y: 0.77 },
-    { x: 0.36, y: 0.5 }
+    { x: 0.2, y: 0.38 },
+    { x: 0.2, y: 0.62 },
+    { x: 0.32, y: 0.32 },
+    { x: 0.32, y: 0.68 }
 ];
 
 type HeroSeed = {
