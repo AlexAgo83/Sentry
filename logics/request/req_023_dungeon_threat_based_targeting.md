@@ -1,7 +1,7 @@
 ## req_023_dungeon_threat_based_targeting - Dungeon threat-based targeting
 > From version: 0.9.8
-> Understanding: 95%
-> Confidence: 92%
+> Understanding: 97%
+> Confidence: 94%
 
 # Needs
 - Replace the current “lowest HP then first hero” targeting with a more natural, readable enemy targeting model.
@@ -70,4 +70,5 @@
 - Taunt duration/bonus must be balanced to avoid trivializing bosses.
 
 # Backlog
-- (none yet)
+- `logics/backlog/item_075_dungeon_threat_model.md`
+- `logics/backlog/item_076_dungeon_taunt_targeting_rules.md`
