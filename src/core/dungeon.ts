@@ -327,7 +327,7 @@ const createEnemyWave = (
         const dmgBase = floorMobDamage(definition.tier, floor);
         return [
             {
-                id: `boss-${runIndex}-${floor}`,
+                id: `entity_${runIndex}_${floor}_1`,
                 name: definition.bossName,
                 hp: hpBase * 5,
                 hpMax: hpBase * 5,
@@ -348,7 +348,7 @@ const createEnemyWave = (
         const hpVariance = 0.9 + seededRandom(varianceSeed) * 0.2;
         const dmgVariance = 0.9 + seededRandom(varianceSeed + 3) * 0.2;
         enemies.push({
-            id: `mob-${runIndex}-${floor}-${i + 1}`,
+            id: `entity_${runIndex}_${floor}_${i + 1}`,
             name: buildMobName(runSeed + floor * 101, i),
             hp: Math.max(1, Math.round(hp * hpVariance)),
             hpMax: Math.max(1, Math.round(hp * hpVariance)),
@@ -1465,8 +1465,9 @@ export const applyDungeonTick = (
         if (activeEnemy.isBoss && activeEnemy.mechanic === "summon" && run.encounterStep % 6 === 0) {
             const summonHp = Math.max(1, Math.round(activeEnemy.hpMax * 0.2));
             const summonDamage = Math.max(1, Math.round(activeEnemy.damage * 0.5));
+            const summonIndex = run.enemies.length + 1;
             const summon: DungeonRunEnemyState = {
-                id: `add-${run.runIndex}-${run.floor}-${run.encounterStep}`,
+                id: `entity_${run.runIndex}_${run.floor}_${summonIndex}`,
                 name: "Summoned Add",
                 hp: summonHp,
                 hpMax: summonHp,
