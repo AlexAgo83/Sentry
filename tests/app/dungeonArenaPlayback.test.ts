@@ -25,10 +25,10 @@ describe("dungeon arena playback", () => {
             floor: 10,
             floorCount: 10,
             party: [
-                { playerId: "1", hp: 120, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500 },
-                { playerId: "2", hp: 180, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500 },
-                { playerId: "3", hp: 200, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500 },
-                { playerId: "4", hp: 200, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500 }
+                { playerId: "1", hp: 120, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500, magicHealCooldownMs: 0 },
+                { playerId: "2", hp: 180, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500, magicHealCooldownMs: 0 },
+                { playerId: "3", hp: 200, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500, magicHealCooldownMs: 0 },
+                { playerId: "4", hp: 200, hpMax: 200, potionCooldownMs: 0, attackCooldownMs: 500, magicHealCooldownMs: 0 }
             ],
             enemies: [
                 {

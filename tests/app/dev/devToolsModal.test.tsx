@@ -11,7 +11,14 @@ describe("DevToolsModal", () => {
 
     it("toggles localStorage flags and exposes renderCounts actions", () => {
         const spy = vi.spyOn(console, "debug").mockImplementation(() => {});
-        render(<DevToolsModal onClose={() => {}} onSimulateOffline={() => {}} />);
+        render(
+            <DevToolsModal
+                onClose={() => {}}
+                onSimulateOffline={() => {}}
+                onSimulateOfflineHour={() => {}}
+                onSimulateOfflineDay={() => {}}
+            />
+        );
 
         const printButton = screen.getByRole("button", { name: "Print renderCounts" });
         const resetButton = screen.getByRole("button", { name: "Reset renderCounts" });

@@ -91,6 +91,7 @@ const normalizeQuests = (value: unknown): QuestProgressState | undefined => {
 };
 
 const COMBAT_SKILL_IDS = ["CombatMelee", "CombatRanged", "CombatMagic"] as const;
+type LegacySkillMap = Record<string, SkillState>;
 
 const computeTotalSkillXp = (level: number, xp: number): number => {
     const safeLevel = Math.max(1, Math.floor(level));
@@ -117,25 +118,27 @@ const buildSkillProgressFromXp = (xp: number): Pick<SkillState, "xp" | "level" |
     return { xp: remaining, level, xpNext };
 };
 
-const splitLegacyCombatProgress = (legacy: SkillState) => {
+const splitLegacyCombatProgress = (
+    legacy: SkillState
+): Record<(typeof COMBAT_SKILL_IDS)[number], Pick<SkillState, "xp" | "level" | "xpNext">> => {
     const totalXp = computeTotalSkillXp(legacy.level, legacy.xp);
     const base = Math.floor(totalXp / COMBAT_SKILL_IDS.length);
     const remainder = totalXp - base * COMBAT_SKILL_IDS.length;
-    return COMBAT_SKILL_IDS.reduce<Record<string, Pick<SkillState, "xp" | "level" | "xpNext">>>((acc, skillId, index) => {
+    return COMBAT_SKILL_IDS.reduce<Record<(typeof COMBAT_SKILL_IDS)[number], Pick<SkillState, "xp" | "level" | "xpNext">>>((acc, skillId, index) => {
         const splitXp = base + (index < remainder ? 1 : 0);
         acc[skillId] = buildSkillProgressFromXp(splitXp);
         return acc;
-    }, {});
+    }, {} as Record<(typeof COMBAT_SKILL_IDS)[number], Pick<SkillState, "xp" | "level" | "xpNext">>);
 };
 
 const migrateCombatSkills = (players: Record<PlayerId, PlayerSaveState>) => {
     Object.values(players).forEach((player) => {
-        const skills = (player as PlayerSaveState & { skills?: Record<string, SkillState> }).skills;
+        const skills = (player as PlayerSaveState & { skills?: LegacySkillMap }).skills as LegacySkillMap | undefined;
         if (!skills) {
             return;
         }
-        const hasSplit = "CombatMelee" in skills || "CombatRanged" in skills || "CombatMagic" in skills;
-        const legacy = skills.Combat;
+        const hasSplit = COMBAT_SKILL_IDS.some((skillId) => skillId in skills);
+        const legacy = skills["Combat"];
         if (hasSplit || !legacy) {
             return;
         }
@@ -153,8 +156,9 @@ const migrateCombatSkills = (players: Record<PlayerId, PlayerSaveState>) => {
                 recipes: {}
             };
         });
-        delete skills.Combat;
-        if (player.selectedActionId === "Combat") {
+        delete skills["Combat"];
+        const legacySelectedActionId = (player as { selectedActionId?: string | null }).selectedActionId ?? null;
+        if (legacySelectedActionId === "Combat") {
             player.selectedActionId = "Roaming";
         }
     });

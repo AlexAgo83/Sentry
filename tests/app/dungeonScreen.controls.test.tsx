@@ -16,10 +16,10 @@ const getBaseRun = (): DungeonRunState => ({
     floor: 2,
     floorCount: 10,
     party: [
-        { playerId: "1", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 },
-        { playerId: "2", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 },
-        { playerId: "3", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 },
-        { playerId: "4", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500 }
+        { playerId: "1", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500, magicHealCooldownMs: 0 },
+        { playerId: "2", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500, magicHealCooldownMs: 0 },
+        { playerId: "3", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500, magicHealCooldownMs: 0 },
+        { playerId: "4", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 500, magicHealCooldownMs: 0 }
     ],
     enemies: [
         { id: "mob-1", name: "Mob 1", hp: 40, hpMax: 80, damage: 10, isBoss: false, mechanic: null, spawnIndex: 0 }
@@ -82,6 +82,7 @@ describe("DungeonScreen controls", () => {
                 foodCount={20}
                 activeRun={null}
                 latestReplay={getReplay()}
+                completionCounts={{}}
                 showReplay
                 onToggleReplay={() => {}}
                 onSelectDungeon={() => {}}
@@ -115,6 +116,7 @@ describe("DungeonScreen controls", () => {
                 foodCount={20}
                 activeRun={getBaseRun()}
                 latestReplay={getReplay()}
+                completionCounts={{}}
                 showReplay
                 onToggleReplay={() => {}}
                 onSelectDungeon={() => {}}
@@ -151,6 +153,7 @@ describe("DungeonScreen controls", () => {
                 foodCount={20}
                 activeRun={null}
                 latestReplay={getReplay()}
+                completionCounts={{}}
                 showReplay
                 onToggleReplay={() => {}}
                 onSelectDungeon={() => {}}

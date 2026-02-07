@@ -1,8 +1,8 @@
 import type {
+    CombatSkillId,
     EquipmentItemDefinition,
     PlayerEquipmentState,
     StatModifier,
-    SkillId,
     WeaponType
 } from "../core/types";
 
@@ -185,7 +185,7 @@ export const getEquippedWeaponType = (equipment?: PlayerEquipmentState | null): 
     return weapon?.weaponType ?? DEFAULT_WEAPON_TYPE;
 };
 
-export const getCombatSkillIdForWeaponType = (weaponType?: WeaponType | null): SkillId => {
+export const getCombatSkillIdForWeaponType = (weaponType?: WeaponType | null): CombatSkillId => {
     if (weaponType === "Ranged") {
         return "CombatRanged";
     }
@@ -195,6 +195,6 @@ export const getCombatSkillIdForWeaponType = (weaponType?: WeaponType | null): S
     return "CombatMelee";
 };
 
-export const getCombatSkillIdForEquipment = (equipment?: PlayerEquipmentState | null): SkillId => {
+export const getCombatSkillIdForEquipment = (equipment?: PlayerEquipmentState | null): CombatSkillId => {
     return getCombatSkillIdForWeaponType(getEquippedWeaponType(equipment));
 };

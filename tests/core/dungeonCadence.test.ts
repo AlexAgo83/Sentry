@@ -30,7 +30,8 @@ const buildLargePartyRun = (playerIds: PlayerId[]): DungeonRunState => {
             hp: 100,
             hpMax: 100,
             potionCooldownMs: 0,
-            attackCooldownMs: 0
+            attackCooldownMs: 0,
+            magicHealCooldownMs: 0
         })),
         enemies: [
             {

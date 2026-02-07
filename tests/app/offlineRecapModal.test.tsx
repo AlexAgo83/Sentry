@@ -51,7 +51,7 @@ describe("App offline recap on startup", () => {
                     skillLevelGained: 0,
                     recipeLevelGained: 0,
                     itemDeltas: { bones: 1 },
-                    dungeonGains: { combatXp: 0, itemDeltas: {} }
+                    dungeonGains: { combatXp: {}, itemDeltas: {} }
                 }
             ],
             totalItemDeltas: { bones: 1 }

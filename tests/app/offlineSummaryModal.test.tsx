@@ -83,7 +83,7 @@ describe("OfflineSummaryModal", () => {
                 skillLevelGained: 2,
                 recipeLevelGained: 1,
                 itemDeltas: { bones: 2 },
-                dungeonGains: { combatXp: 0, itemDeltas: {} }
+                dungeonGains: { combatXp: {}, itemDeltas: {} }
             },
             {
                 playerId: "3",
@@ -95,7 +95,7 @@ describe("OfflineSummaryModal", () => {
                 skillLevelGained: 0,
                 recipeLevelGained: 0,
                 itemDeltas: {},
-                dungeonGains: { combatXp: 0, itemDeltas: {} }
+                dungeonGains: { combatXp: {}, itemDeltas: {} }
             },
             {
                 playerId: "2",
@@ -107,7 +107,7 @@ describe("OfflineSummaryModal", () => {
                 skillLevelGained: 0,
                 recipeLevelGained: 0,
                 itemDeltas: {},
-                dungeonGains: { combatXp: 0, itemDeltas: {} }
+                dungeonGains: { combatXp: {}, itemDeltas: {} }
             }
         ];
 

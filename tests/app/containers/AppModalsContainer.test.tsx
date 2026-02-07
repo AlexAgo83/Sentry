@@ -93,6 +93,8 @@ const baseProps = (): ComponentProps<typeof AppModalsContainer> => ({
     onExportSave: vi.fn(),
     onImportSave: vi.fn(),
     onSimulateOffline: vi.fn(),
+    onSimulateOfflineHour: vi.fn(),
+    onSimulateOfflineDay: vi.fn(),
     onResetSave: vi.fn(),
     onCloseSystem: vi.fn(),
     onOpenDevTools: vi.fn(),
