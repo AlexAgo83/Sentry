@@ -378,11 +378,11 @@ export const ActionSelectionScreen = memo(({
                                             style={getRecipeProgressStyle(recipeXp, recipeXpNext, unlocked)}
                                         >
                                             <div className="ts-choice-copy">
-                                                <div className="ts-choice-title">{recipeDef.name} - Lv {recipeLevel}</div>
+                                                <div className="ts-choice-title">{recipeDef.name}</div>
                                                 {!unlocked ? (
                                                     <div className="ts-choice-subtitle">Unlocks at Lv {unlockLevel}</div>
                                                 ) : (
-                                                    <div className="ts-choice-subtitle">{recipeXpLabel}</div>
+                                                    <div className="ts-choice-subtitle">{recipeXpLabel} · Lv {recipeLevel}</div>
                                                 )}
                                                 <div className="ts-choice-details" aria-hidden="true">
                                                     <div className="ts-choice-detail-row">
