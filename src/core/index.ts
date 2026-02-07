@@ -1,6 +1,7 @@
 export type {
     ActionDefinition,
     ActionId,
+    ActionJournalEntry,
     ActionProgressState,
     EquipmentItemDefinition,
     EquipmentSlotId,

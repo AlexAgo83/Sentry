@@ -1,10 +1,10 @@
 ## task_076_action_journal_ui - Display the action journal
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
+> Status: Done
 > Understanding: 94%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Summary
 Expose the last 10 action entries in the System/Settings area.

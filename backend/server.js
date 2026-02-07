@@ -55,6 +55,10 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         secret: config.JWT_SECRET
     });
 
+    app.get("/health", async () => {
+        return { ok: true };
+    });
+
     const resolveClientKey = (request) => {
         const forwardedFor = request.headers["x-forwarded-for"];
         const forwardedIp = typeof forwardedFor === "string" ? forwardedFor.split(",")[0].trim() : "";

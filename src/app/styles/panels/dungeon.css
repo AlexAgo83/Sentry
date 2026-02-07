@@ -110,6 +110,46 @@
     background: rgba(12, 18, 32, 0.82);
 }
 
+.ts-dungeon-risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    border-radius: 999px;
+    border: 1px solid rgba(93, 217, 193, 0.35);
+    padding: 2px 8px;
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgba(226, 240, 238, 0.95);
+    background: rgba(12, 18, 32, 0.75);
+}
+
+.ts-dungeon-risk-badge.is-low {
+    border-color: rgba(110, 220, 150, 0.6);
+    color: rgba(180, 244, 204, 0.95);
+    background: rgba(110, 220, 150, 0.12);
+}
+
+.ts-dungeon-risk-badge.is-medium {
+    border-color: rgba(242, 193, 78, 0.6);
+    color: rgba(242, 193, 78, 0.95);
+    background: rgba(242, 193, 78, 0.14);
+}
+
+.ts-dungeon-risk-badge.is-high {
+    border-color: rgba(239, 125, 67, 0.6);
+    color: rgba(239, 125, 67, 0.95);
+    background: rgba(239, 125, 67, 0.16);
+}
+
+.ts-dungeon-risk-badge.is-deadly {
+    border-color: rgba(239, 77, 67, 0.6);
+    color: rgba(255, 176, 168, 0.95);
+    background: rgba(239, 77, 67, 0.18);
+}
+
 .ts-dungeon-completion-pill {
     border-color: rgba(242, 193, 78, 0.6);
 }

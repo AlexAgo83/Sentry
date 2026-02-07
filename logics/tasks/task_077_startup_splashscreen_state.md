@@ -1,10 +1,10 @@
 ## task_077_startup_splashscreen_state - Add readiness and continue gating
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
+> Status: Done
 > Understanding: 95%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 
 # Summary
 Introduce a readiness signal and a session-only continue gate for startup.

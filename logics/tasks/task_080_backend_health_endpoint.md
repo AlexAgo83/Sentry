@@ -1,10 +1,10 @@
 ## task_080_backend_health_endpoint - Add /health endpoint
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
+> Status: Done
 > Understanding: 94%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Summary
 Add a lightweight backend `/health` endpoint for warmup checks.

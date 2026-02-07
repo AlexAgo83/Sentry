@@ -21,6 +21,7 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
     const loop = useGameStore((state) => state.loop);
     const activePlayer = useGameStore(selectActivePlayer);
     const virtualScore = useGameStore(selectVirtualScore);
+    const actionJournal = useGameStore((state) => state.actionJournal);
 
     const tickRate = (1000 / loop.loopInterval).toFixed(1);
     const driftLabel = useMemo(() => {
@@ -46,6 +47,7 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
             activeActionLabel={activePlayer?.selectedActionId
                 ? props.getSkillLabel(activePlayer.selectedActionId as SkillId)
                 : "none"}
+            actionJournal={actionJournal}
             crashReports={props.crashReports}
             onClearCrashReports={props.onClearCrashReports}
             onOpenDevTools={props.onOpenDevTools}

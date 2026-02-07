@@ -20,7 +20,8 @@ import {
     PlayerState,
     PlayerId,
     RecipeId,
-    SkillId
+    SkillId,
+    ActionJournalEntry
 } from "./types";
 import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
 import { getEquipmentDefinition } from "../data/equipment";
@@ -33,6 +34,37 @@ import {
     stopDungeonRun,
     updateDungeonOnboardingRequired
 } from "./dungeon";
+import { appendActionJournalEntry } from "./actionJournal";
+
+const buildJournalEntryId = (timestamp: number) => {
+    const suffix = Math.random().toString(36).slice(2, 8);
+    return `${timestamp}-${suffix}`;
+};
+
+const createJournalEntry = (label: string, timestamp = Date.now()): ActionJournalEntry => ({
+    id: buildJournalEntryId(timestamp),
+    at: timestamp,
+    label
+});
+
+const formatDurationMinutes = (durationMs: number): string => {
+    const minutes = Math.max(0, Math.round(durationMs / 60000));
+    if (minutes < 60) {
+        return `${Math.max(1, minutes)}m`;
+    }
+    const hours = Math.round(minutes / 60);
+    return `${Math.max(1, hours)}h`;
+};
+
+const formatDungeonEndReason = (reason: string | null | undefined) => {
+    if (!reason) {
+        return "ended";
+    }
+    return reason
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+};
 
 export type GameAction =
     | { type: "hydrate"; save: GameSave | null; version: string }
@@ -82,10 +114,19 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 }
             };
         case "setOfflineSummary":
-            return {
-                ...state,
-                offlineSummary: action.summary
-            };
+            if (!action.summary) {
+                return {
+                    ...state,
+                    offlineSummary: null
+                };
+            }
+            return appendActionJournalEntry(
+                {
+                    ...state,
+                    offlineSummary: action.summary
+                },
+                createJournalEntry(`Offline summary: ${formatDurationMinutes(action.summary.durationMs)}`)
+            );
         case "setPersistenceStatus":
             return {
                 ...state,
@@ -188,7 +229,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             if (action.actionId && isPlayerAssignedToActiveDungeonRun(state, action.playerId)) {
                 return state;
             }
-            return {
+            const nextState = {
                 ...state,
                 players: {
                     ...state.players,
@@ -199,6 +240,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     }
                 }
             };
+            const actionLabel = action.actionId
+                ? getActionDefinition(action.actionId)?.name ?? action.actionId
+                : "None";
+            if (player.selectedActionId === action.actionId) {
+                return nextState;
+            }
+            return appendActionJournalEntry(
+                nextState,
+                createJournalEntry(`Action: ${player.name} -> ${actionLabel}`)
+            );
         }
         case "selectRecipe": {
             const player = state.players[action.playerId];
@@ -455,14 +506,40 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             };
         }
         case "dungeonStartRun":
-            return startDungeonRun(
-                state,
-                action.dungeonId ?? state.dungeon.setup.selectedDungeonId,
-                action.playerIds ?? state.dungeon.setup.selectedPartyPlayerIds,
-                action.timestamp ?? Date.now()
-            );
+            {
+                const timestamp = action.timestamp ?? Date.now();
+                const nextState = startDungeonRun(
+                    state,
+                    action.dungeonId ?? state.dungeon.setup.selectedDungeonId,
+                    action.playerIds ?? state.dungeon.setup.selectedPartyPlayerIds,
+                    timestamp
+                );
+                const nextRunId = nextState.dungeon.activeRunId;
+                if (!nextRunId || nextRunId === state.dungeon.activeRunId) {
+                    return nextState;
+                }
+                const nextRun = nextState.dungeon.runs[nextRunId];
+                const definition = nextRun ? getDungeonDefinition(nextRun.dungeonId) : null;
+                const dungeonLabel = definition?.name ?? nextRun?.dungeonId ?? "Dungeon";
+                return appendActionJournalEntry(
+                    nextState,
+                    createJournalEntry(`Dungeon started: ${dungeonLabel}`, timestamp)
+                );
+            }
         case "dungeonStopRun":
-            return stopDungeonRun(state, "stopped");
+            {
+                const activeRun = getActiveDungeonRun(state.dungeon);
+                if (!activeRun) {
+                    return state;
+                }
+                const nextState = stopDungeonRun(state, "stopped");
+                const definition = getDungeonDefinition(activeRun.dungeonId);
+                const dungeonLabel = definition?.name ?? activeRun.dungeonId;
+                return appendActionJournalEntry(
+                    nextState,
+                    createJournalEntry(`Dungeon ended: ${dungeonLabel} (${formatDungeonEndReason("stopped")})`)
+                );
+            }
         default:
             return state;
     }

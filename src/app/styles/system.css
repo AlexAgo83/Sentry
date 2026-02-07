@@ -25,6 +25,53 @@
     gap: var(--m5);
 }
 
+.ts-system-journal {
+    margin-top: var(--m6);
+    padding: 0 var(--m7);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m3);
+}
+
+.ts-system-journal-header {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
+}
+
+.ts-system-journal-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+}
+
+.ts-system-journal-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m4);
+    padding: var(--m2) var(--m4);
+    border-radius: 10px;
+    border: 1px solid rgba(93, 217, 193, 0.2);
+    background: rgba(10, 16, 28, 0.6);
+    font-size: var(--text-xs-size);
+    color: var(--color-text);
+}
+
+.ts-system-journal-label {
+    flex: 1;
+    min-width: 0;
+}
+
+.ts-system-journal-time {
+    white-space: nowrap;
+    color: var(--color-text-muted);
+}
+
 .ts-system-entry {
     display: flex;
     flex-direction: column;

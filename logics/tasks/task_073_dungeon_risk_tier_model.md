@@ -1,10 +1,10 @@
 ## task_073_dungeon_risk_tier_model - Compute risk tiers per dungeon
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
+> Status: Done
 > Understanding: 95%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 
 # Summary
 Compute a deterministic risk tier per dungeon based on current party or hero power.

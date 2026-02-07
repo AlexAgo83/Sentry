@@ -275,8 +275,16 @@ export interface DungeonState {
     };
 }
 
+export interface ActionJournalEntry {
+    id: string;
+    at: number;
+    label: string;
+}
+
 export interface GameState {
     version: string;
+    appReady: boolean;
+    actionJournal: ActionJournalEntry[];
     players: Record<PlayerId, PlayerState>;
     activePlayerId: PlayerId | null;
     rosterLimit: number;

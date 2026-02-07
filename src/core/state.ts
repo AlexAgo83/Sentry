@@ -229,6 +229,8 @@ export const createInitialGameState = (version: string, options: InitialGameStat
 
     return {
         version,
+        appReady: false,
+        actionJournal: [],
         players: player ? { [playerId]: player } : {},
         activePlayerId: player ? playerId : null,
         rosterLimit: initialRosterLimit,
@@ -336,7 +338,11 @@ const resolveInventory = (
 export const hydrateGameState = (version: string, save?: GameSave | null): GameState => {
     const baseState = createInitialGameState(version, { seedHero: false });
     if (!save) {
-        return baseState;
+        return {
+            ...baseState,
+            appReady: true,
+            actionJournal: []
+        };
     }
 
     const players = Object.keys(save.players ?? {}).reduce<Record<PlayerId, PlayerState>>((acc, id) => {
@@ -387,7 +393,9 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         persistence: baseState.persistence,
         offlineSummary: null,
         lastTickSummary: null,
-        dungeon
+        dungeon,
+        appReady: true,
+        actionJournal: []
     };
 };
 

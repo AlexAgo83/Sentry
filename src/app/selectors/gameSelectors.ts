@@ -70,7 +70,7 @@ export const selectDriftLabel = (() => {
     };
 })();
 
-const computePlayerSkillScore = (player: PlayerState): number => {
+export const computePlayerSkillScore = (player: PlayerState): number => {
     return Object.values(player.skills).reduce((sum, skill) => {
         const xpNext = Number.isFinite(skill.xpNext) && skill.xpNext > 0 ? skill.xpNext : 0;
         const xpProgress = xpNext > 0 ? Math.min(1, Math.max(0, skill.xp / xpNext)) : 0;

@@ -21,6 +21,7 @@ import {
     DUNGEON_FLOAT_WINDOW_MS
 } from "./dungeon/arenaPlayback";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
+import { resolveDungeonRiskTier } from "../../core/dungeon";
 
 type DungeonScreenProps = {
     definitions: DungeonDefinition[];
@@ -29,6 +30,8 @@ type DungeonScreenProps = {
     selectedPartyPlayerIds: PlayerId[];
     canEnterDungeon: boolean;
     foodCount: number;
+    currentPower: number;
+    usesPartyPower: boolean;
     activeRun: DungeonRunState | null;
     latestReplay: DungeonReplayState | null;
     completionCounts: Record<DungeonId, number>;
@@ -55,6 +58,8 @@ export const DungeonScreen = memo(({
     selectedPartyPlayerIds,
     canEnterDungeon,
     foodCount,
+    currentPower,
+    usesPartyPower,
     activeRun,
     latestReplay,
     completionCounts,
@@ -79,6 +84,7 @@ export const DungeonScreen = memo(({
     const [replayCursorMs, setReplayCursorMs] = useState(0);
     const liveCursorRef = useRef(0);
     const replayCursorRef = useRef(0);
+    const riskTooltip = usesPartyPower ? "Based on current party power." : "Based on active hero power.";
     const setReplayCursor = (next: number) => {
         replayCursorRef.current = next;
         setReplayCursorMs(next);
@@ -477,6 +483,8 @@ export const DungeonScreen = memo(({
                         <div className="ts-dungeon-list">
                             {definitions.map((definition) => {
                                 const completionCount = safeCompletionCounts[definition.id] ?? 0;
+                                const riskTier = resolveDungeonRiskTier(currentPower, definition.recommendedPower);
+                                const riskTone = riskTier.toLowerCase();
                                 return (
                                 <button
                                     key={definition.id}
@@ -486,6 +494,9 @@ export const DungeonScreen = memo(({
                                 >
                                     <strong>{definition.name}</strong>
                                     <span>Tier {definition.tier} · {definition.floorCount} floors · Boss: {definition.bossName}</span>
+                                    <span className={`ts-dungeon-risk-badge is-${riskTone}`} title={riskTooltip}>
+                                        Risk: {riskTier}
+                                    </span>
                                     <span>Recommended power: {definition.recommendedPower.toLocaleString()}</span>
                                     {completionCount > 0 ? (
                                         <span className="ts-dungeon-completion-badge">x{completionCount}</span>

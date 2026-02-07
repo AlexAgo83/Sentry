@@ -1,10 +1,10 @@
 ## task_075_action_journal_state - Capture last 10 actions
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
+> Status: Done
 > Understanding: 94%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Summary
 Add a session-only rolling journal of the last 10 action events.

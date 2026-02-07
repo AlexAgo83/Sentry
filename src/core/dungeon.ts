@@ -3,6 +3,7 @@ import { hashStringToSeed, seededRandom } from "./rng";
 import { XP_NEXT_MULTIPLIER } from "./constants";
 import { resolveEffectiveStats } from "./stats";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType, getEquipmentModifiers } from "../data/equipment";
+import { appendActionJournalEntry } from "./actionJournal";
 import type {
     CombatSkillId,
     DungeonCadenceSnapshotEntry,
@@ -54,6 +55,21 @@ const RANGED_DAMAGE_TAKEN_MULTIPLIER = 1.25;
 const MELEE_DAMAGE_TAKEN_MULTIPLIER = 0.9;
 const RANGED_ATTACK_INTERVAL_MULTIPLIER = 0.5;
 const MELEE_THREAT_MULTIPLIER = 1.25;
+
+const buildJournalEntryId = (timestamp: number) => {
+    const suffix = Math.random().toString(36).slice(2, 8);
+    return `${timestamp}-${suffix}`;
+};
+
+const formatDungeonEndReason = (reason: string | null | undefined) => {
+    if (!reason) {
+        return "Ended";
+    }
+    return reason
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+};
 
 const normalizeInventoryCount = (value: number | undefined) => {
     const numeric = typeof value === "number" ? value : Number.NaN;
@@ -842,6 +858,27 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
     };
 };
 
+export type DungeonRiskTier = "Low" | "Medium" | "High" | "Deadly";
+
+export const resolveDungeonRiskTier = (power: number, recommendedPower: number): DungeonRiskTier => {
+    const safeRecommended = Number.isFinite(recommendedPower) ? Math.max(0, recommendedPower) : 0;
+    if (!safeRecommended) {
+        return "Medium";
+    }
+    const safePower = Number.isFinite(power) ? Math.max(0, power) : 0;
+    const ratio = safePower / safeRecommended;
+    if (ratio >= 1.2) {
+        return "Low";
+    }
+    if (ratio >= 0.9) {
+        return "Medium";
+    }
+    if (ratio >= 0.7) {
+        return "High";
+    }
+    return "Deadly";
+};
+
 export const getDungeonRuns = (dungeon: DungeonState): DungeonRunState[] => {
     return Object.values(dungeon.runs)
         .slice()
@@ -1058,6 +1095,8 @@ export const applyDungeonTick = (
     if (!activeRun) {
         return { state, itemDeltas: {}, combatActiveMsByPlayer: {}, combatXpByPlayer: {} };
     }
+
+    const wasRunning = activeRun.status === "running";
 
     const definition = getDungeonDefinition(activeRun.dungeonId);
     if (!definition) {
@@ -1504,13 +1543,25 @@ export const applyDungeonTick = (
         dungeon.activeRunId = run.id;
     }
 
+    const runEndedNow = wasRunning && run.status !== "running";
+    let nextState: GameState = {
+        ...state,
+        players,
+        inventory,
+        dungeon
+    };
+    if (runEndedNow) {
+        const dungeonLabel = definition.name ?? run.dungeonId;
+        const reasonLabel = formatDungeonEndReason(run.endReason ?? run.status);
+        nextState = appendActionJournalEntry(nextState, {
+            id: buildJournalEntryId(timestamp),
+            at: timestamp,
+            label: `Dungeon ended: ${dungeonLabel} (${reasonLabel})`
+        });
+    }
+
     return {
-        state: {
-            ...state,
-            players,
-            inventory,
-            dungeon
-        },
+        state: nextState,
         itemDeltas,
         combatActiveMsByPlayer,
         combatXpByPlayer

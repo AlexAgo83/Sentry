@@ -1,10 +1,10 @@
 ## task_079_warmup_render_backend - Fire best-effort warmup request
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
+> Status: Done
 > Understanding: 94%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 
 # Summary
 Send a non-blocking startup request to warm the Render backend if configured.

@@ -16,6 +16,7 @@ import { useCloseOverlaysOnOfflineSummary } from "./hooks/useCloseOverlaysOnOffl
 import { useGameRuntimeLifecycle } from "./hooks/useGameRuntimeLifecycle";
 import { useInventoryNewBadges } from "./hooks/useInventoryNewBadges";
 import { generateUniqueEnglishHeroNames } from "./ui/heroNames";
+import { StartupSplashScreen } from "./components/StartupSplashScreen";
 
 export const AppContainer = () => {
     useRenderCount("AppContainer");
@@ -26,6 +27,7 @@ export const AppContainer = () => {
     const { swUpdate, closeSwUpdate, reloadSwUpdate } = useServiceWorkerUpdatePrompt();
 
     const version = useGameStore((state) => state.version);
+    const appReady = useGameStore((state) => state.appReady);
     const offlineSummary = useGameStore((state) => state.offlineSummary);
     const inventoryItems = useGameStore((state) => state.inventory.items);
     const playerCount = useGameStore((state) => Object.keys(state.players).length);
@@ -64,7 +66,46 @@ export const AppContainer = () => {
     const [onboardingHeroName, setOnboardingHeroName] = useState("");
     const [didAutoOpenDungeon, setDidAutoOpenDungeon] = useState(false);
     const [heroMenuOpenSignal, setHeroMenuOpenSignal] = useState(0);
+    const [hasContinued, setHasContinued] = useState(false);
     const isOnboardingOpen = dungeonOnboardingRequired && playerCount < 4;
+
+    useEffect(() => {
+        if (import.meta.env.DEV || import.meta.env.MODE === "test" || import.meta.env.VITE_E2E) {
+            return;
+        }
+        const rawBase = (__PROD_RENDER_API_BASE__ || import.meta.env.VITE_PROD_RENDER_API_BASE || "").trim();
+        if (!rawBase) {
+            return;
+        }
+        const baseUrl = rawBase.replace(/\/+$/, "");
+        const warmupUrl = `${baseUrl}/health`;
+        const fetchWithTimeout = async (url: string, mode: RequestMode) => {
+            const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+            const timeoutId = controller ? window.setTimeout(() => controller.abort(), 1500) : null;
+            try {
+                return await fetch(url, {
+                    method: "GET",
+                    mode,
+                    credentials: "omit",
+                    cache: "no-store",
+                    signal: controller?.signal
+                });
+            } catch {
+                return null;
+            } finally {
+                if (timeoutId) {
+                    window.clearTimeout(timeoutId);
+                }
+            }
+        };
+
+        void (async () => {
+            const response = await fetchWithTimeout(warmupUrl, "cors");
+            if (!response || !response.ok) {
+                await fetchWithTimeout(baseUrl, "no-cors");
+            }
+        })();
+    }, []);
 
     const {
         newItemIds: newInventoryItemIds,
@@ -247,11 +288,18 @@ export const AppContainer = () => {
         || offlineSummary
         || swUpdate
         || isSafeModeOpen
+        || !hasContinued
     );
 
     return (
         <div className={`app-shell${isAnyModalOpen ? " is-modal-open" : ""}`}>
             <EnsureSelectedRecipeEffect />
+            {!hasContinued ? (
+                <StartupSplashScreen
+                    isReady={appReady}
+                    onContinue={() => setHasContinued(true)}
+                />
+            ) : null}
             {persistence.disabled ? (
                 <div className="ts-persistence-banner" role="status">
                     <div className="ts-persistence-banner-content">

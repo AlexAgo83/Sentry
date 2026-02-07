@@ -5,9 +5,15 @@ import { DUNGEON_DEFINITIONS } from "../../data/dungeons";
 import { getActiveDungeonRun } from "../../core/dungeon";
 import type { PlayerId } from "../../core/types";
 import { DungeonScreen } from "../components/DungeonScreen";
+import { computePlayerSkillScore } from "../selectors/gameSelectors";
 
 export const DungeonScreenContainer = () => {
     const players = useGameStore((state) => state.players);
+    const activePlayerId = useGameStore((state) => state.activePlayerId);
+    const questScore = useGameStore((state) => {
+        const questCount = Object.values(state.quests.completed ?? {}).filter(Boolean).length;
+        return questCount * 5;
+    });
     const setup = useGameStore((state) => state.dungeon.setup);
     const dungeon = useGameStore((state) => state.dungeon);
     const foodCount = useGameStore((state) => state.inventory.items.food ?? 0);
@@ -15,6 +21,27 @@ export const DungeonScreenContainer = () => {
     const playerCount = Object.keys(players).length;
     const canEnterDungeon = playerCount >= 4;
     const [showReplay, setShowReplay] = useState(false);
+    const hasPartySelection = setup.selectedPartyPlayerIds.length > 0;
+    const currentPower = useMemo(() => {
+        const questShare = playerCount > 0 ? questScore / playerCount : 0;
+        const resolvePlayerPower = (playerId: PlayerId) => {
+            const player = players[playerId];
+            if (!player) {
+                return 0;
+            }
+            return computePlayerSkillScore(player) + questShare;
+        };
+        if (hasPartySelection) {
+            const total = setup.selectedPartyPlayerIds.reduce((sum, playerId) => {
+                return sum + resolvePlayerPower(playerId);
+            }, 0);
+            return Math.max(0, Math.round(total));
+        }
+        if (activePlayerId && players[activePlayerId]) {
+            return Math.max(0, Math.round(resolvePlayerPower(activePlayerId)));
+        }
+        return 0;
+    }, [activePlayerId, hasPartySelection, playerCount, players, questScore, setup.selectedPartyPlayerIds]);
 
     const handleSelectDungeon = useCallback((dungeonId: string) => {
         gameStore.dispatch({ type: "dungeonSetupSelectDungeon", dungeonId });
@@ -57,6 +84,8 @@ export const DungeonScreenContainer = () => {
             selectedPartyPlayerIds={setup.selectedPartyPlayerIds}
             canEnterDungeon={canEnterDungeon}
             foodCount={foodCount}
+            currentPower={currentPower}
+            usesPartyPower={hasPartySelection}
             activeRun={activeRun}
             latestReplay={dungeon.latestReplay}
             completionCounts={dungeon.completionCounts ?? {}}
