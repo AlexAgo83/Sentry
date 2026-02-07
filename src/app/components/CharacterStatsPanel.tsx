@@ -1,6 +1,7 @@
 import { memo, type CSSProperties } from "react";
 import type { CombatSkillId, PlayerStatsState, SkillDefinition, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
+import { SKILL_MAX_LEVEL } from "../../core/constants";
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { getSkillIconColor } from "../ui/skillColors";
@@ -54,7 +55,10 @@ const StatRow = memo(({ skill, level, color, progress }: StatRowProps) => {
             </div>
             <div className="ts-stat-label">{skill.name}</div>
         </div>
-        <div className="ts-stat-value">Lv {level}</div>
+        <div className="ts-stat-value ts-stat-level">
+            <span className="ts-stat-level-value">{level}</span>
+            <span className="ts-stat-level-max">/{SKILL_MAX_LEVEL}</span>
+        </div>
         </div>
     );
 });
@@ -249,7 +253,10 @@ export const CharacterStatsPanel = memo(({
                                                     <SkillIcon skillId={skill.id} color={color} />
                                                 </span>
                                                 <span className="ts-combat-skill-label" style={{ color }}>{skill.name}</span>
-                                                <span className="ts-combat-skill-level">Lv {skill.level}</span>
+                                                <span className="ts-combat-skill-level ts-stat-level">
+                                                    <span className="ts-stat-level-value">{skill.level}</span>
+                                                    <span className="ts-stat-level-max">/{SKILL_MAX_LEVEL}</span>
+                                                </span>
                                             </div>
                                         );
                                     })}

@@ -517,6 +517,21 @@
     font-size: var(--text-s-size);
     color: var(--color-primary);
     font-family: var(--display-font);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.ts-choice-level-max {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(242, 193, 78, 0.8);
+}
+
+.ts-choice-level-value {
+    font-weight: 700;
+    font-size: var(--text-s-size);
 }
 
 .ts-choice-xp {

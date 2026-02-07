@@ -1,6 +1,7 @@
 import { memo, type CSSProperties } from "react";
 import type { ActionId, PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked, ITEM_DEFINITIONS } from "../../data/definitions";
+import { RECIPE_MAX_LEVEL, SKILL_MAX_LEVEL } from "../../core/constants";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { BackIcon } from "../ui/backIcon";
@@ -296,6 +297,7 @@ export const ActionSelectionScreen = memo(({
                             const skillLevel = activePlayer?.skills[skill.id]?.level ?? 0;
                             const skillXp = activePlayer?.skills[skill.id]?.xp ?? 0;
                             const skillXpNext = activePlayer?.skills[skill.id]?.xpNext ?? 0;
+                            const skillMax = activePlayer?.skills[skill.id]?.maxLevel ?? SKILL_MAX_LEVEL;
                             const skillColor = getSkillIconColor(skill.id);
                             const xpCurrent = Number.isFinite(skillXp) ? Math.round(skillXp) : 0;
                             const xpNextValue = Number.isFinite(skillXpNext) ? Math.round(skillXpNext) : 0;
@@ -318,7 +320,10 @@ export const ActionSelectionScreen = memo(({
                                             <div className="ts-choice-title">{skill.name}</div>
                                         </div>
                                         <div className="ts-choice-meta">
-                                            <div className="ts-choice-level">Lv {skillLevel}</div>
+                                            <div className="ts-choice-level">
+                                                <span className="ts-choice-level-value">{skillLevel}</span>
+                                                <span className="ts-choice-level-max">/{skillMax}</span>
+                                            </div>
                                             <div className="ts-choice-xp">{xpLabel}</div>
                                         </div>
                                     </div>
@@ -346,6 +351,7 @@ export const ActionSelectionScreen = memo(({
                                 const recipeLevel = recipeState?.level ?? 0;
                                 const recipeXp = recipeState?.xp ?? 0;
                                 const recipeXpNext = recipeState?.xpNext ?? 0;
+                                const recipeMax = recipeState?.maxLevel ?? RECIPE_MAX_LEVEL;
                                 const unlocked = isRecipeUnlocked(recipeDef, pendingSkill.level);
                                 const recipeXpLabel = `XP ${Number.isFinite(recipeXp) ? Math.round(recipeXp) : 0}/${Number.isFinite(recipeXpNext) ? Math.round(recipeXpNext) : 0}`;
                                 const consumptionEntries = getItemListEntries(ITEM_DEFINITIONS, recipeDef.itemCosts);
@@ -382,7 +388,7 @@ export const ActionSelectionScreen = memo(({
                                                 {!unlocked ? (
                                                     <div className="ts-choice-subtitle">Unlocks at Lv {unlockLevel}</div>
                                                 ) : (
-                                                    <div className="ts-choice-subtitle">{recipeXpLabel} · Lv {recipeLevel}</div>
+                                                    <div className="ts-choice-subtitle">{recipeXpLabel} · Lv {recipeLevel}/{recipeMax}</div>
                                                 )}
                                                 <div className="ts-choice-details" aria-hidden="true">
                                                     <div className="ts-choice-detail-row">

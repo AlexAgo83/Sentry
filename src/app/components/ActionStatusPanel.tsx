@@ -43,6 +43,8 @@ type ActionStatusPanelProps = {
     activeRecipeLevel: number;
     activeRecipeXp: number;
     activeRecipeXpNext: number;
+    activeSkillMax: number;
+    activeRecipeMax: number;
     skillIconColor: string;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
@@ -84,6 +86,8 @@ export const ActionStatusPanel = memo(({
     activeRecipeLevel,
     activeRecipeXp,
     activeRecipeXpNext,
+    activeSkillMax,
+    activeRecipeMax,
     skillIconColor,
     isCollapsed,
     onToggleCollapsed,
@@ -284,14 +288,14 @@ export const ActionStatusPanel = memo(({
                             className="generic-field panel progress-row ts-progress-row ts-progress-skill"
                             style={skillStyle}
                         >
-                            <span className="ts-progress-label">Skill Lv {activeSkillLevel}</span>
+                            <span className="ts-progress-label">Skill Lv {activeSkillLevel}/{activeSkillMax}</span>
                             <span className="ts-progress-value">XP {formatXp(activeSkillXp)}/{formatXp(activeSkillXpNext)}</span>
                         </div>
                         <div
                             className="generic-field panel progress-row ts-progress-row ts-progress-recipe"
                             style={recipeStyle}
                         >
-                            <span className="ts-progress-label">Recipe Lv {activeRecipeLevel}</span>
+                            <span className="ts-progress-label">Recipe Lv {activeRecipeLevel}/{activeRecipeMax}</span>
                             <span className="ts-progress-value">XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}</span>
                         </div>
                     </>

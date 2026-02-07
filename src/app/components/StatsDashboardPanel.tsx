@@ -1,6 +1,7 @@
 import { memo, useMemo, useState } from "react";
 import type { CombatSkillId, PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
+import { SKILL_MAX_LEVEL } from "../../core/constants";
 import { SKILL_DEFINITIONS } from "../../data/definitions";
 import type { CombatDisplayModel } from "../selectors/combatSelectors";
 import { usePersistedPanelTab } from "../hooks/usePersistedPanelTab";
@@ -322,7 +323,10 @@ export const StatsDashboardPanel = memo(({
                                                     <SkillIcon skillId={skillId} color={color} />
                                                 </span>
                                                 <span className="ts-combat-skill-label" style={{ color }}>{COMBAT_SKILL_LABELS[skillId]}</span>
-                                                <span className="ts-combat-skill-level">Lv {level}</span>
+                                                <span className="ts-combat-skill-level ts-stat-level">
+                                                    <span className="ts-stat-level-value">{level}</span>
+                                                    <span className="ts-stat-level-max">/{SKILL_MAX_LEVEL}</span>
+                                                </span>
                                             </div>
                                         );
                                     })}

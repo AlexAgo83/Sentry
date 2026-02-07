@@ -160,6 +160,23 @@
     letter-spacing: 0.08em;
 }
 
+.ts-stat-level {
+    gap: 4px;
+    letter-spacing: 0.04em;
+}
+
+.ts-stat-level-value {
+    font-weight: 700;
+    font-size: var(--text-s-size);
+}
+
+.ts-stat-level-max {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(242, 193, 78, 0.8);
+}
+
 .ts-stat-placeholder {
     padding: var(--m3) var(--m4);
     border-radius: var(--border-radius-harmonized);
@@ -665,6 +682,10 @@
 
 .ts-character-cell--total {
     color: var(--color-primary);
+}
+
+.ts-character-cell--total .ts-character-cell-value {
+    font-weight: 700;
 }
 
 .ts-character-breakdown--combat {

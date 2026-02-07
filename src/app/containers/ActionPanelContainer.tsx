@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { getActionDefinition, ITEM_DEFINITIONS } from "../../data/definitions";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType, getEquipmentModifiers } from "../../data/equipment";
-import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../core/constants";
+import { MIN_ACTION_INTERVAL_MS, RECIPE_MAX_LEVEL, SKILL_MAX_LEVEL, STAT_PERCENT_PER_POINT } from "../../core/constants";
 import { isPlayerAssignedToActiveDungeonRun } from "../../core/dungeon";
 import type { ActionDefinition, SkillId, SkillState } from "../../core/types";
 import { computeEffectiveStats, createPlayerStatsState, resolveEffectiveStats } from "../../core/stats";
@@ -203,6 +203,8 @@ export const ActionPanelContainer = ({
                 activeRecipeLevel={activeRecipe?.level ?? 0}
                 activeRecipeXp={activeRecipe?.xp ?? 0}
                 activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
+                activeSkillMax={activeSkill?.maxLevel ?? SKILL_MAX_LEVEL}
+                activeRecipeMax={activeRecipe?.maxLevel ?? RECIPE_MAX_LEVEL}
                 skillIconColor={skillIconColor}
                 isCollapsed={isCollapsed}
                 onToggleCollapsed={() => setCollapsed((value) => !value)}
