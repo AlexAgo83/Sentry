@@ -1,7 +1,7 @@
 ## item_094_backend_health_endpoint - Add a lightweight /health endpoint
 > From version: 0.9.10
-> Understanding: 90%
-> Confidence: 88%
+> Understanding: 94%
+> Confidence: 92%
 > Progress: 0%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
@@ -19,6 +19,7 @@ Warmup calls should target a stable, low-cost endpoint. If `/health` is missing,
 - Response should be `200 OK` with a short JSON payload (ex: `{ "ok": true }`).
 - Must be safe to call frequently and under cold start.
 - Available in both dev and production.
+- Shallow health only (no DB or external calls).
 
 # Acceptance criteria
 - `/health` responds within typical cold-start constraints.
