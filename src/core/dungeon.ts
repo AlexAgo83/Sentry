@@ -1075,6 +1075,7 @@ export const applyDungeonTick = (
     const combatActiveMsByPlayer: Record<PlayerId, number> = {};
     const combatXpByPlayer: Record<PlayerId, Partial<Record<CombatSkillId, number>>> = {};
     let players = state.players;
+    let completionCounts = state.dungeon.completionCounts ?? {};
 
     if (run.restartAt && timestamp >= run.restartAt && run.autoRestart) {
         const aliveCount = resolveAliveHeroIds(run).length;
@@ -1308,6 +1309,12 @@ export const applyDungeonTick = (
                     label: "victory"
                 });
                 if (run.autoRestart) {
+                    completionCounts = {
+                        ...completionCounts,
+                        [run.dungeonId]: (completionCounts[run.dungeonId] ?? 0) + 1
+                    };
+                }
+                if (run.autoRestart) {
                     run.restartAt = timestamp + DUNGEON_AUTO_RESTART_DELAY_MS;
                 }
                 continue;
@@ -1486,7 +1493,8 @@ export const applyDungeonTick = (
         runs: {
             ...state.dungeon.runs,
             [run.id]: run
-        }
+        },
+        completionCounts
     };
 
     if (run.status === "failed" || (run.status === "victory" && !run.autoRestart)) {

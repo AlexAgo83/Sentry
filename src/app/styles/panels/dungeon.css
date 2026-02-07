@@ -283,7 +283,7 @@
     align-items: center;
     gap: var(--m2);
     width: fit-content;
-    padding: var(--m2) var(--m3);
+    padding: var(--m2) var(--m4);
     border: 1px solid rgba(239, 77, 67, 0.45);
     border-radius: 10px;
     background: linear-gradient(140deg, rgba(239, 77, 67, 0.16), rgba(239, 77, 67, 0.06));
