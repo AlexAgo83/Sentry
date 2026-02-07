@@ -5,6 +5,7 @@ import {
     GameSave,
     GameState,
     InventoryState,
+    LastNonDungeonAction,
     PlayerId,
     PlayerSaveState,
     PlayerState,
@@ -28,7 +29,7 @@ import {
     SKILL_MAX_LEVEL,
     XP_NEXT_MULTIPLIER
 } from "./constants";
-import { SKILL_DEFINITIONS, getActionDefinition, getRecipesForSkill } from "../data/definitions";
+import { SKILL_DEFINITIONS, getActionDefinition, getRecipeDefinition, getRecipesForSkill } from "../data/definitions";
 import { createPlayerStatsState, normalizePlayerStats } from "./stats";
 import { createPlayerEquipmentState, normalizePlayerEquipment } from "./equipment";
 import { createProgressionState, normalizeProgressionState } from "./progression";
@@ -231,6 +232,7 @@ export const createInitialGameState = (version: string, options: InitialGameStat
         version,
         appReady: false,
         actionJournal: [],
+        lastNonDungeonAction: null,
         players: player ? { [playerId]: player } : {},
         activePlayerId: player ? playerId : null,
         rosterLimit: initialRosterLimit,
@@ -261,6 +263,25 @@ export const createInitialGameState = (version: string, options: InitialGameStat
         lastTickSummary: null,
         dungeon
     };
+};
+
+const normalizeLastNonDungeonAction = (value?: GameSave["lastNonDungeonAction"] | null): LastNonDungeonAction | null => {
+    if (!value || typeof value !== "object") {
+        return null;
+    }
+    const skillId = (value as LastNonDungeonAction).skillId;
+    const recipeId = (value as LastNonDungeonAction).recipeId;
+    if (!skillId || !recipeId) {
+        return null;
+    }
+    if (!getActionDefinition(skillId)) {
+        return null;
+    }
+    const recipeDef = getRecipeDefinition(skillId, recipeId);
+    if (!recipeDef) {
+        return null;
+    }
+    return { skillId, recipeId };
 };
 
 const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
@@ -381,6 +402,7 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         version,
         players: Object.keys(players).length > 0 ? players : baseState.players,
         activePlayerId,
+        lastNonDungeonAction: normalizeLastNonDungeonAction(save.lastNonDungeonAction),
         rosterLimit,
         inventory,
         quests: normalizeQuestProgressState(save.quests),

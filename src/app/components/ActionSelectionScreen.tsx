@@ -5,6 +5,7 @@ import { RECIPE_MAX_LEVEL, SKILL_MAX_LEVEL } from "../../core/constants";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { BackIcon } from "../ui/backIcon";
+import { ResumeIcon } from "../ui/resumeIcon";
 import { SkillIcon } from "../ui/skillIcons";
 import { getSkillIconColor } from "../ui/skillColors";
 import { formatItemListEntries, formatItemListEntriesFull, getItemListEntries } from "../ui/itemFormatters";
@@ -39,10 +40,13 @@ type ActionSelectionScreenProps = {
     missingItemsLabel: string;
     canStartAction: boolean;
     canStopAction: boolean;
+    canReselect?: boolean;
+    showReselect?: boolean;
     onSkillSelect: (skillId: ActionId | "") => void;
     onRecipeSelect: (recipeId: string) => void;
     onStartAction: () => void;
     onStopAction: () => void;
+    onReselect?: () => void;
     onBack: () => void;
 };
 
@@ -68,10 +72,13 @@ export const ActionSelectionScreen = memo(({
     missingItemsLabel,
     canStartAction,
     canStopAction,
+    canReselect = false,
+    showReselect = false,
     onSkillSelect,
     onRecipeSelect,
     onStartAction,
     onStopAction,
+    onReselect,
     onBack
 }: ActionSelectionScreenProps) => {
     const currentActionId = activePlayer.selectedActionId ?? "";
@@ -170,32 +177,50 @@ export const ActionSelectionScreen = memo(({
                 <h2 className="ts-panel-title">Action</h2>
             </div>
             <div className="ts-panel-actions ts-panel-actions-inline">
-                <button
-                    type="button"
-                    className={`${startActionClassName} ts-action-button`}
-                    onClick={onStartAction}
-                    disabled={!canStartAction}
-                    aria-label="Start action"
-                    title="Start action"
-                >
-                    <span className="ts-collapse-label">
-                        <StartActionIcon />
-                    </span>
-                    <span className="ts-action-button-label">Start</span>
-                </button>
-                <button
-                    type="button"
-                    className={`ts-collapse-button ts-focusable ts-action-stop ts-action-button${canStopAction ? " is-ready-stop" : ""}`}
-                    onClick={onStopAction}
-                    disabled={!canStopAction}
-                    aria-label="Interrupt"
-                    title="Interrupt"
-                >
-                    <span className="ts-collapse-label">
-                        <InterruptIcon />
-                    </span>
-                    <span className="ts-action-button-label">Interrupt</span>
-                </button>
+                {showReselect ? (
+                    <button
+                        type="button"
+                        className={`ts-collapse-button ts-focusable ts-action-resume ts-action-button${canReselect ? " is-ready-active" : ""}`}
+                        onClick={onReselect}
+                        disabled={!canReselect}
+                        aria-label="Re-select"
+                        title="Re-select"
+                    >
+                        <span className="ts-collapse-label">
+                            <ResumeIcon />
+                        </span>
+                        <span className="ts-action-button-label">Re-select</span>
+                    </button>
+                ) : (
+                    <>
+                        <button
+                            type="button"
+                            className={`${startActionClassName} ts-action-button`}
+                            onClick={onStartAction}
+                            disabled={!canStartAction}
+                            aria-label="Start action"
+                            title="Start action"
+                        >
+                            <span className="ts-collapse-label">
+                                <StartActionIcon />
+                            </span>
+                            <span className="ts-action-button-label">Start</span>
+                        </button>
+                        <button
+                            type="button"
+                            className={`ts-collapse-button ts-focusable ts-action-stop ts-action-button${canStopAction ? " is-ready-stop" : ""}`}
+                            onClick={onStopAction}
+                            disabled={!canStopAction}
+                            aria-label="Interrupt"
+                            title="Interrupt"
+                        >
+                            <span className="ts-collapse-label">
+                                <InterruptIcon />
+                            </span>
+                            <span className="ts-action-button-label">Interrupt</span>
+                        </button>
+                    </>
+                )}
                 <button
                     type="button"
                     className="ts-collapse-button ts-focusable ts-action-button"

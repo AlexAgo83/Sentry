@@ -241,14 +241,35 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     }
                 }
             };
+            let lastNonDungeonAction = state.lastNonDungeonAction;
+            if (action.actionId) {
+                const actionDef = getActionDefinition(action.actionId);
+                const skill = actionDef ? player.skills[action.actionId] : null;
+                const selectedRecipeId = skill?.selectedRecipeId ?? null;
+                if (actionDef && selectedRecipeId) {
+                    const recipeDef = getRecipeDefinition(action.actionId, selectedRecipeId);
+                    if (recipeDef && isRecipeUnlocked(recipeDef, skill?.level ?? 0)) {
+                        lastNonDungeonAction = {
+                            skillId: action.actionId,
+                            recipeId: selectedRecipeId
+                        };
+                    }
+                }
+            }
             const actionLabel = action.actionId
                 ? getActionDefinition(action.actionId)?.name ?? action.actionId
                 : "None";
             if (player.selectedActionId === action.actionId) {
-                return nextState;
+                return {
+                    ...nextState,
+                    lastNonDungeonAction
+                };
             }
             return appendActionJournalEntry(
-                nextState,
+                {
+                    ...nextState,
+                    lastNonDungeonAction
+                },
                 createJournalEntry(`Action: ${player.name} -> ${actionLabel}`)
             );
         }
@@ -267,8 +288,20 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     return state;
                 }
             }
+            const shouldUpdateLastAction = Boolean(
+                action.recipeId
+                && player.selectedActionId === action.skillId
+                && getActionDefinition(action.skillId as ActionId)
+            );
+            const lastNonDungeonAction = shouldUpdateLastAction && action.recipeId
+                ? {
+                    skillId: action.skillId as ActionId,
+                    recipeId: action.recipeId
+                }
+                : state.lastNonDungeonAction;
             return {
                 ...state,
+                lastNonDungeonAction,
                 players: {
                     ...state.players,
                     [action.playerId]: {

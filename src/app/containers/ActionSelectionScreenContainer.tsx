@@ -44,6 +44,7 @@ export const ActionSelectionScreenContainer = ({
 }: ActionSelectionScreenContainerProps) => {
     const activePlayer = useGameStore(selectActivePlayer);
     const inventoryItems = useGameStore((state) => state.inventory.items);
+    const lastNonDungeonAction = useGameStore((state) => state.lastNonDungeonAction);
 
     const [pendingSkillId, setPendingSkillId] = useState<ActionId | "">("");
     const [pendingRecipeId, setPendingRecipeId] = useState("");
@@ -217,6 +218,28 @@ export const ActionSelectionScreenContainer = ({
         });
     }, [activePlayer, pendingRecipeId, pendingSkillId]);
 
+    const lastSkillId = lastNonDungeonAction?.skillId ?? "";
+    const lastRecipeId = lastNonDungeonAction?.recipeId ?? "";
+    const canReselect = Boolean(activePlayer && lastSkillId && activePlayer.skills[lastSkillId]);
+    const handleReselect = useCallback(() => {
+        if (!activePlayer || !lastSkillId) {
+            return;
+        }
+        const skill = activePlayer.skills[lastSkillId];
+        if (!skill) {
+            return;
+        }
+        const storedRecipeDef = lastRecipeId ? getRecipeDefinition(lastSkillId, lastRecipeId) : null;
+        const storedRecipeUnlocked = Boolean(
+            storedRecipeDef && isRecipeUnlocked(storedRecipeDef, skill.level)
+        );
+        const nextRecipeId = storedRecipeUnlocked && lastRecipeId
+            ? lastRecipeId
+            : getFirstUnlockedRecipeId(lastSkillId, skill.level);
+        setPendingSkillId(lastSkillId);
+        setPendingRecipeId(nextRecipeId);
+    }, [activePlayer, lastRecipeId, lastSkillId]);
+
     const {
         pendingSkill,
         pendingItemCosts,
@@ -276,6 +299,8 @@ export const ActionSelectionScreenContainer = ({
         return null;
     }
 
+    const showReselect = pendingSkillId === "";
+
     return (
         <>
             <HeroSkinPanelContainer onRenameHero={onRenameHero} useDungeonProgress />
@@ -301,10 +326,13 @@ export const ActionSelectionScreenContainer = ({
                 missingItemsLabel={missingItemsLabel}
                 canStartAction={canStartAction}
                 canStopAction={Boolean(activePlayer.selectedActionId)}
+                canReselect={canReselect}
+                showReselect={showReselect}
                 onSkillSelect={handleSkillSelect}
                 onRecipeSelect={handleRecipeSelect}
                 onStartAction={handleStartAction}
                 onStopAction={handleStopAction}
+                onReselect={handleReselect}
                 onBack={onBack}
             />
         </>

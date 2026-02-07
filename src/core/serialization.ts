@@ -8,6 +8,7 @@ export const toGameSave = (state: GameState): GameSave => {
         lastTick: state.loop.lastTick,
         lastHiddenAt: state.loop.lastHiddenAt,
         activePlayerId: state.activePlayerId,
+        lastNonDungeonAction: state.lastNonDungeonAction,
         players: stripRuntimeFields(state.players),
         rosterLimit: state.rosterLimit,
         inventory: state.inventory,

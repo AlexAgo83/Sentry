@@ -9,6 +9,7 @@ import { useGameStore } from "../hooks/useGameStore";
 import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { useActionStatus } from "../hooks/useActionStatus";
+import { usePendingActionSelection } from "../hooks/usePendingActionSelection";
 import { formatItemListEntries, getItemListEntries } from "../ui/itemFormatters";
 import { ActionStatusPanel } from "../components/ActionStatusPanel";
 import { getSkillIconColor } from "../ui/skillColors";
@@ -65,6 +66,8 @@ export const ActionPanelContainer = ({
         recipeStyle,
         isStunned
     } = useActionStatus(activePlayer);
+    const inventoryItems = useGameStore((state) => state.inventory.items);
+    const lastNonDungeonAction = useGameStore((state) => state.lastNonDungeonAction);
     const isInDungeon = useGameStore((state) => (
         activePlayer?.id ? isPlayerAssignedToActiveDungeonRun(state, activePlayer.id) : false
     ));
@@ -165,12 +168,29 @@ export const ActionPanelContainer = ({
     const showDungeonShortcut = isInDungeon && !activeSkillId;
     const showChangeAction = !isInDungeon;
     const showInterruptAction = !isInDungeon;
+    const resumeSkillId = lastNonDungeonAction?.skillId ?? "";
+    const resumeRecipeId = lastNonDungeonAction?.recipeId ?? "";
+    const resumeSelection = usePendingActionSelection({
+        activePlayer,
+        pendingSkillId: resumeSkillId,
+        pendingRecipeId: resumeRecipeId,
+        inventoryItems
+    });
+    const canResumeAction = resumeSelection.canStartAction;
+    const showResumeAction = !isInDungeon && !activeSkillId && canResumeAction;
     const handleInterruptAction = useCallback(() => {
         if (!activePlayer) {
             return;
         }
         gameStore.dispatch({ type: "selectAction", playerId: activePlayer.id, actionId: null });
     }, [activePlayer]);
+    const handleResumeAction = useCallback(() => {
+        if (!activePlayer || !resumeSkillId || !resumeRecipeId) {
+            return;
+        }
+        gameStore.dispatch({ type: "selectAction", playerId: activePlayer.id, actionId: resumeSkillId });
+        gameStore.dispatch({ type: "selectRecipe", playerId: activePlayer.id, skillId: resumeSkillId, recipeId: resumeRecipeId });
+    }, [activePlayer, resumeRecipeId, resumeSkillId]);
 
     return (
         <>
@@ -212,8 +232,11 @@ export const ActionPanelContainer = ({
                 canChangeAction={Boolean(activePlayer)}
                 onInterruptAction={handleInterruptAction}
                 canInterruptAction={canInterruptAction}
+                onResumeAction={handleResumeAction}
+                canResumeAction={canResumeAction}
                 showChangeAction={showChangeAction}
                 showInterruptAction={showInterruptAction}
+                showResumeAction={showResumeAction}
                 showDungeonShortcut={showDungeonShortcut}
                 onOpenDungeon={onOpenDungeon}
             />

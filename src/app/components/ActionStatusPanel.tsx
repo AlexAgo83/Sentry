@@ -5,6 +5,7 @@ import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { ChangeIcon } from "../ui/changeIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
+import { ResumeIcon } from "../ui/resumeIcon";
 import { ItemIcon } from "../ui/itemIcon";
 import { TabIcon } from "../ui/tabIcons";
 import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
@@ -52,8 +53,11 @@ type ActionStatusPanelProps = {
     canChangeAction: boolean;
     onInterruptAction: () => void;
     canInterruptAction: boolean;
+    onResumeAction?: () => void;
+    canResumeAction?: boolean;
     showChangeAction?: boolean;
     showInterruptAction?: boolean;
+    showResumeAction?: boolean;
     showDungeonShortcut?: boolean;
     onOpenDungeon?: () => void;
 };
@@ -95,14 +99,18 @@ export const ActionStatusPanel = memo(({
     canChangeAction,
     onInterruptAction,
     canInterruptAction,
+    onResumeAction,
+    canResumeAction = false,
     showChangeAction = true,
     showInterruptAction = true,
+    showResumeAction = false,
     showDungeonShortcut = false,
     onOpenDungeon
 }: ActionStatusPanelProps) => {
     const hasActiveAction = Boolean(activeSkillId);
     const resolvedDisplaySkillId = displaySkillId || activeSkillId;
     const canShowDungeonShortcut = showDungeonShortcut && typeof onOpenDungeon === "function";
+    const canShowResume = showResumeAction && typeof onResumeAction === "function";
     const changeActionClassName = [
         "ts-collapse-button",
         "ts-focusable",
@@ -179,6 +187,20 @@ export const ActionStatusPanel = memo(({
                                 <TabIcon kind="dungeon" />
                             </span>
                             <span className="ts-action-button-label">Dungeon</span>
+                        </button>
+                    ) : canShowResume ? (
+                        <button
+                            type="button"
+                            className={`ts-collapse-button ts-focusable ts-action-resume ts-action-button${canResumeAction ? " is-ready-active" : ""}`}
+                            onClick={onResumeAction}
+                            disabled={!canResumeAction}
+                            aria-label="Resume last recipe"
+                            title="Resume last recipe"
+                        >
+                            <span className="ts-collapse-label">
+                                <ResumeIcon />
+                            </span>
+                            <span className="ts-action-button-label">Resume</span>
                         </button>
                     ) : showInterruptAction ? (
                         <button

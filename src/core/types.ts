@@ -109,6 +109,11 @@ export interface ActionProgressState {
     lastExecutionTime: number | null;
 }
 
+export interface LastNonDungeonAction {
+    skillId: ActionId;
+    recipeId: RecipeId;
+}
+
 export interface PlayerState {
     id: PlayerId;
     name: string;
@@ -286,6 +291,7 @@ export interface GameState {
     version: string;
     appReady: boolean;
     actionJournal: ActionJournalEntry[];
+    lastNonDungeonAction: LastNonDungeonAction | null;
     players: Record<PlayerId, PlayerState>;
     activePlayerId: PlayerId | null;
     rosterLimit: number;
@@ -398,6 +404,7 @@ export interface GameSave {
     lastTick: number | null;
     lastHiddenAt?: number | null;
     activePlayerId?: PlayerId | null;
+    lastNonDungeonAction?: LastNonDungeonAction | null;
     players: Record<PlayerId, PlayerSaveState>;
     rosterLimit?: number;
     inventory?: InventoryState;
