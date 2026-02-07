@@ -39,12 +39,44 @@ export const carpentryRecipes: RecipeDefinition[] = [
         itemRewards: withRewards({ simple_bow: 1 })
     },
     {
+        id: "carpentry_simple_bow_refined",
+        skillId: "Carpentry",
+        name: "Refined Simple Bow",
+        unlockLevel: unlockTier(20),
+        itemCosts: { wood: 4, cloth: 2 },
+        itemRewards: withRewards({ simple_bow_refined: 1 })
+    },
+    {
+        id: "carpentry_simple_bow_masterwork",
+        skillId: "Carpentry",
+        name: "Masterwork Simple Bow",
+        unlockLevel: unlockTier(30),
+        itemCosts: { wood: 5, tools: 1 },
+        itemRewards: withRewards({ simple_bow_masterwork: 1 })
+    },
+    {
         id: "carpentry_apprentice_staff",
         skillId: "Carpentry",
         name: "Apprentice Staff",
         unlockLevel: unlockTier(1),
         itemCosts: { wood: 2, crystal: 1 },
         itemRewards: withRewards({ apprentice_staff: 1 })
+    },
+    {
+        id: "carpentry_apprentice_staff_refined",
+        skillId: "Carpentry",
+        name: "Refined Apprentice Staff",
+        unlockLevel: unlockTier(20),
+        itemCosts: { wood: 2, crystal: 2, herbs: 1 },
+        itemRewards: withRewards({ apprentice_staff_refined: 1 })
+    },
+    {
+        id: "carpentry_apprentice_staff_masterwork",
+        skillId: "Carpentry",
+        name: "Masterwork Apprentice Staff",
+        unlockLevel: unlockTier(30),
+        itemCosts: { wood: 2, crystal: 3, artifact: 1 },
+        itemRewards: withRewards({ apprentice_staff_masterwork: 1 })
     },
     {
         id: "carpentry_simple_furniture",

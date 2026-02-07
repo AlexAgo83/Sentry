@@ -59,6 +59,7 @@ export const DungeonScreenContainer = () => {
             foodCount={foodCount}
             activeRun={activeRun}
             latestReplay={dungeon.latestReplay}
+            completionCounts={dungeon.completionCounts ?? {}}
             showReplay={showReplay}
             onToggleReplay={handleToggleReplay}
             onSelectDungeon={handleSelectDungeon}

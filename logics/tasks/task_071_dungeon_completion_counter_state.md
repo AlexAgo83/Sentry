@@ -1,10 +1,10 @@
 ## task_071_dungeon_completion_counter_state - Persist completion counts
 > From version: 0.9.9
 > Owner: —
-> Status: Ready
-> Understanding: 90%
-> Confidence: 84%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 91%
+> Progress: 100%
 
 # Summary
 Add and persist a per-dungeon completion counter that increments on victory only.

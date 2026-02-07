@@ -1,5 +1,12 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import type { DungeonDefinition, DungeonReplayState, DungeonRunState, PlayerId, PlayerState } from "../../core/types";
+import type {
+    DungeonDefinition,
+    DungeonId,
+    DungeonReplayState,
+    DungeonRunState,
+    PlayerId,
+    PlayerState
+} from "../../core/types";
 import { BackIcon } from "../ui/backIcon";
 import { ChangeIcon } from "../ui/changeIcon";
 import { AutoRestartOffIcon, AutoRestartOnIcon } from "../ui/dungeonIcons";
@@ -24,6 +31,7 @@ type DungeonScreenProps = {
     foodCount: number;
     activeRun: DungeonRunState | null;
     latestReplay: DungeonReplayState | null;
+    completionCounts: Record<DungeonId, number>;
     showReplay: boolean;
     onToggleReplay: () => void;
     onSelectDungeon: (dungeonId: string) => void;
@@ -49,6 +57,7 @@ export const DungeonScreen = memo(({
     foodCount,
     activeRun,
     latestReplay,
+    completionCounts,
     showReplay,
     onToggleReplay,
     onSelectDungeon,
@@ -343,6 +352,12 @@ export const DungeonScreen = memo(({
                     <span className="ts-dungeon-replay-meta-label">Floor</span>
                     <span className="ts-dungeon-replay-meta-value">{replayFrame?.floorLabel ?? "—"}</span>
                 </span>
+                {(completionCounts[latestReplay.dungeonId] ?? 0) > 0 ? (
+                    <span className="ts-dungeon-replay-meta-pill ts-dungeon-completion-pill">
+                        <span className="ts-dungeon-replay-meta-label">Completions</span>
+                        <span className="ts-dungeon-replay-meta-value">x{completionCounts[latestReplay.dungeonId]}</span>
+                    </span>
+                ) : null}
                 <span className="ts-dungeon-replay-meta-pill">
                     <span className="ts-dungeon-replay-meta-label">Reason</span>
                     <span className="ts-dungeon-replay-meta-value">{latestReplay.endReason ?? "unknown"}</span>
@@ -459,7 +474,9 @@ export const DungeonScreen = memo(({
                     <div className="ts-dungeon-card">
                         <h3 className="ts-dungeon-card-title">1. Select dungeon</h3>
                         <div className="ts-dungeon-list">
-                            {definitions.map((definition) => (
+                            {definitions.map((definition) => {
+                                const completionCount = completionCounts[definition.id] ?? 0;
+                                return (
                                 <button
                                     key={definition.id}
                                     type="button"
@@ -469,8 +486,12 @@ export const DungeonScreen = memo(({
                                     <strong>{definition.name}</strong>
                                     <span>Tier {definition.tier} · {definition.floorCount} floors · Boss: {definition.bossName}</span>
                                     <span>Recommended power: {definition.recommendedPower.toLocaleString()}</span>
+                                    {completionCount > 0 ? (
+                                        <span className="ts-dungeon-completion-badge">x{completionCount}</span>
+                                    ) : null}
                                 </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -536,6 +557,12 @@ export const DungeonScreen = memo(({
                                 <span className="ts-dungeon-live-meta-label">Dungeon</span>
                                 <span className="ts-dungeon-live-meta-value">{selectedDungeon?.name ?? activeRun!.dungeonId}</span>
                             </span>
+                            {(completionCounts[activeRun!.dungeonId] ?? 0) > 0 ? (
+                                <span className="ts-dungeon-live-meta-pill ts-dungeon-completion-pill">
+                                    <span className="ts-dungeon-live-meta-label">Completions</span>
+                                    <span className="ts-dungeon-live-meta-value">x{completionCounts[activeRun!.dungeonId]}</span>
+                                </span>
+                            ) : null}
                             <span className="ts-dungeon-live-meta-pill">
                                 <span className="ts-dungeon-live-meta-label">Floor</span>
                                 <span className="ts-dungeon-live-meta-value">{activeRun!.floor}/{activeRun!.floorCount}</span>

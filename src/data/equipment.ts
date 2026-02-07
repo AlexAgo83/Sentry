@@ -72,6 +72,20 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         modifiers: [{ stat: "Strength", kind: "flat", value: 2 }]
     },
     {
+        id: "rusty_blade_refined",
+        name: "Refined Rusty Blade",
+        slot: "Weapon",
+        weaponType: "Melee",
+        modifiers: [{ stat: "Strength", kind: "flat", value: 3 }]
+    },
+    {
+        id: "rusty_blade_masterwork",
+        name: "Masterwork Rusty Blade",
+        slot: "Weapon",
+        weaponType: "Melee",
+        modifiers: [{ stat: "Strength", kind: "flat", value: 4 }]
+    },
+    {
         id: "simple_bow",
         name: "Simple Bow",
         slot: "Weapon",
@@ -79,11 +93,39 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         modifiers: [{ stat: "Agility", kind: "flat", value: 2 }]
     },
     {
+        id: "simple_bow_refined",
+        name: "Refined Simple Bow",
+        slot: "Weapon",
+        weaponType: "Ranged",
+        modifiers: [{ stat: "Agility", kind: "flat", value: 3 }]
+    },
+    {
+        id: "simple_bow_masterwork",
+        name: "Masterwork Simple Bow",
+        slot: "Weapon",
+        weaponType: "Ranged",
+        modifiers: [{ stat: "Agility", kind: "flat", value: 4 }]
+    },
+    {
         id: "apprentice_staff",
         name: "Apprentice Staff",
         slot: "Weapon",
         weaponType: "Magic",
         modifiers: [{ stat: "Intellect", kind: "flat", value: 2 }]
+    },
+    {
+        id: "apprentice_staff_refined",
+        name: "Refined Apprentice Staff",
+        slot: "Weapon",
+        weaponType: "Magic",
+        modifiers: [{ stat: "Intellect", kind: "flat", value: 3 }]
+    },
+    {
+        id: "apprentice_staff_masterwork",
+        name: "Masterwork Apprentice Staff",
+        slot: "Weapon",
+        weaponType: "Magic",
+        modifiers: [{ stat: "Intellect", kind: "flat", value: 4 }]
     }
 ];
 

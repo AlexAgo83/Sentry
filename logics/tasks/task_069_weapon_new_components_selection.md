@@ -1,10 +1,10 @@
 ## task_069_weapon_new_components_selection - Finalize new components list and mapping
 > From version: 0.9.9
 > Owner: —
-> Status: Ready
-> Understanding: 92%
-> Confidence: 86%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 92%
+> Progress: 100%
 
 # Summary
 Confirm the list of components not currently used in weapon recipes and map them to the new weapon tiers.

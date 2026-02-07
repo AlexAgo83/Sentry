@@ -1,10 +1,10 @@
 ## task_068_weapon_tier_definitions_and_recipes - Add two tiers per weapon item
 > From version: 0.9.9
 > Owner: —
-> Status: Ready
-> Understanding: 92%
-> Confidence: 86%
-> Progress: 0%
+> Status: Done
+> Understanding: 96%
+> Confidence: 92%
+> Progress: 100%
 
 # Summary
 Define and add two higher-tier variants for each existing weapon item, plus recipes and balancing adjustments.

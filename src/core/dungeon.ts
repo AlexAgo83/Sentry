@@ -658,6 +658,10 @@ const finalizeRun = (
     players: Record<PlayerId, PlayerState>
 ): DungeonState => {
     const replay = buildReplay(run, players, run.startInventory);
+    const completionCounts = { ...dungeon.completionCounts };
+    if (run.status === "victory") {
+        completionCounts[run.dungeonId] = (completionCounts[run.dungeonId] ?? 0) + 1;
+    }
     const nextRuns = {
         ...dungeon.runs,
         [run.id]: {
@@ -673,7 +677,8 @@ const finalizeRun = (
         ...dungeon,
         latestReplay: replay,
         activeRunId: nextActiveRunId,
-        runs: nextRuns
+        runs: nextRuns,
+        completionCounts
     };
 };
 
@@ -742,6 +747,7 @@ export const createDungeonState = (): DungeonState => ({
     runs: {},
     activeRunId: null,
     latestReplay: null,
+    completionCounts: {},
     policy: {
         maxConcurrentSupported: 3,
         maxConcurrentEnabled: 1
@@ -810,6 +816,13 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
             cadenceSnapshot: Array.isArray(input.latestReplay.cadenceSnapshot) ? input.latestReplay.cadenceSnapshot : []
         }
         : null;
+    const completionCounts = Object.entries(input.completionCounts ?? {}).reduce<Record<string, number>>((acc, [key, value]) => {
+        const parsed = Number(value);
+        if (Number.isFinite(parsed) && parsed > 0) {
+            acc[key] = Math.floor(parsed);
+        }
+        return acc;
+    }, {});
 
     return {
         onboardingRequired: Boolean(input.onboardingRequired),
@@ -821,6 +834,7 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
         runs,
         activeRunId,
         latestReplay,
+        completionCounts,
         policy: {
             maxConcurrentSupported,
             maxConcurrentEnabled

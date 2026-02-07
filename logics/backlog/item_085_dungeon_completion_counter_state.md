@@ -1,8 +1,8 @@
 ## item_085_dungeon_completion_counter_state - Track completions per dungeon ID
 > From version: 0.9.9
-> Understanding: 92%
-> Confidence: 86%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 91%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Problem

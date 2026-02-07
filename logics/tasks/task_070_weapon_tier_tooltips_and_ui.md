@@ -1,10 +1,10 @@
 ## task_070_weapon_tier_tooltips_and_ui - Show new tiers in crafting and tooltips
 > From version: 0.9.9
 > Owner: —
-> Status: Ready
-> Understanding: 90%
-> Confidence: 84%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 
 # Summary
 Expose new weapon tiers in the crafting UI and item tooltips, including the new component callout.

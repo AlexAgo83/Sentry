@@ -268,6 +268,7 @@ export interface DungeonState {
     runs: Record<string, DungeonRunState>;
     activeRunId: string | null;
     latestReplay: DungeonReplayState | null;
+    completionCounts: Record<DungeonId, number>;
     policy: {
         maxConcurrentSupported: number;
         maxConcurrentEnabled: number;

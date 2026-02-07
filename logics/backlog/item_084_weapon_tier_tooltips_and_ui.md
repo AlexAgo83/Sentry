@@ -1,8 +1,8 @@
 ## item_084_weapon_tier_tooltips_and_ui - Expose new weapon tiers in UI
 > From version: 0.9.9
-> Understanding: 86%
-> Confidence: 80%
-> Progress: 10%
+> Understanding: 93%
+> Confidence: 88%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Problem

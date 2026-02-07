@@ -124,13 +124,37 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
         description: "Melee weapon. +25% threat from damage. -10% damage taken.",
         iconId: "rusty_blade"
     },
+    rusty_blade_refined: {
+        description: "Melee weapon. +25% threat from damage. -10% damage taken. New component: Stone.",
+        iconId: "rusty_blade_refined"
+    },
+    rusty_blade_masterwork: {
+        description: "Melee weapon. +25% threat from damage. -10% damage taken. New component: Tools.",
+        iconId: "rusty_blade_masterwork"
+    },
     simple_bow: {
         description: "Ranged weapon. 50% faster dungeon attacks. +25% damage taken.",
         iconId: "simple_bow"
     },
+    simple_bow_refined: {
+        description: "Ranged weapon. 50% faster dungeon attacks. +25% damage taken. New component: Cloth.",
+        iconId: "simple_bow_refined"
+    },
+    simple_bow_masterwork: {
+        description: "Ranged weapon. 50% faster dungeon attacks. +25% damage taken. New component: Tools.",
+        iconId: "simple_bow_masterwork"
+    },
     apprentice_staff: {
         description: "Magic weapon. Heals allies below 70% HP every 4s. +10% damage taken.",
         iconId: "apprentice_staff"
+    },
+    apprentice_staff_refined: {
+        description: "Magic weapon. Heals allies below 70% HP every 4s. +10% damage taken. New component: Herbs.",
+        iconId: "apprentice_staff_refined"
+    },
+    apprentice_staff_masterwork: {
+        description: "Magic weapon. Heals allies below 70% HP every 4s. +10% damage taken. New component: Artifact.",
+        iconId: "apprentice_staff_masterwork"
     },
     furniture: {
         description: "Crafted furnishings for camp upgrades.",

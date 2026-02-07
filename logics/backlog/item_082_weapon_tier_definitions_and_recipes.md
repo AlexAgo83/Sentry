@@ -1,8 +1,8 @@
 ## item_082_weapon_tier_definitions_and_recipes - Add two tiers per weapon item
 > From version: 0.9.9
-> Understanding: 90%
-> Confidence: 84%
-> Progress: 15%
+> Understanding: 94%
+> Confidence: 91%
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Progress when you edit this doc.
 
 # Problem

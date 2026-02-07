@@ -1,10 +1,10 @@
 ## task_072_dungeon_completion_counter_ui - Show completion badges
 > From version: 0.9.9
 > Owner: —
-> Status: Ready
-> Understanding: 90%
-> Confidence: 84%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 
 # Summary
 Display `xN` completion badges in the dungeon selection list and run/replay views.

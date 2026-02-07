@@ -264,6 +264,9 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
     if (!dungeonInput) {
         dungeon.onboardingRequired = false;
     }
+    if (!dungeon.completionCounts) {
+        dungeon.completionCounts = {};
+    }
 
     return {
         ok: true,

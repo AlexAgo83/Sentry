@@ -27,6 +27,22 @@ export const metalworkRecipes: RecipeDefinition[] = [
         itemRewards: withRewards({ rusty_blade: 1 })
     },
     {
+        id: "metalwork_rusty_blade_refined",
+        skillId: "MetalWork",
+        name: "Refined Rusty Blade",
+        unlockLevel: unlockTier(20),
+        itemCosts: { ingot: 3, stone: 2 },
+        itemRewards: withRewards({ rusty_blade_refined: 1 })
+    },
+    {
+        id: "metalwork_rusty_blade_masterwork",
+        skillId: "MetalWork",
+        name: "Masterwork Rusty Blade",
+        unlockLevel: unlockTier(30),
+        itemCosts: { ingot: 4, tools: 1 },
+        itemRewards: withRewards({ rusty_blade_masterwork: 1 })
+    },
+    {
         id: "metalwork_signet_ring",
         skillId: "MetalWork",
         name: "Signet Ring",
