@@ -10,10 +10,6 @@ import { computePlayerSkillScore } from "../selectors/gameSelectors";
 export const DungeonScreenContainer = () => {
     const players = useGameStore((state) => state.players);
     const activePlayerId = useGameStore((state) => state.activePlayerId);
-    const questScore = useGameStore((state) => {
-        const questCount = Object.values(state.quests.completed ?? {}).filter(Boolean).length;
-        return questCount * 5;
-    });
     const setup = useGameStore((state) => state.dungeon.setup);
     const dungeon = useGameStore((state) => state.dungeon);
     const foodCount = useGameStore((state) => state.inventory.items.food ?? 0);
@@ -23,13 +19,9 @@ export const DungeonScreenContainer = () => {
     const [showReplay, setShowReplay] = useState(false);
     const hasPartySelection = setup.selectedPartyPlayerIds.length > 0;
     const currentPower = useMemo(() => {
-        const questShare = playerCount > 0 ? questScore / playerCount : 0;
         const resolvePlayerPower = (playerId: PlayerId) => {
             const player = players[playerId];
-            if (!player) {
-                return 0;
-            }
-            return computePlayerSkillScore(player) + questShare;
+            return player ? computePlayerSkillScore(player) : 0;
         };
         if (hasPartySelection) {
             const total = setup.selectedPartyPlayerIds.reduce((sum, playerId) => {
@@ -41,7 +33,7 @@ export const DungeonScreenContainer = () => {
             return Math.max(0, Math.round(resolvePlayerPower(activePlayerId)));
         }
         return 0;
-    }, [activePlayerId, hasPartySelection, playerCount, players, questScore, setup.selectedPartyPlayerIds]);
+    }, [activePlayerId, hasPartySelection, players, setup.selectedPartyPlayerIds]);
 
     const handleSelectDungeon = useCallback((dungeonId: string) => {
         gameStore.dispatch({ type: "dungeonSetupSelectDungeon", dungeonId });
