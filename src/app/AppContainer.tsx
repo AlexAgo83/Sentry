@@ -70,6 +70,16 @@ export const AppContainer = () => {
     const isOnboardingOpen = dungeonOnboardingRequired && playerCount < 4;
 
     useEffect(() => {
+        if (!appReady || hasContinued) {
+            return;
+        }
+        const timeoutId = window.setTimeout(() => {
+            setHasContinued(true);
+        }, 2000);
+        return () => window.clearTimeout(timeoutId);
+    }, [appReady, hasContinued]);
+
+    useEffect(() => {
         if (import.meta.env.DEV || import.meta.env.MODE === "test" || import.meta.env.VITE_E2E) {
             return;
         }
