@@ -66,6 +66,7 @@ export const DungeonScreen = memo(({
     onStartRun,
     onStopRun
 }: DungeonScreenProps) => {
+    const safeCompletionCounts = completionCounts ?? {};
     const frameIntervalMs = 1000 / 30;
     const combatLabelBySkillId: Partial<Record<string, string>> = {
         CombatMelee: "Melee",
@@ -352,10 +353,10 @@ export const DungeonScreen = memo(({
                     <span className="ts-dungeon-replay-meta-label">Floor</span>
                     <span className="ts-dungeon-replay-meta-value">{replayFrame?.floorLabel ?? "—"}</span>
                 </span>
-                {(completionCounts[latestReplay.dungeonId] ?? 0) > 0 ? (
+                {(safeCompletionCounts[latestReplay.dungeonId] ?? 0) > 0 ? (
                     <span className="ts-dungeon-replay-meta-pill ts-dungeon-completion-pill">
                         <span className="ts-dungeon-replay-meta-label">Completions</span>
-                        <span className="ts-dungeon-replay-meta-value">x{completionCounts[latestReplay.dungeonId]}</span>
+                        <span className="ts-dungeon-replay-meta-value">x{safeCompletionCounts[latestReplay.dungeonId]}</span>
                     </span>
                 ) : null}
                 <span className="ts-dungeon-replay-meta-pill">
@@ -475,7 +476,7 @@ export const DungeonScreen = memo(({
                         <h3 className="ts-dungeon-card-title">1. Select dungeon</h3>
                         <div className="ts-dungeon-list">
                             {definitions.map((definition) => {
-                                const completionCount = completionCounts[definition.id] ?? 0;
+                                const completionCount = safeCompletionCounts[definition.id] ?? 0;
                                 return (
                                 <button
                                     key={definition.id}
@@ -557,10 +558,10 @@ export const DungeonScreen = memo(({
                                 <span className="ts-dungeon-live-meta-label">Dungeon</span>
                                 <span className="ts-dungeon-live-meta-value">{selectedDungeon?.name ?? activeRun!.dungeonId}</span>
                             </span>
-                            {(completionCounts[activeRun!.dungeonId] ?? 0) > 0 ? (
+                            {(safeCompletionCounts[activeRun!.dungeonId] ?? 0) > 0 ? (
                                 <span className="ts-dungeon-live-meta-pill ts-dungeon-completion-pill">
                                     <span className="ts-dungeon-live-meta-label">Completions</span>
-                                    <span className="ts-dungeon-live-meta-value">x{completionCounts[activeRun!.dungeonId]}</span>
+                                    <span className="ts-dungeon-live-meta-value">x{safeCompletionCounts[activeRun!.dungeonId]}</span>
                                 </span>
                             ) : null}
                             <span className="ts-dungeon-live-meta-pill">
