@@ -307,6 +307,7 @@ export const DungeonScreen = memo(({
         "ts-focusable",
         "ts-dungeon-auto-restart-button",
         "ts-dungeon-auto-consume-button",
+        !canUseConsumables ? "is-unavailable" : "",
         autoConsumables ? " is-active" : ""
     ].filter(Boolean).join(" ");
     const isReplayScreen = !activeRun && showReplay && Boolean(latestReplay);

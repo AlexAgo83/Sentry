@@ -1409,6 +1409,7 @@ export const applyDungeonTick = (
                 });
                 if (hero.hp <= 0) {
                     run.targetHeroId = null;
+                    run.threatByHeroId[hero.playerId] = 0;
                     pushEventWithStepCap({
                         type: "death",
                         sourceId: run.targetHeroId ?? hero.playerId,
@@ -1430,6 +1431,7 @@ export const applyDungeonTick = (
                     1,
                     Math.round(poisonDamage * damageMultiplier * DUNGEON_DAMAGE_TAKEN_MULTIPLIER)
                 );
+                const wasAlive = member.hp > 0;
                 member.hp = Math.max(0, member.hp - adjustedDamage);
                 pushEventWithStepCap({
                     type: "damage",
@@ -1438,6 +1440,17 @@ export const applyDungeonTick = (
                     amount: adjustedDamage,
                     label: "Poison"
                 });
+                if (wasAlive && member.hp <= 0) {
+                    if (run.targetHeroId === member.playerId) {
+                        run.targetHeroId = null;
+                    }
+                    run.threatByHeroId[member.playerId] = 0;
+                    pushEventWithStepCap({
+                        type: "death",
+                        sourceId: member.playerId,
+                        label: state.players[member.playerId]?.name ?? member.playerId
+                    });
+                }
             });
         }
 

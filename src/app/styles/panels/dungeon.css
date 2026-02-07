@@ -516,6 +516,14 @@
     gap: var(--m3);
 }
 
+.ts-dungeon-auto-consume-button.is-unavailable {
+    opacity: 0.5;
+}
+
+.ts-dungeon-auto-consume-button.is-unavailable .ts-dungeon-heal-icon {
+    box-shadow: none;
+}
+
 .ts-dungeon-consumable-count {
     display: inline-flex;
     align-items: center;
