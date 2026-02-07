@@ -18,6 +18,7 @@ const baseProps = () => ({
     offlineInterval: 500,
     virtualScore: 128,
     activeActionLabel: "none",
+    actionJournal: [],
     crashReports: [] as CrashReport[],
     onClearCrashReports: vi.fn(),
     onOpenDevTools: vi.fn(),

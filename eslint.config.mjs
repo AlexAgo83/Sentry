@@ -20,7 +20,8 @@ export default [
                 ...globals.node,
                 JSX: "readonly",
                 __APP_VERSION__: "readonly",
-                __ASSETS_PATH__: "readonly"
+                __ASSETS_PATH__: "readonly",
+                __PROD_RENDER_API_BASE__: "readonly"
             }
         },
         plugins: {

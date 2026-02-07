@@ -80,6 +80,11 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
                 activeRun={null}
                 latestReplay={getReplay()}
                 completionCounts={{}}
@@ -88,6 +93,7 @@ describe("DungeonScreen controls", () => {
                 onSelectDungeon={() => {}}
                 onTogglePartyPlayer={() => {}}
                 onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
                 onStartRun={() => {}}
                 onStopRun={() => {}}
             />
@@ -114,6 +120,11 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
                 activeRun={getBaseRun()}
                 latestReplay={getReplay()}
                 completionCounts={{}}
@@ -122,6 +133,7 @@ describe("DungeonScreen controls", () => {
                 onSelectDungeon={() => {}}
                 onTogglePartyPlayer={() => {}}
                 onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
                 onStartRun={() => {}}
                 onStopRun={() => {}}
             />
@@ -151,6 +163,11 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
                 activeRun={null}
                 latestReplay={getReplay()}
                 completionCounts={{}}
@@ -159,6 +176,7 @@ describe("DungeonScreen controls", () => {
                 onSelectDungeon={() => {}}
                 onTogglePartyPlayer={() => {}}
                 onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
                 onStartRun={() => {}}
                 onStopRun={() => {}}
             />

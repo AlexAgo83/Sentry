@@ -33,6 +33,7 @@ const buildState = (options?: {
     const seedHero = options?.seedHero ?? true;
     const addSecondHero = options?.addSecondHero ?? true;
     const state = createInitialGameState("0.4.0", { seedHero });
+    state.appReady = true;
     if (addSecondHero) {
         state.players["2"] = createPlayerState("2", "Mara");
     }

@@ -23,7 +23,7 @@ import {
     SkillId,
     ActionJournalEntry
 } from "./types";
-import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
+import { getActionDefinition, getRecipeDefinition, getSkillDefinition, isRecipeUnlocked } from "../data/definitions";
 import { getEquipmentDefinition } from "../data/equipment";
 import { getSellGoldGain } from "./economy";
 import { getDungeonDefinition } from "../data/dungeons";
@@ -257,7 +257,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 }
             }
             const actionLabel = action.actionId
-                ? getActionDefinition(action.actionId)?.name ?? action.actionId
+                ? getSkillDefinition(action.actionId)?.name ?? action.actionId
                 : "None";
             if (player.selectedActionId === action.actionId) {
                 return {

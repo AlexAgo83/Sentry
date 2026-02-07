@@ -73,9 +73,16 @@ export const AppContainer = () => {
         if (!appReady || hasContinued) {
             return;
         }
+        const autoContinueDelayMs = (import.meta.env.MODE === "test" || import.meta.env.VITE_E2E)
+            ? 0
+            : 2000;
+        if (autoContinueDelayMs <= 0) {
+            setHasContinued(true);
+            return;
+        }
         const timeoutId = window.setTimeout(() => {
             setHasContinued(true);
-        }, 2000);
+        }, autoContinueDelayMs);
         return () => window.clearTimeout(timeoutId);
     }, [appReady, hasContinued]);
 
@@ -89,7 +96,7 @@ export const AppContainer = () => {
         }
         const baseUrl = rawBase.replace(/\/+$/, "");
         const warmupUrl = `${baseUrl}/health`;
-        const fetchWithTimeout = async (url: string, mode: RequestMode) => {
+        const fetchWithTimeout = async (url: string, mode: "cors" | "no-cors") => {
             const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
             const timeoutId = controller ? window.setTimeout(() => controller.abort(), 1500) : null;
             try {

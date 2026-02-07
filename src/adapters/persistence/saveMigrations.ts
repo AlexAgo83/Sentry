@@ -1,16 +1,20 @@
 import type {
+    ActionId,
     DungeonState,
     GameSave,
     InventoryState,
+    LastNonDungeonAction,
     PlayerId,
     PlayerSaveState,
     QuestProgressState,
+    SkillId,
     SkillState
 } from "../../core/types";
 import type { ProgressionState } from "../../core/types";
 import { normalizeProgressionState } from "../../core/progression";
 import { normalizeDungeonState } from "../../core/dungeon";
 import { DEFAULT_SKILL_XP_NEXT, SKILL_MAX_LEVEL, XP_NEXT_MULTIPLIER } from "../../core/constants";
+import { getActionDefinition, getRecipeDefinition } from "../../data/definitions";
 
 export const LATEST_SAVE_SCHEMA_VERSION = 2;
 
@@ -48,6 +52,25 @@ const toNullableString = (value: unknown): string | null => {
     }
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : null;
+};
+
+const normalizeLastNonDungeonAction = (value: unknown): LastNonDungeonAction | null => {
+    if (!isObject(value)) {
+        return null;
+    }
+    const skillId = toNullableString((value as { skillId?: unknown }).skillId);
+    const recipeId = toNullableString((value as { recipeId?: unknown }).recipeId);
+    if (!skillId || !recipeId) {
+        return null;
+    }
+    if (!getActionDefinition(skillId as SkillId)) {
+        return null;
+    }
+    const recipeDef = getRecipeDefinition(skillId as SkillId, recipeId);
+    if (!recipeDef) {
+        return null;
+    }
+    return { skillId: skillId as ActionId, recipeId };
 };
 
 const normalizeInventory = (value: unknown): InventoryState | undefined => {
@@ -254,6 +277,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             ? playerIds[0]
             : null;
     const rosterLimit = normalizeRosterLimit(input.rosterLimit, playerIds.length);
+    const lastNonDungeonAction = normalizeLastNonDungeonAction(input.lastNonDungeonAction);
 
     const migrated = schemaVersion !== LATEST_SAVE_SCHEMA_VERSION;
     const quests = normalizeQuests(input.quests);
@@ -281,6 +305,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             lastTick,
             lastHiddenAt,
             activePlayerId,
+            lastNonDungeonAction,
             players,
             rosterLimit,
             inventory: finalInventory,
