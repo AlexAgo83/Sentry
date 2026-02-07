@@ -229,83 +229,76 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
 }
 
 .ts-safe-mode-list {
-    padding: var(--m5);
-    border-radius: calc(var(--border-radius-harmonized) + 2px);
-    border: 1px solid rgba(93, 217, 193, 0.2);
-    background:
-        linear-gradient(150deg, rgba(18, 28, 44, 0.92), rgba(10, 15, 26, 0.9));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    padding: var(--m4);
+    border-radius: var(--border-radius-harmonized);
+    border: 1px solid rgba(93, 217, 193, 0.18);
+    background: rgba(10, 16, 28, 0.7);
+    box-shadow: none;
 }
 
 .ts-safe-mode-list li {
-    position: relative;
-    padding-left: var(--m7);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--m2);
-    align-items: center;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: var(--m3);
+    row-gap: var(--m1);
+    align-items: baseline;
+    padding: var(--m2) 0;
     color: var(--color-text);
 }
 
 .ts-safe-mode-list li::before {
-    content: "";
-    position: absolute;
-    left: var(--m4);
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(242, 193, 78, 0.8);
-    top: 0.9em;
+    display: none;
+    content: none;
+}
+
+.ts-safe-mode-list li + li {
+    border-top: 1px solid rgba(93, 217, 193, 0.12);
 }
 
 .ts-safe-mode-label {
     font-size: var(--text-xs-size);
     text-transform: uppercase;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.1em;
     color: var(--color-text-fade);
 }
 
 .ts-safe-mode-value {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--color-primary);
+}
+
+.ts-safe-mode-value-right {
+    justify-self: end;
+    text-align: right;
 }
 
 .ts-safe-mode-message {
     display: block;
     line-height: 1.6;
     color: var(--color-text);
+    grid-column: 1 / -1;
 }
 
 .ts-safe-mode-message::before {
-    top: 0.9em;
+    display: none;
+    content: none;
 }
 
 .ts-safe-mode-actions {
     flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: var(--m3);
+    justify-content: flex-start;
+    gap: var(--m4);
+    margin-top: var(--m4);
 }
 
 .ts-safe-mode-actions .generic-field.button {
-    flex: 1 1 180px;
-    min-height: 48px;
-    padding: var(--m3) var(--m6);
-    border: 1px solid rgba(93, 217, 193, 0.4);
-    background: linear-gradient(145deg, rgba(18, 42, 48, 0.9), rgba(12, 20, 34, 0.95));
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    min-height: 44px;
 }
 
 .ts-safe-mode-actions .generic-field.button:hover:not(:disabled) {
-    border-color: rgba(242, 193, 78, 0.6);
-}
-
-.ts-safe-mode-primary {
-    border-color: rgba(242, 193, 78, 0.7);
-    background: linear-gradient(145deg, rgba(44, 82, 76, 0.95), rgba(16, 30, 36, 0.95));
-    color: var(--color-primary);
+    border-color: rgba(242, 193, 78, 0.55);
 }
 
 .ts-safe-mode-actions .generic-field.button.ts-reset {
-    border-color: rgba(199, 74, 61, 0.7);
+    border-color: rgba(199, 74, 61, 0.6);
 }

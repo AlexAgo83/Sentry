@@ -57,18 +57,20 @@ export const SafeModeModal = memo(({
             <ul className="ts-list ts-safe-mode-list">
                 <li>
                     <span className="ts-safe-mode-label">Status</span>
-                    <span className="ts-safe-mode-value">{report.status}</span>
+                    <span className="ts-safe-mode-value ts-safe-mode-value-right">{report.status}</span>
                 </li>
                 <li>
                     <span className="ts-safe-mode-label">Recovered from last good</span>
-                    <span className="ts-safe-mode-value">{report.recoveredFromLastGood ? "yes" : "no"}</span>
+                    <span className="ts-safe-mode-value ts-safe-mode-value-right">
+                        {report.recoveredFromLastGood ? "yes" : "no"}
+                    </span>
                 </li>
                 <li className="ts-safe-mode-message">{messageFor(report.status, allowRawExport)}</li>
             </ul>
             <div className="ts-action-row ts-safe-mode-actions">
                 <button
                     type="button"
-                    className="generic-field button ts-focusable ts-safe-mode-primary"
+                    className="generic-field button ts-devtools-button ts-focusable"
                     onClick={onClose}
                 >
                     OK
@@ -77,7 +79,7 @@ export const SafeModeModal = memo(({
                 <>
                     <button
                         type="button"
-                        className="generic-field button ts-focusable"
+                        className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onCopyCurrentRawSave}
                         disabled={!canCopyCurrentRawSave}
                     >
@@ -85,7 +87,7 @@ export const SafeModeModal = memo(({
                     </button>
                     <button
                         type="button"
-                        className="generic-field button ts-focusable"
+                        className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onCopyLastGoodRawSave}
                         disabled={!canCopyLastGoodRawSave}
                     >
@@ -96,7 +98,7 @@ export const SafeModeModal = memo(({
             {report.status !== "ok" ? (
                 <button
                     type="button"
-                    className="generic-field button ts-focusable ts-reset"
+                    className="generic-field button ts-devtools-button ts-focusable ts-reset"
                     onClick={onResetSave}
                 >
                     Reset save
