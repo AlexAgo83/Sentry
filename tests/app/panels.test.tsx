@@ -10,6 +10,7 @@ import { createPlayerState } from "../../src/core/state";
 import { computeEffectiveStats, createPlayerStatsState } from "../../src/core/stats";
 import { createPlayerEquipmentState } from "../../src/core/equipment";
 import { SKILL_DEFINITIONS } from "../../src/data/definitions";
+import { RECIPE_MAX_LEVEL, SKILL_MAX_LEVEL } from "../../src/core/constants";
 import { EQUIPMENT_DEFINITIONS } from "../../src/data/equipment";
 import type { SkillId } from "../../src/core/types";
 import type { CSSProperties } from "react";
@@ -79,6 +80,8 @@ describe("panel components", () => {
                 activeRecipeLevel={1}
                 activeRecipeXp={Number.NaN}
                 activeRecipeXpNext={Number.NaN}
+                activeSkillMax={SKILL_MAX_LEVEL}
+                activeRecipeMax={RECIPE_MAX_LEVEL}
                 skillIconColor="#f2c14e"
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
@@ -91,8 +94,8 @@ describe("panel components", () => {
 
         expect(screen.getByText("Selected skill")).toBeTruthy();
         expect(screen.getByText("Border Skirmish")).toBeTruthy();
-        expect(screen.getByText("Skill Lv 2")).toBeTruthy();
-        expect(screen.getByText("Recipe Lv 1")).toBeTruthy();
+        expect(screen.getByText(`Skill Lv 2/${SKILL_MAX_LEVEL}`)).toBeTruthy();
+        expect(screen.getByText(`Recipe Lv 1/${RECIPE_MAX_LEVEL}`)).toBeTruthy();
         expect(screen.getAllByText("XP 0/0")).toHaveLength(2);
 
         await user.click(screen.getByRole("button", { name: "Change" }));
@@ -129,6 +132,8 @@ describe("panel components", () => {
                 activeRecipeLevel={1}
                 activeRecipeXp={1}
                 activeRecipeXpNext={2}
+                activeSkillMax={SKILL_MAX_LEVEL}
+                activeRecipeMax={RECIPE_MAX_LEVEL}
                 skillIconColor="#f2c14e"
                 isCollapsed={false}
                 onToggleCollapsed={vi.fn()}
@@ -171,6 +176,8 @@ describe("panel components", () => {
                 activeRecipeLevel={1}
                 activeRecipeXp={10}
                 activeRecipeXpNext={20}
+                activeSkillMax={SKILL_MAX_LEVEL}
+                activeRecipeMax={RECIPE_MAX_LEVEL}
                 skillIconColor="#f2c14e"
                 isCollapsed={true}
                 onToggleCollapsed={vi.fn()}
