@@ -129,10 +129,11 @@
 }
 
 .ts-action-selection-panel .ts-recipe-picker {
-    flex: 0 1 var(--ts-action-selection-list-max);
+    flex: 0 1 auto;
     min-height: 0;
-    overflow-y: auto;
-    max-height: var(--ts-action-selection-list-max);
+    overflow-y: visible;
+    max-height: none;
+    height: auto;
     padding-right: var(--m2);
     padding-bottom: var(--m4);
 }
