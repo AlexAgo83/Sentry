@@ -53,6 +53,7 @@ const MAGIC_HEAL_RATIO = 0.25;
 const MAGIC_DAMAGE_TAKEN_MULTIPLIER = 1.1;
 const RANGED_DAMAGE_TAKEN_MULTIPLIER = 1.25;
 const MELEE_DAMAGE_TAKEN_MULTIPLIER = 0.9;
+const DUNGEON_DAMAGE_TAKEN_MULTIPLIER = 0.5;
 const RANGED_ATTACK_INTERVAL_MULTIPLIER = 0.5;
 const MELEE_THREAT_MULTIPLIER = 1.25;
 
@@ -1381,7 +1382,10 @@ export const applyDungeonTick = (
                     enemyDamage = Math.round(enemyDamage * BOSS_ENRAGE_DAMAGE_MULTIPLIER);
                 }
                 const damageMultiplier = cached?.damageTakenMultiplier ?? 1;
-                const adjustedDamage = Math.max(1, Math.round(enemyDamage * damageMultiplier));
+                const adjustedDamage = Math.max(
+                    1,
+                    Math.round(enemyDamage * damageMultiplier * DUNGEON_DAMAGE_TAKEN_MULTIPLIER)
+                );
                 hero.hp = Math.max(0, hero.hp - adjustedDamage);
                 pushEventWithStepCap({
                     type: "attack",
@@ -1414,7 +1418,10 @@ export const applyDungeonTick = (
                 const poisonDamage = Math.max(1, Math.round(activeEnemy.damage * BOSS_POISON_DAMAGE_RATIO));
                 const cached = heroStepCache.get(member.playerId);
                 const damageMultiplier = cached?.damageTakenMultiplier ?? 1;
-                const adjustedDamage = Math.max(1, Math.round(poisonDamage * damageMultiplier));
+                const adjustedDamage = Math.max(
+                    1,
+                    Math.round(poisonDamage * damageMultiplier * DUNGEON_DAMAGE_TAKEN_MULTIPLIER)
+                );
                 member.hp = Math.max(0, member.hp - adjustedDamage);
                 pushEventWithStepCap({
                     type: "damage",

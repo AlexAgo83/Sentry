@@ -1,0 +1,33 @@
+## task_081_dungeon_auto_consumables_state - Persist auto-consumables toggle and gate consumption logic
+> From version: 0.9.10
+> Owner: —
+> Status: Planned
+> Understanding: 90%
+> Confidence: 88%
+> Progress: 0%
+
+# Summary
+Persist an auto-consumables toggle and make dungeon auto-use respect it.
+
+# Dependencies
+- item_095_dungeon_auto_consumables_state
+
+# Steps
+1. Add `autoConsumables` to dungeon setup state (defaults to enabled if consumables exist and no prior value is saved).
+2. Persist the toggle in saves alongside other dungeon setup data.
+3. Derive `hasConsumables` from inventory counts of `potion`, `tonic`, `elixir`.
+4. Gate all auto-consume logic (potion/tonic/elixir) behind the toggle.
+4. Ensure the toggle state is preserved even when consumables hit zero (UI disables only).
+5. Keep existing auto-consume priority order unchanged.
+6. Add a unit test or focused logic test if appropriate.
+
+# Decisions
+- Consumables covered: `potion`, `tonic`, `elixir`.
+- Default enabled when any consumable exists.
+- When inventory has zero consumables, keep stored value but disable interaction.
+- If no stored value exists, initialize to `true` when `hasConsumables` is true.
+
+# Acceptance criteria
+- Auto-consume logic respects `autoConsumables`.
+- Toggle persists across reloads like auto-restart.
+- No auto-use occurs when toggle is off.
