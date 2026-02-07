@@ -2,10 +2,10 @@ import { useCallback, useMemo, useState } from "react";
 import { gameStore } from "../game";
 import { useGameStore } from "../hooks/useGameStore";
 import { DUNGEON_DEFINITIONS } from "../../data/dungeons";
+import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
 import { getActiveDungeonRun } from "../../core/dungeon";
 import type { PlayerId } from "../../core/types";
 import { DungeonScreen } from "../components/DungeonScreen";
-import { computePlayerSkillScore } from "../selectors/gameSelectors";
 
 export const DungeonScreenContainer = () => {
     const players = useGameStore((state) => state.players);
@@ -26,13 +26,17 @@ export const DungeonScreenContainer = () => {
     const currentPower = useMemo(() => {
         const resolvePlayerPower = (playerId: PlayerId) => {
             const player = players[playerId];
-            return player ? computePlayerSkillScore(player) : 0;
+            if (!player) {
+                return 0;
+            }
+            const combatSkillId = getCombatSkillIdForWeaponType(getEquippedWeaponType(player.equipment));
+            return Math.max(0, Math.floor(player.skills[combatSkillId]?.level ?? 0));
         };
         if (hasPartySelection) {
-            const total = setup.selectedPartyPlayerIds.reduce((sum, playerId) => {
-                return sum + resolvePlayerPower(playerId);
-            }, 0);
-            return Math.max(0, Math.round(total));
+            const selectedIds = setup.selectedPartyPlayerIds;
+            const total = selectedIds.reduce((sum, playerId) => sum + resolvePlayerPower(playerId), 0);
+            const average = selectedIds.length > 0 ? total / selectedIds.length : 0;
+            return Math.max(0, Math.round(average));
         }
         if (activePlayerId && players[activePlayerId]) {
             return Math.max(0, Math.round(resolvePlayerPower(activePlayerId)));

@@ -9,7 +9,7 @@ import type {
 } from "../../core/types";
 import { BackIcon } from "../ui/backIcon";
 import { ChangeIcon } from "../ui/changeIcon";
-import { AutoRestartOffIcon, AutoRestartOnIcon } from "../ui/dungeonIcons";
+import { AutoHealOffIcon, AutoHealOnIcon, AutoRestartOffIcon, AutoRestartOnIcon } from "../ui/dungeonIcons";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { SkillIcon } from "../ui/skillIcons";
@@ -107,6 +107,7 @@ export const DungeonScreen = memo(({
     const liveCursorRef = useRef(0);
     const replayCursorRef = useRef(0);
     const riskTooltip = usesPartyPower ? "Based on current party power." : "Based on active hero power.";
+    const hasPartySelection = selectedPartyPlayerIds.length > 0;
     const setReplayCursor = (next: number) => {
         replayCursorRef.current = next;
         setReplayCursorMs(next);
@@ -496,16 +497,19 @@ export const DungeonScreen = memo(({
                             className={autoConsumablesButtonClassName}
                             onClick={() => onToggleAutoConsumables(!autoConsumables)}
                             aria-pressed={autoConsumables}
-                            aria-label={autoConsumables ? "Disable auto consumables" : "Enable auto consumables"}
+                            aria-label={autoConsumables ? "Disable auto heal" : "Enable auto heal"}
                             title={canUseConsumables
-                                ? "Auto-use consumables during fights"
+                                ? "Auto-use healing consumables during fights"
                                 : "Requires at least 1 consumable (potion, tonic, elixir)."}
                             disabled={!canUseConsumables}
                         >
-                            <span className="ts-dungeon-action-label">Auto consumables</span>
+                            <span className="ts-dungeon-action-label">Auto heal</span>
                             {consumablesCount > 0 ? (
-                                <span className="ts-dungeon-consumable-count">x{formatCompactCount(consumablesCount)}</span>
+                                <span className="ts-dungeon-consumable-count">{formatCompactCount(consumablesCount)}</span>
                             ) : null}
+                            <span className={`ts-dungeon-heal-icon${autoConsumables ? " is-active" : " is-off"}`}>
+                                {autoConsumables ? <AutoHealOnIcon /> : <AutoHealOffIcon />}
+                            </span>
                         </button>
                     ) : null}
                     {activeRun ? (
@@ -530,8 +534,10 @@ export const DungeonScreen = memo(({
                         <div className="ts-dungeon-list">
                             {definitions.map((definition) => {
                                 const completionCount = safeCompletionCounts[definition.id] ?? 0;
-                                const riskTier = resolveDungeonRiskTier(currentPower, definition.recommendedPower);
-                                const riskTone = riskTier.toLowerCase();
+                                const riskTier = usesPartyPower
+                                    ? resolveDungeonRiskTier(currentPower, definition.recommendedPower)
+                                    : null;
+                                const riskTone = riskTier ? riskTier.toLowerCase() : "medium";
                                 return (
                                 <button
                                     key={definition.id}
@@ -541,9 +547,11 @@ export const DungeonScreen = memo(({
                                 >
                                     <strong>{definition.name}</strong>
                                     <span>Tier {definition.tier} · {definition.floorCount} floors · Boss: {definition.bossName}</span>
-                                    <span className={`ts-dungeon-risk-badge is-${riskTone}`} title={riskTooltip}>
-                                        Risk: {riskTier}
-                                    </span>
+                                    {riskTier ? (
+                                        <span className={`ts-dungeon-risk-badge is-${riskTone}`} title={riskTooltip}>
+                                            Risk: {riskTier}
+                                        </span>
+                                    ) : null}
                                     <span>Recommended power: {definition.recommendedPower.toLocaleString()}</span>
                                     {completionCount > 0 ? (
                                         <span className="ts-dungeon-completion-badge">x{completionCount}</span>
@@ -589,6 +597,12 @@ export const DungeonScreen = memo(({
 
                     <div className="ts-dungeon-card">
                         <h3 className="ts-dungeon-card-title">3. Preparation</h3>
+                        <div className="ts-dungeon-cost-row">
+                            <span className="ts-dungeon-cost-label">Party power</span>
+                            <span className={`ts-dungeon-cost-pill${hasPartySelection ? " is-ok" : ""}`}>
+                                {hasPartySelection ? currentPower.toLocaleString() : "--"}
+                            </span>
+                        </div>
                         <div className="ts-dungeon-cost-row">
                             <span className="ts-dungeon-cost-label">Entry cost</span>
                             <span className="ts-dungeon-cost-pill">

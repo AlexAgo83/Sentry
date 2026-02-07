@@ -17,3 +17,19 @@ export const AutoRestartOffIcon = memo(() => (
 ));
 
 AutoRestartOffIcon.displayName = "AutoRestartOffIcon";
+
+export const AutoHealOnIcon = memo(() => (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <use href={`${UI_ICON_PATH}dungeon-auto-heal-on.svg#icon`} />
+    </svg>
+));
+
+AutoHealOnIcon.displayName = "AutoHealOnIcon";
+
+export const AutoHealOffIcon = memo(() => (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <use href={`${UI_ICON_PATH}dungeon-auto-heal-off.svg#icon`} />
+    </svg>
+));
+
+AutoHealOffIcon.displayName = "AutoHealOffIcon";

@@ -6,7 +6,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Damp Ruins",
         tier: 1,
         floorCount: 10,
-        recommendedPower: 900,
+        recommendedPower: 1,
         bossName: "Fenwatch Brute",
         bossMechanic: "burst"
     },
@@ -15,7 +15,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Bone Crypts",
         tier: 2,
         floorCount: 10,
-        recommendedPower: 1300,
+        recommendedPower: 5,
         bossName: "Bone Warden",
         bossMechanic: "poison"
     },
@@ -24,7 +24,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Broken Forges",
         tier: 3,
         floorCount: 10,
-        recommendedPower: 1700,
+        recommendedPower: 10,
         bossName: "Ash Forgemaster",
         bossMechanic: "shield"
     },
@@ -33,7 +33,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Black Sanctuary",
         tier: 4,
         floorCount: 10,
-        recommendedPower: 2200,
+        recommendedPower: 15,
         bossName: "Night Herald",
         bossMechanic: "summon"
     },
@@ -42,7 +42,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Red Citadel",
         tier: 5,
         floorCount: 10,
-        recommendedPower: 2700,
+        recommendedPower: 20,
         bossName: "Crimson Warden",
         bossMechanic: "enrage"
     },
@@ -51,7 +51,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Ember Bastion",
         tier: 6,
         floorCount: 10,
-        recommendedPower: 3300,
+        recommendedPower: 25,
         bossName: "Cinder Sovereign",
         bossMechanic: "burst"
     },
@@ -60,7 +60,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Abyssal Depths",
         tier: 7,
         floorCount: 10,
-        recommendedPower: 4000,
+        recommendedPower: 30,
         bossName: "Abyssal Reaper",
         bossMechanic: "poison"
     },
@@ -69,7 +69,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Ember Throne",
         tier: 8,
         floorCount: 10,
-        recommendedPower: 4800,
+        recommendedPower: 35,
         bossName: "Ashen Monarch",
         bossMechanic: "shield"
     },
@@ -78,7 +78,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Nightless Cloister",
         tier: 9,
         floorCount: 10,
-        recommendedPower: 5700,
+        recommendedPower: 40,
         bossName: "Umbral Choir",
         bossMechanic: "summon"
     },
@@ -87,7 +87,7 @@ export const DUNGEON_DEFINITIONS: DungeonDefinition[] = [
         name: "Frostspire Apex",
         tier: 10,
         floorCount: 10,
-        recommendedPower: 6700,
+        recommendedPower: 45,
         bossName: "Glacier Tyrant",
         bossMechanic: "enrage"
     }
