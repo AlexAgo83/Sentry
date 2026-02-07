@@ -1291,24 +1291,27 @@ export const applyDungeonTick = (
                 if (enemy.hp <= 0) {
                     break;
                 }
+                const hpBefore = enemy.hp;
                 const baseDamage = cached.baseDamage;
                 const reducedDamage = enemy.isBoss && enemy.mechanic === "shield" && run.encounterStep <= 3
                     ? Math.max(1, Math.round(baseDamage * 0.6))
                     : baseDamage;
                 enemy.hp = Math.max(0, enemy.hp - reducedDamage);
+                const hpAfter = enemy.hp;
                 addThreat(run.threatByHeroId, playerId, reducedDamage * cached.threatMultiplier);
                 pushEventWithStepCap({
                     type: "attack",
                     sourceId: playerId,
                     targetId: enemy.id,
                     amount: reducedDamage,
-                    label: player.name
+                    label: `${player.name} -> ${enemy.name} (HP ${hpBefore}/${enemy.hpMax})`
                 });
                 pushEventWithStepCap({
                     type: "damage",
                     sourceId: playerId,
                     targetId: enemy.id,
-                    amount: reducedDamage
+                    amount: reducedDamage,
+                    label: `${enemy.name} -${reducedDamage} (HP ${hpAfter}/${enemy.hpMax})`
                 });
                 if (enemy.hp <= 0) {
                     pushEventWithStepCap({
@@ -1393,19 +1396,23 @@ export const applyDungeonTick = (
                     1,
                     Math.round(enemyDamage * damageMultiplier * DUNGEON_DAMAGE_TAKEN_MULTIPLIER)
                 );
+                const heroName = state.players[hero.playerId]?.name ?? hero.playerId;
+                const hpBefore = hero.hp;
                 hero.hp = Math.max(0, hero.hp - adjustedDamage);
+                const hpAfter = hero.hp;
                 pushEventWithStepCap({
                     type: "attack",
                     sourceId: activeEnemy.id,
                     targetId: run.targetHeroId,
                     amount: adjustedDamage,
-                    label: activeEnemy.name
+                    label: `${activeEnemy.name} -> ${heroName} (HP ${hpBefore}/${hero.hpMax})`
                 });
                 pushEventWithStepCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
                     targetId: run.targetHeroId,
-                    amount: adjustedDamage
+                    amount: adjustedDamage,
+                    label: `${heroName} -${adjustedDamage} (HP ${hpAfter}/${hero.hpMax})`
                 });
                 if (hero.hp <= 0) {
                     run.targetHeroId = null;
@@ -1433,12 +1440,13 @@ export const applyDungeonTick = (
                 );
                 const wasAlive = member.hp > 0;
                 member.hp = Math.max(0, member.hp - adjustedDamage);
+                const poisonTargetName = state.players[member.playerId]?.name ?? member.playerId;
                 pushEventWithStepCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
                     targetId: member.playerId,
                     amount: adjustedDamage,
-                    label: "Poison"
+                    label: `Poison -> ${poisonTargetName} -${adjustedDamage} (HP ${member.hp}/${member.hpMax})`
                 });
                 if (wasAlive && member.hp <= 0) {
                     if (run.targetHeroId === member.playerId) {

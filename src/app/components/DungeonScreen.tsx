@@ -412,11 +412,16 @@ export const DungeonScreen = memo(({
                 </span>
             </div>
             <div className="ts-dungeon-replay-log" role="log" aria-live="polite">
-                {latestReplay.events.slice(-220).map((event, index) => (
-                    <p key={`${event.atMs}-${index}`}>
-                        [{event.atMs}ms] {event.type} {event.label ? `- ${event.label}` : ""}
-                    </p>
-                ))}
+                {latestReplay.events.slice(-220).map((event, index) => {
+                    const sourceInfo = event.sourceId ? `source=${event.sourceId}` : "";
+                    const targetInfo = event.targetId ? `target=${event.targetId}` : "";
+                    const idInfo = [sourceInfo, targetInfo].filter(Boolean).join(" ");
+                    return (
+                        <p key={`${event.atMs}-${index}`}>
+                            [{event.atMs}ms] {event.type} {idInfo ? `(${idInfo})` : ""} {event.label ? `- ${event.label}` : ""}
+                        </p>
+                    );
+                })}
             </div>
         </div>
     ) : null;
