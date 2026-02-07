@@ -22,7 +22,7 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="3.6875"
-     inkscape:cx="32"
+     inkscape:cx="32.271186"
      inkscape:cy="32"
      inkscape:window-width="1309"
      inkscape:window-height="456"
@@ -33,7 +33,7 @@
   <g
      id="icon"
      fill="currentColor"
-     transform="matrix(2.6667,0,0,2.6667,6.2966102,7.1101695)">
+     transform="matrix(2.0027376,0,0,2.0027376,12.838897,13.51515)">
     <path
        d="M 9.646,14.096 A 1,1 0 1 1 8.232,15.51 L 6.818,14.096 3.99,16.925 A 1.0002026,1.0002026 0 0 1 2.575,18.339 L 1.161,16.925 A 1.0002026,1.0002026 0 0 1 2.575,15.51 L 5.404,12.682 3.99,11.268 A 1,1 0 0 1 5.404,9.854 Z m 0.708,-0.707 -4.244,-4.243 8.486,-8.485 3.536,0.707 0.707,3.536 z"
        id="path2" />
