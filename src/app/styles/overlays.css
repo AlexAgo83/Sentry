@@ -238,6 +238,7 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
 }
 
 .ts-safe-mode-list li {
+    position: relative;
     padding-left: var(--m7);
     display: flex;
     flex-wrap: wrap;
@@ -248,11 +249,13 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
 
 .ts-safe-mode-list li::before {
     content: "";
+    position: absolute;
+    left: var(--m4);
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: rgba(242, 193, 78, 0.8);
-    top: calc(50% - 3px);
+    top: 0.9em;
 }
 
 .ts-safe-mode-label {
@@ -268,14 +271,13 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
 }
 
 .ts-safe-mode-message {
-    flex-direction: column;
-    align-items: flex-start;
+    display: block;
     line-height: 1.6;
     color: var(--color-text);
 }
 
 .ts-safe-mode-message::before {
-    top: var(--m3);
+    top: 0.9em;
 }
 
 .ts-safe-mode-actions {
