@@ -1,10 +1,10 @@
 ## task_074_dungeon_risk_tier_ui - Display risk tiers in dungeon selection
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
+> Status: Done
 > Understanding: 95%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 
 # Summary
 Show the risk tier label in each dungeon selection cell with compact styling.

@@ -1,10 +1,10 @@
 ## task_078_startup_splashscreen_ui - Add startup splashscreen UI
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
+> Status: Done
 > Understanding: 95%
 > Confidence: 93%
-> Progress: 0%
+> Progress: 100%
 
 # Summary
 Create a minimal splashscreen with a gated Continue button on launch.
