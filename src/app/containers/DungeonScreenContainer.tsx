@@ -13,6 +13,11 @@ export const DungeonScreenContainer = () => {
     const setup = useGameStore((state) => state.dungeon.setup);
     const dungeon = useGameStore((state) => state.dungeon);
     const foodCount = useGameStore((state) => state.inventory.items.food ?? 0);
+    const autoConsumables = useGameStore((state) => state.dungeon.setup.autoConsumables);
+    const consumablesCount = useGameStore((state) => {
+        const items = state.inventory.items;
+        return (items.potion ?? 0) + (items.tonic ?? 0) + (items.elixir ?? 0);
+    });
     const activeRun = useMemo(() => getActiveDungeonRun(dungeon), [dungeon]);
     const playerCount = Object.keys(players).length;
     const canEnterDungeon = playerCount >= 4;
@@ -51,6 +56,10 @@ export const DungeonScreenContainer = () => {
         gameStore.dispatch({ type: "dungeonSetupSetAutoRestart", autoRestart });
     }, []);
 
+    const handleAutoConsumablesToggle = useCallback((nextValue: boolean) => {
+        gameStore.dispatch({ type: "dungeonSetupSetAutoConsumables", autoConsumables: nextValue });
+    }, []);
+
     const handleStartRun = useCallback(() => {
         gameStore.dispatch({
             type: "dungeonStartRun",
@@ -78,6 +87,9 @@ export const DungeonScreenContainer = () => {
             foodCount={foodCount}
             currentPower={currentPower}
             usesPartyPower={hasPartySelection}
+            autoConsumables={autoConsumables}
+            canUseConsumables={consumablesCount > 0}
+            consumablesCount={consumablesCount}
             activeRun={activeRun}
             latestReplay={dungeon.latestReplay}
             completionCounts={dungeon.completionCounts ?? {}}
@@ -86,6 +98,7 @@ export const DungeonScreenContainer = () => {
             onSelectDungeon={handleSelectDungeon}
             onTogglePartyPlayer={handleTogglePartyPlayer}
             onToggleAutoRestart={handleAutoRestartToggle}
+            onToggleAutoConsumables={handleAutoConsumablesToggle}
             onStartRun={handleStartRun}
             onStopRun={handleStopRun}
         />

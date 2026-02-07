@@ -759,7 +759,8 @@ export const createDungeonState = (): DungeonState => ({
     setup: {
         selectedDungeonId: DUNGEON_DEFINITIONS[0]?.id ?? "dungeon_ruines_humides",
         selectedPartyPlayerIds: [],
-        autoRestart: true
+        autoRestart: true,
+        autoConsumables: true
     },
     runs: {},
     activeRunId: null,
@@ -846,7 +847,8 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
         setup: {
             selectedDungeonId,
             selectedPartyPlayerIds: Array.from(new Set((input.setup?.selectedPartyPlayerIds ?? []).map(String))),
-            autoRestart: input.setup?.autoRestart ?? true
+            autoRestart: input.setup?.autoRestart ?? true,
+            autoConsumables: input.setup?.autoConsumables ?? true
         },
         runs,
         activeRunId,
@@ -1501,27 +1503,29 @@ export const applyDungeonTick = (
         });
 
         // Potion auto-use below 50% HP.
-        run.party.forEach((member) => {
-            if (member.hp <= 0 || member.hp / member.hpMax > 0.5 || member.potionCooldownMs > 0) {
-                return;
-            }
-            const potionType = POTION_PRIORITY.find((itemId) => normalizeInventoryCount(inventory.items[itemId]) > 0);
-            if (!potionType) {
-                return;
-            }
-            inventory.items[potionType] = normalizeInventoryCount(inventory.items[potionType]) - 1;
-            addItemDelta(itemDeltas, potionType, -1);
-            const amount = healAmount(member.hpMax);
-            member.hp = Math.min(member.hpMax, member.hp + amount);
-            member.potionCooldownMs = 500;
-            addThreat(run.threatByHeroId, member.playerId, amount * HEAL_THREAT_RATIO);
-            pushEventWithStepCap({
-                type: "heal",
-                sourceId: member.playerId,
-                amount,
-                label: potionType
+        if (state.dungeon.setup.autoConsumables) {
+            run.party.forEach((member) => {
+                if (member.hp <= 0 || member.hp / member.hpMax > 0.5 || member.potionCooldownMs > 0) {
+                    return;
+                }
+                const potionType = POTION_PRIORITY.find((itemId) => normalizeInventoryCount(inventory.items[itemId]) > 0);
+                if (!potionType) {
+                    return;
+                }
+                inventory.items[potionType] = normalizeInventoryCount(inventory.items[potionType]) - 1;
+                addItemDelta(itemDeltas, potionType, -1);
+                const amount = healAmount(member.hpMax);
+                member.hp = Math.min(member.hpMax, member.hp + amount);
+                member.potionCooldownMs = 500;
+                addThreat(run.threatByHeroId, member.playerId, amount * HEAL_THREAT_RATIO);
+                pushEventWithStepCap({
+                    type: "heal",
+                    sourceId: member.playerId,
+                    amount,
+                    label: potionType
+                });
             });
-        });
+        }
 
         if (resolveAliveHeroIds(run).length === 0) {
             run.status = "failed";

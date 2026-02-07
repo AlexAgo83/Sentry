@@ -88,6 +88,7 @@ export type GameAction =
     | { type: "dungeonSetupSelectDungeon"; dungeonId: string }
     | { type: "dungeonSetupSetParty"; playerIds: PlayerId[] }
     | { type: "dungeonSetupSetAutoRestart"; autoRestart: boolean }
+    | { type: "dungeonSetupSetAutoConsumables"; autoConsumables: boolean }
     | { type: "dungeonStartRun"; dungeonId?: string; playerIds?: PlayerId[]; timestamp?: number }
     | { type: "dungeonStopRun" };
 
@@ -502,6 +503,18 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             autoRestart: action.autoRestart
                         }
                     } : state.dungeon.runs
+                }
+            };
+        }
+        case "dungeonSetupSetAutoConsumables": {
+            return {
+                ...state,
+                dungeon: {
+                    ...state.dungeon,
+                    setup: {
+                        ...state.dungeon.setup,
+                        autoConsumables: action.autoConsumables
+                    }
                 }
             };
         }

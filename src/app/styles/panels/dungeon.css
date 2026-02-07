@@ -512,6 +512,23 @@
     padding-right: var(--m8);
 }
 
+.ts-dungeon-auto-consume-button {
+    gap: var(--m3);
+}
+
+.ts-dungeon-consumable-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(93, 217, 193, 0.45);
+    background: rgba(12, 18, 32, 0.7);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    color: rgba(140, 230, 210, 0.95);
+}
+
 .ts-dungeon-action-icon {
     display: inline-flex;
     align-items: center;

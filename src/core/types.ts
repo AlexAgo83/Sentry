@@ -157,6 +157,7 @@ export interface DungeonSetupState {
     selectedDungeonId: DungeonId;
     selectedPartyPlayerIds: PlayerId[];
     autoRestart: boolean;
+    autoConsumables: boolean;
 }
 
 export interface DungeonRunPartyMemberState {

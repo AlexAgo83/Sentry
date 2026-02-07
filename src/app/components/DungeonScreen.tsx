@@ -32,6 +32,9 @@ type DungeonScreenProps = {
     foodCount: number;
     currentPower: number;
     usesPartyPower: boolean;
+    autoConsumables: boolean;
+    canUseConsumables: boolean;
+    consumablesCount: number;
     activeRun: DungeonRunState | null;
     latestReplay: DungeonReplayState | null;
     completionCounts: Record<DungeonId, number>;
@@ -40,6 +43,7 @@ type DungeonScreenProps = {
     onSelectDungeon: (dungeonId: string) => void;
     onTogglePartyPlayer: (playerId: PlayerId) => void;
     onToggleAutoRestart: (value: boolean) => void;
+    onToggleAutoConsumables: (value: boolean) => void;
     onStartRun: () => void;
     onStopRun: () => void;
 };
@@ -60,6 +64,9 @@ export const DungeonScreen = memo(({
     foodCount,
     currentPower,
     usesPartyPower,
+    autoConsumables,
+    canUseConsumables,
+    consumablesCount,
     activeRun,
     latestReplay,
     completionCounts,
@@ -68,6 +75,7 @@ export const DungeonScreen = memo(({
     onSelectDungeon,
     onTogglePartyPlayer,
     onToggleAutoRestart,
+    onToggleAutoConsumables,
     onStartRun,
     onStopRun
 }: DungeonScreenProps) => {
@@ -279,6 +287,13 @@ export const DungeonScreen = memo(({
         "ts-action-button",
         activeRun ? "is-ready-stop" : ""
     ].filter(Boolean).join(" ");
+    const autoConsumablesButtonClassName = [
+        "ts-icon-button",
+        "ts-focusable",
+        "ts-dungeon-auto-restart-button",
+        "ts-dungeon-auto-consume-button",
+        autoConsumables ? " is-active" : ""
+    ].filter(Boolean).join(" ");
     const isReplayScreen = !activeRun && showReplay && Boolean(latestReplay);
     const handleReplayPlayPause = () => {
         if (replayPaused && replayCursorMs >= replayTotalMs) {
@@ -459,6 +474,24 @@ export const DungeonScreen = memo(({
                                 {activeRun.autoRestart ? <AutoRestartOnIcon /> : <AutoRestartOffIcon />}
                             </span>
                             <span className="ts-dungeon-action-label">Auto restart</span>
+                        </button>
+                    ) : null}
+                    {activeRun ? (
+                        <button
+                            type="button"
+                            className={autoConsumablesButtonClassName}
+                            onClick={() => onToggleAutoConsumables(!autoConsumables)}
+                            aria-pressed={autoConsumables}
+                            aria-label={autoConsumables ? "Disable auto consumables" : "Enable auto consumables"}
+                            title={canUseConsumables
+                                ? "Auto-use consumables during fights"
+                                : "Requires at least 1 consumable (potion, tonic, elixir)."}
+                            disabled={!canUseConsumables}
+                        >
+                            <span className="ts-dungeon-action-label">Auto consumables</span>
+                            {consumablesCount > 0 ? (
+                                <span className="ts-dungeon-consumable-count">x{consumablesCount}</span>
+                            ) : null}
                         </button>
                     ) : null}
                     {activeRun ? (

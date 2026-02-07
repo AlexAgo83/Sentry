@@ -1,10 +1,10 @@
 ## task_081_dungeon_auto_consumables_state - Persist auto-consumables toggle and gate consumption logic
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
-> Understanding: 93%
-> Confidence: 91%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 94%
+> Progress: 100%
 
 # Summary
 Persist an auto-consumables toggle and make dungeon auto-use respect it.

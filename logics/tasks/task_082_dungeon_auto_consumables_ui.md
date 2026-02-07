@@ -1,10 +1,10 @@
 ## task_082_dungeon_auto_consumables_ui - Add auto-consumables toggle in dungeon UI
 > From version: 0.9.10
 > Owner: —
-> Status: Planned
-> Understanding: 93%
-> Confidence: 91%
-> Progress: 0%
+> Status: Done
+> Understanding: 95%
+> Confidence: 94%
+> Progress: 100%
 
 # Summary
 Expose the auto-consumables toggle next to auto-restart in the dungeon header.
