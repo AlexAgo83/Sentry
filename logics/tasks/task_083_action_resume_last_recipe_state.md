@@ -3,6 +3,7 @@
 > Understanding: 93%
 > Confidence: 90%
 > Status: Done
+> Progress: 100%
 > Reminder: Update Understanding/Confidence/Status when you edit this doc.
 
 # Goal
