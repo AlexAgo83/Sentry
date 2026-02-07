@@ -2,8 +2,8 @@
 > From version: 0.9.10
 > Owner: —
 > Status: Planned
-> Understanding: 90%
-> Confidence: 88%
+> Understanding: 93%
+> Confidence: 91%
 > Progress: 0%
 
 # Summary
@@ -17,15 +17,16 @@ Persist an auto-consumables toggle and make dungeon auto-use respect it.
 2. Persist the toggle in saves alongside other dungeon setup data.
 3. Derive `hasConsumables` from inventory counts of `potion`, `tonic`, `elixir`.
 4. Gate all auto-consume logic (potion/tonic/elixir) behind the toggle.
-4. Ensure the toggle state is preserved even when consumables hit zero (UI disables only).
-5. Keep existing auto-consume priority order unchanged.
-6. Add a unit test or focused logic test if appropriate.
+5. Preserve the stored toggle state even when consumables hit zero (UI disables only).
+6. Keep existing auto-consume priority order unchanged.
+7. Add a unit test or focused logic test if appropriate.
 
 # Decisions
 - Consumables covered: `potion`, `tonic`, `elixir`.
 - Default enabled when any consumable exists.
 - When inventory has zero consumables, keep stored value but disable interaction.
 - If no stored value exists, initialize to `true` when `hasConsumables` is true.
+- Toggle only affects combat auto-consume behavior (no other systems).
 
 # Acceptance criteria
 - Auto-consume logic respects `autoConsumables`.

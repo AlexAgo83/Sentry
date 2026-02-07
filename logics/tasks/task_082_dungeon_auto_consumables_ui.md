@@ -2,8 +2,8 @@
 > From version: 0.9.10
 > Owner: —
 > Status: Planned
-> Understanding: 90%
-> Confidence: 88%
+> Understanding: 93%
+> Confidence: 91%
 > Progress: 0%
 
 # Summary
@@ -18,13 +18,14 @@ Expose the auto-consumables toggle next to auto-restart in the dungeon header.
 2. Disable the toggle when inventory has zero consumables.
 3. Show a hint or tooltip explaining why it is disabled.
 4. Bind the toggle to the persisted `autoConsumables` state.
-5. Optionally show current consumable availability (ex: count or indicator).
+5. Show current consumable availability (count or indicator) if it fits the layout.
 6. Match visual style of existing dungeon controls.
 
 # Decisions
 - Control style: consistent with auto-restart button group.
 - Disabled state communicates lack of consumables.
 - Tooltip copy suggestion: `Requires at least 1 consumable (potion, tonic, elixir).`
+- Do not hide the toggle; keep it visible but disabled when unavailable.
 
 # Acceptance criteria
 - Toggle is visible next to auto-restart.
