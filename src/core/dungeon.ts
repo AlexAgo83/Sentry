@@ -1370,12 +1370,17 @@ export const applyDungeonTick = (
 
         // Enemy attacks party.
         const activeEnemy = targetEnemy;
-        const targetHeroId = resolveTargetHeroId(run, nowMs, activeEnemy.isBoss);
-        run.targetHeroId = targetHeroId;
-        if (targetHeroId) {
-            const hero = partyById.get(targetHeroId);
-            if (hero) {
-                const cached = heroStepCache.get(targetHeroId);
+        let targetHeroId = resolveTargetHeroId(run, nowMs, activeEnemy.isBoss);
+        let hero = targetHeroId ? partyById.get(targetHeroId) ?? null : null;
+        if (!hero || hero.hp <= 0) {
+            run.targetHeroId = null;
+            targetHeroId = resolveTargetHeroId(run, nowMs, activeEnemy.isBoss);
+            hero = targetHeroId ? partyById.get(targetHeroId) ?? null : null;
+        }
+        run.targetHeroId = hero && hero.hp > 0 ? hero.playerId : null;
+        if (run.targetHeroId && hero) {
+            if (hero.hp > 0) {
+                const cached = heroStepCache.get(run.targetHeroId);
                 let enemyDamage = activeEnemy.damage;
                 if (activeEnemy.isBoss && activeEnemy.mechanic === "burst" && run.encounterStep % 4 === 0) {
                     enemyDamage = Math.round(enemyDamage * BOSS_BURST_DAMAGE_MULTIPLIER);
@@ -1392,21 +1397,22 @@ export const applyDungeonTick = (
                 pushEventWithStepCap({
                     type: "attack",
                     sourceId: activeEnemy.id,
-                    targetId: targetHeroId,
+                    targetId: run.targetHeroId,
                     amount: adjustedDamage,
                     label: activeEnemy.name
                 });
                 pushEventWithStepCap({
                     type: "damage",
                     sourceId: activeEnemy.id,
-                    targetId: targetHeroId,
+                    targetId: run.targetHeroId,
                     amount: adjustedDamage
                 });
                 if (hero.hp <= 0) {
+                    run.targetHeroId = null;
                     pushEventWithStepCap({
                         type: "death",
-                        sourceId: targetHeroId,
-                        label: state.players[targetHeroId]?.name ?? targetHeroId
+                        sourceId: run.targetHeroId ?? hero.playerId,
+                        label: state.players[hero.playerId]?.name ?? hero.playerId
                     });
                 }
             }
