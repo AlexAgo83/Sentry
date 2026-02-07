@@ -1,7 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <g id="icon" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M32 12v36" />
-    <path d="M28 48h8" />
-    <path d="M32 8l6 8H26z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 64 64"
+   version="1.1"
+   id="svg5"
+   sodipodi:docname="CombatMelee.svg"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs9" />
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="3.6875"
+     inkscape:cx="32"
+     inkscape:cy="32"
+     inkscape:window-width="1309"
+     inkscape:window-height="456"
+     inkscape:window-x="47"
+     inkscape:window-y="34"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg5" />
+  <g
+     id="icon"
+     fill="currentColor"
+     transform="matrix(2.6667,0,0,2.6667,6.2966102,7.1101695)">
+    <path
+       d="M 9.646,14.096 A 1,1 0 1 1 8.232,15.51 L 6.818,14.096 3.99,16.925 A 1.0002026,1.0002026 0 0 1 2.575,18.339 L 1.161,16.925 A 1.0002026,1.0002026 0 0 1 2.575,15.51 L 5.404,12.682 3.99,11.268 A 1,1 0 0 1 5.404,9.854 Z m 0.708,-0.707 -4.244,-4.243 8.486,-8.485 3.536,0.707 0.707,3.536 z"
+       id="path2" />
   </g>
 </svg>
