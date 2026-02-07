@@ -1,7 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <g id="icon" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-<path d="M22 42l20-20" />
-    <path d="M42 18c-8 0-16 6-20 12" />
-    <path d="M18 46l6 6" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 64 64"
+   version="1.1"
+   id="svg1944"
+   sodipodi:docname="Excavation.svg"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1948" />
+  <sodipodi:namedview
+     id="namedview1946"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="3.6875"
+     inkscape:cx="32"
+     inkscape:cy="32"
+     inkscape:window-width="1309"
+     inkscape:window-height="456"
+     inkscape:window-x="47"
+     inkscape:window-y="34"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1944" />
+  <g
+     id="icon"
+     fill="currentColor"
+     transform="matrix(1.0564086,0,0,1.0564086,12.985045,13.263653)">
+    <path
+       d="m 27.6,14.242609 v 1.442659 c 0,0.530557 -0.402944,0.960659 -0.9,0.960659 h -5.4 c -0.497056,0 -0.9,-0.430102 -0.9,-0.960659 V 14.242609 C 11.404213,14.967836 6,18.045983 6,16.633986 6,15.167629 14.906129,9.9124942 22.2,9.0738622 V 8.9606585 C 22.2,8.4301015 22.602944,8 23.1,8 h 1.8 c 0.497056,0 0.9,0.4301015 0.9,0.9606585 V 9.0732069 C 33.093871,9.9124942 42,15.167629 42,16.633986 42,18.045983 36.595787,14.967836 27.6,14.242609 Z M 22.5,18 h 3 c 0.552285,0 1,0.447715 1,1 v 20.5 c 0,1.380712 -1.119288,2.5 -2.5,2.5 v 0 c -1.380712,0 -2.5,-1.119288 -2.5,-2.5 V 19 c 0,-0.552285 0.447715,-1 1,-1 z"
+       fill-rule="evenodd"
+       transform="translate(-6,-8)"
+       id="path1941" />
   </g>
 </svg>
