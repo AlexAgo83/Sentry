@@ -55,6 +55,20 @@ const percent = (value: number, max: number) => {
     return Math.max(0, Math.min(100, Math.round((value / max) * 100)));
 };
 
+const formatCompactCount = (value: number) => {
+    const safeValue = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+    if (safeValue < 1000) {
+        return `${safeValue}`;
+    }
+    if (safeValue < 1_000_000) {
+        return `${Math.floor(safeValue / 1000)}k`;
+    }
+    if (safeValue < 1_000_000_000) {
+        return `${Math.floor(safeValue / 1_000_000)}m`;
+    }
+    return `${Math.floor(safeValue / 1_000_000_000)}b`;
+};
+
 export const DungeonScreen = memo(({
     definitions,
     players,
@@ -470,10 +484,10 @@ export const DungeonScreen = memo(({
                             aria-label={activeRun.autoRestart ? "Disable auto restart" : "Enable auto restart"}
                             title={activeRun.autoRestart ? "Disable auto restart" : "Enable auto restart"}
                         >
+                            <span className="ts-dungeon-action-label">Auto restart</span>
                             <span className="ts-dungeon-action-icon">
                                 {activeRun.autoRestart ? <AutoRestartOnIcon /> : <AutoRestartOffIcon />}
                             </span>
-                            <span className="ts-dungeon-action-label">Auto restart</span>
                         </button>
                     ) : null}
                     {activeRun ? (
@@ -490,7 +504,7 @@ export const DungeonScreen = memo(({
                         >
                             <span className="ts-dungeon-action-label">Auto consumables</span>
                             {consumablesCount > 0 ? (
-                                <span className="ts-dungeon-consumable-count">x{consumablesCount}</span>
+                                <span className="ts-dungeon-consumable-count">x{formatCompactCount(consumablesCount)}</span>
                             ) : null}
                         </button>
                     ) : null}

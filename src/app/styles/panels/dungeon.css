@@ -520,12 +520,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 2px 8px;
+    padding: 1px 6px;
     border-radius: 999px;
     border: 1px solid rgba(93, 217, 193, 0.45);
     background: rgba(12, 18, 32, 0.7);
-    font-size: var(--text-xs-size);
-    letter-spacing: 0.08em;
+    font-size: calc(var(--text-xs-size) - 1px);
+    letter-spacing: 0.06em;
     color: rgba(140, 230, 210, 0.95);
 }
 
