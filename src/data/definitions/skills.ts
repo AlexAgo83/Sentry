@@ -13,7 +13,7 @@ export const SKILL_DEFINITIONS: SkillDefinition[] = [
     { id: "Herbalism", name: "Herbalism", baseInterval: 2500 },
     { id: "Tailoring", name: "Tailoring", baseInterval: 3500 },
     { id: "Fishing", name: "Fishing", baseInterval: 2500 },
-    { id: "Carpentry", name: "Carpentry", baseInterval: 3500 },
+    { id: "Carpentry", name: "Engineering", baseInterval: 3500 },
     { id: "Leatherworking", name: "Tanning", baseInterval: 3500 },
     { id: "Invocation", name: "Invocation", baseInterval: 3500 }
 ];
