@@ -20,6 +20,7 @@ Expose the auto-consumables toggle next to auto-restart in the dungeon header.
 4. Bind the toggle to the persisted `autoConsumables` state.
 5. Show current consumable availability (count or indicator) if it fits the layout.
 6. Match visual style of existing dungeon controls.
+7. Reminder: update related backlog items (`item_095`, `item_096`) after implementation.
 
 # Decisions
 - Control style: consistent with auto-restart button group.

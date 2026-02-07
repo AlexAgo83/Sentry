@@ -20,6 +20,7 @@ Persist an auto-consumables toggle and make dungeon auto-use respect it.
 5. Preserve the stored toggle state even when consumables hit zero (UI disables only).
 6. Keep existing auto-consume priority order unchanged.
 7. Add a unit test or focused logic test if appropriate.
+8. Reminder: update related backlog items (`item_095`, `item_096`) after implementation.
 
 # Decisions
 - Consumables covered: `potion`, `tonic`, `elixir`.
