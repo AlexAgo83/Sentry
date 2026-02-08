@@ -221,3 +221,9 @@
     background: transparent;
     box-shadow: none;
 }
+
+@media (max-width: 900px) {
+    .ts-skin-panel {
+        min-height: 204px;
+    }
+}
