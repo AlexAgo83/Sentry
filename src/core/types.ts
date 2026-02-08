@@ -397,6 +397,7 @@ export interface TickSummaryState {
     totalItemDeltas: ItemDelta;
     playerItemDeltas: Record<PlayerId, ItemDelta>;
     dungeonItemDeltas: ItemDelta;
+    dungeonItemDeltasByPlayer: Record<PlayerId, ItemDelta>;
     dungeonCombatXpByPlayer: Record<PlayerId, Partial<Record<CombatSkillId, number>>>;
 }
 

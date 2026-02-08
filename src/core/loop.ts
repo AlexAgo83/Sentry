@@ -429,9 +429,30 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
     Object.entries(dungeonResult.itemDeltas).forEach(([itemId, amount]) => {
         addItemDelta(totalItemDeltas, itemId, amount);
     });
+    const dungeonItemDeltasByPlayer: Record<PlayerId, ItemDelta> = {};
+    const dungeonGold = dungeonResult.itemDeltas.gold ?? 0;
+    if (Number.isFinite(dungeonGold) && dungeonGold > 0) {
+        const dungeonPartyIds = Array.from(new Set(
+            activeDungeonRuns.flatMap((run) => run.party.map((member) => member.playerId))
+        ));
+        if (dungeonPartyIds.length > 0) {
+            const baseShare = Math.floor(dungeonGold / dungeonPartyIds.length);
+            let remainder = dungeonGold - baseShare * dungeonPartyIds.length;
+            dungeonPartyIds.forEach((playerId) => {
+                const share = baseShare + (remainder > 0 ? 1 : 0);
+                if (remainder > 0) {
+                    remainder -= 1;
+                }
+                if (share > 0) {
+                    dungeonItemDeltasByPlayer[playerId] = { gold: share };
+                }
+            });
+        }
+    }
     const dungeonProgressPlayerIds = new Set([
         ...Object.keys(dungeonResult.combatActiveMsByPlayer),
-        ...Object.keys(dungeonResult.combatXpByPlayer)
+        ...Object.keys(dungeonResult.combatXpByPlayer),
+        ...Object.keys(dungeonItemDeltasByPlayer)
     ]);
     dungeonProgressPlayerIds.forEach((playerId) => {
         const typedPlayerId = playerId as PlayerId;
@@ -441,7 +462,12 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
             const numeric = Number.isFinite(value) ? value : 0;
             return sum + (numeric > 0 ? numeric : 0);
         }, 0);
-        if ((!Number.isFinite(activeMs) || activeMs <= 0) && (!Number.isFinite(xp) || xp <= 0)) {
+        const dungeonGoldShare = dungeonItemDeltasByPlayer[typedPlayerId]?.gold ?? 0;
+        if (
+            (!Number.isFinite(activeMs) || activeMs <= 0)
+            && (!Number.isFinite(xp) || xp <= 0)
+            && (!Number.isFinite(dungeonGoldShare) || dungeonGoldShare <= 0)
+        ) {
             return;
         }
         const player = nextPlayers[typedPlayerId];
@@ -460,7 +486,7 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
                     player.progression ?? createProgressionState(timestamp),
                     {
                         xp,
-                        gold: 0,
+                        gold: dungeonGoldShare,
                         activeMs,
                         idleMs: 0,
                         skillActiveMs: playerSkillActiveMs
@@ -508,6 +534,7 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
             totalItemDeltas,
             playerItemDeltas,
             dungeonItemDeltas: dungeonResult.itemDeltas,
+            dungeonItemDeltasByPlayer,
             dungeonCombatXpByPlayer: dungeonResult.combatXpByPlayer
         },
         dungeon: dungeonResult.state.dungeon

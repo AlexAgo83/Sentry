@@ -86,7 +86,7 @@ export class GameRuntime {
             result.capped,
             result.playerItemDeltas,
             result.totalItemDeltas,
-            result.dungeonItemDeltas,
+            result.dungeonItemDeltasByPlayer,
             result.dungeonCombatXpByPlayer
         );
         if (summary) {
@@ -212,6 +212,7 @@ export class GameRuntime {
         const totalItemDeltas: ItemDelta = {};
         const playerItemDeltas: Record<string, ItemDelta> = {};
         const dungeonItemDeltas: ItemDelta = {};
+        const dungeonItemDeltasByPlayer: Record<string, ItemDelta> = {};
         const dungeonCombatXpByPlayer: Record<string, Partial<Record<CombatSkillId, number>>> = {};
 
         while (tickTime < end) {
@@ -219,7 +220,13 @@ export class GameRuntime {
             const deltaMs = nextTickTime - tickTime;
             tickTime = nextTickTime;
             this.store.dispatch({ type: "tick", deltaMs, timestamp: tickTime });
-            this.collectTickDeltas(totalItemDeltas, playerItemDeltas, dungeonItemDeltas, dungeonCombatXpByPlayer);
+            this.collectTickDeltas(
+                totalItemDeltas,
+                playerItemDeltas,
+                dungeonItemDeltas,
+                dungeonItemDeltasByPlayer,
+                dungeonCombatXpByPlayer
+            );
         }
 
         const capped = processedMs < diff;
@@ -235,6 +242,7 @@ export class GameRuntime {
             totalItemDeltas,
             playerItemDeltas,
             dungeonItemDeltas,
+            dungeonItemDeltasByPlayer,
             dungeonCombatXpByPlayer
         };
     };
@@ -289,6 +297,7 @@ export class GameRuntime {
         total: ItemDelta,
         perPlayer: Record<string, ItemDelta>,
         dungeonTotals: ItemDelta,
+        dungeonByPlayer: Record<string, ItemDelta>,
         dungeonCombatXpByPlayer: Record<string, Partial<Record<CombatSkillId, number>>>
     ) => {
         const summary = this.store.getState().lastTickSummary;
@@ -307,6 +316,13 @@ export class GameRuntime {
         });
         Object.entries(summary.dungeonItemDeltas).forEach(([itemId, amount]) => {
             dungeonTotals[itemId] = (dungeonTotals[itemId] ?? 0) + amount;
+        });
+        Object.entries(summary.dungeonItemDeltasByPlayer).forEach(([playerId, deltas]) => {
+            const bucket = dungeonByPlayer[playerId] ?? {};
+            Object.entries(deltas).forEach(([itemId, amount]) => {
+                bucket[itemId] = (bucket[itemId] ?? 0) + amount;
+            });
+            dungeonByPlayer[playerId] = bucket;
         });
         Object.entries(summary.dungeonCombatXpByPlayer).forEach(([playerId, xpBySkill]) => {
             const bucket = dungeonCombatXpByPlayer[playerId] ?? {};
@@ -356,7 +372,7 @@ export class GameRuntime {
                         result.capped,
                         result.playerItemDeltas,
                         result.totalItemDeltas,
-                        result.dungeonItemDeltas,
+                        result.dungeonItemDeltasByPlayer,
                         result.dungeonCombatXpByPlayer
                     );
                     if (summary) {
@@ -450,7 +466,7 @@ export class GameRuntime {
         capped: boolean,
         playerItemDeltas: Record<string, ItemDelta>,
         totalItemDeltas: ItemDelta,
-        dungeonItemDeltas: ItemDelta,
+        dungeonItemDeltasByPlayer: Record<string, ItemDelta>,
         dungeonCombatXpByPlayer: Record<string, Partial<Record<CombatSkillId, number>>>
     ): OfflineSummaryState | null => {
         const players = Object.keys(beforeState.players).reduce<OfflinePlayerSummary[]>((acc, playerId) => {
@@ -468,6 +484,10 @@ export class GameRuntime {
 
             const combatXpBySkill = dungeonCombatXpByPlayer[playerId] ?? {};
             const hasCombatXp = Object.values(combatXpBySkill).some((value) => Number(value) > 0);
+            const playerDungeonItemDeltas = dungeonItemDeltasByPlayer[playerId] ?? {};
+            const hasDungeonItems = Object.values(playerDungeonItemDeltas).some((value) => (
+                Number.isFinite(value) && Number(value) !== 0
+            ));
             const summary = {
                 playerId,
                 playerName: beforePlayer.name,
@@ -480,7 +500,7 @@ export class GameRuntime {
                 itemDeltas: playerItemDeltas[playerId] ?? {},
                 dungeonGains: {
                     combatXp: combatXpBySkill,
-                    itemDeltas: hasCombatXp ? dungeonItemDeltas : {}
+                    itemDeltas: (hasCombatXp || hasDungeonItems) ? playerDungeonItemDeltas : {}
                 }
             };
 
@@ -533,7 +553,7 @@ export class GameRuntime {
             result.capped,
             result.playerItemDeltas,
             result.totalItemDeltas,
-            result.dungeonItemDeltas,
+            result.dungeonItemDeltasByPlayer,
             result.dungeonCombatXpByPlayer
         );
         if (summary) {
