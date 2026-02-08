@@ -5,14 +5,14 @@ export const huntingRecipes: RecipeDefinition[] = [
     {
         id: "hunt_small_game",
         skillId: "Hunting",
-        name: "Small Game",
+        name: "Woodland Critters",
         unlockLevel: unlockTier(1),
         itemRewards: withRewards({ meat: 1, bones: 1 })
     },
     {
         id: "hunt_large_game",
         skillId: "Hunting",
-        name: "Large Game",
+        name: "Dire Quarry",
         unlockLevel: unlockTier(1),
         itemRewards: withRewards({ meat: 2, bones: 1 })
     },
