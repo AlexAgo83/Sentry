@@ -136,11 +136,14 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         { expiresIn: `${config.REFRESH_TTL_DAYS}d` }
     );
 
+    const cookieSameSite = config.isProduction ? "none" : "lax";
+    const cookieSecure = config.isProduction;
+
     const setRefreshCookie = (reply, token) => {
         reply.setCookie(REFRESH_COOKIE_NAME, token, {
             httpOnly: true,
-            sameSite: "lax",
-            secure: config.isProduction,
+            sameSite: cookieSameSite,
+            secure: cookieSecure,
             path: "/api/v1/auth/refresh",
             maxAge: config.REFRESH_TTL_DAYS * 24 * 60 * 60
         });
@@ -149,8 +152,8 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
     const setCsrfCookie = (reply, token) => {
         reply.setCookie(CSRF_COOKIE_NAME, token, {
             httpOnly: false,
-            sameSite: "lax",
-            secure: config.isProduction,
+            sameSite: cookieSameSite,
+            secure: cookieSecure,
             path: "/",
             maxAge: config.REFRESH_TTL_DAYS * 24 * 60 * 60
         });
