@@ -45,7 +45,7 @@ describe("QuestsPanel", () => {
         expect(screen.getByText("Skill Quests")).toBeTruthy();
         expect(screen.getByText("Craft Quests")).toBeTruthy();
         expect(screen.getByText("Lv 8/10")).toBeTruthy();
-        expect(screen.getByText("Crafted 10/10")).toBeTruthy();
+        expect(screen.getByText("Completed")).toBeTruthy();
     });
 
     it("marks completed quests with completed styling", () => {

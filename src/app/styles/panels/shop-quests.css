@@ -32,6 +32,96 @@
     padding: var(--m2);
 }
 
+.ts-shop-tile.ts-quest-tile {
+    aspect-ratio: auto;
+    min-height: 80px;
+    padding: var(--m4);
+    border-color: rgba(93, 217, 193, 0.22);
+    background:
+        radial-gradient(circle at 18% 15%, rgba(93, 217, 193, 0.12), rgba(12, 18, 32, 0.9)),
+        linear-gradient(145deg, rgba(10, 16, 28, 0.98), rgba(12, 20, 35, 0.86));
+    gap: var(--m3);
+}
+
+.ts-quest-tile-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--m3);
+}
+
+.ts-quest-tile-title {
+    font-size: var(--text-s-size);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+
+.ts-quest-tile-reward-line {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(242, 193, 78, 0.85);
+}
+
+.ts-quest-tile-subtitle {
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
+}
+
+.ts-quest-tile-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m3);
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.ts-quest-tile-progress-label {
+    color: var(--color-text);
+}
+
+.ts-quest-tile-progress-subtitle {
+    margin-left: auto;
+    color: var(--color-text-fade);
+}
+
+.ts-quest-tile-progress-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m1);
+}
+
+.ts-quest-tile-bar {
+    position: relative;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(12, 18, 32, 0.75);
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(93, 217, 193, 0.2);
+}
+
+.ts-quest-tile-bar-fill {
+    position: absolute;
+    inset: 0;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(93, 217, 193, 0.85), rgba(242, 193, 78, 0.9));
+    box-shadow: 0 0 10px rgba(93, 217, 193, 0.35);
+    transition: width 200ms ease;
+}
+
+.ts-quest-toggle {
+    min-height: 36px;
+    padding: 6px 18px;
+    letter-spacing: 0.12em;
+}
+
 .ts-shop-tile {
     border: 1px solid rgba(242, 193, 78, 0.22);
     background: radial-gradient(circle at 25% 20%, rgba(93, 217, 193, 0.08), rgba(12, 18, 32, 0.9));
@@ -57,8 +147,9 @@
     opacity: 0.7;
 }
 
-.ts-quest-tile.is-completed {
-    opacity: 0.55;
+.ts-shop-tile.ts-quest-tile.is-completed {
+    opacity: 0.7;
+    border-color: rgba(93, 217, 193, 0.18);
 }
 
 .ts-shop-tile.is-maxed .ts-shop-tile-price {

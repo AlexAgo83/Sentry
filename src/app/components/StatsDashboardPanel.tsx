@@ -325,7 +325,7 @@ export const StatsDashboardPanel = memo(({
                                                 <span className="ts-combat-skill-label" style={{ color }}>{COMBAT_SKILL_LABELS[skillId]}</span>
                                                 <span className="ts-combat-skill-level ts-stat-level">
                                                     <span className="ts-stat-level-value">{level}</span>
-                                                    <span className="ts-stat-level-max">/{SKILL_MAX_LEVEL}</span>
+                                                <span className="ts-stat-level-max"> /{SKILL_MAX_LEVEL}</span>
                                                 </span>
                                             </div>
                                         );

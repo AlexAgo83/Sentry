@@ -57,7 +57,7 @@ const StatRow = memo(({ skill, level, color, progress }: StatRowProps) => {
         </div>
         <div className="ts-stat-value ts-stat-level">
             <span className="ts-stat-level-value">{level}</span>
-            <span className="ts-stat-level-max">/{SKILL_MAX_LEVEL}</span>
+            <span className="ts-stat-level-max"> /{SKILL_MAX_LEVEL}</span>
         </div>
         </div>
     );

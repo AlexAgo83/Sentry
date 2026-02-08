@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useMemo, useState } from "react";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
@@ -23,18 +23,33 @@ type QuestsPanelProps = {
 const QuestTile = ({ quest }: { quest: QuestEntry }) => {
     const rewardLabel = formatNumberCompact(quest.rewardGold);
     const rewardFullLabel = formatNumberFull(quest.rewardGold);
+    const progressMatch = quest.progressLabel.match(/(\d+)\s*\/\s*(\d+)/);
+    const progressValue = progressMatch ? Number(progressMatch[1]) : 0;
+    const progressTotal = progressMatch ? Number(progressMatch[2]) : 0;
+    const progressPercent = progressTotal > 0
+        ? Math.min(100, Math.round((progressValue / progressTotal) * 100))
+        : 0;
     return (
         <div className={`ts-shop-tile ts-quest-tile${quest.isCompleted ? " is-completed" : ""}`}>
-            <div className="ts-shop-tile-title">{quest.title}</div>
-            <div className="ts-shop-tile-subtitle">{quest.subtitle}</div>
-            <div className="ts-shop-tile-meta">{quest.progressLabel}</div>
-            <div className="ts-shop-tile-footer">
-                <span className="ts-shop-tile-price" title={`${rewardFullLabel} gold`}>
-                    {rewardLabel} gold
-                </span>
-                {quest.isCompleted ? (
-                    <span className="ts-quest-complete" aria-label="Completed">Completed</span>
-                ) : null}
+            <div className="ts-quest-tile-header">
+                <div className="ts-quest-tile-title">{quest.title}</div>
+            </div>
+            <div className="ts-quest-tile-reward-line" title={`${rewardFullLabel} gold`}>
+                Reward: {rewardLabel} GOLD
+            </div>
+            <div className="ts-quest-tile-progress-block">
+                <div className="ts-quest-tile-progress">
+                    <span className="ts-quest-tile-progress-label">
+                        {quest.isCompleted ? "Completed" : quest.progressLabel}
+                    </span>
+                    <span className="ts-quest-tile-progress-subtitle">{quest.subtitle}</span>
+                </div>
+                <div className="ts-quest-tile-bar" aria-hidden="true">
+                    <span
+                        className="ts-quest-tile-bar-fill"
+                        style={{ width: `${quest.isCompleted ? 100 : progressPercent}%` }}
+                    />
+                </div>
             </div>
         </div>
     );
@@ -49,6 +64,15 @@ export const QuestsPanel = memo(({
     craftQuests
 }: QuestsPanelProps) => {
     const counterLabel = `${completedCount}/${totalCount}`;
+    const [showCompleted, setShowCompleted] = useState(true);
+    const visibleSkillQuests = useMemo(
+        () => (showCompleted ? skillQuests : skillQuests.filter((quest) => !quest.isCompleted)),
+        [showCompleted, skillQuests]
+    );
+    const visibleCraftQuests = useMemo(
+        () => (showCompleted ? craftQuests : craftQuests.filter((quest) => !quest.isCompleted)),
+        [showCompleted, craftQuests]
+    );
 
     return (
         <section className="generic-panel ts-panel ts-quests-panel">
@@ -57,23 +81,34 @@ export const QuestsPanel = memo(({
                     <h2 className="ts-panel-title">Quests</h2>
                     <span className="ts-panel-counter">{counterLabel}</span>
                 </div>
-                <button
-                    type="button"
-                    className="ts-collapse-button ts-focusable"
-                    onClick={onToggleCollapsed}
-                    aria-label={isCollapsed ? "Expand" : "Collapse"}
-                >
-                    <span className="ts-collapse-label">
-                        <CollapseIcon isCollapsed={isCollapsed} />
-                    </span>
-                </button>
+                <div className="ts-panel-actions ts-panel-actions-inline">
+                    <button
+                        type="button"
+                        className={`ts-icon-button ts-panel-action-button ts-focusable ts-quest-toggle${showCompleted ? " is-active" : ""}`}
+                        onClick={() => setShowCompleted((prev) => !prev)}
+                        aria-pressed={showCompleted}
+                        title={showCompleted ? "Hide completed quests" : "Show completed quests"}
+                    >
+                        {showCompleted ? "Hide Completed" : "Show Completed"}
+                    </button>
+                    <button
+                        type="button"
+                        className="ts-collapse-button ts-focusable"
+                        onClick={onToggleCollapsed}
+                        aria-label={isCollapsed ? "Expand" : "Collapse"}
+                    >
+                        <span className="ts-collapse-label">
+                            <CollapseIcon isCollapsed={isCollapsed} />
+                        </span>
+                    </button>
+                </div>
             </div>
             {!isCollapsed ? (
                 <div className="ts-quests-body">
                     <div className="ts-quest-section">
                         <div className="ts-quest-section-title">Skill Quests</div>
                         <div className="ts-shop-grid ts-quest-grid">
-                            {skillQuests.map((quest) => (
+                            {visibleSkillQuests.map((quest) => (
                                 <QuestTile key={quest.id} quest={quest} />
                             ))}
                         </div>
@@ -81,7 +116,7 @@ export const QuestsPanel = memo(({
                     <div className="ts-quest-section">
                         <div className="ts-quest-section-title">Craft Quests</div>
                         <div className="ts-shop-grid ts-quest-grid">
-                            {craftQuests.map((quest) => (
+                            {visibleCraftQuests.map((quest) => (
                                 <QuestTile key={quest.id} quest={quest} />
                             ))}
                         </div>

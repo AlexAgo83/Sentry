@@ -844,10 +844,10 @@
     }
 
     .ts-character-row {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         grid-template-areas:
-            "stat stat stat total"
-            "base perm temp gear";
+            "stat stat stat stat stat"
+            "base perm temp gear total";
         row-gap: var(--m2);
         column-gap: var(--m3);
         padding: var(--m3) var(--m4);
@@ -883,8 +883,9 @@
 
     .ts-character-cell--total {
         grid-area: total;
-        align-items: flex-end;
-        text-align: right;
+        align-items: flex-start;
+        text-align: left;
+        justify-self: start;
     }
 
     .ts-character-row .ts-character-cell:nth-child(2) {
@@ -904,7 +905,8 @@
     }
 
     .ts-character-cell--total .ts-character-cell-label {
-        display: none;
+        display: block;
+        text-align: left;
     }
 
     .ts-character-header--combat {
@@ -943,7 +945,8 @@
 
     .ts-character-row--combat .ts-character-cell--total {
         grid-area: total;
-        align-items: flex-end;
-        text-align: right;
+        align-items: flex-start;
+        text-align: left;
+        justify-self: start;
     }
 }
