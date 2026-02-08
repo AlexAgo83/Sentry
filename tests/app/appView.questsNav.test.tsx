@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { AppView } from "../../src/app/AppView";
 
@@ -41,11 +40,9 @@ describe("AppView quests navigation", () => {
         expect(screen.getByRole("tab", { name: "Quests" })).toBeTruthy();
     });
 
-    it("shows Quests in the mobile Travel menu", async () => {
+    it("shows Quests in the mobile header", () => {
         Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
-        const user = userEvent.setup();
         renderAppView();
-        await user.click(screen.getByRole("tab", { name: "Travel" }));
-        expect(screen.getByRole("menuitem", { name: "Quests" })).toBeTruthy();
+        expect(screen.getByRole("tab", { name: "Quests" })).toBeTruthy();
     });
 });

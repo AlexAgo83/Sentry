@@ -93,7 +93,7 @@ describe("CloudSavePanel", () => {
         expect(screen.getByRole("button", { name: "Logout" })).toBeTruthy();
     });
 
-    it("shows active run conflict warning and recommends newest save action", () => {
+    it("shows a recommendation badge when an active run conflicts with a newer save", () => {
         render(
             <CloudSavePanel
                 {...baseProps}
@@ -101,7 +101,8 @@ describe("CloudSavePanel", () => {
                 cloudHasActiveDungeonRun={false}
             />
         );
-        expect(screen.getByTestId("cloud-run-active-warning")).toBeTruthy();
-        expect(screen.getByText(/Recommended: load cloud save \(newer\)/)).toBeTruthy();
+        const loadButton = screen.getByTestId("cloud-load");
+        expect(loadButton.querySelector(".ts-system-cloud-reco")).toBeTruthy();
+        expect(screen.queryByTestId("cloud-run-active-warning")).toBeNull();
     });
 });

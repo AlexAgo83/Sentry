@@ -64,7 +64,6 @@ export const AppView = (props: AppViewProps) => {
     }, []);
 
     const {
-        version,
         onOpenSystem,
         isRosterDrawerOpen = false,
         onOpenRosterDrawer,
@@ -75,12 +74,10 @@ export const AppView = (props: AppViewProps) => {
         onShowDungeon,
         isDungeonLocked,
         onShowStats,
-        onShowRoster,
         onShowInventory,
         onShowEquipment,
         onShowShop,
         onShowQuests,
-        heroMenuOpenSignal,
         isDungeonRunActive,
         hasNewInventoryItems,
         roster,
@@ -107,13 +104,6 @@ export const AppView = (props: AppViewProps) => {
         } else {
             onOpenRosterDrawer();
         }
-    };
-    const handleShowRoster = () => {
-        if (isMobile && onOpenRosterDrawer) {
-            handleToggleRosterDrawer();
-            return;
-        }
-        onShowRoster();
     };
 
     return (

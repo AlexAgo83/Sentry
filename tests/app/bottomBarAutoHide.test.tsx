@@ -1,11 +1,10 @@
-import { render, act, waitFor } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { AppView } from "../../src/app/AppView";
 
 describe("AppView (mobile bottom bar)", () => {
-    it("keeps the bottom bar visible while scrolling", async () => {
+    it("does not render the bottom bar on mobile", () => {
         Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
-        Object.defineProperty(window, "scrollY", { value: 0, writable: true });
 
         const { container } = render(
             <AppView
@@ -36,26 +35,6 @@ describe("AppView (mobile bottom bar)", () => {
             />
         );
 
-        const bottomBar = container.querySelector(".app-bottom-bar");
-        expect(bottomBar).toBeTruthy();
-        expect(bottomBar?.className).not.toContain("is-scroll-hidden");
-
-        await act(async () => {
-            (window as any).scrollY = 200;
-            window.dispatchEvent(new Event("scroll"));
-        });
-
-        await waitFor(() => {
-            expect(container.querySelector(".app-bottom-bar")?.className).not.toContain("is-scroll-hidden");
-        });
-
-        await act(async () => {
-            (window as any).scrollY = 120;
-            window.dispatchEvent(new Event("scroll"));
-        });
-
-        await waitFor(() => {
-            expect(container.querySelector(".app-bottom-bar")?.className).not.toContain("is-scroll-hidden");
-        });
+        expect(container.querySelector(".app-bottom-bar")).toBeNull();
     });
 });

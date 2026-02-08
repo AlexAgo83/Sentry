@@ -5,11 +5,13 @@ import { AppView, type AppActiveScreen, type AppActiveSidePanel } from "../../sr
 const renderAppView = (props?: {
     activeScreen?: AppActiveScreen;
     activeSidePanel?: AppActiveSidePanel;
+    isRosterDrawerOpen?: boolean;
 }) => {
     return render(
         <AppView
             version="0.0.0"
             onOpenSystem={() => {}}
+            isRosterDrawerOpen={props?.isRosterDrawerOpen}
             activeScreen={props?.activeScreen ?? "main"}
             activeSidePanel={props?.activeSidePanel ?? "action"}
             onShowAction={() => {}}
@@ -37,22 +39,24 @@ const renderAppView = (props?: {
 };
 
 describe("AppView (mobile roster)", () => {
-    it("shows the Roster label in the mobile bottom bar", () => {
+    it("shows the roster toggle button in the mobile top bar", () => {
         Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
         renderAppView();
-        expect(screen.getByRole("tab", { name: "Roster" })).toBeTruthy();
+        expect(screen.getByRole("button", { name: "Open roster" })).toBeTruthy();
     });
 
-    it("hides roster on mobile unless the roster screen is active", () => {
+    it("toggles the roster drawer open state on mobile", () => {
         Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
-        const { rerender } = renderAppView({ activeScreen: "main", activeSidePanel: "action" });
-        expect(screen.queryByText("Roster Panel Content")).toBeNull();
+        const { rerender, container } = renderAppView({ activeScreen: "main", activeSidePanel: "action" });
+        const drawer = container.querySelector(".app-roster-drawer");
+        expect(drawer?.classList.contains("is-open")).toBe(false);
 
         rerender(
             <AppView
                 version="0.0.0"
                 onOpenSystem={() => {}}
-                activeScreen="roster"
+                isRosterDrawerOpen
+                activeScreen="main"
                 activeSidePanel="action"
                 onShowAction={() => {}}
                 onShowDungeon={() => {}}
@@ -76,6 +80,6 @@ describe("AppView (mobile roster)", () => {
                 dungeonScreen={<div />}
             />
         );
-        expect(screen.getByText("Roster Panel Content")).toBeTruthy();
+        expect(drawer?.classList.contains("is-open")).toBe(true);
     });
 });
