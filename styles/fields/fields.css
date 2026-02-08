@@ -178,3 +178,10 @@
     color: var(--color-text-fade);
     pointer-events: none;
 }
+
+@media (max-width: 900px) {
+    .generic-field.input,
+    .generic-field.select {
+        font-size: 16px;
+    }
+}

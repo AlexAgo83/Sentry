@@ -226,4 +226,9 @@
     .ts-skin-panel {
         min-height: 204px;
     }
+
+    .ts-player-avatar.ts-player-avatar--large {
+        width: 119px;
+        --ts-avatar-skill-size: 28px;
+    }
 }
