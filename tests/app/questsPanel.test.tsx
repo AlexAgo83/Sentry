@@ -6,7 +6,17 @@ const baseProps = {
     isCollapsed: false,
     onToggleCollapsed: () => {},
     completedCount: 1,
-    totalCount: 3,
+    totalCount: 4,
+    tutorialQuests: [
+        {
+            id: "quest:tutorial:collect_meat",
+            title: "Collect 100 Meat",
+            subtitle: "Tutorial",
+            progressLabel: "Collected 10/100",
+            rewardGold: 60,
+            isCompleted: false
+        }
+    ],
     skillQuests: [
         {
             id: "quest:skill:combat",
@@ -22,7 +32,7 @@ const baseProps = {
             id: "quest:craft:cloth_cap",
             title: "Craft Cloth Cap x10",
             subtitle: "Equipable item",
-            progressLabel: "Crafted 10/10",
+            progressLabel: "Completed",
             rewardGold: 70,
             isCompleted: true
         },
@@ -41,7 +51,8 @@ describe("QuestsPanel", () => {
     it("renders sections and progress labels", () => {
         render(<QuestsPanel {...baseProps} />);
         expect(screen.getByText("Quests")).toBeTruthy();
-        expect(screen.getByText("1/3")).toBeTruthy();
+        expect(screen.getByText("1/4")).toBeTruthy();
+        expect(screen.getByText("Tutorial Quests")).toBeTruthy();
         expect(screen.getByText("Skill Quests")).toBeTruthy();
         expect(screen.getByText("Craft Quests")).toBeTruthy();
         expect(screen.getByText("Lv 8/10")).toBeTruthy();

@@ -16,6 +16,7 @@ type QuestsPanelProps = {
     onToggleCollapsed: () => void;
     completedCount: number;
     totalCount: number;
+    tutorialQuests: QuestEntry[];
     skillQuests: QuestEntry[];
     craftQuests: QuestEntry[];
 };
@@ -60,11 +61,16 @@ export const QuestsPanel = memo(({
     onToggleCollapsed,
     completedCount,
     totalCount,
+    tutorialQuests,
     skillQuests,
     craftQuests
 }: QuestsPanelProps) => {
     const counterLabel = `${completedCount}/${totalCount}`;
     const [showCompleted, setShowCompleted] = useState(true);
+    const visibleTutorialQuests = useMemo(
+        () => (showCompleted ? tutorialQuests : tutorialQuests.filter((quest) => !quest.isCompleted)),
+        [showCompleted, tutorialQuests]
+    );
     const visibleSkillQuests = useMemo(
         () => (showCompleted ? skillQuests : skillQuests.filter((quest) => !quest.isCompleted)),
         [showCompleted, skillQuests]
@@ -105,6 +111,14 @@ export const QuestsPanel = memo(({
             </div>
             {!isCollapsed ? (
                 <div className="ts-quests-body">
+                    <div className="ts-quest-section">
+                        <div className="ts-quest-section-title">Tutorial Quests</div>
+                        <div className="ts-shop-grid ts-quest-grid">
+                            {visibleTutorialQuests.map((quest) => (
+                                <QuestTile key={quest.id} quest={quest} />
+                            ))}
+                        </div>
+                    </div>
                     <div className="ts-quest-section">
                         <div className="ts-quest-section-title">Skill Quests</div>
                         <div className="ts-shop-grid ts-quest-grid">

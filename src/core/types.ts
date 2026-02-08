@@ -81,6 +81,8 @@ export interface ItemDelta {
 
 export interface QuestProgressState {
     craftCounts: Record<ItemId, number>;
+    itemCounts: Record<ItemId, number>;
+    itemCountsBySkill: Partial<Record<SkillId, Record<ItemId, number>>>;
     completed: Record<QuestId, boolean>;
 }
 

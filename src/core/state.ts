@@ -50,11 +50,15 @@ const createInventoryState = (gold: number): InventoryState => ({
 
 const createQuestProgressState = (): QuestProgressState => ({
     craftCounts: {},
+    itemCounts: {},
+    itemCountsBySkill: {},
     completed: {}
 });
 
 const normalizeQuestProgressState = (quests?: QuestProgressState | null): QuestProgressState => ({
     craftCounts: quests?.craftCounts ?? {},
+    itemCounts: quests?.itemCounts ?? {},
+    itemCountsBySkill: quests?.itemCountsBySkill ?? {},
     completed: quests?.completed ?? {}
 });
 

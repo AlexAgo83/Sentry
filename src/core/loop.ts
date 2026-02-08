@@ -1,6 +1,12 @@
 import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../data/definitions";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType, getEquipmentModifiers } from "../data/equipment";
-import { QUEST_CRAFT_ITEM_IDS, QUEST_DEFINITIONS, getQuestProgress, getSharedSkillLevels } from "../data/quests";
+import {
+    QUEST_COLLECT_ITEM_IDS,
+    QUEST_CRAFT_ITEM_IDS,
+    QUEST_DEFINITIONS,
+    getQuestProgress,
+    getSharedSkillLevels
+} from "../data/quests";
 import { createActionProgress } from "./state";
 import { applyProgressionDelta, createProgressionState } from "./progression";
 import {
@@ -334,6 +340,8 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
     let inventory = state.inventory;
     const totalItemDeltas: ItemDelta = {};
     const playerItemDeltas: Record<PlayerId, ItemDelta> = {};
+    const nextItemCounts = { ...state.quests.itemCounts };
+    const nextItemCountsBySkill = { ...state.quests.itemCountsBySkill };
     let totalXpGained = 0;
     let totalActiveMs = 0;
     let totalIdleMs = 0;
@@ -387,6 +395,17 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
             playerItemDeltas[id] = result.itemDeltas;
             Object.entries(result.itemDeltas).forEach(([itemId, amount]) => {
                 addItemDelta(totalItemDeltas, itemId, amount);
+                if (amount <= 0 || !QUEST_COLLECT_ITEM_IDS.has(itemId)) {
+                    return;
+                }
+                nextItemCounts[itemId] = (nextItemCounts[itemId] ?? 0) + amount;
+                if (result.skillId) {
+                    const skillCounts = nextItemCountsBySkill[result.skillId]
+                        ? { ...nextItemCountsBySkill[result.skillId] }
+                        : {};
+                    skillCounts[itemId] = (skillCounts[itemId] ?? 0) + amount;
+                    nextItemCountsBySkill[result.skillId] = skillCounts;
+                }
             });
         }
     });
@@ -398,22 +417,6 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         }
         nextCraftCounts[itemId] = (nextCraftCounts[itemId] ?? 0) + amount;
     });
-
-    const sharedSkillLevels = getSharedSkillLevels(players);
-    const nextCompleted = { ...state.quests.completed };
-    let questGoldReward = 0;
-
-    QUEST_DEFINITIONS.forEach((quest) => {
-        const progress = getQuestProgress(quest, nextCraftCounts, sharedSkillLevels);
-        if (progress.isComplete && !nextCompleted[quest.id]) {
-            nextCompleted[quest.id] = true;
-            questGoldReward += quest.rewardGold;
-        }
-    });
-
-    if (questGoldReward > 0) {
-        inventory = applyItemDelta(inventory, { gold: questGoldReward }, 1, totalItemDeltas);
-    }
 
     const dungeonResult = applyDungeonTick(
         {
@@ -504,6 +507,30 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         }
     });
 
+    const sharedSkillLevels = getSharedSkillLevels(nextPlayers);
+    const nextCompleted = { ...state.quests.completed };
+    let questGoldReward = 0;
+    const dungeonCompletionCounts = dungeonResult.state.dungeon.completionCounts ?? {};
+
+    QUEST_DEFINITIONS.forEach((quest) => {
+        const progress = getQuestProgress(
+            quest,
+            nextCraftCounts,
+            sharedSkillLevels,
+            nextItemCounts,
+            dungeonCompletionCounts,
+            nextItemCountsBySkill
+        );
+        if (progress.isComplete && !nextCompleted[quest.id]) {
+            nextCompleted[quest.id] = true;
+            questGoldReward += quest.rewardGold;
+        }
+    });
+
+    if (questGoldReward > 0) {
+        inventory = applyItemDelta(inventory, { gold: questGoldReward }, 1, totalItemDeltas);
+    }
+
     const goldDelta = totalItemDeltas.gold ?? 0;
     const progression = applyProgressionDelta(
         state.progression ?? createProgressionState(timestamp),
@@ -523,6 +550,8 @@ export const applyTick = (state: GameState, deltaMs: number, timestamp: number):
         inventory,
         quests: {
             craftCounts: nextCraftCounts,
+            itemCounts: nextItemCounts,
+            itemCountsBySkill: nextItemCountsBySkill,
             completed: nextCompleted
         },
         loop: {

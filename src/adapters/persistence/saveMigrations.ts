@@ -126,13 +126,36 @@ const normalizeQuests = (value: unknown): QuestProgressState | undefined => {
         return undefined;
     }
     const craftCountsRaw = isObject(value.craftCounts) ? value.craftCounts : {};
+    const itemCountsRaw = isObject(value.itemCounts) ? value.itemCounts : {};
+    const itemCountsBySkillRaw = isObject(value.itemCountsBySkill) ? value.itemCountsBySkill : {};
     const completedRaw = isObject(value.completed) ? value.completed : {};
     const craftCounts: Record<string, number> = {};
+    const itemCounts: Record<string, number> = {};
+    const itemCountsBySkill: Record<string, Record<string, number>> = {};
     Object.entries(craftCountsRaw).forEach(([key, amount]) => {
         const numeric = typeof amount === "number" ? amount : Number(amount);
         if (Number.isFinite(numeric)) {
             craftCounts[key] = Math.max(0, Math.floor(numeric));
         }
+    });
+    Object.entries(itemCountsRaw).forEach(([key, amount]) => {
+        const numeric = typeof amount === "number" ? amount : Number(amount);
+        if (Number.isFinite(numeric)) {
+            itemCounts[key] = Math.max(0, Math.floor(numeric));
+        }
+    });
+    Object.entries(itemCountsBySkillRaw).forEach(([skillId, counts]) => {
+        if (!isObject(counts)) {
+            return;
+        }
+        const nextCounts: Record<string, number> = {};
+        Object.entries(counts).forEach(([itemId, amount]) => {
+            const numeric = typeof amount === "number" ? amount : Number(amount);
+            if (Number.isFinite(numeric)) {
+                nextCounts[itemId] = Math.max(0, Math.floor(numeric));
+            }
+        });
+        itemCountsBySkill[skillId] = nextCounts;
     });
     const completed: Record<string, boolean> = {};
     Object.entries(completedRaw).forEach(([key, value]) => {
@@ -140,7 +163,7 @@ const normalizeQuests = (value: unknown): QuestProgressState | undefined => {
             completed[key] = value;
         }
     });
-    return { craftCounts, completed };
+    return { craftCounts, itemCounts, itemCountsBySkill, completed };
 };
 
 const COMBAT_SKILL_IDS = ["CombatMelee", "CombatRanged", "CombatMagic"] as const;

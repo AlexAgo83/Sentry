@@ -1,12 +1,15 @@
-import type { ItemId, PlayerId, PlayerState, QuestId, SkillId } from "../core/types";
+import type { DungeonId, ItemId, PlayerId, PlayerState, QuestId, SkillId } from "../core/types";
 import { SKILL_DEFINITIONS, getRecipeUnlockLevel, getRecipesForSkill } from "./definitions";
 import { EQUIPMENT_DEFINITIONS } from "./equipment";
+import { DUNGEON_DEFINITIONS } from "./dungeons";
 
-export type QuestKind = "skill" | "craft";
+export type QuestKind = "skill" | "craft" | "tutorial";
 
 export type QuestCondition =
     | { type: "skill"; skillId: SkillId; level: number }
-    | { type: "craft"; itemId: ItemId; count: number };
+    | { type: "craft"; itemId: ItemId; count: number }
+    | { type: "collect"; itemId: ItemId; count: number; skillId?: SkillId }
+    | { type: "dungeon"; dungeonId: DungeonId; count: number };
 
 export type QuestDefinition = {
     id: QuestId;
@@ -31,6 +34,8 @@ const SKILL_QUEST_REWARD_GOLD = 100;
 const CRAFT_QUEST_COUNT = 10;
 const CRAFT_QUEST_BASE_GOLD = 50;
 const CRAFT_QUEST_GOLD_PER_LEVEL = 10;
+const TUTORIAL_QUEST_REWARD_GOLD = 100;
+const TUTORIAL_DUNGEON_DEFINITION = DUNGEON_DEFINITIONS[0];
 
 const buildCraftRewardLookup = (): Record<ItemId, number> => {
     const equipableIds = new Set(EQUIPMENT_DEFINITIONS.map((item) => item.id));
@@ -91,18 +96,67 @@ const CRAFT_QUESTS: CraftQuestDefinition[] = EQUIPMENT_DEFINITIONS.map((item) =>
     };
 });
 
+const TUTORIAL_QUESTS: QuestDefinition[] = [
+    {
+        id: "quest:tutorial:collect_meat",
+        kind: "tutorial",
+        title: "Collect 100 Meat",
+        subtitle: "Tutorial",
+        rewardGold: TUTORIAL_QUEST_REWARD_GOLD,
+        condition: {
+            type: "collect",
+            itemId: "meat",
+            count: 100
+        }
+    },
+    {
+        id: "quest:tutorial:cook_food",
+        kind: "tutorial",
+        title: "Cook 100 Food",
+        subtitle: "Tutorial",
+        rewardGold: TUTORIAL_QUEST_REWARD_GOLD,
+        condition: {
+            type: "collect",
+            itemId: "food",
+            count: 100,
+            skillId: "Cooking"
+        }
+    },
+    {
+        id: "quest:tutorial:dungeon_tier1",
+        kind: "tutorial",
+        title: `Clear ${TUTORIAL_DUNGEON_DEFINITION?.name ?? "Damp Ruins"} x10`,
+        subtitle: "Tutorial",
+        rewardGold: TUTORIAL_QUEST_REWARD_GOLD,
+        condition: {
+            type: "dungeon",
+            dungeonId: TUTORIAL_DUNGEON_DEFINITION?.id ?? "dungeon_ruines_humides",
+            count: 10
+        }
+    }
+];
+
 export const QUEST_DEFINITIONS: QuestDefinition[] = [
+    ...TUTORIAL_QUESTS,
     ...SKILL_QUESTS,
     ...CRAFT_QUESTS
 ];
 
 export const QUEST_DEFINITIONS_BY_KIND = {
+    tutorial: TUTORIAL_QUESTS,
     skill: SKILL_QUESTS,
     craft: CRAFT_QUESTS
 };
 
 export const QUEST_CRAFT_ITEM_IDS = new Set<ItemId>(
     CRAFT_QUESTS.map((quest) => quest.condition.itemId)
+);
+
+export const QUEST_COLLECT_ITEM_IDS = new Set<ItemId>(
+    TUTORIAL_QUESTS
+        .filter((quest) => quest.condition.type === "collect")
+        .map((quest) => (quest.condition.type === "collect" ? quest.condition.itemId : ""))
+        .filter((itemId): itemId is ItemId => Boolean(itemId))
 );
 
 export const getSharedSkillLevels = (players: Record<PlayerId, PlayerState>): Record<SkillId, number> => {
@@ -126,10 +180,36 @@ export const getSharedSkillLevels = (players: Record<PlayerId, PlayerState>): Re
 export const getQuestProgress = (
     quest: QuestDefinition,
     craftCounts: Record<ItemId, number>,
-    skillLevels: Record<SkillId, number>
+    skillLevels: Record<SkillId, number>,
+    itemCounts: Record<ItemId, number>,
+    dungeonCompletionCounts: Record<DungeonId, number>,
+    itemCountsBySkill: Partial<Record<SkillId, Record<ItemId, number>>>
 ): QuestProgress => {
     if (quest.condition.type === "craft") {
         const current = craftCounts[quest.condition.itemId] ?? 0;
+        const target = quest.condition.count;
+        return {
+            current,
+            target,
+            isComplete: current >= target
+        };
+    }
+
+    if (quest.condition.type === "collect") {
+        const skillId = quest.condition.skillId;
+        const current = skillId
+            ? itemCountsBySkill[skillId]?.[quest.condition.itemId] ?? 0
+            : itemCounts[quest.condition.itemId] ?? 0;
+        const target = quest.condition.count;
+        return {
+            current,
+            target,
+            isComplete: current >= target
+        };
+    }
+
+    if (quest.condition.type === "dungeon") {
+        const current = dungeonCompletionCounts[quest.condition.dungeonId] ?? 0;
         const target = quest.condition.count;
         return {
             current,
@@ -151,6 +231,13 @@ export const getQuestProgressLabel = (quest: QuestDefinition, progress: QuestPro
     const current = Math.min(progress.current, progress.target);
     if (quest.condition.type === "craft") {
         return `Crafted ${current}/${progress.target}`;
+    }
+    if (quest.condition.type === "collect") {
+        const verb = quest.condition.skillId === "Cooking" ? "Cooked" : "Collected";
+        return `${verb} ${current}/${progress.target}`;
+    }
+    if (quest.condition.type === "dungeon") {
+        return `Cleared ${current}/${progress.target}`;
     }
     return `Lv ${current}/${progress.target}`;
 };
