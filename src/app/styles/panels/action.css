@@ -372,6 +372,12 @@
     box-shadow: inset 0 0 0 1px rgba(239, 77, 67, 0.4);
 }
 
+.ts-action-dungeon svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
 .ts-action-button {
     gap: var(--m2);
     width: auto;
