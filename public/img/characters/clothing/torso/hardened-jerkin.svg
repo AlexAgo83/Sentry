@@ -5,7 +5,7 @@
    viewBox="237 109.84 364 838.16"
    version="1.1"
    id="svg4133"
-   sodipodi:docname="linen_tunic.svg"
+   sodipodi:docname="hardened-jerkin.svg"
    inkscape:version="1.2 (dc2aeda, 2022-05-15)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -191,9 +191,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="2.2279556"
-     inkscape:cx="103.6825"
-     inkscape:cy="503.37629"
+     inkscape:zoom="1.1858223"
+     inkscape:cx="45.538022"
+     inkscape:cy="510.61615"
      inkscape:window-width="1309"
      inkscape:window-height="671"
      inkscape:window-x="47"
@@ -228,4 +228,9 @@
      id="path8481"
      style="display:inline;fill:#d6c8a8;fill-opacity:0.523316;filter:url(#filter8495)"
      sodipodi:nodetypes="csccccccccsscccccccccscccccc" />
+  <path
+     style="fill:#784421;stroke:#4d4d4d;stroke-width:5.2"
+     d="M 383.73363,540.76461 C 370.04987,546.21752 350.84505,570.28 350.84505,570.28 l 21.08242,124.80791 c 0,0 19.00596,18.64179 31.20198,22.76901 11.98492,4.05578 26.1003,5.28305 37.94835,0.8433 12.11121,-4.53837 28.67209,-26.1422 28.67209,-26.1422 l 11.80615,-126.49451 c 0,0 -21.29271,-22.42902 -35.41846,-26.98549 -19.80411,-6.38812 -43.07335,-6.01656 -62.40395,1.68659 z"
+     id="path701"
+     sodipodi:nodetypes="sccssccss" />
 </svg>
