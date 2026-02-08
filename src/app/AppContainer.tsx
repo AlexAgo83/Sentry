@@ -66,6 +66,7 @@ export const AppContainer = () => {
     const [onboardingHeroName, setOnboardingHeroName] = useState("");
     const [didAutoOpenDungeon, setDidAutoOpenDungeon] = useState(false);
     const [heroMenuOpenSignal, setHeroMenuOpenSignal] = useState(0);
+    const [isRosterDrawerOpen, setRosterDrawerOpen] = useState(false);
     const [hasContinued, setHasContinued] = useState(false);
     const isOnboardingOpen = dungeonOnboardingRequired && playerCount < 4;
 
@@ -275,6 +276,7 @@ export const AppContainer = () => {
 
     const handleRosterPlayerSelect = useCallback(() => {
         setHeroMenuOpenSignal((current) => current + 1);
+        setRosterDrawerOpen(false);
     }, []);
 
     const {
@@ -344,6 +346,9 @@ export const AppContainer = () => {
             <AppViewContainer
                 version={version}
                 onOpenSystem={openSystem}
+                isRosterDrawerOpen={isRosterDrawerOpen}
+                onOpenRosterDrawer={() => setRosterDrawerOpen(true)}
+                onCloseRosterDrawer={() => setRosterDrawerOpen(false)}
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={showActionPanel}

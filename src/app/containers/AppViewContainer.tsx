@@ -14,6 +14,9 @@ import { DevProfiler } from "../dev/renderDebug";
 type AppViewContainerProps = {
     version: string;
     onOpenSystem: () => void;
+    isRosterDrawerOpen?: boolean;
+    onOpenRosterDrawer?: () => void;
+    onCloseRosterDrawer?: () => void;
     activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
@@ -43,6 +46,9 @@ type AppViewContainerProps = {
 export const AppViewContainer = ({
     version,
     onOpenSystem,
+    isRosterDrawerOpen,
+    onOpenRosterDrawer,
+    onCloseRosterDrawer,
     activeScreen,
     activeSidePanel,
     onShowAction,
@@ -73,6 +79,9 @@ export const AppViewContainer = ({
             <AppView
                 version={version}
                 onOpenSystem={onOpenSystem}
+                isRosterDrawerOpen={isRosterDrawerOpen}
+                onOpenRosterDrawer={onOpenRosterDrawer}
+                onCloseRosterDrawer={onCloseRosterDrawer}
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
                 onShowAction={onShowAction}
@@ -92,6 +101,17 @@ export const AppViewContainer = ({
                         <RosterContainer
                             onAddPlayer={onAddPlayer}
                             onAfterSetActivePlayer={onRosterPlayerSelect}
+                            getSkillLabel={getSkillLabel}
+                            getRecipeLabel={getRecipeLabelNonNull}
+                        />
+                    </DevProfiler>
+                )}
+                rosterDrawer={(
+                    <DevProfiler id="RosterDrawerPanel">
+                        <RosterContainer
+                            onAddPlayer={onAddPlayer}
+                            onAfterSetActivePlayer={onRosterPlayerSelect}
+                            forceExpanded
                             getSkillLabel={getSkillLabel}
                             getRecipeLabel={getRecipeLabelNonNull}
                         />

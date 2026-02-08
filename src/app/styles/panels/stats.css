@@ -782,7 +782,7 @@
     font-variant-numeric: normal;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
     .ts-combat-skill-lines {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -792,7 +792,7 @@
     color: #6bc7ff;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
     .ts-stats-tabs,
     .ts-stats-tabs {
         margin-left: 0;

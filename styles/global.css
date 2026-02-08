@@ -110,6 +110,111 @@ body {
     width: 100%;
 }
 
+.app-roster-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+}
+
+.app-roster-drawer.is-open {
+    pointer-events: auto;
+}
+
+.app-roster-drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    background: rgba(5, 8, 16, 0.6);
+    opacity: 0;
+    transition: opacity 180ms ease;
+}
+
+.app-roster-drawer.is-open .app-roster-drawer-backdrop {
+    opacity: 1;
+}
+
+.app-roster-drawer-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: min(360px, 90vw);
+    padding: calc(var(--m6) + env(safe-area-inset-top)) var(--m4) calc(var(--m6) + env(safe-area-inset-bottom)) var(--m4);
+    background: rgba(9, 12, 24, 0.96);
+    border-right: 1px solid rgba(242, 193, 78, 0.2);
+    border-radius: 0;
+    box-shadow: 18px 0 30px -18px rgba(0, 0, 0, 0.85);
+    overflow: hidden;
+    transform: translateX(-100%);
+    transition: transform 220ms ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-roster-drawer.is-open .app-roster-drawer-panel {
+    transform: translateX(0);
+}
+
+.app-roster-drawer-panel .ts-panel {
+    margin: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    border: 0;
+    box-shadow: none;
+}
+
+.app-roster-drawer-panel .ts-panel-actions {
+    display: none;
+}
+
+.app-roster-drawer-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: var(--m2) 0 var(--m5);
+    margin-bottom: var(--m3);
+    background: rgba(9, 12, 24, 0.98);
+    border-bottom: 1px solid rgba(242, 193, 78, 0.18);
+}
+
+.app-roster-drawer-header .app-title {
+    display: inline;
+    font-size: calc((var(--text-xl-size) + var(--m10)) * 0.7);
+}
+
+.app-roster-drawer-header .app-title-button {
+    width: 100%;
+}
+
+.app-roster-drawer-header .app-title-block {
+    width: 100%;
+    justify-content: center;
+    gap: var(--m4);
+}
+
+.app-roster-drawer-header .app-title-icon {
+    width: 28px;
+    height: 28px;
+}
+
+.app-roster-drawer-panel .ts-player-list {
+    flex: 0 0 auto;
+    min-height: auto;
+}
+
+.app-roster-drawer-panel .ts-panel::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
 .app-shell.is-modal-open .app-topbar,
 .ts-any-modal-open .app-topbar,
 .swal2-shown .app-topbar {
@@ -166,6 +271,11 @@ body {
     .app-bottom-bar {
         transition: none;
     }
+
+    .app-roster-drawer-backdrop,
+    .app-roster-drawer-panel {
+        transition: none;
+    }
 }
 
 .app-title {
@@ -209,7 +319,7 @@ body {
     font-size: var(--text-m-size);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
     :root {
         --app-topbar-offset: calc(var(--m28) - var(--m4));
     }
@@ -316,6 +426,18 @@ body {
     .app-topbar .ts-topbar-switcher .ts-chip {
         padding: 10px 12px;
     }
+}
+
+.app-topbar .ts-chip-badge {
+    top: auto;
+    bottom: -8px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+}
+
+.app-topbar .ts-chip + .ts-chip {
+    margin-left: 0;
 }
 
 .app-layout {

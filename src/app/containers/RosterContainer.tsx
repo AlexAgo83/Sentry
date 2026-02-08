@@ -10,6 +10,7 @@ import { RosterPanel } from "../components/RosterPanel";
 type RosterContainerProps = {
     onAddPlayer: () => void;
     onAfterSetActivePlayer?: () => void;
+    forceExpanded?: boolean;
     getSkillLabel: (skillId: SkillId) => string;
     getRecipeLabel: (skillId: SkillId, recipeId: string) => string;
 };
@@ -17,6 +18,7 @@ type RosterContainerProps = {
 export const RosterContainer = ({
     onAddPlayer,
     onAfterSetActivePlayer,
+    forceExpanded = false,
     getSkillLabel,
     getRecipeLabel,
 }: RosterContainerProps) => {
@@ -30,14 +32,19 @@ export const RosterContainer = ({
         getActiveDungeonRuns(dungeon).flatMap((run) => run.party.map((member) => member.playerId))
     ), [dungeon]);
 
+    const rosterCollapsed = forceExpanded ? false : isCollapsed;
+    const handleToggleCollapsed = forceExpanded
+        ? () => {}
+        : () => setCollapsed((value) => !value);
+
     return (
         <RosterPanel
             players={players}
             activePlayerId={activePlayerId}
             activeDungeonPartyPlayerIds={activeDungeonPartyPlayerIds}
             rosterLimit={rosterLimit}
-            isCollapsed={isCollapsed}
-            onToggleCollapsed={() => setCollapsed((value) => !value)}
+            isCollapsed={rosterCollapsed}
+            onToggleCollapsed={handleToggleCollapsed}
             onSetActivePlayer={(playerId) => {
                 gameStore.dispatch({ type: "setActivePlayer", playerId });
                 onAfterSetActivePlayer?.();

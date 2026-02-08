@@ -9,6 +9,9 @@ export type AppActiveScreen = "main" | "actionSelection" | "dungeon" | "roster";
 export interface AppViewProps {
     version: string;
     onOpenSystem: () => void;
+    isRosterDrawerOpen?: boolean;
+    onOpenRosterDrawer?: () => void;
+    onCloseRosterDrawer?: () => void;
     activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
     onShowAction: () => void;
@@ -24,6 +27,7 @@ export interface AppViewProps {
     isDungeonRunActive: boolean;
     hasNewInventoryItems: boolean;
     roster: ReactNode;
+    rosterDrawer?: ReactNode;
     actionPanel: ReactNode;
     statsPanel: ReactNode;
     inventoryPanel: ReactNode;
@@ -37,14 +41,14 @@ export interface AppViewProps {
 export const AppView = (props: AppViewProps) => {
     useRenderCount("AppView");
     const [isMobile, setIsMobile] = useState(() => (
-        typeof window !== "undefined" ? window.innerWidth <= 720 : false
+        typeof window !== "undefined" ? window.innerWidth <= 900 : false
     ));
 
     useEffect(() => {
         if (typeof window === "undefined") {
             return;
         }
-        const maxWidth = 720;
+        const maxWidth = 900;
         const mediaQuery = window.matchMedia ? window.matchMedia(`(max-width: ${maxWidth}px)`) : null;
         if (!mediaQuery) {
             const onResize = () => setIsMobile(window.innerWidth <= maxWidth);
@@ -62,6 +66,9 @@ export const AppView = (props: AppViewProps) => {
     const {
         version,
         onOpenSystem,
+        isRosterDrawerOpen = false,
+        onOpenRosterDrawer,
+        onCloseRosterDrawer,
         activeScreen,
         activeSidePanel,
         onShowAction,
@@ -77,6 +84,7 @@ export const AppView = (props: AppViewProps) => {
         isDungeonRunActive,
         hasNewInventoryItems,
         roster,
+        rosterDrawer,
         actionPanel,
         statsPanel,
         inventoryPanel,
@@ -89,6 +97,24 @@ export const AppView = (props: AppViewProps) => {
 
     const showRoster = !isMobile || activeScreen === "roster";
     const showMainStack = !isMobile || activeScreen !== "roster";
+    const handleToggleRosterDrawer = () => {
+        if (!onOpenRosterDrawer) {
+            onOpenSystem();
+            return;
+        }
+        if (isRosterDrawerOpen) {
+            onCloseRosterDrawer?.();
+        } else {
+            onOpenRosterDrawer();
+        }
+    };
+    const handleShowRoster = () => {
+        if (isMobile && onOpenRosterDrawer) {
+            handleToggleRosterDrawer();
+            return;
+        }
+        onShowRoster();
+    };
 
     return (
         <>
@@ -119,8 +145,8 @@ export const AppView = (props: AppViewProps) => {
                                     <button
                                         type="button"
                                         className="ts-chip ts-focusable ts-topbar-sentry-button"
-                                        onClick={onOpenSystem}
-                                        aria-label="Open settings"
+                                        onClick={handleToggleRosterDrawer}
+                                        aria-label="Open roster"
                                     >
                                         <span className="ts-chip-icon" aria-hidden="true">
                                             <img
@@ -197,46 +223,35 @@ export const AppView = (props: AppViewProps) => {
                 ) : null}
             </main>
             {isMobile ? (
-                <nav
-                    className="app-bottom-bar"
-                    aria-label="Main panels"
-                >
-                    <SidePanelSwitcher
-                        active={activeSidePanel}
-                        isDungeonActive={activeScreen === "dungeon"}
-                        onShowDungeon={onShowDungeon}
-                        isDungeonLocked={isDungeonLocked}
-                        isRosterActive={activeScreen === "roster"}
-                        onShowRoster={onShowRoster}
-                        onShowAction={onShowAction}
-                        onShowStats={onShowStats}
-                        onShowInventory={onShowInventory}
-                        onShowEquipment={onShowEquipment}
-                        onShowShop={onShowShop}
-                        onShowQuests={onShowQuests}
-                        openHeroMenuSignal={heroMenuOpenSignal}
-                        badges={{
-                            ...(hasNewInventoryItems ? { inventory: "New" } : {}),
-                            ...(isDungeonRunActive ? { dungeon: "Live" } : {})
-                        }}
-                        className="ts-bottombar-switcher"
-                        useInventoryMenu
-                        useHeroMenu
-                        showRosterButton
-                        heroIncludesEquipment
-                        heroLabel="Hero"
-                        labels={{
-                            action: "Act",
-                            dungeon: "Dungeon",
-                            stats: "Stats",
-                            roster: "Roster",
-                            inventory: "Travel",
-                            equipment: "Equip",
-                            shop: "Shop",
-                            quests: "Quests"
-                        }}
+                <div className={`app-roster-drawer${isRosterDrawerOpen ? " is-open" : ""}`}>
+                    <button
+                        type="button"
+                        className="app-roster-drawer-backdrop"
+                        aria-label="Close roster"
+                        onClick={() => onCloseRosterDrawer?.()}
                     />
-                </nav>
+                    <aside className="app-roster-drawer-panel" role="dialog" aria-label="Roster">
+                        <div className="app-roster-drawer-header">
+                            <button
+                                type="button"
+                                className="app-title-button ts-focusable"
+                                onClick={onOpenSystem}
+                                aria-label="Open settings"
+                            >
+                                <div className="app-title-block">
+                                    <img
+                                        className="app-title-icon"
+                                        src={`${import.meta.env.BASE_URL}icon.svg`}
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
+                                    <h2 className="app-title app-title--drawer">Sentry</h2>
+                                </div>
+                            </button>
+                        </div>
+                        {rosterDrawer ?? roster}
+                    </aside>
+                </div>
             ) : null}
         </>
     );
