@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
-import { SystemIcon } from "./ui/systemIcon";
 import { useRenderCount } from "./dev/renderDebug";
 
 export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment" | "shop" | "quests";
@@ -97,12 +96,41 @@ export const AppView = (props: AppViewProps) => {
                 <div className="app-topbar-surface">
                     <div className="app-topbar-inner">
                         <div className="app-topbar-left">
-                            <div className="app-title-block">
-                                <h1 className="app-title">Sentry</h1>
-                            </div>
+                            <button
+                                type="button"
+                                className="app-title-button ts-focusable"
+                                onClick={onOpenSystem}
+                                aria-label="Open settings"
+                            >
+                                <div className="app-title-block">
+                                    <img
+                                        className="app-title-icon"
+                                        src={`${import.meta.env.BASE_URL}icon.svg`}
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
+                                    <h1 className="app-title">Sentry</h1>
+                                </div>
+                            </button>
                         </div>
                         <div className="app-topbar-center">
-                            {!isMobile ? (
+                            <div className="app-topbar-actions">
+                                {isMobile ? (
+                                    <button
+                                        type="button"
+                                        className="ts-chip ts-focusable ts-topbar-sentry-button"
+                                        onClick={onOpenSystem}
+                                        aria-label="Open settings"
+                                    >
+                                        <span className="ts-chip-icon" aria-hidden="true">
+                                            <img
+                                                className="ts-topbar-sentry-icon"
+                                                src={`${import.meta.env.BASE_URL}icon.svg`}
+                                                alt=""
+                                            />
+                                        </span>
+                                    </button>
+                                ) : null}
                                 <SidePanelSwitcher
                                     active={activeSidePanel}
                                     isDungeonActive={activeScreen === "dungeon"}
@@ -118,7 +146,7 @@ export const AppView = (props: AppViewProps) => {
                                         ...(hasNewInventoryItems ? { inventory: "New" } : {}),
                                         ...(isDungeonRunActive ? { dungeon: "Live" } : {})
                                     }}
-                                    className="ts-topbar-switcher"
+                                    className={`ts-topbar-switcher${isMobile ? " ts-topbar-switcher--mobile" : ""}`}
                                     inventoryOrder="equipment-first"
                                     labels={{
                                         action: "Action",
@@ -130,21 +158,7 @@ export const AppView = (props: AppViewProps) => {
                                         quests: "Quests"
                                     }}
                                 />
-                            ) : null}
-                        </div>
-                        <div className="app-topbar-right">
-                            <button
-                                type="button"
-                                className="app-version-tag app-version-button ts-focusable"
-                                onClick={onOpenSystem}
-                                aria-label="Open system telemetry"
-                                data-testid="open-system-telemetry"
-                            >
-                                <span className="app-version-icon" aria-hidden="true">
-                                    <SystemIcon />
-                                </span>
-                                <span>{version}</span>
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>

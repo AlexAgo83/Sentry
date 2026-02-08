@@ -134,17 +134,17 @@ export const CloudSavePanel = memo(({
         && cloudMeta
         && (dateComparison !== 0 || scoreComparison !== 0 || versionMismatch)
     );
-    const runActiveWarning = (() => {
+    const recommendedAction = (() => {
         if (!hasConflict || (!localHasActiveDungeonRun && !cloudHasActiveDungeonRun)) {
             return null;
         }
         if (dateComparison < 0) {
-            return "Active dungeon run detected. Recommended: load cloud save (newer).";
+            return "cloud";
         }
         if (dateComparison > 0) {
-            return "Active dungeon run detected. Recommended: overwrite cloud with local (newer).";
+            return "local";
         }
-        return "Active dungeon run detected in save conflict. Prefer the newest save to avoid losing run progress.";
+        return null;
     })();
 
     const handleAuthSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -316,13 +316,6 @@ export const CloudSavePanel = memo(({
                             </span>
                         </div>
                     </div>
-                    {runActiveWarning ? (
-                        <div className="ts-system-cloud-status">
-                            <span className="ts-system-cloud-error" data-testid="cloud-run-active-warning">
-                                {runActiveWarning}
-                            </span>
-                        </div>
-                    ) : null}
                     <div className="ts-system-cloud-actions">
                         <button
                             type="button"
@@ -332,6 +325,9 @@ export const CloudSavePanel = memo(({
                             data-testid="cloud-load"
                         >
                             Load cloud save
+                            {recommendedAction === "cloud" ? (
+                                <span className="ts-system-cloud-reco">Reco</span>
+                            ) : null}
                         </button>
                         <button
                             type="button"
@@ -341,6 +337,9 @@ export const CloudSavePanel = memo(({
                             data-testid="cloud-overwrite"
                         >
                             Overwrite cloud with local
+                            {recommendedAction === "local" ? (
+                                <span className="ts-system-cloud-reco">Reco</span>
+                            ) : null}
                         </button>
                     </div>
                 </>

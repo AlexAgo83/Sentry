@@ -18,6 +18,10 @@
     text-transform: uppercase;
 }
 
+.app-version-fade {
+    opacity: 0.6;
+}
+
 .app-version-button {
     display: inline-flex;
     align-items: center;

@@ -239,6 +239,21 @@
     background: rgba(242, 193, 78, 0.12);
 }
 
+.ts-system-cloud-reco {
+    margin-left: var(--m2);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 999px;
+    border: 1px solid rgba(242, 193, 78, 0.35);
+    color: rgba(242, 193, 78, 0.95);
+    background: rgba(242, 193, 78, 0.08);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .ts-system-cloud-error {
     color: rgba(242, 120, 120, 0.9);
 }
