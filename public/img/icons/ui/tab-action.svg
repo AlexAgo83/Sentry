@@ -1,5 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <g id="icon" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M13 2L4 14h7l-1 8 10-14h-7l0-6z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg2075"
+   sodipodi:docname="tab-action.svg"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2079" />
+  <sodipodi:namedview
+     id="namedview2077"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-width="1309"
+     inkscape:window-height="456"
+     inkscape:window-x="47"
+     inkscape:window-y="34"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2075" />
+  <g
+     id="icon"
+     fill="none"
+     stroke="currentColor"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     transform="matrix(0.93523079,0,0,0.93523079,0.77783432,0.77663361)">
+    <path
+       d="M 17.6842,3.60279 C 18.2055,2.944 17.7132,2 16.8484,2 H 10.1317 C 9.75652,2 9.40996,2.19159 9.22321,2.50227 L 4.14052,10.9577 c -0.40074,0.6666 0.10338,1.4977 0.90852,1.4977 h 3.4286 L 5.24755,20.5203 C 4.78108,21.5406 6.04257,22.473 6.89092,21.735 L 20,9.33119 h -6.849 z"
+       id="path2072" />
   </g>
 </svg>

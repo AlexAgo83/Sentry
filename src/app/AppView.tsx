@@ -131,7 +131,7 @@ export const AppView = (props: AppViewProps) => {
                                 <div className="app-title-block">
                                     <img
                                         className="app-title-icon"
-                                        src={`${import.meta.env.BASE_URL}icon.svg`}
+                                        src={`${import.meta.env.BASE_URL}icon_nobg.svg`}
                                         alt=""
                                         aria-hidden="true"
                                     />
@@ -151,7 +151,7 @@ export const AppView = (props: AppViewProps) => {
                                         <span className="ts-chip-icon" aria-hidden="true">
                                             <img
                                                 className="ts-topbar-sentry-icon"
-                                                src={`${import.meta.env.BASE_URL}icon.svg`}
+                                                src={`${import.meta.env.BASE_URL}icon_nobg.svg`}
                                                 alt=""
                                             />
                                         </span>
@@ -241,7 +241,7 @@ export const AppView = (props: AppViewProps) => {
                                 <div className="app-title-block">
                                     <img
                                         className="app-title-icon"
-                                        src={`${import.meta.env.BASE_URL}icon.svg`}
+                                        src={`${import.meta.env.BASE_URL}icon_nobg.svg`}
                                         alt=""
                                         aria-hidden="true"
                                     />
