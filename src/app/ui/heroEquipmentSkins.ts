@@ -12,6 +12,18 @@ const EQUIPMENT_SKIN_URLS: EquipmentSkinMap = {
     worn_trousers: "/img/characters/clothing/legs/worn-trousers.svg"
 };
 
+const WEAPON_BASE_BODY_URLS: EquipmentSkinMap = {
+    rusty_blade: "/img/characters/equipment/weapons/rusty_blade.svg",
+    rusty_blade_refined: "/img/characters/equipment/weapons/rusty_blade_refined.svg",
+    rusty_blade_masterwork: "/img/characters/equipment/weapons/rusty_blade_masterwork.svg",
+    simple_bow: "/img/characters/equipment/weapons/simple_bow.svg",
+    simple_bow_refined: "/img/characters/equipment/weapons/simple_bow_refined.svg",
+    simple_bow_masterwork: "/img/characters/equipment/weapons/simple_bow_masterwork.svg",
+    apprentice_staff: "/img/characters/equipment/weapons/apprentice_staff.svg",
+    apprentice_staff_refined: "/img/characters/equipment/weapons/apprentice_staff_refined.svg",
+    apprentice_staff_masterwork: "/img/characters/equipment/weapons/apprentice_staff_masterwork.svg"
+};
+
 type AvatarSkinVars = Record<string, string>;
 type EquipmentSkinOptions = {
     showHelmet?: boolean;
@@ -28,9 +40,10 @@ export const getEquipmentSkinVars = (
     const vars: AvatarSkinVars = {};
     const weaponId = equipment.slots.Weapon;
     const weaponType = weaponId ? getEquipmentDefinition(weaponId)?.weaponType : undefined;
-    const baseBodyUrl = weaponType
+    const weaponAssetUrl = weaponId ? WEAPON_BASE_BODY_URLS[weaponId] : undefined;
+    const baseBodyUrl = weaponAssetUrl ?? (weaponType
         ? `/img/characters/equipment/weapons/default_${weaponType.toLowerCase()}.svg`
-        : null;
+        : null);
     const setVar = (slot: "cape" | "head" | "torso" | "legs" | "hands" | "feets", itemId?: ItemId | null) => {
         const url = itemId ? EQUIPMENT_SKIN_URLS[itemId] : undefined;
         if (url) {
