@@ -89,7 +89,7 @@ test("cloud auth, upload, download, conflict", async ({ page }) => {
         await route.fallback();
     });
 
-    await page.getByTestId("open-system-telemetry").click();
+    await page.getByRole("button", { name: "Open settings" }).click();
     await page.getByTestId("open-cloud-save").click();
 
     await page.getByTestId("cloud-email").fill("e2e@example.com");
@@ -113,7 +113,8 @@ test.describe("mobile roster navigation", () => {
     test.use({ viewport: { width: 390, height: 844 } });
 
     test("open roster tab", async ({ page }) => {
-        await page.getByTestId("tab-roster").click();
+        await page.getByRole("button", { name: "Open roster" }).click();
+        await expect(page.locator(".app-roster-drawer")).toHaveClass(/is-open/);
         await expect(page.getByTestId("roster-panel")).toBeVisible();
     });
 });
