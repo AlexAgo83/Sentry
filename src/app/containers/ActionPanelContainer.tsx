@@ -67,7 +67,7 @@ export const ActionPanelContainer = ({
         isStunned
     } = useActionStatus(activePlayer);
     const inventoryItems = useGameStore((state) => state.inventory.items);
-    const lastNonDungeonAction = useGameStore((state) => state.lastNonDungeonAction);
+    const lastNonDungeonActionByPlayer = useGameStore((state) => state.lastNonDungeonActionByPlayer);
     const isInDungeon = useGameStore((state) => (
         activePlayer?.id ? isPlayerAssignedToActiveDungeonRun(state, activePlayer.id) : false
     ));
@@ -168,8 +168,11 @@ export const ActionPanelContainer = ({
     const showDungeonShortcut = isInDungeon && !activeSkillId;
     const showChangeAction = !isInDungeon;
     const showInterruptAction = !isInDungeon;
-    const resumeSkillId = lastNonDungeonAction?.skillId ?? "";
-    const resumeRecipeId = lastNonDungeonAction?.recipeId ?? "";
+    const resumeAction = activePlayer?.id
+        ? lastNonDungeonActionByPlayer[activePlayer.id] ?? null
+        : null;
+    const resumeSkillId = resumeAction?.skillId ?? "";
+    const resumeRecipeId = resumeAction?.recipeId ?? "";
     const resumeSelection = usePendingActionSelection({
         activePlayer,
         pendingSkillId: resumeSkillId,

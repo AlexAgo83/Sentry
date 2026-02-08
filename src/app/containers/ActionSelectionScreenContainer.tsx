@@ -44,7 +44,7 @@ export const ActionSelectionScreenContainer = ({
 }: ActionSelectionScreenContainerProps) => {
     const activePlayer = useGameStore(selectActivePlayer);
     const inventoryItems = useGameStore((state) => state.inventory.items);
-    const lastNonDungeonAction = useGameStore((state) => state.lastNonDungeonAction);
+    const lastNonDungeonActionByPlayer = useGameStore((state) => state.lastNonDungeonActionByPlayer);
 
     const [pendingSkillId, setPendingSkillId] = useState<ActionId | "">("");
     const [pendingRecipeId, setPendingRecipeId] = useState("");
@@ -218,8 +218,11 @@ export const ActionSelectionScreenContainer = ({
         });
     }, [activePlayer, pendingRecipeId, pendingSkillId]);
 
-    const lastSkillId = lastNonDungeonAction?.skillId ?? "";
-    const lastRecipeId = lastNonDungeonAction?.recipeId ?? "";
+    const resumeAction = activePlayer?.id
+        ? lastNonDungeonActionByPlayer[activePlayer.id] ?? null
+        : null;
+    const lastSkillId = resumeAction?.skillId ?? "";
+    const lastRecipeId = resumeAction?.recipeId ?? "";
     const canReselect = Boolean(activePlayer && lastSkillId && activePlayer.skills[lastSkillId]);
     const handleReselect = useCallback(() => {
         if (!activePlayer || !lastSkillId) {

@@ -241,7 +241,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     }
                 }
             };
-            let lastNonDungeonAction = state.lastNonDungeonAction;
+            const lastNonDungeonActionByPlayer = { ...state.lastNonDungeonActionByPlayer };
             if (action.actionId) {
                 const actionDef = getActionDefinition(action.actionId);
                 const skill = actionDef ? player.skills[action.actionId] : null;
@@ -249,7 +249,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 if (actionDef && selectedRecipeId) {
                     const recipeDef = getRecipeDefinition(action.actionId, selectedRecipeId);
                     if (recipeDef && isRecipeUnlocked(recipeDef, skill?.level ?? 0)) {
-                        lastNonDungeonAction = {
+                        lastNonDungeonActionByPlayer[action.playerId] = {
                             skillId: action.actionId,
                             recipeId: selectedRecipeId
                         };
@@ -262,13 +262,13 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             if (player.selectedActionId === action.actionId) {
                 return {
                     ...nextState,
-                    lastNonDungeonAction
+                    lastNonDungeonActionByPlayer
                 };
             }
             return appendActionJournalEntry(
                 {
                     ...nextState,
-                    lastNonDungeonAction
+                    lastNonDungeonActionByPlayer
                 },
                 createJournalEntry(`Action: ${player.name} -> ${actionLabel}`)
             );
@@ -293,15 +293,18 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 && player.selectedActionId === action.skillId
                 && getActionDefinition(action.skillId as ActionId)
             );
-            const lastNonDungeonAction = shouldUpdateLastAction && action.recipeId
+            const lastNonDungeonActionByPlayer = shouldUpdateLastAction && action.recipeId
                 ? {
-                    skillId: action.skillId as ActionId,
-                    recipeId: action.recipeId
+                    ...state.lastNonDungeonActionByPlayer,
+                    [action.playerId]: {
+                        skillId: action.skillId as ActionId,
+                        recipeId: action.recipeId
+                    }
                 }
-                : state.lastNonDungeonAction;
+                : state.lastNonDungeonActionByPlayer;
             return {
                 ...state,
-                lastNonDungeonAction,
+                lastNonDungeonActionByPlayer,
                 players: {
                     ...state.players,
                     [action.playerId]: {

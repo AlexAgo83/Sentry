@@ -6,6 +6,7 @@ import {
     GameState,
     InventoryState,
     LastNonDungeonAction,
+    LastNonDungeonActionByPlayer,
     PlayerId,
     PlayerSaveState,
     PlayerState,
@@ -232,7 +233,7 @@ export const createInitialGameState = (version: string, options: InitialGameStat
         version,
         appReady: false,
         actionJournal: [],
-        lastNonDungeonAction: null,
+        lastNonDungeonActionByPlayer: {},
         players: player ? { [playerId]: player } : {},
         activePlayerId: player ? playerId : null,
         rosterLimit: initialRosterLimit,
@@ -265,7 +266,7 @@ export const createInitialGameState = (version: string, options: InitialGameStat
     };
 };
 
-const normalizeLastNonDungeonAction = (value?: GameSave["lastNonDungeonAction"] | null): LastNonDungeonAction | null => {
+const normalizeLastNonDungeonActionEntry = (value: unknown): LastNonDungeonAction | null => {
     if (!value || typeof value !== "object") {
         return null;
     }
@@ -282,6 +283,38 @@ const normalizeLastNonDungeonAction = (value?: GameSave["lastNonDungeonAction"] 
         return null;
     }
     return { skillId, recipeId };
+};
+
+const normalizeLastNonDungeonActionByPlayer = (
+    value: GameSave["lastNonDungeonActionByPlayer"] | GameSave["lastNonDungeonAction"] | null | undefined,
+    players: Record<PlayerId, PlayerState>,
+    activePlayerId: PlayerId | null
+): LastNonDungeonActionByPlayer => {
+    if (!value || typeof value !== "object") {
+        return {};
+    }
+
+    if ("skillId" in value || "recipeId" in value) {
+        const legacy = normalizeLastNonDungeonActionEntry(value);
+        if (legacy && activePlayerId && players[activePlayerId]) {
+            return { [activePlayerId]: legacy };
+        }
+        return {};
+    }
+
+    return Object.entries(value as Record<string, unknown>).reduce<LastNonDungeonActionByPlayer>(
+        (acc, [playerId, entry]) => {
+            if (!players[playerId as PlayerId]) {
+                return acc;
+            }
+            const normalized = normalizeLastNonDungeonActionEntry(entry);
+            if (normalized) {
+                acc[playerId as PlayerId] = normalized;
+            }
+            return acc;
+        },
+        {}
+    );
 };
 
 const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
@@ -402,7 +435,11 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         version,
         players: Object.keys(players).length > 0 ? players : baseState.players,
         activePlayerId,
-        lastNonDungeonAction: normalizeLastNonDungeonAction(save.lastNonDungeonAction),
+        lastNonDungeonActionByPlayer: normalizeLastNonDungeonActionByPlayer(
+            save.lastNonDungeonActionByPlayer ?? save.lastNonDungeonAction,
+            players,
+            activePlayerId
+        ),
         rosterLimit,
         inventory,
         quests: normalizeQuestProgressState(save.quests),

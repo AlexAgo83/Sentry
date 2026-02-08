@@ -114,6 +114,8 @@ export interface LastNonDungeonAction {
     recipeId: RecipeId;
 }
 
+export type LastNonDungeonActionByPlayer = Record<PlayerId, LastNonDungeonAction | null>;
+
 export interface PlayerState {
     id: PlayerId;
     name: string;
@@ -291,7 +293,7 @@ export interface GameState {
     version: string;
     appReady: boolean;
     actionJournal: ActionJournalEntry[];
-    lastNonDungeonAction: LastNonDungeonAction | null;
+    lastNonDungeonActionByPlayer: LastNonDungeonActionByPlayer;
     players: Record<PlayerId, PlayerState>;
     activePlayerId: PlayerId | null;
     rosterLimit: number;
@@ -405,6 +407,7 @@ export interface GameSave {
     lastHiddenAt?: number | null;
     activePlayerId?: PlayerId | null;
     lastNonDungeonAction?: LastNonDungeonAction | null;
+    lastNonDungeonActionByPlayer?: LastNonDungeonActionByPlayer | null;
     players: Record<PlayerId, PlayerSaveState>;
     rosterLimit?: number;
     inventory?: InventoryState;

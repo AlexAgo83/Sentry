@@ -72,7 +72,7 @@ describe("createLocalStorageAdapter", () => {
 
         const loaded = adapter.load();
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(2);
+        expect(loaded?.schemaVersion).toBe(3);
         expect(loaded?.version).toBe(save.version);
         expect(Object.keys(loaded?.players ?? {})).toEqual(Object.keys(save.players));
         expect(getPersistenceLoadReport().status).toBe("migrated");
@@ -102,7 +102,7 @@ describe("createLocalStorageAdapter", () => {
 
         const loaded = adapter.load();
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(2);
+        expect(loaded?.schemaVersion).toBe(3);
         expect(loaded?.version).toBe(save.version);
         expect(Object.keys(loaded?.players ?? {})).toEqual(Object.keys(save.players));
         expect(getPersistenceLoadReport().status).toBe("recovered_last_good");

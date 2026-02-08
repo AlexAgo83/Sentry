@@ -3,12 +3,12 @@ import { stripRuntimeFields } from "./state";
 
 export const toGameSave = (state: GameState): GameSave => {
     return {
-        schemaVersion: 2,
+        schemaVersion: 3,
         version: state.version,
         lastTick: state.loop.lastTick,
         lastHiddenAt: state.loop.lastHiddenAt,
         activePlayerId: state.activePlayerId,
-        lastNonDungeonAction: state.lastNonDungeonAction,
+        lastNonDungeonActionByPlayer: state.lastNonDungeonActionByPlayer,
         players: stripRuntimeFields(state.players),
         rosterLimit: state.rosterLimit,
         inventory: state.inventory,

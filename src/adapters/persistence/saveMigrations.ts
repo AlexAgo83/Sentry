@@ -4,6 +4,7 @@ import type {
     GameSave,
     InventoryState,
     LastNonDungeonAction,
+    LastNonDungeonActionByPlayer,
     PlayerId,
     PlayerSaveState,
     QuestProgressState,
@@ -16,7 +17,7 @@ import { normalizeDungeonState } from "../../core/dungeon";
 import { DEFAULT_SKILL_XP_NEXT, SKILL_MAX_LEVEL, XP_NEXT_MULTIPLIER } from "../../core/constants";
 import { getActionDefinition, getRecipeDefinition } from "../../data/definitions";
 
-export const LATEST_SAVE_SCHEMA_VERSION = 2;
+export const LATEST_SAVE_SCHEMA_VERSION = 3;
 
 const isObject = (value: unknown): value is Record<string, unknown> => {
     return Boolean(value) && typeof value === "object";
@@ -54,7 +55,7 @@ const toNullableString = (value: unknown): string | null => {
     return trimmed.length > 0 ? trimmed : null;
 };
 
-const normalizeLastNonDungeonAction = (value: unknown): LastNonDungeonAction | null => {
+const normalizeLastNonDungeonActionEntry = (value: unknown): LastNonDungeonAction | null => {
     if (!isObject(value)) {
         return null;
     }
@@ -71,6 +72,35 @@ const normalizeLastNonDungeonAction = (value: unknown): LastNonDungeonAction | n
         return null;
     }
     return { skillId: skillId as ActionId, recipeId };
+};
+
+const normalizeLastNonDungeonActionByPlayer = (
+    value: unknown,
+    players: Record<PlayerId, PlayerSaveState>,
+    activePlayerId: PlayerId | null
+): LastNonDungeonActionByPlayer => {
+    if (!isObject(value)) {
+        return {};
+    }
+
+    if ("skillId" in value || "recipeId" in value) {
+        const legacy = normalizeLastNonDungeonActionEntry(value);
+        if (legacy && activePlayerId && players[activePlayerId]) {
+            return { [activePlayerId]: legacy };
+        }
+        return {};
+    }
+
+    return Object.entries(value).reduce<LastNonDungeonActionByPlayer>((acc, [playerId, entry]) => {
+        if (!players[playerId as PlayerId]) {
+            return acc;
+        }
+        const normalized = normalizeLastNonDungeonActionEntry(entry);
+        if (normalized) {
+            acc[playerId as PlayerId] = normalized;
+        }
+        return acc;
+    }, {});
 };
 
 const normalizeInventory = (value: unknown): InventoryState | undefined => {
@@ -277,7 +307,15 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             ? playerIds[0]
             : null;
     const rosterLimit = normalizeRosterLimit(input.rosterLimit, playerIds.length);
-    const lastNonDungeonAction = normalizeLastNonDungeonAction(input.lastNonDungeonAction);
+    const rawLastNonDungeonAction = (input as {
+        lastNonDungeonActionByPlayer?: unknown;
+        lastNonDungeonAction?: unknown;
+    }).lastNonDungeonActionByPlayer ?? (input as { lastNonDungeonAction?: unknown }).lastNonDungeonAction;
+    const lastNonDungeonActionByPlayer = normalizeLastNonDungeonActionByPlayer(
+        rawLastNonDungeonAction,
+        players,
+        activePlayerId
+    );
 
     const migrated = schemaVersion !== LATEST_SAVE_SCHEMA_VERSION;
     const quests = normalizeQuests(input.quests);
@@ -305,7 +343,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             lastTick,
             lastHiddenAt,
             activePlayerId,
-            lastNonDungeonAction,
+            lastNonDungeonActionByPlayer,
             players,
             rosterLimit,
             inventory: finalInventory,
