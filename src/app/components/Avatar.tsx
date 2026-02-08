@@ -32,6 +32,7 @@ export const Avatar = memo(({
     return (
         <div className={classes} style={style} aria-hidden="true">
             <span className="ts-player-avatar-figure">
+                <span className="ts-player-avatar-layer ts-player-avatar-base-body" />
                 <span className="ts-player-avatar-layer ts-player-avatar-gear-cape" />
                 <span className="ts-player-avatar-layer ts-player-avatar-legs" />
                 <span className="ts-player-avatar-layer ts-player-avatar-gear-legs" />

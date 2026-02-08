@@ -287,6 +287,12 @@
     background-position: center var(--ts-avatar-pos-y, 50%);
 }
 
+.ts-player-avatar-base-body {
+    z-index: -1;
+    background-image: var(--ts-avatar-base-body, none);
+    background-size: 92% auto;
+}
+
 .ts-player-avatar-gear-cape {
     z-index: 0;
     background-image: var(--ts-avatar-gear-cape, none);

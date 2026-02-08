@@ -21,7 +21,7 @@ describe("Avatar", () => {
         expect(avatar?.classList.contains("is-placeholder")).toBe(true);
 
         const layers = container.querySelectorAll(".ts-player-avatar-layer");
-        expect(layers.length).toBe(13);
+        expect(layers.length).toBe(14);
 
         const skill = container.querySelector(".ts-player-avatar-skill");
         expect(skill).toBeTruthy();

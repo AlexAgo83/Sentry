@@ -1,4 +1,5 @@
 import type { ItemId, PlayerEquipmentState } from "../../core/types";
+import { getEquipmentDefinition } from "../../data/equipment";
 
 type EquipmentSkinMap = Partial<Record<ItemId, string>>;
 
@@ -25,6 +26,11 @@ export const getEquipmentSkinVars = (
     }
     const showHelmet = options.showHelmet ?? true;
     const vars: AvatarSkinVars = {};
+    const weaponId = equipment.slots.Weapon;
+    const weaponType = weaponId ? getEquipmentDefinition(weaponId)?.weaponType : undefined;
+    const baseBodyUrl = weaponType
+        ? `/img/characters/equipment/weapons/default_${weaponType.toLowerCase()}.svg`
+        : null;
     const setVar = (slot: "cape" | "head" | "torso" | "legs" | "hands" | "feets", itemId?: ItemId | null) => {
         const url = itemId ? EQUIPMENT_SKIN_URLS[itemId] : undefined;
         if (url) {
@@ -41,6 +47,9 @@ export const getEquipmentSkinVars = (
 
     if (showHelmet && equipment.slots.Head) {
         vars["--ts-avatar-hair-opacity"] = "0";
+    }
+    if (baseBodyUrl) {
+        vars["--ts-avatar-base-body"] = `url("${baseBodyUrl}")`;
     }
 
     return vars;
