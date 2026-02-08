@@ -73,9 +73,37 @@
     gap: var(--m4);
 }
 
+.ts-dungeon-live-name {
+    display: flex;
+    align-items: center;
+    gap: var(--m2);
+}
+
+.ts-dungeon-live-combat-icon {
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+}
+
+.ts-dungeon-live-combat-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.ts-dungeon-live-threat {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.ts-dungeon-live-threat-value.is-top {
+    color: rgba(239, 77, 67, 0.95);
+}
+
 @media (max-width: 900px) {
     .ts-dungeon-live-entities-grid {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

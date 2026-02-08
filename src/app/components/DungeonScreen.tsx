@@ -108,6 +108,15 @@ export const DungeonScreen = memo(({
     const replayCursorRef = useRef(0);
     const riskTooltip = usesPartyPower ? "Based on current party power." : "Based on active hero power.";
     const hasPartySelection = selectedPartyPlayerIds.length > 0;
+    const threatTotal = activeRun
+        ? activeRun.party.reduce((sum, member) => sum + (activeRun.threatByHeroId?.[member.playerId] ?? 0), 0)
+        : 0;
+    const topThreatValue = activeRun
+        ? activeRun.party.reduce((max, member) => {
+            const value = activeRun.threatByHeroId?.[member.playerId] ?? 0;
+            return value > max ? value : max;
+        }, 0)
+        : 0;
     const setReplayCursor = (next: number) => {
         replayCursorRef.current = next;
         setReplayCursorMs(next);
@@ -670,10 +679,28 @@ export const DungeonScreen = memo(({
                             <div className="ts-dungeon-live-party">
                                 {activeRun!.party.map((member) => {
                                     const player = players[member.playerId];
+                                    const combatSkillId = player
+                                        ? getCombatSkillIdForWeaponType(getEquippedWeaponType(player.equipment))
+                                        : "CombatMelee";
+                                    const combatColor = getSkillIconColor(combatSkillId);
+                                    const threatValue = activeRun!.threatByHeroId?.[member.playerId] ?? 0;
+                                    const threatPercent = percent(threatValue, threatTotal);
+                                    const isTopThreat = threatValue > 0 && threatValue === topThreatValue;
                                     return (
                                         <div key={member.playerId} className="ts-dungeon-live-entity">
-                                            <strong>{player?.name ?? member.playerId}</strong>
+                                            <div className="ts-dungeon-live-name">
+                                                <span className="ts-dungeon-live-combat-icon" aria-hidden="true">
+                                                    <SkillIcon skillId={combatSkillId} color={combatColor} />
+                                                </span>
+                                                <strong>{player?.name ?? member.playerId}</strong>
+                                            </div>
                                             <span>HP {member.hp}/{member.hpMax} ({percent(member.hp, member.hpMax)}%)</span>
+                                            <span className="ts-dungeon-live-threat">
+                                                Threat
+                                                <span className={`ts-dungeon-live-threat-value${isTopThreat ? " is-top" : ""}`}>
+                                                    {threatPercent}%
+                                                </span>
+                                            </span>
                                         </div>
                                     );
                                 })}
