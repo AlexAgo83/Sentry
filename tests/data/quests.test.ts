@@ -4,6 +4,8 @@ import {
     getQuestProgress,
     getQuestProgressLabel
 } from "../../src/data/quests";
+import { SKILL_DEFINITIONS } from "../../src/data/definitions";
+import type { SkillId } from "../../src/core/types";
 
 const findTutorialQuest = (predicate: (quest: typeof QUEST_DEFINITIONS_BY_KIND.tutorial[number]) => boolean) => {
     const quest = QUEST_DEFINITIONS_BY_KIND.tutorial.find(predicate);
@@ -11,6 +13,13 @@ const findTutorialQuest = (predicate: (quest: typeof QUEST_DEFINITIONS_BY_KIND.t
         throw new Error("Tutorial quest not found");
     }
     return quest;
+};
+
+const buildEmptySkillLevels = (): Record<SkillId, number> => {
+    return SKILL_DEFINITIONS.reduce<Record<SkillId, number>>((acc, skill) => {
+        acc[skill.id] = 0;
+        return acc;
+    }, {} as Record<SkillId, number>);
 };
 
 describe("quest progress", () => {
@@ -22,7 +31,7 @@ describe("quest progress", () => {
         const progress = getQuestProgress(
             collectMeat,
             {},
-            {},
+            buildEmptySkillLevels(),
             { meat: 40 },
             {},
             {}
@@ -40,7 +49,7 @@ describe("quest progress", () => {
         const progress = getQuestProgress(
             cookFood,
             {},
-            {},
+            buildEmptySkillLevels(),
             {},
             {},
             { Cooking: { food: 120 } }
@@ -54,11 +63,14 @@ describe("quest progress", () => {
         const dungeonQuest = findTutorialQuest(
             (quest) => quest.condition.type === "dungeon"
         );
+        if (dungeonQuest.condition.type !== "dungeon") {
+            throw new Error("Expected dungeon quest condition");
+        }
 
         const progress = getQuestProgress(
             dungeonQuest,
             {},
-            {},
+            buildEmptySkillLevels(),
             {},
             { [dungeonQuest.condition.dungeonId]: 12 },
             {}
@@ -71,11 +83,13 @@ describe("quest progress", () => {
     it("tracks craft and skill quests", () => {
         const craftQuest = QUEST_DEFINITIONS_BY_KIND.craft[0];
         const skillQuest = QUEST_DEFINITIONS_BY_KIND.skill[0];
+        const skillLevels = buildEmptySkillLevels();
+        skillLevels[skillQuest.condition.skillId] = skillQuest.condition.level;
 
         const craftProgress = getQuestProgress(
             craftQuest,
             { [craftQuest.condition.itemId]: craftQuest.condition.count },
-            {},
+            buildEmptySkillLevels(),
             {},
             {},
             {}
@@ -83,7 +97,7 @@ describe("quest progress", () => {
         const skillProgress = getQuestProgress(
             skillQuest,
             {},
-            { [skillQuest.condition.skillId]: skillQuest.condition.level },
+            skillLevels,
             {},
             {},
             {}

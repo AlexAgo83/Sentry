@@ -59,6 +59,46 @@ export const metalworkRecipes: RecipeDefinition[] = [
         itemRewards: withRewards({ warding_amulet: 1 })
     },
     {
+        id: "metalwork_iron_helm",
+        skillId: "MetalWork",
+        name: "Iron Helm",
+        unlockLevel: unlockTier(10),
+        itemCosts: { ingot: 3, cloth: 1 },
+        itemRewards: withRewards({ iron_helm: 1 })
+    },
+    {
+        id: "metalwork_iron_cuirass",
+        skillId: "MetalWork",
+        name: "Iron Cuirass",
+        unlockLevel: unlockTier(20),
+        itemCosts: { ingot: 4, leather: 1 },
+        itemRewards: withRewards({ iron_cuirass: 1 })
+    },
+    {
+        id: "metalwork_iron_greaves",
+        skillId: "MetalWork",
+        name: "Iron Greaves",
+        unlockLevel: unlockTier(20),
+        itemCosts: { ingot: 3, leather: 1 },
+        itemRewards: withRewards({ iron_greaves: 1 })
+    },
+    {
+        id: "metalwork_forged_gauntlets",
+        skillId: "MetalWork",
+        name: "Forged Gauntlets",
+        unlockLevel: unlockTier(10),
+        itemCosts: { ingot: 2, leather: 1 },
+        itemRewards: withRewards({ forged_gauntlets: 1 })
+    },
+    {
+        id: "metalwork_iron_boots",
+        skillId: "MetalWork",
+        name: "Iron Boots",
+        unlockLevel: unlockTier(10),
+        itemCosts: { ingot: 2, leather: 1 },
+        itemRewards: withRewards({ iron_boots: 1 })
+    },
+    {
         id: "metalwork_blade",
         skillId: "MetalWork",
         name: "Blade Casting",

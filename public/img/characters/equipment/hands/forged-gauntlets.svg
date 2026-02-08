@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="364"
+   height="838.16"
+   viewBox="237 109.84 364 838.16"
+   version="1.1"
+   id="svg488"
+   sodipodi:docname="forged-gauntlets.svg"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs492" />
+  <sodipodi:namedview
+     id="namedview490"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.2852219"
+     inkscape:cx="273.10459"
+     inkscape:cy="591.33757"
+     inkscape:window-width="1309"
+     inkscape:window-height="456"
+     inkscape:window-x="47"
+     inkscape:window-y="34"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg488" />
+  <path
+     d="m 568.2517,672.72713 c 1.95,9.8 5.0383,15.56287 10.3883,25.87287 13.76,26.49 13.63,41.63 -0.46,54.53 -12.96,11.86 -28.84,13.72 -37.07,4.34 -4.6,-5.23 -4.1,-9.19 2.04,-16.25 3.14,-3.63 3.93,-6.48 1.1,-4 -6.05,5.31 -11.85,5.67 -17.31,1.08 -3.86,-3.25 -5.77,-7 -7.02,-13.8 -1.27,-6.86 -0.23,-10.98 4.95,-19.54 1.85,-3.06 2.97,-4.66 3.07,-6.33 0.12,-2.13 -0.0863,-11.6332 -3.95628,-17.1432 -0.55273,-22.18274 27.97444,-28.12987 44.26798,-8.75967 z"
+     fill="#8a6b49"
+     id="path476"
+     style="fill:#333333" />
+  <path
+     d="m 539.16423,707.47119 c 12,-6 28,-5 42,3"
+     fill="none"
+     stroke="#6f5337"
+     stroke-width="6"
+     stroke-linecap="round"
+     opacity="0.7"
+     id="path478" />
+  <path
+     d="m 538.37317,724.73344 c 15,-6 33,-5 48,4"
+     fill="none"
+     stroke="#5d452f"
+     stroke-width="4"
+     stroke-linecap="round"
+     opacity="0.7"
+     id="path480" />
+  <path
+     d="m 313.88,691.79 c -2.13,3.05 -3.88,6.26 -3.88,7.14 0,0.88 1.09,3.21 2.43,5.18 8.24,12.13 6.63,28.88 -3.43,35.67 -4.14,2.8 -7.71,2.45 -12.95,-1.27 -1.89,-1.35 -3.6,-2.29 -3.8,-2.1 -0.19,0.2 1.47,2.96 3.7,6.14 4.75,6.78 5.08,10.07 1.43,14.41 -6.15,7.31 -16.21,8.53 -27.38,3.33 -13.72,-6.4 -20.09,-15.26 -20.81,-28.92 -0.54,-10.18 2.26,-19.36 10.19,-33.43 4.44,-7.89 5.84,-11.62 8.04,-21.49 8.38782,-27.51206 53.59381,-19.67577 46.46,15.34 z"
+     fill="#8a6b49"
+     id="path482"
+     style="fill:#333333" />
+  <path
+     d="m 254.60118,713.4518 c 9.50981,-6.11891 22.18956,-6.11891 33.28434,2.03964"
+     fill="none"
+     stroke="#6f5337"
+     stroke-width="5.39397"
+     stroke-linecap="round"
+     opacity="0.7"
+     id="path484" />
+  <path
+     d="m 251.43125,727.72928 c 12.67974,-4.07928 26.94446,-4.07928 39.6242,4.07928"
+     fill="none"
+     stroke="#5d452f"
+     stroke-width="3.59598"
+     stroke-linecap="round"
+     opacity="0.7"
+     id="path486" />
+  <ellipse
+     style="fill:#808080;stroke:#483737;stroke-width:5.2;stroke-opacity:1"
+     id="path3938"
+     cx="304.6926"
+     cy="721.01855"
+     rx="8.5588331"
+     ry="13.616325" />
+  <ellipse
+     style="fill:#808080;stroke:#483737;stroke-width:5.2;stroke-opacity:1"
+     id="path3938-1"
+     cx="532.66882"
+     cy="723.74176"
+     rx="8.5588331"
+     ry="13.616325" />
+  <ellipse
+     style="fill:#483737;stroke:#483737;stroke-width:5.2;stroke-opacity:1"
+     id="path3992"
+     cx="267.73398"
+     cy="735.07867"
+     rx="13.616325"
+     ry="5.4465303" />
+  <ellipse
+     style="fill:#483737;stroke:#483737;stroke-width:5.2;stroke-opacity:1"
+     id="path3992-1"
+     cx="568.46027"
+     cy="730.74445"
+     rx="13.616325"
+     ry="5.4465303" />
+</svg>

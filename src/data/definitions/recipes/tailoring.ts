@@ -63,6 +63,30 @@ export const tailoringRecipes: RecipeDefinition[] = [
         itemRewards: withRewards({ traveler_cape: 1 })
     },
     {
+        id: "tailoring_silk_cloak",
+        skillId: "Tailoring",
+        name: "Silk Cloak",
+        unlockLevel: unlockTier(20),
+        itemCosts: { cloth: 6, leather: 2 },
+        itemRewards: withRewards({ silk_cloak: 1 })
+    },
+    {
+        id: "tailoring_silkweave_gloves",
+        skillId: "Tailoring",
+        name: "Silkweave Gloves",
+        unlockLevel: unlockTier(10),
+        itemCosts: { cloth: 4, leather: 1 },
+        itemRewards: withRewards({ silkweave_gloves: 1 })
+    },
+    {
+        id: "tailoring_weaver_boots",
+        skillId: "Tailoring",
+        name: "Weaver Boots",
+        unlockLevel: unlockTier(10),
+        itemCosts: { cloth: 4, leather: 2 },
+        itemRewards: withRewards({ weaver_boots: 1 })
+    },
+    {
         id: "tailoring_basic_garment",
         skillId: "Tailoring",
         name: "Basic Garment",

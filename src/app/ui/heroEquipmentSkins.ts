@@ -5,11 +5,23 @@ type EquipmentSkinMap = Partial<Record<ItemId, string>>;
 
 const EQUIPMENT_SKIN_URLS: EquipmentSkinMap = {
     traveler_cape: "/img/characters/capes/traveler-cape.svg",
+    silk_cloak: "/img/characters/capes/silk-cloak.svg",
+    tanned_mantle: "/img/characters/capes/tanned-mantle.svg",
     leather_gloves: "/img/characters/equipment/hands/leather-gloves.svg",
+    forged_gauntlets: "/img/characters/equipment/hands/forged-gauntlets.svg",
+    silkweave_gloves: "/img/characters/equipment/hands/silkweave-gloves.svg",
     cloth_cap: "/img/characters/equipment/head/cloth-cap.svg",
+    iron_helm: "/img/characters/equipment/head/iron-helm.svg",
+    hide_hood: "/img/characters/equipment/head/hide-hood.svg",
     simple_boots: "/img/characters/equipment/feet/simple-boots.svg",
+    iron_boots: "/img/characters/equipment/feet/iron-boots.svg",
+    weaver_boots: "/img/characters/equipment/feet/weaver-boots.svg",
     linen_tunic: "/img/characters/clothing/torso/linen-tunic.svg",
-    worn_trousers: "/img/characters/clothing/legs/worn-trousers.svg"
+    iron_cuirass: "/img/characters/clothing/torso/iron-cuirass.svg",
+    hardened_jerkin: "/img/characters/clothing/torso/hardened-jerkin.svg",
+    worn_trousers: "/img/characters/clothing/legs/worn-trousers.svg",
+    iron_greaves: "/img/characters/clothing/legs/iron-greaves.svg",
+    studded_leggings: "/img/characters/clothing/legs/studded-leggings.svg"
 };
 
 const WEAPON_BASE_BODY_URLS: EquipmentSkinMap = {

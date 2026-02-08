@@ -68,6 +68,38 @@ export const leatherworkingRecipes: RecipeDefinition[] = [
         itemRewards: withRewards({ simple_boots: 1 })
     },
     {
+        id: "leatherworking_hide_hood",
+        skillId: "Leatherworking",
+        name: "Hide Hood",
+        unlockLevel: unlockTier(10),
+        itemCosts: { leather: 4, cloth: 1 },
+        itemRewards: withRewards({ hide_hood: 1 })
+    },
+    {
+        id: "leatherworking_hardened_jerkin",
+        skillId: "Leatherworking",
+        name: "Hardened Jerkin",
+        unlockLevel: unlockTier(20),
+        itemCosts: { leather: 5, cloth: 2 },
+        itemRewards: withRewards({ hardened_jerkin: 1 })
+    },
+    {
+        id: "leatherworking_studded_leggings",
+        skillId: "Leatherworking",
+        name: "Studded Leggings",
+        unlockLevel: unlockTier(20),
+        itemCosts: { leather: 4, cloth: 1 },
+        itemRewards: withRewards({ studded_leggings: 1 })
+    },
+    {
+        id: "leatherworking_tanned_mantle",
+        skillId: "Leatherworking",
+        name: "Tanned Mantle",
+        unlockLevel: unlockTier(10),
+        itemCosts: { leather: 4, cloth: 1 },
+        itemRewards: withRewards({ tanned_mantle: 1 })
+    },
+    {
         id: "leatherworking_basic_armor",
         skillId: "Leatherworking",
         name: "Basic Armor",
