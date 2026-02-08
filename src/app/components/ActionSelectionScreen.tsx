@@ -236,65 +236,67 @@ export const ActionSelectionScreen = memo(({
             </div>
         </div>
         <div className="ts-action-selection-layout">
-            <div className="ts-action-selection-summary-panel">
-                <div className="ts-action-summary">
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">Action</span>
-                        <span className="ts-action-summary-value">{formatSummaryValue(pendingSkillLabel)}</span>
+            {pendingSkillId && pendingRecipeId ? (
+                <div className="ts-action-selection-summary-panel">
+                    <div className="ts-action-summary">
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">Action</span>
+                            <span className="ts-action-summary-value">{formatSummaryValue(pendingSkillLabel)}</span>
+                        </div>
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">Recipe</span>
+                            <span className="ts-action-summary-value">{formatSummaryValue(pendingRecipeLabel)}</span>
+                        </div>
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">Action time</span>
+                            <span className="ts-action-summary-value">{formatSummaryValue(pendingActionDurationLabel)}</span>
+                        </div>
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">Speed bonus</span>
+                            <span className="ts-action-summary-value" title={pendingSpeedBonusTooltip}>
+                                {formatSummaryValue(pendingSpeedBonusLabel)}
+                            </span>
+                        </div>
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">XP per action</span>
+                            <span className="ts-action-summary-value">{formatSummaryValue(pendingActionXpLabel)}</span>
+                        </div>
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">XP bonus</span>
+                            <span className="ts-action-summary-value" title={pendingXpBonusTooltip}>
+                                {formatSummaryValue(pendingXpBonusLabel)}
+                            </span>
+                        </div>
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">Consumes</span>
+                            <span className="ts-action-summary-value">
+                                {renderItemSummary(
+                                    pendingConsumptionEntries,
+                                    formatSummaryValue(pendingConsumptionLabel),
+                                    "consume"
+                                )}
+                            </span>
+                        </div>
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">Produces</span>
+                            <span className="ts-action-summary-value">
+                                {renderItemSummary(
+                                    pendingProductionEntries,
+                                    formatSummaryValue(pendingProductionLabel),
+                                    "produce"
+                                )}
+                            </span>
+                        </div>
+                        <div className="ts-action-summary-row">
+                            <span className="ts-action-summary-label">Stun time</span>
+                            <span className="ts-action-summary-value">{formatSummaryValue(pendingStunTimeLabel)}</span>
+                        </div>
                     </div>
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">Recipe</span>
-                        <span className="ts-action-summary-value">{formatSummaryValue(pendingRecipeLabel)}</span>
-                    </div>
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">Action time</span>
-                        <span className="ts-action-summary-value">{formatSummaryValue(pendingActionDurationLabel)}</span>
-                    </div>
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">Speed bonus</span>
-                        <span className="ts-action-summary-value" title={pendingSpeedBonusTooltip}>
-                            {formatSummaryValue(pendingSpeedBonusLabel)}
-                        </span>
-                    </div>
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">XP per action</span>
-                        <span className="ts-action-summary-value">{formatSummaryValue(pendingActionXpLabel)}</span>
-                    </div>
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">XP bonus</span>
-                        <span className="ts-action-summary-value" title={pendingXpBonusTooltip}>
-                            {formatSummaryValue(pendingXpBonusLabel)}
-                        </span>
-                    </div>
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">Consumes</span>
-                        <span className="ts-action-summary-value">
-                            {renderItemSummary(
-                                pendingConsumptionEntries,
-                                formatSummaryValue(pendingConsumptionLabel),
-                                "consume"
-                            )}
-                        </span>
-                    </div>
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">Produces</span>
-                        <span className="ts-action-summary-value">
-                            {renderItemSummary(
-                                pendingProductionEntries,
-                                formatSummaryValue(pendingProductionLabel),
-                                "produce"
-                            )}
-                        </span>
-                    </div>
-                    <div className="ts-action-summary-row">
-                        <span className="ts-action-summary-label">Stun time</span>
-                        <span className="ts-action-summary-value">{formatSummaryValue(pendingStunTimeLabel)}</span>
-                    </div>
+                    {missingItemsLabel ? (
+                        <div className="ts-missing-hint">{missingItemsLabel}</div>
+                    ) : null}
                 </div>
-                {missingItemsLabel ? (
-                    <div className="ts-missing-hint">{missingItemsLabel}</div>
-                ) : null}
-            </div>
+            ) : null}
             <div className="ts-action-selection-column ts-action-selection-column--skills">
                 <fieldset className="ts-picker">
                     <legend className="ts-picker-legend">Select skill</legend>
