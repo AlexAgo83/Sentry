@@ -1,5 +1,6 @@
 type CloudAuthResponse = {
     accessToken: string;
+    csrfToken?: string;
 };
 
 type CloudSaveMeta = {
@@ -19,6 +20,7 @@ type CloudSaveMetaResponse = {
 
 const ACCESS_TOKEN_KEY = "sentry.cloud.accessToken";
 const CSRF_COOKIE_NAME = "refreshCsrf";
+const CSRF_TOKEN_KEY = "sentry.cloud.csrfToken";
 
 export class CloudApiError extends Error {
     status: number;
@@ -63,11 +65,39 @@ const saveAccessToken = (token: string | null) => {
 const clearAccessToken = () => saveAccessToken(null);
 
 const loadCsrfToken = (): string | null => {
+    if (typeof localStorage !== "undefined") {
+        const stored = localStorage.getItem(CSRF_TOKEN_KEY);
+        if (stored) {
+            return stored;
+        }
+    }
     if (typeof document === "undefined") {
         return null;
     }
     const match = document.cookie.match(new RegExp(`(?:^|; )${CSRF_COOKIE_NAME}=([^;]*)`));
     return match ? decodeURIComponent(match[1]) : null;
+};
+
+const saveCsrfToken = (token: string | null) => {
+    if (typeof localStorage === "undefined") {
+        return;
+    }
+    if (!token) {
+        localStorage.removeItem(CSRF_TOKEN_KEY);
+        return;
+    }
+    localStorage.setItem(CSRF_TOKEN_KEY, token);
+};
+
+const clearCsrfToken = () => saveCsrfToken(null);
+
+const persistAuthResponse = (data: CloudAuthResponse) => {
+    saveAccessToken(data.accessToken);
+    if (typeof data.csrfToken === "string" && data.csrfToken.trim().length > 0) {
+        saveCsrfToken(data.csrfToken);
+        return;
+    }
+    clearCsrfToken();
 };
 
 const requestJson = async <T>(path: string, options: globalThis.RequestInit = {}): Promise<T> => {
@@ -107,7 +137,7 @@ const register = async (email: string, password: string): Promise<string> => {
         method: "POST",
         body: JSON.stringify({ email, password })
     });
-    saveAccessToken(data.accessToken);
+    persistAuthResponse(data);
     return data.accessToken;
 };
 
@@ -116,7 +146,7 @@ const login = async (email: string, password: string): Promise<string> => {
         method: "POST",
         body: JSON.stringify({ email, password })
     });
-    saveAccessToken(data.accessToken);
+    persistAuthResponse(data);
     return data.accessToken;
 };
 
@@ -126,7 +156,7 @@ const refresh = async (): Promise<string> => {
         method: "POST",
         headers: csrfToken ? { "x-csrf-token": csrfToken } : undefined
     });
-    saveAccessToken(data.accessToken);
+    persistAuthResponse(data);
     return data.accessToken;
 };
 
@@ -181,6 +211,7 @@ export const cloudClient = {
     getApiBase,
     loadAccessToken,
     clearAccessToken,
+    clearCsrfToken,
     register,
     login,
     refresh,

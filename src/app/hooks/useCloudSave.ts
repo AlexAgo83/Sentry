@@ -49,7 +49,9 @@ const buildLocalMeta = (virtualScore: number, appVersion: string): CloudSaveMeta
     };
 };
 
-const isUnauthorizedError = (err: unknown) => err instanceof CloudApiError && err.status === 401;
+const isUnauthorizedError = (err: unknown) => (
+    err instanceof CloudApiError && (err.status === 401 || err.status === 403)
+);
 const WARMUP_RETRY_DELAYS_MS = [1000, 2000, 4000];
 
 const isWarmupError = (err: unknown) => {
@@ -129,6 +131,26 @@ export const useCloudSave = () => {
             void lastRequest();
         }
     }, []);
+    const resolveErrorMessage = useCallback((err: unknown, fallback: string) => {
+        if (err instanceof CloudApiError) {
+            try {
+                const parsed = JSON.parse(err.body);
+                if (parsed && typeof parsed.error === "string") {
+                    return parsed.error;
+                }
+            } catch {
+                // Ignore parse failures and fall back to raw body.
+            }
+            if (err.body) {
+                return err.body;
+            }
+        }
+        if (err instanceof Error) {
+            return err.message;
+        }
+        return fallback;
+    }, []);
+
     const applyRequestError = useCallback((err: unknown, fallback: string) => {
         if (isWarmupError(err)) {
             setIsBackendAwake(false);
@@ -137,10 +159,22 @@ export const useCloudSave = () => {
             setWarmupRetrySeconds(null);
             return;
         }
+        if (isUnauthorizedError(err) && accessToken) {
+            cloudClient.clearAccessToken();
+            cloudClient.clearCsrfToken();
+            setAccessToken(null);
+            setCloudMeta(null);
+            setCloudPayload(null);
+            setHasCloudSave(false);
+            setCloudHasActiveDungeonRun(false);
+            setStatus("idle");
+            setError("Session expired. Please log in again.");
+            return;
+        }
         setIsBackendAwake(true);
         setStatus("error");
-        setError(err instanceof Error ? err.message : fallback);
-    }, []);
+        setError(resolveErrorMessage(err, fallback));
+    }, [accessToken, resolveErrorMessage]);
 
     const withWarmupRetry = useCallback(async <T,>(
         statusOnStart: CloudSaveState["status"],
@@ -214,6 +248,7 @@ export const useCloudSave = () => {
             return token;
         } catch (err) {
             cloudClient.clearAccessToken();
+            cloudClient.clearCsrfToken();
             setAccessToken(null);
             applyRequestError(err, "Refresh failed.");
             return null;
@@ -364,6 +399,7 @@ export const useCloudSave = () => {
 
     const logout = useCallback(() => {
         cloudClient.clearAccessToken();
+        cloudClient.clearCsrfToken();
         setAccessToken(null);
         setCloudMeta(null);
         setCloudPayload(null);

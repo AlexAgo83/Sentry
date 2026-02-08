@@ -180,7 +180,7 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         const csrfToken = generateCsrfToken();
         setRefreshCookie(reply, refreshToken);
         setCsrfCookie(reply, csrfToken);
-        return { accessToken };
+        return { accessToken, csrfToken };
     };
 
     const verifyRefreshCsrf = (request, reply) => {
@@ -221,8 +221,8 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
             }
         });
 
-        const { accessToken } = await issueAuthTokens(user.id, reply);
-        reply.send({ accessToken });
+        const { accessToken, csrfToken } = await issueAuthTokens(user.id, reply);
+        reply.send({ accessToken, csrfToken });
     });
 
     app.post("/api/v1/auth/login", {
@@ -247,8 +247,8 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
             return;
         }
 
-        const { accessToken } = await issueAuthTokens(user.id, reply);
-        reply.send({ accessToken });
+        const { accessToken, csrfToken } = await issueAuthTokens(user.id, reply);
+        reply.send({ accessToken, csrfToken });
     });
 
     app.post("/api/v1/auth/refresh", {
@@ -286,8 +286,8 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
                 data: { revokedAt: new Date() }
             });
 
-            const { accessToken } = await issueAuthTokens(userId, reply);
-            reply.send({ accessToken });
+            const { accessToken, csrfToken } = await issueAuthTokens(userId, reply);
+            reply.send({ accessToken, csrfToken });
         } catch {
             reply.code(401).send({ error: "Invalid refresh token." });
         }
