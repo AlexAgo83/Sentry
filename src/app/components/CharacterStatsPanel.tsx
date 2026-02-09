@@ -152,6 +152,9 @@ export const CharacterStatsPanel = memo(({
     const tempMods = stats.temporaryMods;
     const combatLevel = resolveSkillLevel(skillLevels, "CombatMelee");
     const combatDisplay = buildCombatDisplay(combatLevel, stats, effectiveStats, null);
+    const dpsBase = combatDisplay.damage.base * combatDisplay.attacksPerSecond.base;
+    const dpsTotal = combatDisplay.damage.total * combatDisplay.attacksPerSecond.total;
+    const dpsModifiers = dpsTotal - dpsBase;
     const combatSkills = COMBAT_SKILL_IDS.map((skillId) => ({
         id: skillId,
         name: COMBAT_SKILL_LABELS[skillId],
@@ -361,6 +364,30 @@ export const CharacterStatsPanel = memo(({
                                             <span className="ts-character-cell-label">Total</span>
                                             <span className="ts-character-cell-value">
                                                 {formatCombatValue(combatDisplay.damage.total)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-character-row ts-character-row--combat">
+                                        <div className="ts-character-cell ts-character-cell--stat">
+                                            <span className="ts-character-cell-label">Metric</span>
+                                            <span className="ts-character-cell-value">DPS estimé</span>
+                                        </div>
+                                        <div className="ts-character-cell">
+                                            <span className="ts-character-cell-label">Base</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatValue(dpsBase, 2)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-character-cell ts-character-cell--mods">
+                                            <span className="ts-character-cell-label">Modifiers</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatDelta(dpsModifiers, 2)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-character-cell ts-character-cell--total">
+                                            <span className="ts-character-cell-label">Total</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatValue(dpsTotal, 2)}
                                             </span>
                                         </div>
                                     </div>

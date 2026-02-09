@@ -198,6 +198,9 @@ export const StatsDashboardPanel = memo(({
     );
 
     const hasTrendData = trend.xpSeries.some((value) => value > 0) || trend.goldSeries.some((value) => value > 0);
+    const dpsBase = combatDisplay.damage.base * combatDisplay.attacksPerSecond.base;
+    const dpsTotal = combatDisplay.damage.total * combatDisplay.attacksPerSecond.total;
+    const dpsModifiers = dpsTotal - dpsBase;
 
     return (
         <section className="generic-panel ts-panel ts-panel-stats">
@@ -431,6 +434,30 @@ export const StatsDashboardPanel = memo(({
                                             <span className="ts-character-cell-label">Total</span>
                                             <span className="ts-character-cell-value">
                                                 {formatCombatValue(combatDisplay.damage.total)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-character-row ts-character-row--combat">
+                                        <div className="ts-character-cell ts-character-cell--stat">
+                                            <span className="ts-character-cell-label">Metric</span>
+                                            <span className="ts-character-cell-value">DPS estimé</span>
+                                        </div>
+                                        <div className="ts-character-cell">
+                                            <span className="ts-character-cell-label">Base</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatValue(dpsBase, 2)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-character-cell ts-character-cell--mods">
+                                            <span className="ts-character-cell-label">Modifiers</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatDelta(dpsModifiers, 2)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-character-cell ts-character-cell--total">
+                                            <span className="ts-character-cell-label">Total</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatValue(dpsTotal, 2)}
                                             </span>
                                         </div>
                                     </div>
