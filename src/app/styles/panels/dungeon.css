@@ -390,6 +390,12 @@
     margin: 0 0 4px;
 }
 
+.ts-dungeon-replay-log-line.is-active {
+    color: #f4b54c;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(244, 181, 76, 0.25);
+}
+
 .ts-dungeon-replay-log p:last-child {
     margin-bottom: 0;
 }

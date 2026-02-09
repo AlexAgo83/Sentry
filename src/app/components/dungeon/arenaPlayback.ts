@@ -398,13 +398,17 @@ const buildFrameFromEvents = ({
             return;
         }
 
-        if (event.type === "heal" && event.sourceId) {
-            const hero = states[event.sourceId];
-            if (!hero) {
+        if (event.type === "heal") {
+            const targetId = event.targetId ?? event.sourceId;
+            if (!targetId) {
                 return;
             }
-            hero.hp = clamp(hero.hp + Math.max(0, Math.round(event.amount ?? 0)), 0, hero.hpMax);
-            hero.alive = hero.hp > 0;
+            const entity = isPartyEntity(partyIds, targetId) ? states[targetId] : ensureEnemy(targetId);
+            if (!entity) {
+                return;
+            }
+            entity.hp = clamp(entity.hp + Math.max(0, Math.round(event.amount ?? 0)), 0, entity.hpMax);
+            entity.alive = entity.hp > 0;
             return;
         }
 

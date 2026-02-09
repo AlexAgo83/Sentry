@@ -145,7 +145,7 @@ const encodeSize = (value: unknown): number => {
 };
 
 const floorMobHp = (tier: number, floor: number) => {
-    return Math.max(1, Math.round(120 * (1.18 ** (tier - 1)) * (1.10 ** (floor - 1))));
+    return Math.max(1, Math.round(120 * (1.18 ** (tier - 1)) * (1.10 ** (floor - 1)) * 2));
 };
 
 const floorMobDamage = (tier: number, floor: number) => {

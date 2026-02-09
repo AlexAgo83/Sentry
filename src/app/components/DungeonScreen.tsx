@@ -69,6 +69,16 @@ const formatCompactCount = (value: number) => {
     return `${Math.floor(safeValue / 1_000_000_000)}b`;
 };
 
+const clampValue = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+const normalizeHpMax = (value: number | undefined) => {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return 100;
+    }
+    return Math.max(1, Math.round(parsed));
+};
+
 export const DungeonScreen = memo(({
     definitions,
     players,
@@ -183,6 +193,76 @@ export const DungeonScreen = memo(({
             }))
             .filter((mark) => Number.isFinite(mark.atMs) && mark.atMs >= 0);
     }, [latestReplay, replayTotalMs, players]);
+    const replayHighlightAtMs = useMemo(() => {
+        if (!latestReplay || latestReplay.events.length === 0) {
+            return null;
+        }
+        const cursorMs = Math.round(replayCursorMs);
+        let lastAtMs: number | null = null;
+        for (const event of latestReplay.events) {
+            if (event.atMs <= cursorMs) {
+                lastAtMs = event.atMs;
+            } else {
+                break;
+            }
+        }
+        return lastAtMs;
+    }, [latestReplay, replayCursorMs]);
+    const heroNameById = useMemo(() => {
+        const map = new Map<string, string>();
+        if (latestReplay?.teamSnapshot) {
+            latestReplay.teamSnapshot.forEach((entry) => {
+                map.set(entry.playerId, entry.name);
+            });
+        }
+        Object.values(players).forEach((player) => {
+            map.set(player.id, player.name);
+        });
+        return map;
+    }, [latestReplay, players]);
+    const replayHealLogMeta = useMemo(() => {
+        const meta = new Map<number, { amount: number; hp: number; hpMax: number; targetId: string }>();
+        if (!latestReplay) {
+            return meta;
+        }
+        const partyIds = new Set(latestReplay.partyPlayerIds);
+        const hpMaxById = new Map<string, number>();
+        latestReplay.partyPlayerIds.forEach((playerId) => {
+            hpMaxById.set(playerId, normalizeHpMax(players[playerId]?.hpMax));
+        });
+        const hpById = new Map<string, number>();
+        hpMaxById.forEach((hpMax, playerId) => {
+            hpById.set(playerId, hpMax);
+        });
+        latestReplay.events.forEach((event, index) => {
+            const targetId = event.targetId ?? event.sourceId;
+            if (!targetId || !partyIds.has(targetId)) {
+                return;
+            }
+            const hpMax = hpMaxById.get(targetId) ?? normalizeHpMax(players[targetId]?.hpMax);
+            const currentHp = hpById.get(targetId) ?? hpMax;
+            const amount = Math.max(0, Math.round(event.amount ?? 0));
+            if (event.type === "damage" && event.targetId) {
+                hpById.set(targetId, Math.max(0, currentHp - amount));
+                return;
+            }
+            if (event.type === "heal") {
+                const nextHp = clampValue(currentHp + amount, 0, hpMax);
+                hpById.set(targetId, nextHp);
+                meta.set(index, {
+                    amount,
+                    hp: nextHp,
+                    hpMax,
+                    targetId
+                });
+                return;
+            }
+            if (event.type === "death" && event.sourceId === targetId) {
+                hpById.set(targetId, 0);
+            }
+        });
+        return meta;
+    }, [latestReplay, players]);
 
     useEffect(() => {
         liveTotalMsRef.current = liveTotalMs;
@@ -424,7 +504,7 @@ export const DungeonScreen = memo(({
                 <p className="ts-dungeon-replay-log-heading">
                     Dungeon: {selectedDungeon?.name ?? latestReplay.dungeonId}
                 </p>
-                {latestReplay.events.slice(-220).map((event, index) => {
+                {latestReplay.events.map((event, index) => {
                     const sourceInfo = event.sourceId
                         ? `source=${event.sourceId}${event.sourceId.startsWith("entity_") ? "" : ` (hero_${event.sourceId})`}`
                         : "";
@@ -432,9 +512,19 @@ export const DungeonScreen = memo(({
                         ? `target=${event.targetId}${event.targetId.startsWith("entity_") ? "" : ` (hero_${event.targetId})`}`
                         : "";
                     const idInfo = [sourceInfo, targetInfo].filter(Boolean).join(" ");
+                    const isActive = replayHighlightAtMs !== null && event.atMs === replayHighlightAtMs;
+                    const healMeta = event.type === "heal" ? replayHealLogMeta.get(index) : null;
+                    const healAmount = event.type === "heal"
+                        ? Math.max(0, Math.round(healMeta?.amount ?? event.amount ?? 0))
+                        : 0;
+                    const sourceName = event.sourceId ? (heroNameById.get(event.sourceId) ?? event.sourceId) : "";
+                    const targetName = event.targetId ? (heroNameById.get(event.targetId) ?? event.targetId) : "";
+                    const healInfo = event.type === "heal"
+                        ? `- ${sourceName || event.sourceId || "?"}${targetName ? ` -> ${targetName}` : ""} +${healAmount}${healMeta ? ` (HP ${healMeta.hp}/${healMeta.hpMax})` : ""}`
+                        : (event.label ? `- ${event.label}` : "");
                     return (
-                        <p key={`${event.atMs}-${index}`}>
-                            [{event.atMs}ms] {event.type} {idInfo ? `(${idInfo})` : ""} {event.label ? `- ${event.label}` : ""}
+                        <p key={`${event.atMs}-${index}`} className={`ts-dungeon-replay-log-line${isActive ? " is-active" : ""}`}>
+                            [{event.atMs}ms] {event.type} {idInfo ? `(${idInfo})` : ""} {healInfo}
                         </p>
                     );
                 })}

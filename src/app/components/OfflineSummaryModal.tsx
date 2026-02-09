@@ -110,6 +110,9 @@ export const OfflineSummaryModal = memo(({
                         dungeonParts.push(dungeonItemLabel);
                     }
                     const dungeonLabel = dungeonParts.length > 0 ? dungeonParts.join("; ") : null;
+                    const hasSkillXp = Number.isFinite(player.skillXpGained) && player.skillXpGained !== 0;
+                    const hasRecipeXp = Number.isFinite(player.recipeXpGained) && player.recipeXpGained !== 0;
+                    const hasXpLine = hasSkillXp || hasRecipeXp || player.skillLevelGained > 0 || player.recipeLevelGained > 0;
 
                     return (
                         <div key={player.playerId} className="ts-offline-player">
@@ -123,9 +126,17 @@ export const OfflineSummaryModal = memo(({
                                     Dungeon gains: <span title={dungeonItemLabelFull}>{dungeonLabel}</span>
                                 </div>
                             ) : null}
-                            <div className="ts-offline-gains">
-                                Skill +{formatXp(player.skillXpGained)} XP{skillLevelLabel} - Recipe +{formatXp(player.recipeXpGained)} XP{recipeLevelLabel}
-                            </div>
+                            {hasXpLine ? (
+                                <div className="ts-offline-gains">
+                                    {hasSkillXp || player.skillLevelGained > 0 ? (
+                                        <>Skill +{formatXp(player.skillXpGained)} XP{skillLevelLabel}</>
+                                    ) : null}
+                                    {hasSkillXp || player.skillLevelGained > 0 ? " - " : null}
+                                    {hasRecipeXp || player.recipeLevelGained > 0 ? (
+                                        <>Recipe +{formatXp(player.recipeXpGained)} XP{recipeLevelLabel}</>
+                                    ) : null}
+                                </div>
+                            ) : null}
                         </div>
                     );
                 })}
