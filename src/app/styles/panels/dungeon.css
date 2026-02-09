@@ -131,6 +131,10 @@
     filter: grayscale(0.15);
 }
 
+.ts-dungeon-live-entity > span {
+    font-size: calc(var(--text-s-size) - 1px);
+}
+
 .ts-dungeon-completion-badge {
     position: absolute;
     top: 10px;
@@ -517,6 +521,10 @@
 }
 
 .ts-dungeon-replay-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--m2);
     border-color: rgba(93, 217, 193, 0.4);
     background: rgba(13, 19, 33, 0.9);
     color: var(--color-text);

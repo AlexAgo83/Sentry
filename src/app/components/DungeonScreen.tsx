@@ -730,7 +730,7 @@ export const DungeonScreen = memo(({
             <div className="ts-panel-header">
                 <div className="ts-panel-heading">
                     <h2 className="ts-panel-title">Dungeon</h2>
-                    <span className="ts-panel-meta">Party idle boss run</span>
+                    {!isReplayScreen ? <span className="ts-panel-meta">Party idle boss run</span> : null}
                 </div>
                 <div className="ts-panel-actions ts-panel-actions-inline">
                     {!activeRun && !isReplayScreen ? (
@@ -777,14 +777,14 @@ export const DungeonScreen = memo(({
                                 className="ts-icon-button ts-panel-action-button ts-focusable ts-dungeon-replay-button"
                                 onClick={() => setReplayView((value) => (value === "group" ? "log" : "group"))}
                                 aria-pressed={replayView === "log"}
-                                aria-label={replayView === "group" ? "Switch to log view" : "Switch to group view"}
-                                title={replayView === "group" ? "Switch to log view" : "Switch to group view"}
+                                aria-label={replayView === "group" ? "Switch to log view" : "Switch to party view"}
+                                title={replayView === "group" ? "Switch to log view" : "Switch to party view"}
                             >
                                 <span className="ts-panel-action-icon" aria-hidden="true">
-                                    {replayView === "group" ? <TabIcon kind="hero" /> : <TabIcon kind="quests" />}
+                                    {replayView === "group" ? <TabIcon kind="stats" /> : <TabIcon kind="hero" />}
                                 </span>
                                 <span className="ts-panel-action-label">
-                                    {replayView === "group" ? "View log" : "View group"}
+                                    {replayView === "group" ? "Log" : "Party"}
                                 </span>
                             </button>
                             <button
