@@ -5,15 +5,20 @@ export const STAT_IDS: StatId[] = [
     "Strength",
     "Agility",
     "Endurance",
+    "Armor",
     "Intellect",
     "Luck"
 ];
 
+const DEFAULT_ARMOR_BASE = 0;
+
 export const createBaseStats = (): Record<StatId, number> => {
-    return STAT_IDS.reduce<Record<StatId, number>>((acc, statId) => {
+    const base = STAT_IDS.reduce<Record<StatId, number>>((acc, statId) => {
         acc[statId] = DEFAULT_STAT_BASE;
         return acc;
     }, {} as Record<StatId, number>);
+    base.Armor = DEFAULT_ARMOR_BASE;
+    return base;
 };
 
 export const createPlayerStatsState = (): PlayerStatsState => ({

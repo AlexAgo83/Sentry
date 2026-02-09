@@ -202,6 +202,7 @@ describe("OfflineSummaryModal", () => {
             />
         );
 
+        expect(screen.getByText("In a dungeon")).toBeTruthy();
         expect(screen.getByText(/Dungeon gains:/)).toBeTruthy();
         expect(screen.getByText(/\+12 Skill XP/)).toBeTruthy();
         expect(screen.getByText(/\+3 Gold/)).toBeTruthy();

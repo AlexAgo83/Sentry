@@ -54,6 +54,8 @@ const MAGIC_DAMAGE_TAKEN_MULTIPLIER = 1.1;
 const RANGED_DAMAGE_TAKEN_MULTIPLIER = 1.25;
 const MELEE_DAMAGE_TAKEN_MULTIPLIER = 0.9;
 const DUNGEON_DAMAGE_TAKEN_MULTIPLIER = 0.5;
+const ARMOR_DAMAGE_REDUCTION_PER_POINT = 0.01;
+const ARMOR_DAMAGE_REDUCTION_MAX = 0.5;
 const RANGED_ATTACK_INTERVAL_MULTIPLIER = 0.5;
 const MELEE_THREAT_MULTIPLIER = 1.25;
 
@@ -398,6 +400,14 @@ const resolveDamageTakenMultiplier = (weaponType: WeaponType | null | undefined)
         return MAGIC_DAMAGE_TAKEN_MULTIPLIER;
     }
     return MELEE_DAMAGE_TAKEN_MULTIPLIER;
+};
+
+const resolveArmorDamageMultiplier = (armor: number) => {
+    if (!Number.isFinite(armor) || armor <= 0) {
+        return 1;
+    }
+    const reduction = Math.min(ARMOR_DAMAGE_REDUCTION_MAX, armor * ARMOR_DAMAGE_REDUCTION_PER_POINT);
+    return Math.max(0, 1 - reduction);
 };
 
 const resolveThreatMultiplier = (weaponType: WeaponType | null | undefined) => {
@@ -1262,11 +1272,12 @@ export const applyDungeonTick = (
             );
             const combatLevel = player.skills[combatSkillId]?.level ?? 0;
             const baseDamage = resolveHeroAttackDamage(combatLevel, effective.Strength ?? 0);
+            const armorMultiplier = resolveArmorDamageMultiplier(effective.Armor ?? 0);
             heroStepCache.set(playerId, {
                 attackIntervalMs,
                 baseDamage,
                 threatMultiplier: resolveThreatMultiplier(weaponType),
-                damageTakenMultiplier: resolveDamageTakenMultiplier(weaponType),
+                damageTakenMultiplier: resolveDamageTakenMultiplier(weaponType) * armorMultiplier,
                 weaponType
             });
         });

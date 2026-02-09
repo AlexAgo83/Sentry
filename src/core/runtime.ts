@@ -1,4 +1,14 @@
-import { CombatSkillId, GameSave, GameState, ItemDelta, OfflinePlayerSummary, OfflineSummaryState, PerformanceState } from "./types";
+import {
+    CombatSkillId,
+    GameSave,
+    GameState,
+    ItemDelta,
+    OfflinePlayerSummary,
+    OfflineSummaryState,
+    PerformanceState,
+    PlayerId
+} from "./types";
+import { isPlayerAssignedToActiveDungeonRun } from "./dungeon";
 import { createInitialGameState } from "./state";
 import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
@@ -481,6 +491,7 @@ export class GameRuntime {
             const recipeId = beforeSkill?.selectedRecipeId ?? null;
             const beforeRecipe = recipeId && beforeSkill ? beforeSkill.recipes[recipeId] : null;
             const afterRecipe = recipeId && afterSkill ? afterSkill.recipes[recipeId] : null;
+            const isInDungeon = isPlayerAssignedToActiveDungeonRun(beforeState, playerId as PlayerId);
 
             const combatXpBySkill = dungeonCombatXpByPlayer[playerId] ?? {};
             const hasCombatXp = Object.values(combatXpBySkill).some((value) => Number(value) > 0);
@@ -493,6 +504,7 @@ export class GameRuntime {
                 playerName: beforePlayer.name,
                 actionId,
                 recipeId,
+                isInDungeon,
                 skillXpGained: beforeSkill && afterSkill ? afterSkill.xp - beforeSkill.xp : 0,
                 recipeXpGained: beforeRecipe && afterRecipe ? afterRecipe.xp - beforeRecipe.xp : 0,
                 skillLevelGained: beforeSkill && afterSkill ? afterSkill.level - beforeSkill.level : 0,

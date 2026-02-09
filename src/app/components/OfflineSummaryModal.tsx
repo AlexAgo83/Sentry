@@ -69,9 +69,16 @@ export const OfflineSummaryModal = memo(({
             </ul>
             <div className="ts-offline-players">
                 {players.map((player) => {
+                    const hasDungeonCombatXp = Object.values(player.dungeonGains.combatXp ?? {})
+                        .some((value) => Number.isFinite(value) && Number(value) > 0);
+                    const hasDungeonItems = Object.values(player.dungeonGains.itemDeltas ?? {})
+                        .some((value) => Number.isFinite(value) && Number(value) !== 0);
+                    const isInDungeon = Boolean(player.isInDungeon) || hasDungeonCombatXp || hasDungeonItems;
                     const actionLabel = player.actionId
                         ? `Action ${getSkillLabel(player.actionId as SkillId)}${player.recipeId ? ` - Recipe ${getRecipeLabel(player.actionId as SkillId, player.recipeId)}` : ""}`
-                        : "No action running";
+                        : isInDungeon
+                            ? "In a dungeon"
+                            : "No action running";
                     const skillLevelLabel = player.skillLevelGained > 0
                         ? ` - +${player.skillLevelGained} Lv`
                         : "";

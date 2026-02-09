@@ -22,7 +22,7 @@ export type DungeonId = string;
 export type DungeonBossMechanicId = "burst" | "poison" | "shield" | "summon" | "enrage";
 export type DungeonRunStatus = "running" | "victory" | "failed";
 export type DungeonRunEndReason = "victory" | "wipe" | "out_of_food" | "out_of_meat" | "stopped";
-export type StatId = "Strength" | "Agility" | "Endurance" | "Intellect" | "Luck";
+export type StatId = "Strength" | "Agility" | "Endurance" | "Armor" | "Intellect" | "Luck";
 export type EquipmentSlotId =
     | "Head"
     | "Cape"
@@ -375,6 +375,7 @@ export interface OfflinePlayerSummary {
     playerName: string;
     actionId: ActionId | null;
     recipeId: RecipeId | null;
+    isInDungeon?: boolean;
     skillXpGained: number;
     recipeXpGained: number;
     skillLevelGained: number;

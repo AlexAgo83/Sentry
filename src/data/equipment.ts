@@ -13,7 +13,8 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         slot: "Cape",
         modifiers: [
             { stat: "Agility", kind: "flat", value: 1 },
-            { stat: "Endurance", kind: "flat", value: 1 }
+            { stat: "Endurance", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 1 }
         ]
     },
     {
@@ -22,7 +23,8 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         slot: "Cape",
         modifiers: [
             { stat: "Intellect", kind: "flat", value: 1 },
-            { stat: "Luck", kind: "flat", value: 1 }
+            { stat: "Luck", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 1 }
         ]
     },
     {
@@ -31,98 +33,144 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         slot: "Cape",
         modifiers: [
             { stat: "Agility", kind: "flat", value: 1 },
-            { stat: "Endurance", kind: "flat", value: 1 }
+            { stat: "Endurance", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 2 }
         ]
     },
     {
         id: "cloth_cap",
         name: "Cloth Cap",
         slot: "Head",
-        modifiers: [{ stat: "Intellect", kind: "flat", value: 1 }]
+        modifiers: [
+            { stat: "Intellect", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 1 }
+        ]
     },
     {
         id: "iron_helm",
         name: "Iron Helm",
         slot: "Head",
-        modifiers: [{ stat: "Strength", kind: "flat", value: 2 }]
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 3 }
+        ]
     },
     {
         id: "hide_hood",
         name: "Hide Hood",
         slot: "Head",
-        modifiers: [{ stat: "Endurance", kind: "flat", value: 1 }]
+        modifiers: [
+            { stat: "Endurance", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 2 }
+        ]
     },
     {
         id: "linen_tunic",
         name: "Linen Tunic",
         slot: "Torso",
-        modifiers: [{ stat: "Endurance", kind: "flat", value: 2 }]
+        modifiers: [
+            { stat: "Endurance", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 1 }
+        ]
     },
     {
         id: "iron_cuirass",
         name: "Iron Cuirass",
         slot: "Torso",
-        modifiers: [{ stat: "Strength", kind: "flat", value: 2 }]
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 3 }
+        ]
     },
     {
         id: "hardened_jerkin",
         name: "Hardened Jerkin",
         slot: "Torso",
-        modifiers: [{ stat: "Endurance", kind: "flat", value: 2 }]
+        modifiers: [
+            { stat: "Endurance", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 2 }
+        ]
     },
     {
         id: "worn_trousers",
         name: "Worn Trousers",
         slot: "Legs",
-        modifiers: [{ stat: "Agility", kind: "flat", value: 1 }]
+        modifiers: [
+            { stat: "Agility", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 1 }
+        ]
     },
     {
         id: "iron_greaves",
         name: "Iron Greaves",
         slot: "Legs",
-        modifiers: [{ stat: "Strength", kind: "flat", value: 2 }]
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 3 }
+        ]
     },
     {
         id: "studded_leggings",
         name: "Studded Leggings",
         slot: "Legs",
-        modifiers: [{ stat: "Agility", kind: "flat", value: 1 }]
+        modifiers: [
+            { stat: "Agility", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 2 }
+        ]
     },
     {
         id: "leather_gloves",
         name: "Leather Gloves",
         slot: "Hands",
-        modifiers: [{ stat: "Strength", kind: "flat", value: 1 }]
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 2 }
+        ]
     },
     {
         id: "forged_gauntlets",
         name: "Forged Gauntlets",
         slot: "Hands",
-        modifiers: [{ stat: "Strength", kind: "flat", value: 2 }]
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 3 }
+        ]
     },
     {
         id: "silkweave_gloves",
         name: "Silkweave Gloves",
         slot: "Hands",
-        modifiers: [{ stat: "Intellect", kind: "flat", value: 1 }]
+        modifiers: [
+            { stat: "Intellect", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 1 }
+        ]
     },
     {
         id: "simple_boots",
         name: "Simple Boots",
         slot: "Feet",
-        modifiers: [{ stat: "Agility", kind: "flat", value: 1 }]
+        modifiers: [
+            { stat: "Agility", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 2 }
+        ]
     },
     {
         id: "iron_boots",
         name: "Iron Boots",
         slot: "Feet",
-        modifiers: [{ stat: "Endurance", kind: "flat", value: 2 }]
+        modifiers: [
+            { stat: "Endurance", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 3 }
+        ]
     },
     {
         id: "weaver_boots",
         name: "Weaver Boots",
         slot: "Feet",
-        modifiers: [{ stat: "Agility", kind: "flat", value: 1 }]
+        modifiers: [
+            { stat: "Agility", kind: "flat", value: 1 },
+            { stat: "Armor", kind: "flat", value: 1 }
+        ]
     },
     {
         id: "signet_ring",
