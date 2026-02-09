@@ -1,6 +1,8 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
+import { usePersistedQuestFilters } from "../hooks/usePersistedQuestFilters";
+import { QuestCompletedHideIcon, QuestCompletedShowIcon } from "../ui/questCompletedIcons";
 
 export type QuestEntry = {
     id: string;
@@ -66,7 +68,8 @@ export const QuestsPanel = memo(({
     craftQuests
 }: QuestsPanelProps) => {
     const counterLabel = `${completedCount}/${totalCount}`;
-    const [showCompleted, setShowCompleted] = useState(true);
+    const [questFilters, setQuestFilters] = usePersistedQuestFilters({ showCompleted: true });
+    const showCompleted = questFilters.showCompleted;
     const visibleTutorialQuests = useMemo(
         () => (showCompleted ? tutorialQuests : tutorialQuests.filter((quest) => !quest.isCompleted)),
         [showCompleted, tutorialQuests]
@@ -91,11 +94,16 @@ export const QuestsPanel = memo(({
                     <button
                         type="button"
                         className={`ts-icon-button ts-panel-action-button ts-focusable ts-quest-toggle${showCompleted ? " is-active" : ""}`}
-                        onClick={() => setShowCompleted((prev) => !prev)}
+                        onClick={() => setQuestFilters((prev) => ({ ...prev, showCompleted: !prev.showCompleted }))}
                         aria-pressed={showCompleted}
                         title={showCompleted ? "Hide completed quests" : "Show completed quests"}
                     >
-                        {showCompleted ? "Hide Completed" : "Show Completed"}
+                        <span className="ts-panel-action-icon" aria-hidden="true">
+                            {showCompleted ? <QuestCompletedHideIcon /> : <QuestCompletedShowIcon />}
+                        </span>
+                        <span className="ts-panel-action-label">
+                            {showCompleted ? "Hide Completed" : "Show Completed"}
+                        </span>
                     </button>
                     <button
                         type="button"

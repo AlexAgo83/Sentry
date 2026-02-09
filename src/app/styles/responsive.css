@@ -114,6 +114,18 @@
         display: none;
     }
 
+    .ts-quest-toggle .ts-panel-action-label {
+        display: none;
+    }
+
+    .ts-quest-toggle {
+        min-width: 44px;
+        width: 44px;
+        padding: 0;
+        justify-content: center;
+        gap: 0;
+    }
+
     .ts-skill-picker {
         flex-direction: column;
     }

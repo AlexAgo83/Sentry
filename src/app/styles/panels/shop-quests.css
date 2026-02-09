@@ -117,6 +117,9 @@
 }
 
 .ts-quest-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m2);
     min-height: 36px;
     padding: 6px 18px;
     letter-spacing: 0.12em;

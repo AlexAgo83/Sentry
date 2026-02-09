@@ -125,6 +125,11 @@
     display: block;
 }
 
+.ts-panel-action-label {
+    display: inline-flex;
+    align-items: center;
+}
+
 .ts-panel-actions-inline {
     flex-wrap: nowrap;
 }
