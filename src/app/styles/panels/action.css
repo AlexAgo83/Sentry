@@ -301,8 +301,9 @@
 
 .ts-choice-title--recipe .ts-item-icon {
     margin-left: 0;
-    color: var(--ts-recipe-icon-color, var(--color-text));
-    border-color: currentColor;
+    color: var(--color-primary);
+    border: 0;
+    background: transparent;
 }
 
 .ts-action-start.is-ready-new {

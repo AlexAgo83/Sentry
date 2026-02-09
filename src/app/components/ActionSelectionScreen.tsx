@@ -382,7 +382,6 @@ export const ActionSelectionScreen = memo(({
                                 const recipeMax = recipeState?.maxLevel ?? RECIPE_MAX_LEVEL;
                                 const unlocked = isRecipeUnlocked(recipeDef, pendingSkill.level);
                                 const recipeXpLabel = `XP ${Number.isFinite(recipeXp) ? Math.round(recipeXp) : 0}/${Number.isFinite(recipeXpNext) ? Math.round(recipeXpNext) : 0}`;
-                                const recipeSkillColor = getSkillIconColor(pendingSkillId as SkillId);
                                 const consumptionEntries = getItemListEntries(ITEM_DEFINITIONS, recipeDef.itemCosts);
                                 const productionEntries = getItemListEntries(ITEM_DEFINITIONS, recipeDef.itemRewards);
                                 const equipableEntry = productionEntries.find((entry) => getEquipmentDefinition(entry.id));
@@ -415,10 +414,7 @@ export const ActionSelectionScreen = memo(({
                                             style={getRecipeProgressStyle(recipeXp, recipeXpNext, unlocked)}
                                         >
                                             <div className="ts-choice-copy">
-                                                <div
-                                                    className="ts-choice-title ts-choice-title--recipe"
-                                                    style={{ "--ts-recipe-icon-color": recipeSkillColor } as CSSProperties}
-                                                >
+                                                <div className="ts-choice-title ts-choice-title--recipe">
                                                     <span className="ts-choice-title-text">{recipeDef.name}</span>
                                                     {equipableItemId ? (
                                                         <ItemIcon itemId={equipableItemId as ItemId} tone="produce" size={14} />
