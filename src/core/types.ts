@@ -270,6 +270,7 @@ export interface DungeonReplayState {
     truncated: boolean;
     fallbackCriticalOnly: boolean;
     cadenceSnapshot: DungeonCadenceSnapshotEntry[];
+    threatByHeroId: Record<PlayerId, number>;
 }
 
 export interface DungeonState {

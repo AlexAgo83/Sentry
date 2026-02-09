@@ -12,6 +12,7 @@ import { ChangeIcon } from "../ui/changeIcon";
 import { AutoHealOffIcon, AutoHealOnIcon, AutoRestartOffIcon, AutoRestartOnIcon } from "../ui/dungeonIcons";
 import { InterruptIcon } from "../ui/interruptIcon";
 import { StartActionIcon } from "../ui/startActionIcon";
+import { TabIcon } from "../ui/tabIcons";
 import { SkillIcon } from "../ui/skillIcons";
 import { getSkillIconColor } from "../ui/skillColors";
 import { DungeonArenaRenderer } from "./dungeon/DungeonArenaRenderer";
@@ -21,7 +22,13 @@ import {
     DUNGEON_FLOAT_WINDOW_MS
 } from "./dungeon/arenaPlayback";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
-import { resolveDungeonRiskTier } from "../../core/dungeon";
+import {
+    DUNGEON_SIMULATION_STEP_MS,
+    HEAL_THREAT_RATIO,
+    MELEE_THREAT_MULTIPLIER,
+    THREAT_DECAY,
+    resolveDungeonRiskTier
+} from "../../core/dungeon";
 
 type DungeonScreenProps = {
     definitions: DungeonDefinition[];
@@ -114,6 +121,7 @@ export const DungeonScreen = memo(({
     const [replayPaused, setReplayPaused] = useState(true);
     const [replaySpeed, setReplaySpeed] = useState<1 | 2 | 4>(1);
     const [replayCursorMs, setReplayCursorMs] = useState(0);
+    const [replayView, setReplayView] = useState<"group" | "log">("group");
     const liveCursorRef = useRef(0);
     const replayCursorRef = useRef(0);
     const riskTooltip = usesPartyPower ? "Based on current party power." : "Based on active hero power.";
@@ -127,6 +135,32 @@ export const DungeonScreen = memo(({
             return value > max ? value : max;
         }, 0)
         : 0;
+    const liveDamageTotals = useMemo(() => {
+        const heroTotals = new Map<string, number>();
+        const enemyTotals = new Map<string, number>();
+        if (!activeRun) {
+            return { heroTotals, enemyTotals, groupTotal: 0 };
+        }
+        const partyIds = new Set(activeRun.party.map((member) => member.playerId));
+        activeRun.events.forEach((event) => {
+            if (event.type !== "damage") {
+                return;
+            }
+            const amount = Number(event.amount);
+            if (!Number.isFinite(amount) || amount <= 0) {
+                return;
+            }
+            const sourceId = event.sourceId ?? "";
+            const targetId = event.targetId ?? "";
+            if (partyIds.has(sourceId) && targetId.startsWith("entity_")) {
+                heroTotals.set(sourceId, (heroTotals.get(sourceId) ?? 0) + amount);
+            } else if (sourceId.startsWith("entity_") && partyIds.has(targetId)) {
+                enemyTotals.set(sourceId, (enemyTotals.get(sourceId) ?? 0) + amount);
+            }
+        });
+        const groupTotal = Array.from(heroTotals.values()).reduce((sum, value) => sum + value, 0);
+        return { heroTotals, enemyTotals, groupTotal };
+    }, [activeRun]);
     const setReplayCursor = (next: number) => {
         replayCursorRef.current = next;
         setReplayCursorMs(next);
@@ -207,6 +241,89 @@ export const DungeonScreen = memo(({
             }
         }
         return lastAtMs;
+    }, [latestReplay, replayCursorMs]);
+    const replayDamageTotals = useMemo(() => {
+        const heroTotals = new Map<string, number>();
+        const enemyTotals = new Map<string, number>();
+        if (!latestReplay) {
+            return { heroTotals, enemyTotals, groupTotal: 0 };
+        }
+        const partyIds = new Set(latestReplay.partyPlayerIds);
+        const cursorMs = Math.round(replayCursorMs);
+        latestReplay.events.forEach((event) => {
+            if (event.type !== "damage" || event.atMs > cursorMs) {
+                return;
+            }
+            const amount = Number(event.amount);
+            if (!Number.isFinite(amount) || amount <= 0) {
+                return;
+            }
+            const sourceId = event.sourceId ?? "";
+            const targetId = event.targetId ?? "";
+            if (partyIds.has(sourceId) && targetId.startsWith("entity_")) {
+                heroTotals.set(sourceId, (heroTotals.get(sourceId) ?? 0) + amount);
+            } else if (sourceId.startsWith("entity_") && partyIds.has(targetId)) {
+                enemyTotals.set(sourceId, (enemyTotals.get(sourceId) ?? 0) + amount);
+            }
+        });
+        const groupTotal = Array.from(heroTotals.values()).reduce((sum, value) => sum + value, 0);
+        return { heroTotals, enemyTotals, groupTotal };
+    }, [latestReplay, replayCursorMs]);
+    const replayThreatTotals = useMemo(() => {
+        const totals = new Map<string, number>();
+        if (!latestReplay) {
+            return { totals, total: 0, top: 0 };
+        }
+        const partyIds = new Set(latestReplay.partyPlayerIds);
+        const weaponTypeById = new Map<string, ReturnType<typeof getEquippedWeaponType>>();
+        latestReplay.teamSnapshot.forEach((entry) => {
+            weaponTypeById.set(entry.playerId, getEquippedWeaponType(entry.equipment));
+        });
+        latestReplay.partyPlayerIds.forEach((playerId) => {
+            totals.set(playerId, 0);
+        });
+        const cursorMs = Math.round(replayCursorMs);
+        let lastDecayAt = 0;
+        for (const event of latestReplay.events) {
+            if (event.atMs > cursorMs) {
+                break;
+            }
+            const elapsed = event.atMs - lastDecayAt;
+            if (elapsed >= DUNGEON_SIMULATION_STEP_MS) {
+                const steps = Math.floor(elapsed / DUNGEON_SIMULATION_STEP_MS);
+                const decayFactor = Math.pow(THREAT_DECAY, steps);
+                totals.forEach((value, id) => {
+                    totals.set(id, value * decayFactor);
+                });
+                lastDecayAt += steps * DUNGEON_SIMULATION_STEP_MS;
+            }
+            if (event.type === "damage" && event.sourceId && event.targetId?.startsWith("entity_")) {
+                if (partyIds.has(event.sourceId)) {
+                    const amount = Math.max(0, Number(event.amount ?? 0));
+                    const weaponType = weaponTypeById.get(event.sourceId) ?? "Melee";
+                    const threatMultiplier = weaponType === "Melee" ? MELEE_THREAT_MULTIPLIER : 1;
+                    totals.set(event.sourceId, (totals.get(event.sourceId) ?? 0) + amount * threatMultiplier);
+                }
+            }
+            if (event.type === "heal" && event.sourceId && partyIds.has(event.sourceId)) {
+                const amount = Math.max(0, Number(event.amount ?? 0));
+                totals.set(event.sourceId, (totals.get(event.sourceId) ?? 0) + amount * HEAL_THREAT_RATIO);
+            }
+            if (event.type === "death" && event.sourceId && partyIds.has(event.sourceId)) {
+                totals.set(event.sourceId, 0);
+            }
+        }
+        const remaining = cursorMs - lastDecayAt;
+        if (remaining >= DUNGEON_SIMULATION_STEP_MS) {
+            const steps = Math.floor(remaining / DUNGEON_SIMULATION_STEP_MS);
+            const decayFactor = Math.pow(THREAT_DECAY, steps);
+            totals.forEach((value, id) => {
+                totals.set(id, value * decayFactor);
+            });
+        }
+        const total = Array.from(totals.values()).reduce((sum, value) => sum + value, 0);
+        const top = Math.max(...Array.from(totals.values()), 0);
+        return { totals, total, top };
     }, [latestReplay, replayCursorMs]);
     const heroNameById = useMemo(() => {
         const map = new Map<string, string>();
@@ -500,29 +617,111 @@ export const DungeonScreen = memo(({
                     <span className="ts-dungeon-replay-meta-value">{Math.round(replayCursorMs)}ms / {replayTotalMs}ms</span>
                 </span>
             </div>
-            <div className="ts-dungeon-replay-log" role="log" aria-live="polite">
-                <p className="ts-dungeon-replay-log-heading">
-                    Dungeon: {selectedDungeon?.name ?? latestReplay.dungeonId}
-                </p>
-                {latestReplay.events.map((event, index) => {
-                    const isActive = replayHighlightAtMs !== null && event.atMs === replayHighlightAtMs;
-                    const healMeta = event.type === "heal" ? replayHealLogMeta.get(index) : null;
-                    const healAmount = event.type === "heal"
-                        ? Math.max(0, Math.round(healMeta?.amount ?? event.amount ?? 0))
-                        : 0;
-                    const sourceName = event.sourceId ? (heroNameById.get(event.sourceId) ?? event.sourceId) : "";
-                    const targetName = event.targetId ? (heroNameById.get(event.targetId) ?? event.targetId) : "";
-                    const healInfo = event.type === "heal"
-                        ? `- ${sourceName || event.sourceId || "?"}${targetName ? ` -> ${targetName}` : ""} +${healAmount}${healMeta ? ` (HP ${healMeta.hp}/${healMeta.hpMax})` : ""}`
-                        : (event.label ? `- ${event.label}` : "");
-                    const logSuffix = healInfo ? ` ${healInfo}` : "";
-                    return (
-                        <p key={`${event.atMs}-${index}`} className={`ts-dungeon-replay-log-line${isActive ? " is-active" : ""}`}>
-                            [{event.atMs}ms] {event.type}{logSuffix}
-                        </p>
-                    );
-                })}
-            </div>
+            {replayFrame && replayView === "group" ? (
+                <div className="ts-dungeon-live-entities-grid">
+                    <div className="ts-dungeon-live-party">
+                        {latestReplay.partyPlayerIds.map((playerId) => {
+                            const unit = replayFrame.units.find((entry) => entry.id === playerId && !entry.isEnemy);
+                            if (!unit) {
+                                return null;
+                            }
+                            const combatSkillId = getCombatSkillIdForWeaponType(unit.weaponType ?? "Melee");
+                            const combatColor = getSkillIconColor(combatSkillId);
+                            const heroDamage = replayDamageTotals.heroTotals.get(playerId) ?? 0;
+                            const heroDamagePercent = percent(heroDamage, replayDamageTotals.groupTotal);
+                            const topDamageValue = Math.max(...Array.from(replayDamageTotals.heroTotals.values()), 0);
+                            const isTopDamage = heroDamage > 0 && heroDamage === topDamageValue;
+                            const threatValue = replayThreatTotals.totals.get(playerId) ?? 0;
+                            const threatPercent = percent(threatValue, replayThreatTotals.total);
+                            const isTopThreat = threatValue > 0 && threatValue === replayThreatTotals.top;
+                            const isDead = unit.hp <= 0;
+                            return (
+                                <div key={playerId} className={`ts-dungeon-live-entity${isDead ? " is-dead" : ""}`}>
+                                    <div className="ts-dungeon-live-name">
+                                        <span className="ts-dungeon-live-combat-icon" aria-hidden="true">
+                                            <SkillIcon skillId={combatSkillId} color={combatColor} />
+                                        </span>
+                                        <strong>{unit.name}</strong>
+                                    </div>
+                                    <span>HP {unit.hp}/{unit.hpMax} ({percent(unit.hp, unit.hpMax)}%)</span>
+                                    <span>
+                                        Damage {Math.round(heroDamage)}
+                                        {replayDamageTotals.groupTotal > 0 ? (
+                                            <>
+                                                {" ("}
+                                                <span className={`ts-dungeon-live-damage-value${isTopDamage ? " is-top" : ""}`}>
+                                                    {heroDamagePercent}%
+                                                </span>
+                                                {")"}
+                                            </>
+                                        ) : ""}
+                                    </span>
+                                    <span className="ts-dungeon-live-threat">
+                                        Threat
+                                        <span className={`ts-dungeon-live-threat-value${isTopThreat ? " is-top" : ""}`}>
+                                            {threatPercent}%
+                                        </span>
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="ts-dungeon-live-party">
+                        {replayFrame.units.filter((unit) => unit.isEnemy).map((enemy) => {
+                            const enemyDamage = replayDamageTotals.enemyTotals.get(enemy.id) ?? 0;
+                            const isDead = enemy.hp <= 0;
+                            return (
+                                <div key={enemy.id} className={`ts-dungeon-live-entity ts-dungeon-live-entity-enemy${isDead ? " is-dead" : ""}`}>
+                                    <strong>{enemy.name}</strong>
+                                    <span>HP {enemy.hp}/{enemy.hpMax} ({percent(enemy.hp, enemy.hpMax)}%)</span>
+                                    <span>Damage {Math.round(enemyDamage)}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            ) : null}
+            {replayView === "log" ? (
+                <div className="ts-dungeon-replay-log" role="log" aria-live="polite">
+                    <p className="ts-dungeon-replay-log-heading">
+                        Dungeon: {selectedDungeon?.name ?? latestReplay.dungeonId}
+                    </p>
+                    {latestReplay.events.map((event, index) => {
+                        const isActive = replayHighlightAtMs !== null && event.atMs === replayHighlightAtMs;
+                        const healMeta = event.type === "heal" ? replayHealLogMeta.get(index) : null;
+                        const healAmount = event.type === "heal"
+                            ? Math.max(0, Math.round(healMeta?.amount ?? event.amount ?? 0))
+                            : 0;
+                        const sourceName = event.sourceId ? (heroNameById.get(event.sourceId) ?? event.sourceId) : "";
+                        const targetName = event.targetId ? (heroNameById.get(event.targetId) ?? event.targetId) : "";
+                        const healInfo = event.type === "heal"
+                            ? `- ${sourceName || event.sourceId || "?"}${targetName ? ` -> ${targetName}` : ""} +${healAmount}${healMeta ? ` (HP ${healMeta.hp}/${healMeta.hpMax})` : ""}`
+                            : (event.label ? `- ${event.label}` : "");
+                        const logSuffix = healInfo ? ` ${healInfo}` : "";
+                        return (
+                            <p
+                                key={`${event.atMs}-${index}`}
+                                className={`ts-dungeon-replay-log-line${isActive ? " is-active" : ""}`}
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => {
+                                    replayCursorRef.current = event.atMs;
+                                    setReplayCursorMs(event.atMs);
+                                }}
+                                onKeyDown={(action) => {
+                                    if (action.key === "Enter" || action.key === " ") {
+                                        action.preventDefault();
+                                        replayCursorRef.current = event.atMs;
+                                        setReplayCursorMs(event.atMs);
+                                    }
+                                }}
+                            >
+                                [{event.atMs}ms] {event.type}{logSuffix}
+                            </p>
+                        );
+                    })}
+                </div>
+            ) : null}
         </div>
     ) : null;
 
@@ -568,7 +767,25 @@ export const DungeonScreen = memo(({
                                 className={`ts-icon-button ts-panel-action-button ts-focusable ts-dungeon-replay-button ts-dungeon-replay-toggle${!replayPaused ? " is-active" : ""}`}
                                 onClick={handleReplayPlayPause}
                             >
-                                {replayPaused ? "Play" : "Pause"}
+                                <span className="ts-panel-action-icon" aria-hidden="true">
+                                    {replayPaused ? <StartActionIcon /> : <InterruptIcon />}
+                                </span>
+                                <span className="ts-panel-action-label">{replayPaused ? "Play" : "Pause"}</span>
+                            </button>
+                            <button
+                                type="button"
+                                className="ts-icon-button ts-panel-action-button ts-focusable ts-dungeon-replay-button"
+                                onClick={() => setReplayView((value) => (value === "group" ? "log" : "group"))}
+                                aria-pressed={replayView === "log"}
+                                aria-label={replayView === "group" ? "Switch to log view" : "Switch to group view"}
+                                title={replayView === "group" ? "Switch to log view" : "Switch to group view"}
+                            >
+                                <span className="ts-panel-action-icon" aria-hidden="true">
+                                    {replayView === "group" ? <TabIcon kind="hero" /> : <TabIcon kind="quests" />}
+                                </span>
+                                <span className="ts-panel-action-label">
+                                    {replayView === "group" ? "View log" : "View group"}
+                                </span>
                             </button>
                             <button
                                 type="button"
@@ -770,8 +987,13 @@ export const DungeonScreen = memo(({
                                     const threatValue = activeRun!.threatByHeroId?.[member.playerId] ?? 0;
                                     const threatPercent = percent(threatValue, threatTotal);
                                     const isTopThreat = threatValue > 0 && threatValue === topThreatValue;
+                                    const heroDamage = liveDamageTotals.heroTotals.get(member.playerId) ?? 0;
+                                    const heroDamagePercent = percent(heroDamage, liveDamageTotals.groupTotal);
+                                    const topDamageValue = Math.max(...Array.from(liveDamageTotals.heroTotals.values()), 0);
+                                    const isTopDamage = heroDamage > 0 && heroDamage === topDamageValue;
+                                    const isDead = member.hp <= 0;
                                     return (
-                                        <div key={member.playerId} className="ts-dungeon-live-entity">
+                                        <div key={member.playerId} className={`ts-dungeon-live-entity${isDead ? " is-dead" : ""}`}>
                                             <div className="ts-dungeon-live-name">
                                                 <span className="ts-dungeon-live-combat-icon" aria-hidden="true">
                                                     <SkillIcon skillId={combatSkillId} color={combatColor} />
@@ -779,6 +1001,18 @@ export const DungeonScreen = memo(({
                                                 <strong>{player?.name ?? member.playerId}</strong>
                                             </div>
                                             <span>HP {member.hp}/{member.hpMax} ({percent(member.hp, member.hpMax)}%)</span>
+                                            <span>
+                                                Damage {Math.round(heroDamage)}
+                                                {liveDamageTotals.groupTotal > 0 ? (
+                                                    <>
+                                                        {" ("}
+                                                        <span className={`ts-dungeon-live-damage-value${isTopDamage ? " is-top" : ""}`}>
+                                                            {heroDamagePercent}%
+                                                        </span>
+                                                        {")"}
+                                                    </>
+                                                ) : ""}
+                                            </span>
                                             <span className="ts-dungeon-live-threat">
                                                 Threat
                                                 <span className={`ts-dungeon-live-threat-value${isTopThreat ? " is-top" : ""}`}>
@@ -790,12 +1024,17 @@ export const DungeonScreen = memo(({
                                 })}
                             </div>
                             <div className="ts-dungeon-live-party">
-                                {activeRun!.enemies.map((enemy) => (
-                                    <div key={enemy.id} className="ts-dungeon-live-entity ts-dungeon-live-entity-enemy">
-                                        <strong>{enemy.name}</strong>
-                                        <span>HP {enemy.hp}/{enemy.hpMax} ({percent(enemy.hp, enemy.hpMax)}%)</span>
-                                    </div>
-                                ))}
+                                {activeRun!.enemies.map((enemy) => {
+                                    const enemyDamage = liveDamageTotals.enemyTotals.get(enemy.id) ?? 0;
+                                    const isDead = enemy.hp <= 0;
+                                    return (
+                                        <div key={enemy.id} className={`ts-dungeon-live-entity ts-dungeon-live-entity-enemy${isDead ? " is-dead" : ""}`}>
+                                            <strong>{enemy.name}</strong>
+                                            <span>HP {enemy.hp}/{enemy.hpMax} ({percent(enemy.hp, enemy.hpMax)}%)</span>
+                                            <span>Damage {Math.round(enemyDamage)}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>

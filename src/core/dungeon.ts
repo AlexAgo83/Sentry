@@ -41,8 +41,8 @@ const BOSS_ENRAGE_DAMAGE_MULTIPLIER = 1.25;
 const BOSS_POISON_DAMAGE_RATIO = 0.15;
 const COMBAT_XP_BASE = 6;
 const COMBAT_XP_TIER_FACTOR = 3;
-const THREAT_DECAY = 0.95;
-const HEAL_THREAT_RATIO = 0.6;
+export const THREAT_DECAY = 0.95;
+export const HEAL_THREAT_RATIO = 0.6;
 const TAUNT_THREAT_BONUS = 200;
 export const TAUNT_DURATION_MS = 2500;
 const STICKY_THRESHOLD_NORMAL = 0.10;
@@ -57,7 +57,7 @@ const DUNGEON_DAMAGE_TAKEN_MULTIPLIER = 0.5;
 const ARMOR_DAMAGE_REDUCTION_PER_POINT = 0.01;
 const ARMOR_DAMAGE_REDUCTION_MAX = 0.5;
 const RANGED_ATTACK_INTERVAL_MULTIPLIER = 0.5;
-const MELEE_THREAT_MULTIPLIER = 1.25;
+export const MELEE_THREAT_MULTIPLIER = 1.25;
 const DUNGEON_RUN_SAVE_LIMIT = 1;
 const DUNGEON_SHIELD_WINDOW_MS = 1500;
 const DUNGEON_BURST_INTERVAL_MS = 2000;
@@ -677,7 +677,8 @@ const buildReplay = (
         events,
         truncated,
         fallbackCriticalOnly,
-        cadenceSnapshot: run.cadenceSnapshot
+        cadenceSnapshot: run.cadenceSnapshot,
+        threatByHeroId: run.threatByHeroId ?? buildThreatByHeroId(run.party)
     };
 };
 
@@ -878,7 +879,8 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
     const latestReplay = input.latestReplay
         ? {
             ...input.latestReplay,
-            cadenceSnapshot: Array.isArray(input.latestReplay.cadenceSnapshot) ? input.latestReplay.cadenceSnapshot : []
+            cadenceSnapshot: Array.isArray(input.latestReplay.cadenceSnapshot) ? input.latestReplay.cadenceSnapshot : [],
+            threatByHeroId: input.latestReplay.threatByHeroId ?? {}
         }
         : null;
     const completionCounts = Object.entries(input.completionCounts ?? {}).reduce<Record<string, number>>((acc, [key, value]) => {

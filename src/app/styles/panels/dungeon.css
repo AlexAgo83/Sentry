@@ -97,6 +97,10 @@
     gap: 6px;
 }
 
+.ts-dungeon-live-damage-value.is-top {
+    color: rgba(239, 77, 67, 0.95);
+}
+
 .ts-dungeon-live-threat-value.is-top {
     color: rgba(239, 77, 67, 0.95);
 }
@@ -120,6 +124,11 @@
     text-align: left;
     padding: 10px;
     position: relative;
+}
+
+.ts-dungeon-live-entity.is-dead {
+    opacity: 0.55;
+    filter: grayscale(0.15);
 }
 
 .ts-dungeon-completion-badge {

@@ -45,6 +45,7 @@ const WORLD_WIDTH = 1_000;
 const WORLD_HEIGHT = 560;
 const MAX_FLOAT_POOL = 24;
 const PHASE_LABEL_Y = 38;
+const HERO_BODY_RADIUS = 16;
 const ENEMY_SPAWN_FADE_MS = 280;
 const DAMAGE_TINT_MS = 360;
 const DAMAGE_SHAKE_MS = 240;
@@ -53,6 +54,7 @@ const ATTACK_LUNGE_MS = 220;
 const ATTACK_LUNGE_DISTANCE = 18;
 const MAGIC_PULSE_MS = 700;
 const MAGIC_PULSE_COLOR = 0x5fe3a2;
+const MAGIC_PULSE_OFFSET_Y = Math.round(HERO_BODY_RADIUS * 0.75);
 
 const toWorldX = (x: number) => x * WORLD_WIDTH;
 const toWorldY = (y: number) => y * WORLD_HEIGHT;
@@ -125,7 +127,7 @@ const drawHeroBody = (node: UnitNode, unit: NonNullable<DungeonArenaFrame>["unit
 
     node.body.clear();
     node.body.beginFill(skin, unit.alive ? 1 : 0.5);
-    node.body.drawCircle(0, 0, 16);
+    node.body.drawCircle(0, 0, HERO_BODY_RADIUS);
     node.body.endFill();
 
     node.body.beginFill(0x131722, 0.8);
@@ -425,7 +427,7 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
                 node.magicPulse.visible = true;
                 node.magicPulse.lineStyle(2, MAGIC_PULSE_COLOR, 0.7 * alpha);
                 node.magicPulse.beginFill(MAGIC_PULSE_COLOR, 0.18 * alpha);
-                node.magicPulse.drawCircle(0, 18, radius);
+                node.magicPulse.drawCircle(0, MAGIC_PULSE_OFFSET_Y, radius);
                 node.magicPulse.endFill();
             }
         }
