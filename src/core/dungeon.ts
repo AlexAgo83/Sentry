@@ -1555,7 +1555,7 @@ export const applyDungeonTick = (
                 addItemDelta(itemDeltas, potionType, -1);
                 const amount = healAmount(member.hpMax);
                 member.hp = Math.min(member.hpMax, member.hp + amount);
-                member.potionCooldownMs = 500;
+                member.potionCooldownMs = 4000;
                 addThreat(run.threatByHeroId, member.playerId, amount * HEAL_THREAT_RATIO);
                 pushEventWithStepCap({
                     type: "heal",
