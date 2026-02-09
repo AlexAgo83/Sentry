@@ -208,6 +208,21 @@ export const DungeonScreen = memo(({
             })
             .filter((mark) => Number.isFinite(mark.atMs) && mark.atMs >= 0);
     }, [latestReplay, replayTotalMs]);
+    const replayTrackGradient = useMemo(() => {
+        if (!latestReplay || replayTotalMs <= 0 || replayFloorMarks.length === 0) {
+            return "";
+        }
+        const sortedMarks = [...replayFloorMarks].sort((a, b) => a.atMs - b.atMs);
+        const stops: string[] = [];
+        sortedMarks.forEach((mark, index) => {
+            const start = clampValue((mark.atMs / replayTotalMs) * 100, 0, 100);
+            const endAt = sortedMarks[index + 1]?.atMs ?? replayTotalMs;
+            const end = clampValue((endAt / replayTotalMs) * 100, 0, 100);
+            const color = index % 2 === 0 ? "var(--replay-track-a)" : "var(--replay-track-b)";
+            stops.push(`${color} ${start}%`, `${color} ${end}%`);
+        });
+        return `linear-gradient(90deg, ${stops.join(", ")})`;
+    }, [latestReplay, replayFloorMarks, replayTotalMs]);
     const replayDeathMarks = useMemo(() => {
         if (!latestReplay || replayTotalMs <= 0) {
             return [];
@@ -553,6 +568,11 @@ export const DungeonScreen = memo(({
                     max={Math.max(1, replayTotalMs)}
                     step={100}
                     value={Math.min(replayCursorMs, replayTotalMs)}
+                    style={
+                        replayTrackGradient
+                            ? { ["--replay-track-gradient" as never]: replayTrackGradient }
+                            : undefined
+                    }
                     onChange={(event) => {
                         const next = Number(event.target.value);
                         if (Number.isFinite(next)) {
