@@ -12,6 +12,7 @@ type RosterContainerProps = {
     onAfterSetActivePlayer?: () => void;
     forceExpanded?: boolean;
     onOpenSystem: () => void;
+    showSettingsButton?: boolean;
     getSkillLabel: (skillId: SkillId) => string;
     getRecipeLabel: (skillId: SkillId, recipeId: string) => string;
 };
@@ -21,6 +22,7 @@ export const RosterContainer = ({
     onAfterSetActivePlayer,
     forceExpanded = false,
     onOpenSystem,
+    showSettingsButton = false,
     getSkillLabel,
     getRecipeLabel,
 }: RosterContainerProps) => {
@@ -39,6 +41,7 @@ export const RosterContainer = ({
         ? () => {}
         : () => setCollapsed((value) => !value);
     const showCollapseButton = !forceExpanded;
+    const resolvedShowSettingsButton = Boolean(showSettingsButton);
 
     return (
         <RosterPanel
@@ -48,6 +51,7 @@ export const RosterContainer = ({
             rosterLimit={rosterLimit}
             isCollapsed={rosterCollapsed}
             showCollapseButton={showCollapseButton}
+            showSettingsButton={resolvedShowSettingsButton}
             onToggleCollapsed={handleToggleCollapsed}
             onSetActivePlayer={(playerId) => {
                 gameStore.dispatch({ type: "setActivePlayer", playerId });

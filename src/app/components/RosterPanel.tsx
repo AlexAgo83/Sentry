@@ -18,6 +18,7 @@ type RosterPanelProps = {
     rosterLimit: number;
     isCollapsed: boolean;
     showCollapseButton: boolean;
+    showSettingsButton: boolean;
     onToggleCollapsed: () => void;
     onSetActivePlayer: (playerId: string) => void;
     onAddPlayer: () => void;
@@ -33,6 +34,7 @@ export const RosterPanel = memo(({
     rosterLimit,
     isCollapsed,
     showCollapseButton,
+    showSettingsButton,
     onToggleCollapsed,
     onSetActivePlayer,
     onAddPlayer,
@@ -57,16 +59,18 @@ export const RosterPanel = memo(({
                     <span className="ts-panel-counter">{rosterCount}/{rosterLimit}</span>
                 </div>
                 <div className="ts-panel-actions ts-panel-actions-inline">
-                    <button
-                        type="button"
-                        className="ts-icon-button ts-panel-action-button ts-focusable"
-                        onClick={onOpenSystem}
-                        aria-label="Open settings"
-                    >
-                        <span className="ts-panel-action-icon" aria-hidden="true">
-                            <SystemIcon />
-                        </span>
-                    </button>
+                    {showSettingsButton ? (
+                        <button
+                            type="button"
+                            className="ts-icon-button ts-panel-action-button ts-focusable"
+                            onClick={onOpenSystem}
+                            aria-label="Open settings"
+                        >
+                            <span className="ts-panel-action-icon" aria-hidden="true">
+                                <SystemIcon />
+                            </span>
+                        </button>
+                    ) : null}
                     {showCollapseButton ? (
                         <button
                             type="button"
