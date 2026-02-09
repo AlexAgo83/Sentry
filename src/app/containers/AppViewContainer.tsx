@@ -101,6 +101,7 @@ export const AppViewContainer = ({
                         <RosterContainer
                             onAddPlayer={onAddPlayer}
                             onAfterSetActivePlayer={onRosterPlayerSelect}
+                            onOpenSystem={onOpenSystem}
                             getSkillLabel={getSkillLabel}
                             getRecipeLabel={getRecipeLabelNonNull}
                         />
@@ -112,6 +113,7 @@ export const AppViewContainer = ({
                             onAddPlayer={onAddPlayer}
                             onAfterSetActivePlayer={onRosterPlayerSelect}
                             forceExpanded
+                            onOpenSystem={onOpenSystem}
                             getSkillLabel={getSkillLabel}
                             getRecipeLabel={getRecipeLabelNonNull}
                         />

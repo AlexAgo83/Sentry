@@ -7,6 +7,7 @@ import { getFaceIndex, getFaceUrlByIndex } from "../ui/heroFaces";
 import { getHairColor, getHairIndex, getHairUrlByIndex, getSkinColor } from "../ui/heroHair";
 import { SkillIcon } from "../ui/skillIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
+import { SystemIcon } from "../ui/systemIcon";
 import { getEquipmentSkinVars } from "../ui/heroEquipmentSkins";
 import { Avatar } from "./Avatar";
 
@@ -16,9 +17,11 @@ type RosterPanelProps = {
     activeDungeonPartyPlayerIds: string[];
     rosterLimit: number;
     isCollapsed: boolean;
+    showCollapseButton: boolean;
     onToggleCollapsed: () => void;
     onSetActivePlayer: (playerId: string) => void;
     onAddPlayer: () => void;
+    onOpenSystem: () => void;
     getSkillLabel: (skillId: string) => string;
     getRecipeLabel: (skillId: string, recipeId: string) => string;
 };
@@ -29,9 +32,11 @@ export const RosterPanel = memo(({
     activeDungeonPartyPlayerIds,
     rosterLimit,
     isCollapsed,
+    showCollapseButton,
     onToggleCollapsed,
     onSetActivePlayer,
     onAddPlayer,
+    onOpenSystem,
     getSkillLabel,
     getRecipeLabel
 }: RosterPanelProps) => {
@@ -54,14 +59,26 @@ export const RosterPanel = memo(({
                 <div className="ts-panel-actions ts-panel-actions-inline">
                     <button
                         type="button"
-                        className="ts-collapse-button ts-focusable"
-                        onClick={onToggleCollapsed}
-                        aria-label={isCollapsed ? "Expand" : "Collapse"}
+                        className="ts-icon-button ts-panel-action-button ts-focusable"
+                        onClick={onOpenSystem}
+                        aria-label="Open settings"
                     >
-                        <span className="ts-collapse-label">
-                            <CollapseIcon isCollapsed={isCollapsed} />
+                        <span className="ts-panel-action-icon" aria-hidden="true">
+                            <SystemIcon />
                         </span>
                     </button>
+                    {showCollapseButton ? (
+                        <button
+                            type="button"
+                            className="ts-collapse-button ts-focusable"
+                            onClick={onToggleCollapsed}
+                            aria-label={isCollapsed ? "Expand" : "Collapse"}
+                        >
+                            <span className="ts-collapse-label">
+                                <CollapseIcon isCollapsed={isCollapsed} />
+                            </span>
+                        </button>
+                    ) : null}
                 </div>
             </div>
             {!isCollapsed ? (

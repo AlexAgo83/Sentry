@@ -222,12 +222,7 @@ export const AppView = (props: AppViewProps) => {
                     />
                     <aside className="app-roster-drawer-panel" role="dialog" aria-label="Roster">
                         <div className="app-roster-drawer-header">
-                            <button
-                                type="button"
-                                className="app-title-button ts-focusable"
-                                onClick={onOpenSystem}
-                                aria-label="Open settings"
-                            >
+                            <div className="app-title-button">
                                 <div className="app-title-block">
                                     <img
                                         className="app-title-icon"
@@ -237,7 +232,7 @@ export const AppView = (props: AppViewProps) => {
                                     />
                                     <h2 className="app-title app-title--drawer">Sentry</h2>
                                 </div>
-                            </button>
+                            </div>
                         </div>
                         {rosterDrawer ?? roster}
                     </aside>

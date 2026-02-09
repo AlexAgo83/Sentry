@@ -341,7 +341,7 @@ export const StatsDashboardPanel = memo(({
                                     <div className="ts-character-row ts-character-row--combat">
                                         <div className="ts-character-cell ts-character-cell--stat">
                                             <span className="ts-character-cell-label">Metric</span>
-                                            <span className="ts-character-cell-value">Combat Lv</span>
+                                            <span className="ts-character-cell-value">Combat Level</span>
                                         </div>
                                         <div className="ts-character-cell">
                                             <span className="ts-character-cell-label">Base</span>
