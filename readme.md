@@ -70,6 +70,9 @@ Sentry is a TypeScript + React idle RPG with roster progression, dungeon combat,
 * `logics/request`: Incoming requests or ideas (planning only).
 * `logics/backlog`: Core product items.
 * `logics/tasks`: Execution plans derived from backlog items.
+* `logics/external`: Generated artifacts (exports, images, etc.).
+* `logics/tuning`: Balance and cadence tuning notes.
+* `logics/skills`: Logics workflow tools (git submodule).
 * `dist`: Production build output (generated).
 
 ## Codex Instructions
@@ -104,6 +107,9 @@ To validate/fix Logics doc structure, indicators, and references, use `logics/sk
 
 App (Vite):
 * `VITE_API_BASE`: Cloud API base URL (e.g. `http://localhost:8787`).
+* `PROD_RENDER_API_BASE`: Optional production warmup URL (Render cold-start mitigation).
+* `VITE_PROD_RENDER_API_BASE`: Same as above, but via Vite-prefixed envs (fallback).
+* `VITE_E2E`: Enables E2E test behavior (set by Playwright).
 
 Backend:
 * `JWT_SECRET`: JWT signing secret (required).
@@ -125,18 +131,24 @@ DB utilities:
 * `npm run preview`: Preview the production build.
 * `npm run tests`: Run the test suite with Vitest (respects `TEST_TIMEOUT_MS`, `VITEST_STRICT`, `VITEST_LOG_CONSOLE`, `CI`).
 * `npm run test:ci`: Run tests with strict CI config (`vitest.ci.mjs`, bail=1, coverage thresholds enforced).
-* `npm run test:e2e`: Run Playwright E2E smoke tests (starts the dev server).
+* `npm run test:e2e`: Run Playwright E2E smoke tests (starts the dev server via Playwright webServer).
 * `npm run coverage`: Run coverage with local config.
 * `npm run coverage:ci`: Run coverage with CI config (same thresholds as tests).
 * `npm run lint`: Run ESLint on `src` and `tests`.
+* `npm run typecheck`: Type-check the app bundle.
+* `npm run typecheck:tests`: Type-check the test suite.
 * `npm run bundle:check`: Check bundle size thresholds.
 * `npm audit --audit-level=moderate`: Check for vulnerabilities (CI fails on moderate+).
 * `npm run backend:dev`: Start the Fastify cloud API server.
+* `npm run backend:start`: Start the Fastify cloud API server (prod-style).
 * `npm run prisma:generate`: Generate Prisma client.
 * `npm run prisma:migrate`: Run Prisma migrations.
 * `npm run db:dump`: Dump DB (custom format) to `scripts/db/dumps/`.
+* `npm run db:dump:render`: Dump the render database.
 * `npm run db:restore`: Restore from a dump (`--dump-file` required).
+* `npm run db:restore:render`: Restore the render database from a dump.
 * `npm run db:reset:dump`: Reset schema and restore from a dump (`--confirm` required).
+* `npm run db:reset:dump:render`: Reset render schema and restore from a dump.
 
 ## Testing & Coverage
 

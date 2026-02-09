@@ -4,6 +4,7 @@ This folder is organized by usage to keep asset paths predictable and scalable.
 
 ## Structure
 
+- backgrounds/      Action background illustrations (names match action ids)
 - characters/
   - base/           Base body layers (body-*)
   - faces/          Face variants (face-XX)
@@ -25,3 +26,4 @@ This folder is organized by usage to keep asset paths predictable and scalable.
 - File names use kebab-case where practical (e.g., face-01.svg).
 - Item/equipment ids map 1:1 to file names used by the UI.
 - Avoid creating new "misc" or "temp" folders; extend existing categories.
+- Backgrounds should stay aligned with action ids (e.g., `combat.svg`).
