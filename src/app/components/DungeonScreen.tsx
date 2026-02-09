@@ -876,9 +876,10 @@ export const DungeonScreen = memo(({
                         <h3 className="ts-dungeon-card-title">1. Select dungeon</h3>
                         <div className="ts-dungeon-list">
                             {definitions.map((definition) => {
+                                const recommendedPower = definition.recommendedPower * 2;
                                 const completionCount = safeCompletionCounts[definition.id] ?? 0;
                                 const riskTier = usesPartyPower
-                                    ? resolveDungeonRiskTier(currentPower, definition.recommendedPower)
+                                    ? resolveDungeonRiskTier(currentPower, recommendedPower)
                                     : null;
                                 const riskTone = riskTier ? riskTier.toLowerCase() : "medium";
                                 return (
@@ -889,13 +890,19 @@ export const DungeonScreen = memo(({
                                     onClick={() => onSelectDungeon(definition.id)}
                                 >
                                     <strong>{definition.name}</strong>
-                                    <span>Tier {definition.tier} · {definition.floorCount} floors · Boss: {definition.bossName}</span>
-                                    {riskTier ? (
+                                    <span className="ts-dungeon-option-subtitle">
+                                        Tier {definition.tier} · {definition.floorCount} floors · Boss: {definition.bossName}
+                                    </span>
+                                    <div className="ts-dungeon-option-meta-row">
+                                        <span className="ts-dungeon-option-subtitle">
+                                            Recommended power: {recommendedPower.toLocaleString()}
+                                        </span>
+                                        {riskTier ? (
                                         <span className={`ts-dungeon-risk-badge is-${riskTone}`} title={riskTooltip}>
-                                            Risk: {riskTier}
+                                            {riskTier}
                                         </span>
                                     ) : null}
-                                    <span>Recommended power: {definition.recommendedPower.toLocaleString()}</span>
+                                    </div>
                                     {completionCount > 0 ? (
                                         <span className="ts-dungeon-completion-badge">x{completionCount}</span>
                                     ) : null}

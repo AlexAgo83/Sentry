@@ -126,6 +126,18 @@
         gap: 0;
     }
 
+    .ts-dungeon-replay-button .ts-panel-action-label {
+        display: none;
+    }
+
+    .ts-dungeon-replay-button {
+        min-width: 44px;
+        width: 44px;
+        padding: 0;
+        justify-content: center;
+        gap: 0;
+    }
+
     .ts-skill-picker {
         flex-direction: column;
     }

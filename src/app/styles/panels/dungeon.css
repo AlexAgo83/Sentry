@@ -126,6 +126,11 @@
     position: relative;
 }
 
+.ts-dungeon-option-subtitle {
+    font-size: calc(var(--text-s-size) - 1px);
+    color: rgba(208, 219, 240, 0.85);
+}
+
 .ts-dungeon-live-entity.is-dead {
     opacity: 0.55;
     filter: grayscale(0.15);
@@ -165,6 +170,13 @@
     white-space: nowrap;
     color: rgba(226, 240, 238, 0.95);
     background: rgba(12, 18, 32, 0.75);
+}
+
+.ts-dungeon-option-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m3);
 }
 
 .ts-dungeon-risk-badge.is-low {
