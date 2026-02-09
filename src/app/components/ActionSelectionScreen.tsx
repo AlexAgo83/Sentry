@@ -1,6 +1,7 @@
 import { memo, type CSSProperties } from "react";
-import type { ActionId, PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
+import type { ActionId, ItemId, PlayerState, SkillDefinition, SkillId, SkillState } from "../../core/types";
 import { getRecipeUnlockLevel, getRecipesForSkill, isRecipeUnlocked, ITEM_DEFINITIONS } from "../../data/definitions";
+import { getEquipmentDefinition } from "../../data/equipment";
 import { RECIPE_MAX_LEVEL, SKILL_MAX_LEVEL } from "../../core/constants";
 import { StartActionIcon } from "../ui/startActionIcon";
 import { InterruptIcon } from "../ui/interruptIcon";
@@ -381,8 +382,11 @@ export const ActionSelectionScreen = memo(({
                                 const recipeMax = recipeState?.maxLevel ?? RECIPE_MAX_LEVEL;
                                 const unlocked = isRecipeUnlocked(recipeDef, pendingSkill.level);
                                 const recipeXpLabel = `XP ${Number.isFinite(recipeXp) ? Math.round(recipeXp) : 0}/${Number.isFinite(recipeXpNext) ? Math.round(recipeXpNext) : 0}`;
+                                const recipeSkillColor = getSkillIconColor(pendingSkillId as SkillId);
                                 const consumptionEntries = getItemListEntries(ITEM_DEFINITIONS, recipeDef.itemCosts);
                                 const productionEntries = getItemListEntries(ITEM_DEFINITIONS, recipeDef.itemRewards);
+                                const equipableEntry = productionEntries.find((entry) => getEquipmentDefinition(entry.id));
+                                const equipableItemId = equipableEntry?.id ?? null;
                                 const consumptionLabel = consumptionEntries.length > 0
                                     ? formatItemListEntries(consumptionEntries)
                                     : "None";
@@ -411,7 +415,15 @@ export const ActionSelectionScreen = memo(({
                                             style={getRecipeProgressStyle(recipeXp, recipeXpNext, unlocked)}
                                         >
                                             <div className="ts-choice-copy">
-                                                <div className="ts-choice-title">{recipeDef.name}</div>
+                                                <div
+                                                    className="ts-choice-title ts-choice-title--recipe"
+                                                    style={{ "--ts-recipe-icon-color": recipeSkillColor } as CSSProperties}
+                                                >
+                                                    <span className="ts-choice-title-text">{recipeDef.name}</span>
+                                                    {equipableItemId ? (
+                                                        <ItemIcon itemId={equipableItemId as ItemId} tone="produce" size={14} />
+                                                    ) : null}
+                                                </div>
                                                 {!unlocked ? (
                                                     <div className="ts-choice-subtitle">Unlocks at Lv {unlockLevel}</div>
                                                 ) : (

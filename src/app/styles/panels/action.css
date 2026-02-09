@@ -293,6 +293,18 @@
     font-family: var(--display-font);
 }
 
+.ts-choice-title--recipe {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--m2);
+}
+
+.ts-choice-title--recipe .ts-item-icon {
+    margin-left: 0;
+    color: var(--ts-recipe-icon-color, var(--color-text));
+    border-color: currentColor;
+}
+
 .ts-action-start.is-ready-new {
     border-color: rgba(110, 220, 150, 0.85);
     color: rgba(140, 240, 190, 0.95);
