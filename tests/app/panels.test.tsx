@@ -31,9 +31,12 @@ describe("panel components", () => {
                 activeDungeonPartyPlayerIds={[]}
                 rosterLimit={3}
                 isCollapsed={false}
+                showCollapseButton
+                showSettingsButton={false}
                 onToggleCollapsed={vi.fn()}
                 onSetActivePlayer={onSetActivePlayer}
                 onAddPlayer={vi.fn()}
+                onOpenSystem={vi.fn()}
                 getSkillLabel={() => "Combat"}
                 getRecipeLabel={() => "Border Skirmish"}
             />
@@ -353,7 +356,7 @@ describe("panel components", () => {
             />
         );
 
-        expect(screen.getByText("Combat Lv")).toBeTruthy();
+        expect(screen.getByText("Combat Level")).toBeTruthy();
         expect(screen.getByText("Attack cadence")).toBeTruthy();
         expect(screen.getByText("Attacks/sec")).toBeTruthy();
         expect(screen.getByText("Damage")).toBeTruthy();
