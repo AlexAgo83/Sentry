@@ -697,7 +697,7 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--m4);
-    margin-bottom: var(--m6);
+    margin-bottom: var(--m8);
 }
 
 .ts-combat-skill-line {
