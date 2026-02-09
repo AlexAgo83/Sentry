@@ -88,25 +88,73 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
         description: "A light cape that offers warmth and keeps you nimble.",
         iconId: "traveler_cape"
     },
+    silk_cloak: {
+        description: "A silk cloak woven for finesse and focus.",
+        iconId: "silk_cloak"
+    },
+    tanned_mantle: {
+        description: "A rugged mantle stitched from treated hides.",
+        iconId: "tanned_mantle"
+    },
     cloth_cap: {
         description: "A simple cloth cap to ward off the chill.",
         iconId: "cloth_cap"
+    },
+    iron_helm: {
+        description: "A solid iron helm that anchors your stance.",
+        iconId: "iron_helm"
+    },
+    hide_hood: {
+        description: "A hood of hide that dampens incoming blows.",
+        iconId: "hide_hood"
     },
     linen_tunic: {
         description: "A light tunic stitched from linen.",
         iconId: "linen_tunic"
     },
+    iron_cuirass: {
+        description: "A reinforced cuirass forged for frontline fights.",
+        iconId: "iron_cuirass"
+    },
+    hardened_jerkin: {
+        description: "A hardened jerkin made to take a beating.",
+        iconId: "hardened_jerkin"
+    },
     worn_trousers: {
         description: "Well-worn trousers made for travel.",
         iconId: "worn_trousers"
+    },
+    iron_greaves: {
+        description: "Iron greaves built for steady footing.",
+        iconId: "iron_greaves"
+    },
+    studded_leggings: {
+        description: "Studded leggings that favor agility.",
+        iconId: "studded_leggings"
     },
     leather_gloves: {
         description: "Sturdy gloves that improve grip.",
         iconId: "leather_gloves"
     },
+    forged_gauntlets: {
+        description: "Forged gauntlets that reinforce each strike.",
+        iconId: "forged_gauntlets"
+    },
+    silkweave_gloves: {
+        description: "Silkweave gloves that favor quick movements.",
+        iconId: "silkweave_gloves"
+    },
     simple_boots: {
         description: "Basic boots for steady footing.",
         iconId: "simple_boots"
+    },
+    iron_boots: {
+        description: "Iron boots that keep you grounded.",
+        iconId: "iron_boots"
+    },
+    weaver_boots: {
+        description: "Weaver boots built for nimble steps.",
+        iconId: "weaver_boots"
     },
     signet_ring: {
         description: "A small ring etched with a lucky mark.",
