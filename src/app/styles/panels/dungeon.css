@@ -626,6 +626,32 @@
     color: currentColor;
 }
 
+@media (max-width: 1200px) {
+    .ts-dungeon-panel .ts-action-button-label,
+    .ts-dungeon-panel .ts-dungeon-action-label {
+        display: none;
+    }
+
+    .ts-dungeon-panel .ts-action-button,
+    .ts-dungeon-panel .ts-dungeon-auto-restart-button,
+    .ts-dungeon-panel .ts-dungeon-auto-consume-button {
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        padding: 0;
+        justify-content: center;
+        gap: 0;
+    }
+
+    .ts-dungeon-panel .ts-dungeon-consumable-count {
+        display: none;
+    }
+
+    .ts-dungeon-panel .ts-dungeon-heal-icon {
+        display: inline-flex;
+    }
+}
+
 .ts-dungeon-auto-restart-button.is-active {
     border-color: rgba(110, 220, 150, 0.75);
     color: rgba(180, 244, 204, 0.95);

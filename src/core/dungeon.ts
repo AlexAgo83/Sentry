@@ -22,12 +22,12 @@ import type {
     WeaponType
 } from "./types";
 
-export const DUNGEON_SIMULATION_STEP_MS = 500;
+export const DUNGEON_SIMULATION_STEP_MS = 100;
 export const DUNGEON_AUTO_RESTART_DELAY_MS = 3000;
 export const DUNGEON_REPLAY_MAX_EVENTS = 5000;
 export const DUNGEON_REPLAY_MAX_BYTES = 2 * 1024 * 1024;
 export const DUNGEON_TOTAL_EVENT_CAP = 10_000;
-export const DUNGEON_BASE_ATTACK_MS = DUNGEON_SIMULATION_STEP_MS;
+export const DUNGEON_BASE_ATTACK_MS = 500;
 export const DUNGEON_FLOOR_PAUSE_MS = 800;
 export const DUNGEON_ATTACK_INTERVAL_MIN_MS = 250;
 export const DUNGEON_ATTACK_INTERVAL_MAX_MS = 1400;
@@ -58,6 +58,10 @@ const ARMOR_DAMAGE_REDUCTION_PER_POINT = 0.01;
 const ARMOR_DAMAGE_REDUCTION_MAX = 0.5;
 const RANGED_ATTACK_INTERVAL_MULTIPLIER = 0.5;
 const MELEE_THREAT_MULTIPLIER = 1.25;
+const DUNGEON_RUN_SAVE_LIMIT = 1;
+const DUNGEON_SHIELD_WINDOW_MS = 1500;
+const DUNGEON_BURST_INTERVAL_MS = 2000;
+const DUNGEON_SUMMON_INTERVAL_MS = 3000;
 
 const buildJournalEntryId = (timestamp: number) => {
     const suffix = Math.random().toString(36).slice(2, 8);
@@ -72,6 +76,39 @@ const formatDungeonEndReason = (reason: string | null | undefined) => {
         .split("_")
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
         .join(" ");
+};
+
+const pruneDungeonRuns = (
+    runs: Record<string, DungeonRunState>,
+    activeRunId: string | null,
+    limit = DUNGEON_RUN_SAVE_LIMIT
+): Record<string, DungeonRunState> => {
+    if (limit <= 0) {
+        return {};
+    }
+    const entries = Object.entries(runs);
+    if (entries.length <= limit) {
+        return runs;
+    }
+    const keepIds = new Set<string>();
+    if (activeRunId && runs[activeRunId]) {
+        keepIds.add(activeRunId);
+    }
+    const sorted = entries
+        .filter(([id]) => !keepIds.has(id))
+        .sort(([, a], [, b]) => (Number(b.startedAt) || 0) - (Number(a.startedAt) || 0));
+    for (const [id] of sorted) {
+        if (keepIds.size >= limit) {
+            break;
+        }
+        keepIds.add(id);
+    }
+    return entries.reduce<Record<string, DungeonRunState>>((acc, [id, run]) => {
+        if (keepIds.has(id)) {
+            acc[id] = run;
+        }
+        return acc;
+    }, {});
 };
 
 const normalizeInventoryCount = (value: number | undefined) => {
@@ -852,6 +889,8 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
         return acc;
     }, {});
 
+    const prunedRuns = pruneDungeonRuns(runs, activeRunId, DUNGEON_RUN_SAVE_LIMIT);
+    const prunedActiveRunId = activeRunId && prunedRuns[activeRunId] ? activeRunId : null;
     return {
         onboardingRequired: Boolean(input.onboardingRequired),
         setup: {
@@ -860,8 +899,8 @@ export const normalizeDungeonState = (input?: DungeonState | null): DungeonState
             autoRestart: input.setup?.autoRestart ?? true,
             autoConsumables: input.setup?.autoConsumables ?? true
         },
-        runs,
-        activeRunId,
+        runs: prunedRuns,
+        activeRunId: prunedActiveRunId,
         latestReplay,
         completionCounts,
         policy: {
@@ -1209,6 +1248,7 @@ export const applyDungeonTick = (
         run.elapsedMs += DUNGEON_SIMULATION_STEP_MS;
         run.encounterStep += 1;
         const nowMs = run.elapsedMs;
+        const encounterMs = run.encounterStep * DUNGEON_SIMULATION_STEP_MS;
         run.party.forEach((member) => {
             member.potionCooldownMs = Math.max(0, member.potionCooldownMs - DUNGEON_SIMULATION_STEP_MS);
             const currentCooldown = Number.isFinite(member.attackCooldownMs) ? member.attackCooldownMs : 0;
@@ -1304,7 +1344,9 @@ export const applyDungeonTick = (
                 }
                 const hpBefore = enemy.hp;
                 const baseDamage = cached.baseDamage;
-                const reducedDamage = enemy.isBoss && enemy.mechanic === "shield" && run.encounterStep <= 3
+                const reducedDamage = enemy.isBoss
+                    && enemy.mechanic === "shield"
+                    && encounterMs <= DUNGEON_SHIELD_WINDOW_MS
                     ? Math.max(1, Math.round(baseDamage * 0.6))
                     : baseDamage;
                 enemy.hp = Math.max(0, enemy.hp - reducedDamage);
@@ -1393,10 +1435,12 @@ export const applyDungeonTick = (
         }
         run.targetHeroId = hero && hero.hp > 0 ? hero.playerId : null;
         if (run.targetHeroId && hero) {
-            if (hero.hp > 0) {
+            if (encounterMs % DUNGEON_BASE_ATTACK_MS === 0 && hero.hp > 0) {
                 const cached = heroStepCache.get(run.targetHeroId);
                 let enemyDamage = activeEnemy.damage;
-                if (activeEnemy.isBoss && activeEnemy.mechanic === "burst" && run.encounterStep % 4 === 0) {
+                if (activeEnemy.isBoss
+                    && activeEnemy.mechanic === "burst"
+                    && encounterMs % DUNGEON_BURST_INTERVAL_MS === 0) {
                     enemyDamage = Math.round(enemyDamage * BOSS_BURST_DAMAGE_MULTIPLIER);
                 }
                 if (activeEnemy.isBoss && activeEnemy.mechanic === "enrage" && activeEnemy.hp / activeEnemy.hpMax <= 0.3) {
@@ -1437,7 +1481,9 @@ export const applyDungeonTick = (
             }
         }
 
-        if (activeEnemy.isBoss && activeEnemy.mechanic === "poison") {
+        if (activeEnemy.isBoss
+            && activeEnemy.mechanic === "poison"
+            && encounterMs % DUNGEON_BASE_ATTACK_MS === 0) {
             run.party.forEach((member) => {
                 if (member.hp <= 0) {
                     return;
@@ -1473,7 +1519,9 @@ export const applyDungeonTick = (
             });
         }
 
-        if (activeEnemy.isBoss && activeEnemy.mechanic === "summon" && run.encounterStep % 6 === 0) {
+        if (activeEnemy.isBoss
+            && activeEnemy.mechanic === "summon"
+            && encounterMs % DUNGEON_SUMMON_INTERVAL_MS === 0) {
             const summonHp = Math.max(1, Math.round(activeEnemy.hpMax * 0.2));
             const summonDamage = Math.max(1, Math.round(activeEnemy.damage * 0.5));
             const summonIndex = run.enemies.length + 1;
@@ -1584,6 +1632,10 @@ export const applyDungeonTick = (
             [run.id]: run
         },
         completionCounts
+    };
+    dungeon = {
+        ...dungeon,
+        runs: pruneDungeonRuns(dungeon.runs, dungeon.activeRunId, DUNGEON_RUN_SAVE_LIMIT)
     };
 
     if (run.status === "failed" || (run.status === "victory" && !run.autoRestart)) {

@@ -13,6 +13,7 @@ import { getHairColor, getSkinColor } from "../../ui/heroHair";
 export const DUNGEON_FLOAT_WINDOW_MS = 1_400;
 const FLOAT_MAX_COUNT = 20;
 const ATTACK_LUNGE_WINDOW_MS = 260;
+const MAGIC_PULSE_WINDOW_MS = 700;
 
 const PARTY_LAYOUT: Array<{ x: number; y: number }> = [
     { x: 0.2, y: 0.38 },
@@ -60,6 +61,11 @@ export type DungeonArenaAttackCue = {
     atMs: number;
 };
 
+export type DungeonArenaMagicCue = {
+    sourceId: string;
+    atMs: number;
+};
+
 export type DungeonArenaUnit = {
     id: string;
     name: string;
@@ -87,6 +93,7 @@ export type DungeonArenaFrame = {
     units: DungeonArenaUnit[];
     floatingTexts: DungeonArenaFloatingText[];
     attackCues: DungeonArenaAttackCue[];
+    magicCues: DungeonArenaMagicCue[];
 };
 
 export type DungeonReplayJumpMarks = {
@@ -310,6 +317,7 @@ const buildFrameFromEvents = ({
     let targetEnemyId: string | null = overrideTargetEnemyId ?? null;
     let bossId: string | null = null;
     const latestAttacks = new Map<string, DungeonArenaAttackCue>();
+    const latestMagicHeals = new Map<string, DungeonArenaMagicCue>();
 
     partySeeds.forEach((seed, index) => {
         states[seed.id] = {
@@ -403,6 +411,15 @@ const buildFrameFromEvents = ({
             if (!targetId) {
                 return;
             }
+            if (event.sourceId) {
+                const isMagic = event.label === "Magic" || (event.targetId && event.targetId !== event.sourceId);
+                if (isMagic) {
+                    latestMagicHeals.set(event.sourceId, {
+                        sourceId: event.sourceId,
+                        atMs: event.atMs
+                    });
+                }
+            }
             const entity = isPartyEntity(partyIds, targetId) ? states[targetId] : ensureEnemy(targetId);
             if (!entity) {
                 return;
@@ -433,6 +450,9 @@ const buildFrameFromEvents = ({
     const attackCues = [...latestAttacks.values()].filter((cue) => (
         cue.atMs <= atMs && atMs - cue.atMs <= ATTACK_LUNGE_WINDOW_MS
     ));
+    const magicCues = [...latestMagicHeals.values()].filter((cue) => (
+        cue.atMs <= atMs && atMs - cue.atMs <= MAGIC_PULSE_WINDOW_MS
+    ));
 
     return {
         atMs,
@@ -444,7 +464,8 @@ const buildFrameFromEvents = ({
         statusLabel,
         units,
         floatingTexts: buildFloatingTexts(events, floatingTime),
-        attackCues
+        attackCues,
+        magicCues
     };
 };
 

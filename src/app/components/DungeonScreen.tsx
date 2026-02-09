@@ -505,13 +505,6 @@ export const DungeonScreen = memo(({
                     Dungeon: {selectedDungeon?.name ?? latestReplay.dungeonId}
                 </p>
                 {latestReplay.events.map((event, index) => {
-                    const sourceInfo = event.sourceId
-                        ? `source=${event.sourceId}${event.sourceId.startsWith("entity_") ? "" : ` (hero_${event.sourceId})`}`
-                        : "";
-                    const targetInfo = event.targetId
-                        ? `target=${event.targetId}${event.targetId.startsWith("entity_") ? "" : ` (hero_${event.targetId})`}`
-                        : "";
-                    const idInfo = [sourceInfo, targetInfo].filter(Boolean).join(" ");
                     const isActive = replayHighlightAtMs !== null && event.atMs === replayHighlightAtMs;
                     const healMeta = event.type === "heal" ? replayHealLogMeta.get(index) : null;
                     const healAmount = event.type === "heal"
@@ -522,9 +515,10 @@ export const DungeonScreen = memo(({
                     const healInfo = event.type === "heal"
                         ? `- ${sourceName || event.sourceId || "?"}${targetName ? ` -> ${targetName}` : ""} +${healAmount}${healMeta ? ` (HP ${healMeta.hp}/${healMeta.hpMax})` : ""}`
                         : (event.label ? `- ${event.label}` : "");
+                    const logSuffix = healInfo ? ` ${healInfo}` : "";
                     return (
                         <p key={`${event.atMs}-${index}`} className={`ts-dungeon-replay-log-line${isActive ? " is-active" : ""}`}>
-                            [{event.atMs}ms] {event.type} {idInfo ? `(${idInfo})` : ""} {healInfo}
+                            [{event.atMs}ms] {event.type}{logSuffix}
                         </p>
                     );
                 })}
@@ -597,7 +591,7 @@ export const DungeonScreen = memo(({
                             aria-label={activeRun.autoRestart ? "Disable auto restart" : "Enable auto restart"}
                             title={activeRun.autoRestart ? "Disable auto restart" : "Enable auto restart"}
                         >
-                            <span className="ts-dungeon-action-label">Auto restart</span>
+                            <span className="ts-dungeon-action-label ts-action-button-label">Auto restart</span>
                             <span className="ts-dungeon-action-icon">
                                 {activeRun.autoRestart ? <AutoRestartOnIcon /> : <AutoRestartOffIcon />}
                             </span>
@@ -615,7 +609,7 @@ export const DungeonScreen = memo(({
                                 : "Requires at least 1 consumable (potion, tonic, elixir)."}
                             disabled={!canUseConsumables}
                         >
-                            <span className="ts-dungeon-action-label">Auto heal</span>
+                            <span className="ts-dungeon-action-label ts-action-button-label">Auto heal</span>
                             {consumablesCount > 0 ? (
                                 <span className="ts-dungeon-consumable-count">{formatCompactCount(consumablesCount)}</span>
                             ) : null}

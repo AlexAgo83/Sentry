@@ -17,6 +17,7 @@ type UnitNode = {
     hpBack: any;
     hpFill: any;
     targetRing: any;
+    magicPulse: any;
     deathMark: any;
     label: any;
     combatIcon: any;
@@ -50,6 +51,8 @@ const DAMAGE_SHAKE_MS = 240;
 const DAMAGE_TINT_COLOR = 0xff3b3b;
 const ATTACK_LUNGE_MS = 220;
 const ATTACK_LUNGE_DISTANCE = 18;
+const MAGIC_PULSE_MS = 700;
+const MAGIC_PULSE_COLOR = 0x5fe3a2;
 
 const toWorldX = (x: number) => x * WORLD_WIDTH;
 const toWorldY = (y: number) => y * WORLD_HEIGHT;
@@ -92,6 +95,7 @@ const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     const hpBack = new PIXI.Graphics();
     const hpFill = new PIXI.Graphics();
     const targetRing = new PIXI.Graphics();
+    const magicPulse = new PIXI.Graphics();
     const deathMark = new PIXI.Graphics();
     const combatIcon = new PIXI.Graphics();
     const label = new PIXI.Text("", {
@@ -103,6 +107,7 @@ const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     label.position.set(0, 34);
 
     container.addChild(targetRing);
+    container.addChild(magicPulse);
     container.addChild(body);
     container.addChild(combatIcon);
     container.addChild(hpBack);
@@ -111,7 +116,7 @@ const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     container.addChild(label);
     world.addChild(container);
 
-    return { container, body, hpBack, hpFill, targetRing, deathMark, label, combatIcon };
+    return { container, body, hpBack, hpFill, targetRing, magicPulse, deathMark, label, combatIcon };
 };
 
 const drawHeroBody = (node: UnitNode, unit: NonNullable<DungeonArenaFrame>["units"][number]) => {
@@ -364,6 +369,7 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
 
     const unitById = new Map(frame.units.map((unit) => [unit.id, unit]));
     const attackBySource = new Map(frame.attackCues.map((cue) => [cue.sourceId, cue]));
+    const magicBySource = new Map(frame.magicCues.map((cue) => [cue.sourceId, cue]));
     const seen = new Set<string>();
     const lastSeen = runtime.lastSeen;
     frame.units.forEach((unit) => {
@@ -406,6 +412,22 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             );
         } else {
             node.combatIcon.visible = false;
+        }
+        node.magicPulse.clear();
+        node.magicPulse.visible = false;
+        const magicCue = !unit.isEnemy ? magicBySource.get(unit.id) : null;
+        if (magicCue) {
+            const age = frame.atMs - magicCue.atMs;
+            if (age >= 0 && age <= MAGIC_PULSE_MS) {
+                const progress = clamp(age / MAGIC_PULSE_MS, 0, 1);
+                const alpha = (1 - progress) * 0.75;
+                const radius = 18 + progress * 14;
+                node.magicPulse.visible = true;
+                node.magicPulse.lineStyle(2, MAGIC_PULSE_COLOR, 0.7 * alpha);
+                node.magicPulse.beginFill(MAGIC_PULSE_COLOR, 0.18 * alpha);
+                node.magicPulse.drawCircle(0, 18, radius);
+                node.magicPulse.endFill();
+            }
         }
         drawHp(node, unit.hp, unit.hpMax);
         drawTargetAndDeath(node, frame.targetEnemyId === unit.id, unit.alive);
@@ -483,6 +505,8 @@ const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             node.damageAtMs = undefined;
             node.damageRatio = undefined;
             node.spawnAtMs = undefined;
+            node.magicPulse.clear();
+            node.magicPulse.visible = false;
         }
     });
     runtime.lastSeen = seen;

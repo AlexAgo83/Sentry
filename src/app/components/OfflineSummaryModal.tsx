@@ -118,9 +118,11 @@ export const OfflineSummaryModal = memo(({
                         <div key={player.playerId} className="ts-offline-player">
                             <div className="ts-offline-name">{player.playerName}</div>
                             <div className="ts-offline-meta">{actionLabel}</div>
-                            <div className="ts-offline-gains">
-                                Items: <span title={itemLabelFull}>{itemLabel}</span>
-                            </div>
+                            {itemEntries.length > 0 ? (
+                                <div className="ts-offline-gains">
+                                    Items: <span title={itemLabelFull}>{itemLabel}</span>
+                                </div>
+                            ) : null}
                             {dungeonLabel ? (
                                 <div className="ts-offline-gains">
                                     Dungeon gains: <span title={dungeonItemLabelFull}>{dungeonLabel}</span>

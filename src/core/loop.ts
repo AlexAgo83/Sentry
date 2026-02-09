@@ -10,6 +10,7 @@ import {
 import { createActionProgress } from "./state";
 import { applyProgressionDelta, createProgressionState } from "./progression";
 import {
+    DEFAULT_HP_MAX,
     DEFAULT_STAMINA_MAX,
     DEFAULT_STAMINA_REGEN,
     MIN_ACTION_INTERVAL_MS,
@@ -133,6 +134,8 @@ const applyActionTick = (
 } => {
     const equipmentModifiers = getEquipmentModifiers(player.equipment);
     const { stats: cleanedStats, effective } = resolveEffectiveStats(player.stats, timestamp, equipmentModifiers);
+    const hpMax = Math.ceil(DEFAULT_HP_MAX * (1 + effective.Endurance * STAT_PERCENT_PER_POINT));
+    const hp = Math.max(0, Math.min(player.hp, hpMax));
     const staminaMax = Math.ceil(DEFAULT_STAMINA_MAX * (1 + effective.Endurance * STAT_PERCENT_PER_POINT));
     const regenRate = DEFAULT_STAMINA_REGEN * (1 + effective.Endurance * STAT_PERCENT_PER_POINT);
     const regenAmount = Math.floor((deltaMs / 1000) * regenRate);
@@ -140,6 +143,8 @@ const applyActionTick = (
     let nextPlayer: PlayerState = {
         ...player,
         stats: cleanedStats,
+        hpMax,
+        hp,
         staminaMax,
         stamina
     };
