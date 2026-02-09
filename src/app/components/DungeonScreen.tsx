@@ -78,6 +78,15 @@ const formatCompactCount = (value: number) => {
 
 const clampValue = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
+const formatCooldownMs = (value: number) => {
+    const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0;
+    const seconds = safeValue / 1000;
+    if (seconds >= 10) {
+        return `${Math.round(seconds)}s`;
+    }
+    return `${seconds.toFixed(1)}s`;
+};
+
 const normalizeHpMax = (value: number | undefined) => {
     const parsed = Number(value);
     if (!Number.isFinite(parsed) || parsed <= 0) {
@@ -85,6 +94,9 @@ const normalizeHpMax = (value: number | undefined) => {
     }
     return Math.max(1, Math.round(parsed));
 };
+
+const MAGIC_HEAL_COOLDOWN_MS = 4000;
+const POTION_COOLDOWN_MS = 4000;
 
 export const DungeonScreen = memo(({
     definitions,
@@ -339,6 +351,41 @@ export const DungeonScreen = memo(({
         const total = Array.from(totals.values()).reduce((sum, value) => sum + value, 0);
         const top = Math.max(...Array.from(totals.values()), 0);
         return { totals, total, top };
+    }, [latestReplay, replayCursorMs]);
+    const replayCooldowns = useMemo(() => {
+        if (!latestReplay) {
+            return new Map<PlayerId, { magicMs: number; potionMs: number }>();
+        }
+        const cursorMs = Math.round(replayCursorMs);
+        const lastMagicByHero = new Map<PlayerId, number>();
+        const lastPotionByHero = new Map<PlayerId, number>();
+        latestReplay.events.forEach((event) => {
+            if (event.atMs > cursorMs) {
+                return;
+            }
+            if (event.type !== "heal" || !event.sourceId) {
+                return;
+            }
+            const sourceId = event.sourceId as PlayerId;
+            const isMagic = event.label === "Magic" || (event.targetId && event.targetId !== event.sourceId);
+            if (isMagic) {
+                lastMagicByHero.set(sourceId, event.atMs);
+            } else {
+                lastPotionByHero.set(sourceId, event.atMs);
+            }
+        });
+        const result = new Map<PlayerId, { magicMs: number; potionMs: number }>();
+        const heroIds = new Set<PlayerId>([...lastMagicByHero.keys(), ...lastPotionByHero.keys()]);
+        heroIds.forEach((heroId) => {
+            const magicAt = lastMagicByHero.get(heroId);
+            const potionAt = lastPotionByHero.get(heroId);
+            const magicMs = magicAt === undefined ? 0 : Math.max(0, MAGIC_HEAL_COOLDOWN_MS - (cursorMs - magicAt));
+            const potionMs = potionAt === undefined ? 0 : Math.max(0, POTION_COOLDOWN_MS - (cursorMs - potionAt));
+            if (magicMs > 0 || potionMs > 0) {
+                result.set(heroId, { magicMs, potionMs });
+            }
+        });
+        return result;
     }, [latestReplay, replayCursorMs]);
     const heroNameById = useMemo(() => {
         const map = new Map<string, string>();
@@ -654,6 +701,14 @@ export const DungeonScreen = memo(({
                             const threatValue = replayThreatTotals.totals.get(playerId) ?? 0;
                             const threatPercent = percent(threatValue, replayThreatTotals.total);
                             const isTopThreat = threatValue > 0 && threatValue === replayThreatTotals.top;
+                            const cooldowns = replayCooldowns.get(playerId);
+                            const cooldownEntries: string[] = [];
+                            if (cooldowns?.magicMs) {
+                                cooldownEntries.push(`Magic ${formatCooldownMs(cooldowns.magicMs)}`);
+                            }
+                            if (cooldowns?.potionMs) {
+                                cooldownEntries.push(`Potion ${formatCooldownMs(cooldowns.potionMs)}`);
+                            }
                             const isDead = unit.hp <= 0;
                             return (
                                 <div key={playerId} className={`ts-dungeon-live-entity${isDead ? " is-dead" : ""}`}>
@@ -682,6 +737,11 @@ export const DungeonScreen = memo(({
                                             {threatPercent}%
                                         </span>
                                     </span>
+                                    {cooldownEntries.length > 0 ? (
+                                        <span className="ts-dungeon-live-cooldown">
+                                            Cooldown {cooldownEntries.join(" · ")}
+                                        </span>
+                                    ) : null}
                                 </div>
                             );
                         })}
@@ -1018,6 +1078,13 @@ export const DungeonScreen = memo(({
                                     const heroDamagePercent = percent(heroDamage, liveDamageTotals.groupTotal);
                                     const topDamageValue = Math.max(...Array.from(liveDamageTotals.heroTotals.values()), 0);
                                     const isTopDamage = heroDamage > 0 && heroDamage === topDamageValue;
+                                    const liveCooldownEntries: string[] = [];
+                                    if (member.magicHealCooldownMs > 0) {
+                                        liveCooldownEntries.push(`Magic ${formatCooldownMs(member.magicHealCooldownMs)}`);
+                                    }
+                                    if (member.potionCooldownMs > 0) {
+                                        liveCooldownEntries.push(`Potion ${formatCooldownMs(member.potionCooldownMs)}`);
+                                    }
                                     const isDead = member.hp <= 0;
                                     return (
                                         <div key={member.playerId} className={`ts-dungeon-live-entity${isDead ? " is-dead" : ""}`}>
@@ -1046,6 +1113,11 @@ export const DungeonScreen = memo(({
                                                     {threatPercent}%
                                                 </span>
                                             </span>
+                                            {liveCooldownEntries.length > 0 ? (
+                                                <span className="ts-dungeon-live-cooldown">
+                                                    Cooldown {liveCooldownEntries.join(" · ")}
+                                                </span>
+                                            ) : null}
                                         </div>
                                     );
                                 })}

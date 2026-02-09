@@ -97,6 +97,12 @@
     gap: 6px;
 }
 
+.ts-dungeon-live-cooldown {
+    font-size: calc(var(--text-s-size) - 2px);
+    color: rgba(208, 219, 240, 0.75);
+    letter-spacing: 0.02em;
+}
+
 .ts-dungeon-live-damage-value.is-top {
     color: rgba(239, 77, 67, 0.95);
 }
