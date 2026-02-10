@@ -42,11 +42,23 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
             weaponType
         )
         : buildCombatDisplay(0, statsState, effectiveStats, weaponType);
-    const combatSkillLevels = activePlayer
+    const combatSkillProgress = activePlayer
         ? {
-            CombatMelee: activePlayer.skills.CombatMelee?.level ?? 0,
-            CombatRanged: activePlayer.skills.CombatRanged?.level ?? 0,
-            CombatMagic: activePlayer.skills.CombatMagic?.level ?? 0
+            CombatMelee: {
+                level: activePlayer.skills.CombatMelee?.level ?? 0,
+                xp: activePlayer.skills.CombatMelee?.xp ?? 0,
+                xpNext: activePlayer.skills.CombatMelee?.xpNext ?? 0
+            },
+            CombatRanged: {
+                level: activePlayer.skills.CombatRanged?.level ?? 0,
+                xp: activePlayer.skills.CombatRanged?.xp ?? 0,
+                xpNext: activePlayer.skills.CombatRanged?.xpNext ?? 0
+            },
+            CombatMagic: {
+                level: activePlayer.skills.CombatMagic?.level ?? 0,
+                xp: activePlayer.skills.CombatMagic?.xp ?? 0,
+                xpNext: activePlayer.skills.CombatMagic?.xpNext ?? 0
+            }
         }
         : {};
 
@@ -62,7 +74,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
                 effectiveStats={effectiveStats}
                 equipmentMods={equipmentMods}
                 combatDisplay={combatDisplay}
-                combatSkillLevels={combatSkillLevels}
+                combatSkillProgress={combatSkillProgress}
                 weaponType={weaponType}
                 isCollapsed={isCollapsed}
                 onToggleCollapsed={() => setCollapsed((value) => !value)}

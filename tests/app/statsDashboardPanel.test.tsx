@@ -24,10 +24,10 @@ const createProps = (overrides: Partial<StatsDashboardProps> = {}): StatsDashboa
         effectiveStats,
         equipmentMods: [],
         combatDisplay: buildCombatDisplay(1, stats, effectiveStats, "Melee"),
-        combatSkillLevels: {
-            CombatMelee: 1,
-            CombatRanged: 1,
-            CombatMagic: 1
+        combatSkillProgress: {
+            CombatMelee: { level: 1, xp: 12, xpNext: 120 },
+            CombatRanged: { level: 1, xp: 4, xpNext: 120 },
+            CombatMagic: { level: 1, xp: 8, xpNext: 120 }
         },
         weaponType: "Melee",
         isCollapsed: false,
@@ -116,4 +116,16 @@ describe("StatsDashboardPanel", () => {
         expect(screen.getByText("+12.5%")).toBeTruthy();
         expect(screen.getByText("0.0%")).toBeTruthy();
     });
+
+    it("renders combat xp values in hero stats view", async () => {
+        const user = userEvent.setup();
+        render(<StatsDashboardPanel {...createProps()} />);
+
+        await user.click(screen.getByRole("tab", { name: "Hero statistics" }));
+
+        expect(screen.getByText("XP 12/120")).toBeTruthy();
+        expect(screen.getByText("XP 4/120")).toBeTruthy();
+        expect(screen.getByText("XP 8/120")).toBeTruthy();
+    });
+
 });

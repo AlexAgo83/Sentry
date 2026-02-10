@@ -702,13 +702,20 @@
 
 .ts-combat-skill-line {
     display: flex;
-    align-items: center;
-    gap: var(--m2);
+    flex-direction: column;
+    gap: 2px;
     padding: var(--m2) var(--m6);
-    min-height: 34px;
+    min-height: 54px;
     border-radius: 10px;
     border: 1px dashed rgba(87, 212, 255, 0.32);
     background: rgba(8, 16, 28, 0.7);
+}
+
+.ts-combat-skill-main {
+    display: flex;
+    align-items: center;
+    gap: var(--m2);
+    min-height: 24px;
 }
 
 .ts-combat-skill-icon {
@@ -739,6 +746,22 @@
     font-family: var(--display-font);
     letter-spacing: 0.08em;
     color: var(--color-primary);
+}
+
+.ts-combat-skill-xp-row {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: var(--m4);
+}
+
+.ts-combat-skill-xp {
+    font-size: 0.64rem;
+    font-family: var(--display-font);
+    letter-spacing: 0.08em;
+    color: rgba(87, 212, 255, 0.85);
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
 }
 
 .ts-character-header--combat {

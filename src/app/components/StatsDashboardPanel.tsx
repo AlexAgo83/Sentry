@@ -21,7 +21,11 @@ type StatsDashboardPanelProps = {
     effectiveStats: Record<StatId, number>;
     equipmentMods: StatModifier[];
     combatDisplay: CombatDisplayModel;
-    combatSkillLevels: Partial<Record<CombatSkillId, number>>;
+    combatSkillProgress: Partial<Record<CombatSkillId, {
+        level: number;
+        xp: number;
+        xpNext: number;
+    }>>;
     weaponType?: WeaponType | null;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
@@ -89,6 +93,13 @@ const formatCombatDelta = (value: number, digits = 0): string => {
     return `${sign}${formatted}`;
 };
 
+const formatSkillXpValue = (value: number): number => {
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+    return Math.max(0, Math.floor(value));
+};
+
 const COMBAT_SKILL_IDS: CombatSkillId[] = ["CombatMelee", "CombatRanged", "CombatMagic"];
 const COMBAT_SKILL_LABELS: Record<CombatSkillId, string> = {
     CombatMelee: "Melee",
@@ -127,7 +138,7 @@ export const StatsDashboardPanel = memo(({
     effectiveStats,
     equipmentMods,
     combatDisplay,
-    combatSkillLevels,
+    combatSkillProgress,
     weaponType,
     isCollapsed,
     onToggleCollapsed
@@ -332,17 +343,25 @@ export const StatsDashboardPanel = memo(({
                                 <div className="ts-combat-skill-lines">
                                     {COMBAT_SKILL_IDS.map((skillId) => {
                                         const color = getSkillIconColor(skillId);
-                                        const level = combatSkillLevels[skillId] ?? 0;
+                                        const progress = combatSkillProgress[skillId];
+                                        const level = progress?.level ?? 0;
+                                        const xp = formatSkillXpValue(progress?.xp ?? 0);
+                                        const xpNext = formatSkillXpValue(progress?.xpNext ?? 0);
                                         return (
                                             <div key={skillId} className="ts-combat-skill-line">
-                                                <span className="ts-combat-skill-icon" style={{ color }}>
-                                                    <SkillIcon skillId={skillId} color={color} />
-                                                </span>
-                                                <span className="ts-combat-skill-label" style={{ color }}>{COMBAT_SKILL_LABELS[skillId]}</span>
-                                                <span className="ts-combat-skill-level ts-stat-level">
-                                                    <span className="ts-stat-level-value">{level}</span>
-                                                <span className="ts-stat-level-max"> /{SKILL_MAX_LEVEL}</span>
-                                                </span>
+                                                <div className="ts-combat-skill-main">
+                                                    <span className="ts-combat-skill-icon" style={{ color }}>
+                                                        <SkillIcon skillId={skillId} color={color} />
+                                                    </span>
+                                                    <span className="ts-combat-skill-label" style={{ color }}>{COMBAT_SKILL_LABELS[skillId]}</span>
+                                                    <span className="ts-combat-skill-level ts-stat-level">
+                                                        <span className="ts-stat-level-value">{level}</span>
+                                                        <span className="ts-stat-level-max"> /{SKILL_MAX_LEVEL}</span>
+                                                    </span>
+                                                </div>
+                                                <div className="ts-combat-skill-xp-row">
+                                                    <span className="ts-combat-skill-xp">XP {xp}/{xpNext}</span>
+                                                </div>
                                             </div>
                                         );
                                     })}
