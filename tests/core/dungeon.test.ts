@@ -1349,4 +1349,138 @@ describe("dungeon flow", () => {
         expect(firstAfter).toBeGreaterThan(firstBefore);
         expect(secondAfter).toBe(secondBefore);
     });
+
+    it("returns potion item deltas when auto-consumes a heal", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 12;
+        state.inventory.items.potion = 1;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.enemies = [{
+            id: "mob-delta",
+            name: "Delta Mob",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 1,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-delta";
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = index === 0 ? Math.floor(member.hpMax * 0.4) : member.hpMax;
+            member.potionCooldownMs = 0;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        expect(result.itemDeltas.potion).toBe(-1);
+        expect(result.itemDeltas.food).toBeUndefined();
+    });
+
+    it("returns combat XP deltas per player when clearing a floor", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.enemies = [{
+            id: "mob-xp",
+            name: "XP Mob",
+            hp: 1,
+            hpMax: 1,
+            damage: 1,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-xp";
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = index === 0 ? 0 : 9_999;
+            member.hp = member.hpMax;
+        });
+        run.party.forEach((member) => {
+            state.players[member.playerId].skills.CombatMelee.xp = 0;
+            state.players[member.playerId].skills.CombatMelee.xpNext = 999_999;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const xpEntry = result.combatXpByPlayer["1"]?.CombatMelee ?? 0;
+        expect(xpEntry).toBeGreaterThan(0);
+        run.party.forEach((member) => {
+            expect(result.combatXpByPlayer[member.playerId]?.CombatMelee).toBe(xpEntry);
+            expect(result.state.players[member.playerId].skills.CombatMelee.xp).toBe(xpEntry);
+        });
+    });
+
+    it("records an action journal entry when a run ends", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 12;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.encounterStep = 4;
+        run.enemies = [{
+            id: "mob-journal",
+            name: "Journal Mob",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 1_000,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-journal";
+        run.targetHeroId = "1";
+        run.threatByHeroId = { "1": 100, "2": 0, "3": 0, "4": 0 };
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = index === 0 ? 1 : 0;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const entry = result.state.actionJournal[0];
+        expect(entry?.label).toContain("Dungeon ended: Damp Ruins");
+        expect(entry?.label).toContain("Wipe");
+    });
 });

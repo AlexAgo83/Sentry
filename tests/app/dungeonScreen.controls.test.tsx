@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
 import type { DungeonReplayState, DungeonRunState } from "../../src/core/types";
+import { DUNGEON_DEFINITIONS } from "../../src/data/dungeons";
 import { DungeonScreen } from "../../src/app/components/DungeonScreen";
 
 const getBaseRun = (): DungeonRunState => ({
@@ -189,5 +190,191 @@ describe("DungeonScreen controls", () => {
 
         fireEvent.click(screen.getByRole("button", { name: "Play" }));
         expect(replayTimeline.value).toBe("0");
+    });
+
+    it("renders risk tier and completion badges in setup list", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                currentPower={3}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={null}
+                completionCounts={{ dungeon_ruines_humides: 2 }}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByText("Low")).toBeTruthy();
+        expect(screen.getByText("x2")).toBeTruthy();
+    });
+
+    it("hides risk tiers when party power is not used", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        const { container } = render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                currentPower={3}
+                usesPartyPower={false}
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.queryByText("Low")).toBeNull();
+        expect(container.querySelector(".ts-dungeon-risk-badge")).toBeNull();
+    });
+
+    it("disables replay button when no replay exists", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                currentPower={3}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        const replayButton = screen.getByRole("button", { name: "Show replay" });
+        expect((replayButton as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it("shows food warning when entry cost exceeds available food", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={0}
+                currentPower={3}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByText("Not enough food to start this dungeon.")).toBeTruthy();
+    });
+
+    it("toggles to replay log view", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={getReplay()}
+                completionCounts={{}}
+                showReplay
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        const toggleButton = screen.getByRole("button", { name: "Switch to log view" });
+        fireEvent.click(toggleButton);
+        expect(screen.getByRole("log")).toBeTruthy();
+        expect(screen.getByText("Dungeon: Damp Ruins")).toBeTruthy();
     });
 });

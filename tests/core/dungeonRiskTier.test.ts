@@ -15,4 +15,14 @@ describe("resolveDungeonRiskTier", () => {
     it("handles missing recommended power", () => {
         expect(resolveDungeonRiskTier(0, 0)).toBe("Medium");
     });
+
+    it("treats invalid recommended power as zero", () => {
+        expect(resolveDungeonRiskTier(500, Number.NaN)).toBe("Medium");
+        expect(resolveDungeonRiskTier(500, -10)).toBe("Medium");
+    });
+
+    it("clamps invalid power values to zero", () => {
+        expect(resolveDungeonRiskTier(Number.NaN, 1000)).toBe("Deadly");
+        expect(resolveDungeonRiskTier(-5, 1000)).toBe("Deadly");
+    });
 });
