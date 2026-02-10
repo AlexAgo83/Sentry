@@ -88,7 +88,7 @@ describe("AppView (mobile roster)", () => {
         const { rerender } = renderAppView({ isRosterDrawerOpen: true });
         expect(document.body.classList.contains("is-roster-drawer-open")).toBe(true);
         expect(document.body.style.overflow).toBe("hidden");
-        expect(document.documentElement.style.overflow).toBe("hidden");
+        expect(document.documentElement.style.overflow).toBe("");
 
         rerender(
             <AppView
