@@ -1,7 +1,8 @@
 import { memo, useMemo, useState } from "react";
-import type { CombatSkillId, PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier } from "../../core/types";
+import type { CombatSkillId, PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier, WeaponType } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { DEFAULT_HP_MAX, SKILL_MAX_LEVEL, STAT_PERCENT_PER_POINT } from "../../core/constants";
+import { resolveArmorDamageMultiplier, resolveDamageTakenMultiplier } from "../../core/dungeon";
 import { SKILL_DEFINITIONS } from "../../data/definitions";
 import type { CombatDisplayModel } from "../selectors/combatSelectors";
 import { usePersistedPanelTab } from "../hooks/usePersistedPanelTab";
@@ -21,6 +22,7 @@ type StatsDashboardPanelProps = {
     equipmentMods: StatModifier[];
     combatDisplay: CombatDisplayModel;
     combatSkillLevels: Partial<Record<CombatSkillId, number>>;
+    weaponType?: WeaponType | null;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
 };
@@ -126,6 +128,7 @@ export const StatsDashboardPanel = memo(({
     equipmentMods,
     combatDisplay,
     combatSkillLevels,
+    weaponType,
     isCollapsed,
     onToggleCollapsed
 }: StatsDashboardPanelProps) => {
@@ -206,6 +209,11 @@ export const StatsDashboardPanel = memo(({
     const hpMaxBase = Math.ceil(DEFAULT_HP_MAX * (1 + baseEndurance * STAT_PERCENT_PER_POINT));
     const hpMaxTotal = Math.ceil(DEFAULT_HP_MAX * (1 + totalEndurance * STAT_PERCENT_PER_POINT));
     const hpMaxModifiers = hpMaxTotal - hpMaxBase;
+    const baseArmor = Number.isFinite(stats.base.Armor) ? stats.base.Armor : 0;
+    const totalArmor = Number.isFinite(effectiveStats.Armor) ? effectiveStats.Armor : baseArmor;
+    const baseResistance = (1 - (resolveDamageTakenMultiplier(weaponType) * resolveArmorDamageMultiplier(baseArmor))) * 100;
+    const totalResistance = (1 - (resolveDamageTakenMultiplier(weaponType) * resolveArmorDamageMultiplier(totalArmor))) * 100;
+    const resistanceModifiers = totalResistance - baseResistance;
 
     return (
         <section className="generic-panel ts-panel ts-panel-stats">
@@ -391,6 +399,30 @@ export const StatsDashboardPanel = memo(({
                                             <span className="ts-character-cell-label">Total</span>
                                             <span className="ts-character-cell-value">
                                                 {formatCombatValue(hpMaxTotal)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-character-row ts-character-row--combat">
+                                        <div className="ts-character-cell ts-character-cell--stat">
+                                            <span className="ts-character-cell-label">Metric</span>
+                                            <span className="ts-character-cell-value">Resistance %</span>
+                                        </div>
+                                        <div className="ts-character-cell">
+                                            <span className="ts-character-cell-label">Base</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatValue(baseResistance, 1)}%
+                                            </span>
+                                        </div>
+                                        <div className="ts-character-cell ts-character-cell--mods">
+                                            <span className="ts-character-cell-label">Modifiers</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatDelta(resistanceModifiers, 1)}%
+                                            </span>
+                                        </div>
+                                        <div className="ts-character-cell ts-character-cell--total">
+                                            <span className="ts-character-cell-label">Total</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatValue(totalResistance, 1)}%
                                             </span>
                                         </div>
                                     </div>

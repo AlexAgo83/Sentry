@@ -429,7 +429,7 @@ const resolveAttackIntervalMultiplier = (weaponType: WeaponType | null | undefin
     return weaponType === "Ranged" ? RANGED_ATTACK_INTERVAL_MULTIPLIER : 1;
 };
 
-const resolveDamageTakenMultiplier = (weaponType: WeaponType | null | undefined) => {
+export const resolveDamageTakenMultiplier = (weaponType: WeaponType | null | undefined) => {
     if (weaponType === "Ranged") {
         return RANGED_DAMAGE_TAKEN_MULTIPLIER;
     }
@@ -439,7 +439,7 @@ const resolveDamageTakenMultiplier = (weaponType: WeaponType | null | undefined)
     return MELEE_DAMAGE_TAKEN_MULTIPLIER;
 };
 
-const resolveArmorDamageMultiplier = (armor: number) => {
+export const resolveArmorDamageMultiplier = (armor: number) => {
     if (!Number.isFinite(armor) || armor <= 0) {
         return 1;
     }

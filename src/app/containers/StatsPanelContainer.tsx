@@ -63,6 +63,7 @@ export const StatsPanelContainer = ({ onRenameHero }: StatsPanelContainerProps) 
                 equipmentMods={equipmentMods}
                 combatDisplay={combatDisplay}
                 combatSkillLevels={combatSkillLevels}
+                weaponType={weaponType}
                 isCollapsed={isCollapsed}
                 onToggleCollapsed={() => setCollapsed((value) => !value)}
             />
