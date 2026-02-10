@@ -4,6 +4,7 @@ import {
     createPlayerState,
     getNextPlayerId,
     hydrateGameState,
+    normalizeRosterOrder,
     sanitizePlayerName
 } from "./state";
 import { MAX_ROSTER_LIMIT, RESTED_DURATION_MS, RESTED_ENDURANCE_FLAT } from "./constants";
@@ -76,6 +77,7 @@ export type GameAction =
     | { type: "grantRestedBuff"; timestamp: number }
     | { type: "setActivePlayer"; playerId: PlayerId }
     | { type: "addPlayer"; name?: string }
+    | { type: "reorderRoster"; playerId: PlayerId; targetIndex: number }
     | { type: "renamePlayer"; playerId: PlayerId; name: string }
     | { type: "selectAction"; playerId: PlayerId; actionId: ActionId | null }
     | { type: "selectRecipe"; playerId: PlayerId; skillId: SkillId; recipeId: RecipeId | null }
@@ -195,9 +197,29 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     ...state.players,
                     [nextId]: nextPlayer
                 },
-                activePlayerId: nextId
+                activePlayerId: nextId,
+                rosterOrder: [...state.rosterOrder.filter((id) => id !== nextId), nextId]
             };
             return updateDungeonOnboardingRequired(nextState);
+        }
+        case "reorderRoster": {
+            const normalized = normalizeRosterOrder(state.players, state.rosterOrder);
+            const currentIndex = normalized.indexOf(action.playerId);
+            if (currentIndex === -1) {
+                return state;
+            }
+            const clampedIndex = Math.max(0, Math.min(normalized.length, Math.floor(action.targetIndex)));
+            if (clampedIndex === currentIndex) {
+                return state;
+            }
+            const nextOrder = normalized.slice();
+            nextOrder.splice(currentIndex, 1);
+            const adjustedIndex = clampedIndex > currentIndex ? clampedIndex - 1 : clampedIndex;
+            nextOrder.splice(adjustedIndex, 0, action.playerId);
+            return {
+                ...state,
+                rosterOrder: nextOrder
+            };
         }
         case "renamePlayer": {
             const player = state.players[action.playerId];

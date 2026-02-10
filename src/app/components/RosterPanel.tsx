@@ -1,5 +1,5 @@
-import { memo } from "react";
-import type { CSSProperties } from "react";
+import { memo, useMemo, useRef, useState } from "react";
+import type { CSSProperties, PointerEvent } from "react";
 import type { PlayerState } from "../../core/types";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
 import { getSkillIconColor } from "../ui/skillColors";
@@ -21,10 +21,49 @@ type RosterPanelProps = {
     showSettingsButton: boolean;
     onToggleCollapsed: () => void;
     onSetActivePlayer: (playerId: string) => void;
+    onReorderPlayer: (playerId: string, targetIndex: number) => void;
     onAddPlayer: () => void;
     onOpenSystem: () => void;
     getSkillLabel: (skillId: string) => string;
     getRecipeLabel: (skillId: string, recipeId: string) => string;
+};
+
+const DRAG_THRESHOLD_PX = 8;
+const LONG_PRESS_MS = 500;
+
+const movePlayerInList = (list: PlayerState[], playerId: string, targetIndex: number) => {
+    const fromIndex = list.findIndex((player) => player.id === playerId);
+    if (fromIndex === -1) {
+        return list;
+    }
+    const clampedIndex = Math.max(0, Math.min(list.length, targetIndex));
+    if (fromIndex === clampedIndex) {
+        return list;
+    }
+    const next = list.slice();
+    const [moved] = next.splice(fromIndex, 1);
+    const adjustedIndex = clampedIndex > fromIndex ? clampedIndex - 1 : clampedIndex;
+    next.splice(adjustedIndex, 0, moved);
+    return next;
+};
+
+type DragState = {
+    playerId: string;
+    overIndex: number;
+    isDragging: boolean;
+};
+
+type DragTracking = {
+    playerId: string;
+    fromIndex: number;
+    overIndex: number;
+    pointerId: number;
+    startX: number;
+    startY: number;
+    isDragging: boolean;
+    isArmed: boolean;
+    pointerType: string;
+    longPressTimer: number | null;
 };
 
 export const RosterPanel = memo(({
@@ -37,6 +76,7 @@ export const RosterPanel = memo(({
     showSettingsButton,
     onToggleCollapsed,
     onSetActivePlayer,
+    onReorderPlayer,
     onAddPlayer,
     onOpenSystem,
     getSkillLabel,
@@ -49,6 +89,117 @@ export const RosterPanel = memo(({
         CombatMelee: "Melee",
         CombatRanged: "Ranged",
         CombatMagic: "Magic"
+    };
+    const [dragState, setDragState] = useState<DragState | null>(null);
+    const dragRef = useRef<DragTracking | null>(null);
+    const suppressClickRef = useRef<string | null>(null);
+    const renderedPlayers = useMemo(() => {
+        if (!dragState || !dragState.isDragging) {
+            return players;
+        }
+        return movePlayerInList(players, dragState.playerId, dragState.overIndex);
+    }, [players, dragState]);
+
+    const clearDrag = () => {
+        const tracking = dragRef.current;
+        if (tracking?.longPressTimer) {
+            window.clearTimeout(tracking.longPressTimer);
+        }
+        dragRef.current = null;
+        setDragState(null);
+    };
+
+    const handlePointerDown = (
+        event: PointerEvent<HTMLDivElement>,
+        playerId: string,
+        index: number
+    ) => {
+        if (event.button !== 0 && event.pointerType === "mouse") {
+            return;
+        }
+        const target = event.target as HTMLElement;
+        if (target.closest("[data-no-drag]")) {
+            return;
+        }
+        const tracking: DragTracking = {
+            playerId,
+            fromIndex: index,
+            overIndex: index,
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            isDragging: false,
+            isArmed: event.pointerType !== "touch",
+            pointerType: event.pointerType,
+            longPressTimer: null
+        };
+        dragRef.current = tracking;
+        if (typeof event.currentTarget.setPointerCapture === "function") {
+            event.currentTarget.setPointerCapture(event.pointerId);
+        }
+        if (event.pointerType === "touch") {
+            tracking.longPressTimer = window.setTimeout(() => {
+                if (!dragRef.current || dragRef.current.playerId !== playerId) {
+                    return;
+                }
+                dragRef.current.isArmed = true;
+                suppressClickRef.current = playerId;
+            }, LONG_PRESS_MS);
+        }
+    };
+
+    const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+        const tracking = dragRef.current;
+        if (!tracking || tracking.pointerId !== event.pointerId) {
+            return;
+        }
+        const dx = event.clientX - tracking.startX;
+        const dy = event.clientY - tracking.startY;
+        const distance = Math.hypot(dx, dy);
+        if (!tracking.isDragging) {
+            if (!tracking.isArmed || distance < DRAG_THRESHOLD_PX) {
+                return;
+            }
+            tracking.isDragging = true;
+            tracking.overIndex = tracking.fromIndex;
+            setDragState({ playerId: tracking.playerId, overIndex: tracking.overIndex, isDragging: true });
+        }
+        event.preventDefault();
+        const element = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null;
+        const card = element?.closest("[data-roster-player-id]") as HTMLElement | null;
+        const overId = card?.dataset.rosterPlayerId ?? null;
+        if (!overId) {
+            return;
+        }
+        const baseIndex = players.findIndex((player) => player.id === overId);
+        if (baseIndex === -1) {
+            return;
+        }
+        const rect = card?.getBoundingClientRect();
+        const after = rect ? event.clientY > rect.top + rect.height / 2 : false;
+        const targetIndex = Math.max(0, Math.min(players.length, baseIndex + (after ? 1 : 0)));
+        if (targetIndex === tracking.overIndex) {
+            return;
+        }
+        tracking.overIndex = targetIndex;
+        setDragState({ playerId: tracking.playerId, overIndex: targetIndex, isDragging: true });
+    };
+
+    const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+        const tracking = dragRef.current;
+        if (!tracking || tracking.pointerId !== event.pointerId) {
+            return;
+        }
+        if (tracking.longPressTimer) {
+            window.clearTimeout(tracking.longPressTimer);
+        }
+        if (tracking.isDragging) {
+            suppressClickRef.current = tracking.playerId;
+            onReorderPlayer(tracking.playerId, tracking.overIndex);
+        } else if (tracking.pointerType === "touch" && tracking.isArmed) {
+            suppressClickRef.current = tracking.playerId;
+        }
+        clearDrag();
     };
 
     return (
@@ -87,8 +238,8 @@ export const RosterPanel = memo(({
             </div>
             {!isCollapsed ? (
                 <>
-                    <div className="ts-player-list">
-                        {players.map((player) => {
+                    <div className={`ts-player-list${dragState?.isDragging ? " is-dragging" : ""}`}>
+                        {renderedPlayers.map((player, index) => {
                             const isAssignedToDungeon = activeDungeonPartySet.has(player.id);
                             const currentAction = player.selectedActionId;
                             const combatSkillId = getCombatSkillIdForWeaponType(getEquippedWeaponType(player.equipment));
@@ -121,8 +272,19 @@ export const RosterPanel = memo(({
                             return (
                                 <div
                                     key={player.id}
-                                    className={`ts-player-card ${player.id === activePlayerId ? "is-active" : ""}`}
-                                    onClick={() => onSetActivePlayer(player.id)}
+                                    className={`ts-player-card ${player.id === activePlayerId ? "is-active" : ""}${dragState?.playerId === player.id ? " is-dragging" : ""}`}
+                                    onClick={() => {
+                                        if (suppressClickRef.current === player.id) {
+                                            suppressClickRef.current = null;
+                                            return;
+                                        }
+                                        onSetActivePlayer(player.id);
+                                    }}
+                                    onPointerDown={(event) => handlePointerDown(event, player.id, index)}
+                                    onPointerMove={handlePointerMove}
+                                    onPointerUp={handlePointerUp}
+                                    onPointerCancel={handlePointerUp}
+                                    data-roster-player-id={player.id}
                                     data-testid={`roster-player-${player.id}`}
                                 >
                                     <div className="ts-player-main">
@@ -152,6 +314,7 @@ export const RosterPanel = memo(({
                             onClick={onAddPlayer}
                             disabled={!canAddPlayer}
                             aria-disabled={!canAddPlayer}
+                            data-no-drag="true"
                             aria-label="Enlist a new hero"
                             title={!canAddPlayer ? "Roster limit reached" : undefined}
                         >

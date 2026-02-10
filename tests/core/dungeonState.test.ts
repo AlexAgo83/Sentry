@@ -11,7 +11,7 @@ import {
 } from "../../src/core/dungeon";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
 import { gameReducer } from "../../src/core/reducer";
-import type { DungeonRunState, DungeonState } from "../../src/core/types";
+import type { DungeonDefinition, DungeonRunState, DungeonState } from "../../src/core/types";
 
 const buildRun = (overrides: Partial<DungeonRunState> = {}): DungeonRunState => ({
     id: "run-a",
@@ -55,7 +55,7 @@ const buildRun = (overrides: Partial<DungeonRunState> = {}): DungeonRunState => 
 describe("dungeon state normalization", () => {
     it("applies setup fallbacks, dedupes party selection, and clamps policy", () => {
         const input = {
-            onboardingRequired: 1,
+            onboardingRequired: true,
             setup: {
                 selectedDungeonId: "invalid_dungeon",
                 selectedPartyPlayerIds: ["1", "1", "2", "2", "3", "4"],
@@ -218,7 +218,7 @@ describe("dungeon selectors and helpers", () => {
     });
 
     it("computes start food cost using tier and single-floor boss surcharge", () => {
-        const singleFloor = {
+        const singleFloor: DungeonDefinition = {
             id: "dungeon_single",
             name: "Single",
             tier: 1,
@@ -227,7 +227,7 @@ describe("dungeon selectors and helpers", () => {
             bossName: "Boss",
             bossMechanic: "burst"
         };
-        const multiFloor = {
+        const multiFloor: DungeonDefinition = {
             id: "dungeon_multi",
             name: "Multi",
             tier: 5,

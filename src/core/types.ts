@@ -299,6 +299,7 @@ export interface GameState {
     lastNonDungeonActionByPlayer: LastNonDungeonActionByPlayer;
     players: Record<PlayerId, PlayerState>;
     activePlayerId: PlayerId | null;
+    rosterOrder: PlayerId[];
     rosterLimit: number;
     inventory: InventoryState;
     quests: QuestProgressState;
@@ -414,6 +415,7 @@ export interface GameSave {
     lastNonDungeonAction?: LastNonDungeonAction | null;
     lastNonDungeonActionByPlayer?: LastNonDungeonActionByPlayer | null;
     players: Record<PlayerId, PlayerSaveState>;
+    rosterOrder?: PlayerId[];
     rosterLimit?: number;
     inventory?: InventoryState;
     quests?: QuestProgressState;

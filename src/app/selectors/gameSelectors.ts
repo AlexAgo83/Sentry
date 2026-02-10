@@ -1,4 +1,5 @@
-import type { GameState, PlayerState } from "../../core/types";
+import type { GameState, PlayerState, PlayerId } from "../../core/types";
+import { normalizeRosterOrder } from "../../core/state";
 
 export const selectActivePlayer = (() => {
     let lastPlayers: GameState["players"] | null = null;
@@ -23,20 +24,21 @@ export const selectActivePlayerFromPlayers = (
 };
 
 export const selectPlayersSorted = (state: GameState): PlayerState[] => {
-    return selectPlayersSortedFromPlayers(state.players);
+    return selectPlayersSortedFromPlayers(state.players, state.rosterOrder);
 };
 
 export const selectPlayersSortedFromPlayers = (() => {
     let lastPlayers: GameState["players"] | null = null;
+    let lastRosterOrder: PlayerId[] | null = null;
     let lastResult: PlayerState[] = [];
-    return (players: GameState["players"]): PlayerState[] => {
-        if (players === lastPlayers) {
+    return (players: GameState["players"], rosterOrder: PlayerId[] = []): PlayerState[] => {
+        if (players === lastPlayers && rosterOrder === lastRosterOrder) {
             return lastResult;
         }
         lastPlayers = players;
-        lastResult = Object.values(players)
-            .slice()
-            .sort((a, b) => Number(a.id) - Number(b.id));
+        lastRosterOrder = rosterOrder;
+        const orderedIds = normalizeRosterOrder(players, rosterOrder);
+        lastResult = orderedIds.map((id) => players[id]).filter(Boolean);
         return lastResult;
     };
 })();

@@ -6,9 +6,11 @@ import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data
 import { getActiveDungeonRun } from "../../core/dungeon";
 import type { PlayerId } from "../../core/types";
 import { DungeonScreen } from "../components/DungeonScreen";
+import { selectPlayersSortedFromPlayers } from "../selectors/gameSelectors";
 
 export const DungeonScreenContainer = () => {
     const players = useGameStore((state) => state.players);
+    const rosterOrder = useGameStore((state) => state.rosterOrder);
     const activePlayerId = useGameStore((state) => state.activePlayerId);
     const setup = useGameStore((state) => state.dungeon.setup);
     const dungeon = useGameStore((state) => state.dungeon);
@@ -19,6 +21,10 @@ export const DungeonScreenContainer = () => {
         return (items.potion ?? 0) + (items.tonic ?? 0) + (items.elixir ?? 0);
     });
     const activeRun = useMemo(() => getActiveDungeonRun(dungeon), [dungeon]);
+    const playersSorted = useMemo(
+        () => selectPlayersSortedFromPlayers(players, rosterOrder),
+        [players, rosterOrder]
+    );
     const playerCount = Object.keys(players).length;
     const canEnterDungeon = playerCount >= 4;
     const [showReplay, setShowReplay] = useState(false);
@@ -85,6 +91,7 @@ export const DungeonScreenContainer = () => {
         <DungeonScreen
             definitions={DUNGEON_DEFINITIONS}
             players={players}
+            playersSorted={playersSorted}
             selectedDungeonId={setup.selectedDungeonId}
             selectedPartyPlayerIds={setup.selectedPartyPlayerIds}
             canEnterDungeon={canEnterDungeon}

@@ -1,9 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
-import type { DungeonReplayState, DungeonRunState } from "../../src/core/types";
+import type { DungeonReplayState, DungeonRunState, PlayerState } from "../../src/core/types";
 import { DUNGEON_DEFINITIONS } from "../../src/data/dungeons";
 import { DungeonScreen } from "../../src/app/components/DungeonScreen";
+
+const getPlayersSorted = (players: Record<string, PlayerState>) => (
+    Object.values(players).sort((a, b) => Number(a.id) - Number(b.id))
+);
 
 const getBaseRun = (): DungeonRunState => ({
     id: "run-1",
@@ -78,6 +82,7 @@ describe("DungeonScreen controls", () => {
             <DungeonScreen
                 definitions={[]}
                 players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
@@ -118,6 +123,7 @@ describe("DungeonScreen controls", () => {
             <DungeonScreen
                 definitions={[]}
                 players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
@@ -161,6 +167,7 @@ describe("DungeonScreen controls", () => {
             <DungeonScreen
                 definitions={[]}
                 players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
@@ -202,6 +209,7 @@ describe("DungeonScreen controls", () => {
             <DungeonScreen
                 definitions={DUNGEON_DEFINITIONS}
                 players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
@@ -239,6 +247,7 @@ describe("DungeonScreen controls", () => {
             <DungeonScreen
                 definitions={DUNGEON_DEFINITIONS}
                 players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
@@ -276,6 +285,7 @@ describe("DungeonScreen controls", () => {
             <DungeonScreen
                 definitions={DUNGEON_DEFINITIONS}
                 players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
@@ -313,6 +323,7 @@ describe("DungeonScreen controls", () => {
             <DungeonScreen
                 definitions={DUNGEON_DEFINITIONS}
                 players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
@@ -349,6 +360,7 @@ describe("DungeonScreen controls", () => {
             <DungeonScreen
                 definitions={DUNGEON_DEFINITIONS}
                 players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
                 selectedDungeonId="dungeon_ruines_humides"
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon

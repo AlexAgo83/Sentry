@@ -216,10 +216,26 @@
     color: var(--color-text);
     text-align: left;
     font-family: var(--default-font);
-    cursor: pointer;
+    cursor: grab;
     transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.12s ease;
     will-change: border-color, box-shadow, transform;
     transform: translateZ(0);
+}
+
+.ts-player-list.is-dragging {
+    user-select: none;
+}
+
+.ts-player-list.is-dragging .ts-player-card {
+    cursor: grabbing;
+}
+
+.ts-player-card.is-dragging {
+    cursor: grabbing;
+    border-color: rgba(242, 193, 78, 0.85);
+    box-shadow: 0 10px 24px -12px rgba(242, 193, 78, 0.8);
+    transform: scale(1.02);
+    z-index: 2;
 }
 
 .ts-player-card:hover {
@@ -245,6 +261,7 @@
     border-style: dashed;
     border-color: rgba(242, 193, 78, 0.35);
     background: rgba(12, 18, 32, 0.55);
+    cursor: pointer;
 }
 
 .ts-player-card-add:hover {

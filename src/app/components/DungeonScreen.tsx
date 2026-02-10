@@ -33,6 +33,7 @@ import {
 type DungeonScreenProps = {
     definitions: DungeonDefinition[];
     players: Record<PlayerId, PlayerState>;
+    playersSorted: PlayerState[];
     selectedDungeonId: string;
     selectedPartyPlayerIds: PlayerId[];
     canEnterDungeon: boolean;
@@ -101,6 +102,7 @@ const POTION_COOLDOWN_MS = 4000;
 export const DungeonScreen = memo(({
     definitions,
     players,
+    playersSorted,
     selectedDungeonId,
     selectedPartyPlayerIds,
     canEnterDungeon,
@@ -179,7 +181,7 @@ export const DungeonScreen = memo(({
     };
 
     const selectedDungeon = definitions.find((definition) => definition.id === selectedDungeonId) ?? definitions[0] ?? null;
-    const sortedPlayers = Object.values(players).sort((a, b) => Number(a.id) - Number(b.id));
+    const sortedPlayers = playersSorted;
     const requiredFoodForStart = selectedDungeon ? 1 + Math.floor((selectedDungeon.tier - 1) / 2) : 0;
     const safeRequiredFoodForStart = Number.isFinite(requiredFoodForStart) ? Math.max(0, Math.floor(requiredFoodForStart)) : 0;
     const safeFoodCount = Number.isFinite(foodCount) ? Math.max(0, Math.floor(foodCount)) : 0;

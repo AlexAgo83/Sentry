@@ -29,9 +29,13 @@ export const RosterContainer = ({
     const [isCollapsed, setCollapsed] = usePersistedCollapse("roster", false);
     const activePlayerId = useGameStore((state) => state.activePlayerId);
     const playersById = useGameStore((state) => state.players);
+    const rosterOrder = useGameStore((state) => state.rosterOrder);
     const rosterLimit = useGameStore((state) => state.rosterLimit);
     const dungeon = useGameStore((state) => state.dungeon);
-    const players = useMemo(() => selectPlayersSortedFromPlayers(playersById), [playersById]);
+    const players = useMemo(
+        () => selectPlayersSortedFromPlayers(playersById, rosterOrder),
+        [playersById, rosterOrder]
+    );
     const activeDungeonPartyPlayerIds = useMemo(() => (
         getActiveDungeonRuns(dungeon).flatMap((run) => run.party.map((member) => member.playerId))
     ), [dungeon]);
@@ -56,6 +60,9 @@ export const RosterContainer = ({
             onSetActivePlayer={(playerId) => {
                 gameStore.dispatch({ type: "setActivePlayer", playerId });
                 onAfterSetActivePlayer?.();
+            }}
+            onReorderPlayer={(playerId, targetIndex) => {
+                gameStore.dispatch({ type: "reorderRoster", playerId, targetIndex });
             }}
             onAddPlayer={onAddPlayer}
             onOpenSystem={onOpenSystem}

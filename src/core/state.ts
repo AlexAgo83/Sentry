@@ -232,6 +232,7 @@ export const createInitialGameState = (version: string, options: InitialGameStat
     const initialRosterLimit = seedHero ? DEFAULT_ROSTER_LIMIT : Math.max(DEFAULT_ROSTER_LIMIT, 4);
     const dungeon = createDungeonState();
     dungeon.onboardingRequired = !seedHero;
+    const rosterOrder = player ? [playerId] : [];
 
     return {
         version,
@@ -240,6 +241,7 @@ export const createInitialGameState = (version: string, options: InitialGameStat
         lastNonDungeonActionByPlayer: {},
         players: player ? { [playerId]: player } : {},
         activePlayerId: player ? playerId : null,
+        rosterOrder,
         rosterLimit: initialRosterLimit,
         inventory: createInventoryState(DEFAULT_GOLD),
         quests: createQuestProgressState(),
@@ -393,6 +395,37 @@ const resolveInventory = (
     return { items: nextItems };
 };
 
+export const normalizeRosterOrder = (
+    players: Record<PlayerId, PlayerState>,
+    rosterOrder?: PlayerId[] | null
+): PlayerId[] => {
+    const playerIds = Object.keys(players) as PlayerId[];
+    const sortedIds = playerIds.slice().sort((a, b) => Number(a) - Number(b));
+    const seen = new Set<PlayerId>();
+    const normalized: PlayerId[] = [];
+    if (Array.isArray(rosterOrder)) {
+        rosterOrder.forEach((id) => {
+            const normalizedId = String(id) as PlayerId;
+            if (!players[normalizedId]) {
+                return;
+            }
+            if (seen.has(normalizedId)) {
+                return;
+            }
+            seen.add(normalizedId);
+            normalized.push(normalizedId);
+        });
+    }
+    sortedIds.forEach((id) => {
+        if (seen.has(id)) {
+            return;
+        }
+        seen.add(id);
+        normalized.push(id);
+    });
+    return normalized;
+};
+
 export const hydrateGameState = (version: string, save?: GameSave | null): GameState => {
     const baseState = createInitialGameState(version, { seedHero: false });
     if (!save) {
@@ -434,11 +467,15 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         dungeon.onboardingRequired = false;
     }
 
+    const resolvedPlayers = Object.keys(players).length > 0 ? players : baseState.players;
+    const rosterOrder = normalizeRosterOrder(resolvedPlayers, save.rosterOrder);
+
     return {
         ...baseState,
         version,
-        players: Object.keys(players).length > 0 ? players : baseState.players,
+        players: resolvedPlayers,
         activePlayerId,
+        rosterOrder,
         lastNonDungeonActionByPlayer: normalizeLastNonDungeonActionByPlayer(
             save.lastNonDungeonActionByPlayer ?? save.lastNonDungeonAction,
             players,

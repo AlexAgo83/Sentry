@@ -47,6 +47,37 @@ const normalizeRosterLimit = (value: unknown, minimum = 1): number => {
     return Math.max(1, Math.floor(minimum), Math.floor(numeric));
 };
 
+const normalizeRosterOrder = (
+    value: unknown,
+    players: Record<PlayerId, PlayerSaveState>
+): PlayerId[] => {
+    const playerIds = Object.keys(players) as PlayerId[];
+    const sortedIds = playerIds.slice().sort((a, b) => Number(a) - Number(b));
+    const seen = new Set<PlayerId>();
+    const normalized: PlayerId[] = [];
+    if (Array.isArray(value)) {
+        value.forEach((id) => {
+            const normalizedId = String(id) as PlayerId;
+            if (!players[normalizedId]) {
+                return;
+            }
+            if (seen.has(normalizedId)) {
+                return;
+            }
+            seen.add(normalizedId);
+            normalized.push(normalizedId);
+        });
+    }
+    sortedIds.forEach((id) => {
+        if (seen.has(id)) {
+            return;
+        }
+        seen.add(id);
+        normalized.push(id);
+    });
+    return normalized;
+};
+
 const toNullableString = (value: unknown): string | null => {
     if (typeof value !== "string") {
         return null;
@@ -330,6 +361,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             ? playerIds[0]
             : null;
     const rosterLimit = normalizeRosterLimit(input.rosterLimit, playerIds.length);
+    const rosterOrder = normalizeRosterOrder((input as { rosterOrder?: unknown }).rosterOrder, players);
     const rawLastNonDungeonAction = (input as {
         lastNonDungeonActionByPlayer?: unknown;
         lastNonDungeonAction?: unknown;
@@ -368,6 +400,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             activePlayerId,
             lastNonDungeonActionByPlayer,
             players,
+            rosterOrder,
             rosterLimit,
             inventory: finalInventory,
             ...(quests ? { quests } : {}),

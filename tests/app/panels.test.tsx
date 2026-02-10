@@ -35,6 +35,7 @@ describe("panel components", () => {
                 showSettingsButton={false}
                 onToggleCollapsed={vi.fn()}
                 onSetActivePlayer={onSetActivePlayer}
+                onReorderPlayer={vi.fn()}
                 onAddPlayer={vi.fn()}
                 onOpenSystem={vi.fn()}
                 getSkillLabel={() => "Combat"}
