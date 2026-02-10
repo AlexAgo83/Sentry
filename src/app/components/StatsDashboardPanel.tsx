@@ -1,7 +1,7 @@
 import { memo, useMemo, useState } from "react";
 import type { CombatSkillId, PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
-import { SKILL_MAX_LEVEL } from "../../core/constants";
+import { DEFAULT_HP_MAX, SKILL_MAX_LEVEL, STAT_PERCENT_PER_POINT } from "../../core/constants";
 import { SKILL_DEFINITIONS } from "../../data/definitions";
 import type { CombatDisplayModel } from "../selectors/combatSelectors";
 import { usePersistedPanelTab } from "../hooks/usePersistedPanelTab";
@@ -201,6 +201,11 @@ export const StatsDashboardPanel = memo(({
     const dpsBase = combatDisplay.damage.base * combatDisplay.attacksPerSecond.base;
     const dpsTotal = combatDisplay.damage.total * combatDisplay.attacksPerSecond.total;
     const dpsModifiers = dpsTotal - dpsBase;
+    const baseEndurance = Number.isFinite(stats.base.Endurance) ? stats.base.Endurance : 0;
+    const totalEndurance = Number.isFinite(effectiveStats.Endurance) ? effectiveStats.Endurance : baseEndurance;
+    const hpMaxBase = Math.ceil(DEFAULT_HP_MAX * (1 + baseEndurance * STAT_PERCENT_PER_POINT));
+    const hpMaxTotal = Math.ceil(DEFAULT_HP_MAX * (1 + totalEndurance * STAT_PERCENT_PER_POINT));
+    const hpMaxModifiers = hpMaxTotal - hpMaxBase;
 
     return (
         <section className="generic-panel ts-panel ts-panel-stats">
@@ -362,6 +367,30 @@ export const StatsDashboardPanel = memo(({
                                             <span className="ts-character-cell-label">Total</span>
                                             <span className="ts-character-cell-value">
                                                 {formatCombatValue(combatDisplay.level.total)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="ts-character-row ts-character-row--combat">
+                                        <div className="ts-character-cell ts-character-cell--stat">
+                                            <span className="ts-character-cell-label">Metric</span>
+                                            <span className="ts-character-cell-value">Hitpoint Max</span>
+                                        </div>
+                                        <div className="ts-character-cell">
+                                            <span className="ts-character-cell-label">Base</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatValue(hpMaxBase)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-character-cell ts-character-cell--mods">
+                                            <span className="ts-character-cell-label">Modifiers</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatDelta(hpMaxModifiers)}
+                                            </span>
+                                        </div>
+                                        <div className="ts-character-cell ts-character-cell--total">
+                                            <span className="ts-character-cell-label">Total</span>
+                                            <span className="ts-character-cell-value">
+                                                {formatCombatValue(hpMaxTotal)}
                                             </span>
                                         </div>
                                     </div>
