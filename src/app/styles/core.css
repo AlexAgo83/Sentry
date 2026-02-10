@@ -204,6 +204,27 @@
     gap: var(--m4);
 }
 
+.ts-player-drop-indicator {
+    position: relative;
+    height: 0;
+    margin: calc(var(--m2) * -0.25) var(--m4);
+    border-top: 2px solid rgba(93, 217, 193, 0.92);
+    box-shadow: 0 0 10px rgba(93, 217, 193, 0.45);
+    pointer-events: none;
+}
+
+.ts-player-drop-indicator::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: -6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(93, 217, 193, 0.95);
+    box-shadow: 0 0 8px rgba(93, 217, 193, 0.7);
+}
+
 .ts-player-card {
     display: flex;
     align-items: center;

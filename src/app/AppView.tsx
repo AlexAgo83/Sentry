@@ -69,20 +69,14 @@ export const AppView = (props: AppViewProps) => {
         }
         const body = document.body;
         const root = document.documentElement;
-        const shouldLock = isMobile && props.isRosterDrawerOpen;
-        if (!shouldLock) {
-            body.classList.remove("is-roster-drawer-open");
-            return;
-        }
-        const previousBodyOverflow = body.style.overflow;
-        const previousRootOverflow = root.style.overflow;
-        body.classList.add("is-roster-drawer-open");
-        body.style.overflow = "hidden";
-        root.style.overflow = "hidden";
+        const shouldLock = Boolean(isMobile && props.isRosterDrawerOpen);
+        body.classList.toggle("is-roster-drawer-open", shouldLock);
+        body.style.overflow = shouldLock ? "hidden" : "";
+        root.style.overflow = shouldLock ? "hidden" : "";
         return () => {
             body.classList.remove("is-roster-drawer-open");
-            body.style.overflow = previousBodyOverflow;
-            root.style.overflow = previousRootOverflow;
+            body.style.overflow = "";
+            root.style.overflow = "";
         };
     }, [isMobile, props.isRosterDrawerOpen]);
 

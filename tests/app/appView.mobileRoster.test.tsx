@@ -87,6 +87,8 @@ describe("AppView (mobile roster)", () => {
         Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
         const { rerender } = renderAppView({ isRosterDrawerOpen: true });
         expect(document.body.classList.contains("is-roster-drawer-open")).toBe(true);
+        expect(document.body.style.overflow).toBe("hidden");
+        expect(document.documentElement.style.overflow).toBe("hidden");
 
         rerender(
             <AppView
@@ -118,5 +120,7 @@ describe("AppView (mobile roster)", () => {
             />
         );
         expect(document.body.classList.contains("is-roster-drawer-open")).toBe(false);
+        expect(document.body.style.overflow).toBe("");
+        expect(document.documentElement.style.overflow).toBe("");
     });
 });

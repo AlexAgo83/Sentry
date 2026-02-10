@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { Fragment, memo, useEffect, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent, TouchEvent as ReactTouchEvent } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import type { PlayerState } from "../../core/types";
@@ -34,6 +34,7 @@ const LONG_PRESS_MS = 500;
 
 type DragState = {
     playerId: string;
+    overIndex: number;
     isDragging: boolean;
 };
 
@@ -77,6 +78,7 @@ export const RosterPanel = memo(({
     const [dragState, setDragState] = useState<DragState | null>(null);
     const dragRef = useRef<DragTracking | null>(null);
     const suppressClickRef = useRef<string | null>(null);
+    const dropTargetIndex = dragState?.isDragging ? dragState.overIndex : null;
 
     const clearDrag = () => {
         const tracking = dragRef.current;
@@ -92,7 +94,7 @@ export const RosterPanel = memo(({
         tracking.isDragging = true;
         tracking.overIndex = tracking.fromIndex;
         suppressClickRef.current = tracking.playerId;
-        setDragState({ playerId: tracking.playerId, isDragging: true });
+        setDragState({ playerId: tracking.playerId, overIndex: tracking.overIndex, isDragging: true });
     };
 
     const startTracking = ({
@@ -181,7 +183,7 @@ export const RosterPanel = memo(({
             }
             tracking.isDragging = true;
             tracking.overIndex = tracking.fromIndex;
-            setDragState({ playerId: tracking.playerId, isDragging: true });
+            setDragState({ playerId: tracking.playerId, overIndex: tracking.overIndex, isDragging: true });
         }
         preventDefault?.();
         const element = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
@@ -201,6 +203,7 @@ export const RosterPanel = memo(({
             return;
         }
         tracking.overIndex = targetIndex;
+        setDragState({ playerId: tracking.playerId, overIndex: tracking.overIndex, isDragging: true });
     };
 
     const handlePointerUpInternal = ({
@@ -422,49 +425,56 @@ export const RosterPanel = memo(({
                             } as CSSProperties;
 
                             return (
-                                <div
-                                    key={player.id}
-                                    className={`ts-player-card ${player.id === activePlayerId ? "is-active" : ""}${dragState?.playerId === player.id ? " is-dragging" : ""}`}
-                                    onClick={() => {
-                                        if (suppressClickRef.current === player.id) {
-                                            suppressClickRef.current = null;
-                                            return;
-                                        }
-                                        onSetActivePlayer(player.id);
-                                    }}
-                                    onPointerDown={(event) => handlePointerDown(event, player.id, index)}
-                                    onPointerMove={handlePointerMove}
-                                    onPointerUp={handlePointerUp}
-                                    onPointerCancel={handlePointerUp}
-                                    onTouchStart={(event) => handleTouchStart(event, player.id, index)}
-                                    onTouchMove={handleTouchMove}
-                                    onTouchEnd={handleTouchEnd}
-                                    onTouchCancel={handleTouchEnd}
-                                    onContextMenu={handlePlayerContextMenu}
-                                    data-roster-player-id={player.id}
-                                    data-testid={`roster-player-${player.id}`}
-                                >
-                                    <div className="ts-player-main">
-                                    <Avatar style={avatarStyle} />
-                                        <div className="ts-player-info">
-                                            <span className="ts-player-name">{player.name}</span>
-                                            <span className="ts-player-meta">{metaLabel}</span>
-                                        </div>
-                                    </div>
-                                    {actionLabel ? (
-                                        <div className="ts-player-skill">
-                                            <span className="ts-player-skill-icon" aria-hidden="true">
-                                                <SkillIcon skillId={displaySkillId ?? ""} color={skillColor} />
-                                            </span>
-                                            <span className={`ts-player-skill-label${isCombatLabel ? " is-combat" : ""}`}>
-                                                {actionLabel}
-                                                <span className={`ts-player-skill-badge${isCombatLabel ? " is-combat" : ""}`}>{skillLevel}</span>
-                                            </span>
-                                        </div>
+                                <Fragment key={player.id}>
+                                    {dropTargetIndex === index ? (
+                                        <div className="ts-player-drop-indicator" aria-hidden="true" />
                                     ) : null}
-                                </div>
+                                    <div
+                                        className={`ts-player-card ${player.id === activePlayerId ? "is-active" : ""}${dragState?.playerId === player.id ? " is-dragging" : ""}`}
+                                        onClick={() => {
+                                            if (suppressClickRef.current === player.id) {
+                                                suppressClickRef.current = null;
+                                                return;
+                                            }
+                                            onSetActivePlayer(player.id);
+                                        }}
+                                        onPointerDown={(event) => handlePointerDown(event, player.id, index)}
+                                        onPointerMove={handlePointerMove}
+                                        onPointerUp={handlePointerUp}
+                                        onPointerCancel={handlePointerUp}
+                                        onTouchStart={(event) => handleTouchStart(event, player.id, index)}
+                                        onTouchMove={handleTouchMove}
+                                        onTouchEnd={handleTouchEnd}
+                                        onTouchCancel={handleTouchEnd}
+                                        onContextMenu={handlePlayerContextMenu}
+                                        data-roster-player-id={player.id}
+                                        data-testid={`roster-player-${player.id}`}
+                                    >
+                                        <div className="ts-player-main">
+                                        <Avatar style={avatarStyle} />
+                                            <div className="ts-player-info">
+                                                <span className="ts-player-name">{player.name}</span>
+                                                <span className="ts-player-meta">{metaLabel}</span>
+                                            </div>
+                                        </div>
+                                        {actionLabel ? (
+                                            <div className="ts-player-skill">
+                                                <span className="ts-player-skill-icon" aria-hidden="true">
+                                                    <SkillIcon skillId={displaySkillId ?? ""} color={skillColor} />
+                                                </span>
+                                                <span className={`ts-player-skill-label${isCombatLabel ? " is-combat" : ""}`}>
+                                                    {actionLabel}
+                                                    <span className={`ts-player-skill-badge${isCombatLabel ? " is-combat" : ""}`}>{skillLevel}</span>
+                                                </span>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </Fragment>
                             );
                         })}
+                        {dropTargetIndex === players.length ? (
+                            <div className="ts-player-drop-indicator" aria-hidden="true" />
+                        ) : null}
                         <button
                             type="button"
                             className={`ts-player-card ts-player-card-add ts-focusable${canAddPlayer ? "" : " is-disabled"}`}
