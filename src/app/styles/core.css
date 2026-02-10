@@ -224,6 +224,7 @@
 
 .ts-player-list.is-dragging {
     user-select: none;
+    touch-action: none;
 }
 
 .ts-player-list.is-dragging .ts-player-card {

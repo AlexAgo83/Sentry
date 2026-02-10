@@ -1,5 +1,6 @@
-import { memo, useMemo, useRef, useState } from "react";
-import type { CSSProperties, PointerEvent } from "react";
+import { memo, useEffect, useRef, useState } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent, TouchEvent as ReactTouchEvent } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import type { PlayerState } from "../../core/types";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
 import { getSkillIconColor } from "../ui/skillColors";
@@ -31,25 +32,8 @@ type RosterPanelProps = {
 const DRAG_THRESHOLD_PX = 8;
 const LONG_PRESS_MS = 500;
 
-const movePlayerInList = (list: PlayerState[], playerId: string, targetIndex: number) => {
-    const fromIndex = list.findIndex((player) => player.id === playerId);
-    if (fromIndex === -1) {
-        return list;
-    }
-    const clampedIndex = Math.max(0, Math.min(list.length, targetIndex));
-    if (fromIndex === clampedIndex) {
-        return list;
-    }
-    const next = list.slice();
-    const [moved] = next.splice(fromIndex, 1);
-    const adjustedIndex = clampedIndex > fromIndex ? clampedIndex - 1 : clampedIndex;
-    next.splice(adjustedIndex, 0, moved);
-    return next;
-};
-
 type DragState = {
     playerId: string;
-    overIndex: number;
     isDragging: boolean;
 };
 
@@ -93,12 +77,6 @@ export const RosterPanel = memo(({
     const [dragState, setDragState] = useState<DragState | null>(null);
     const dragRef = useRef<DragTracking | null>(null);
     const suppressClickRef = useRef<string | null>(null);
-    const renderedPlayers = useMemo(() => {
-        if (!dragState || !dragState.isDragging) {
-            return players;
-        }
-        return movePlayerInList(players, dragState.playerId, dragState.overIndex);
-    }, [players, dragState]);
 
     const clearDrag = () => {
         const tracking = dragRef.current;
@@ -109,63 +87,104 @@ export const RosterPanel = memo(({
         setDragState(null);
     };
 
-    const handlePointerDown = (
-        event: PointerEvent<HTMLDivElement>,
-        playerId: string,
-        index: number
-    ) => {
-        if (event.button !== 0 && event.pointerType === "mouse") {
+    const beginDrag = (tracking: DragTracking) => {
+        tracking.isArmed = true;
+        tracking.isDragging = true;
+        tracking.overIndex = tracking.fromIndex;
+        suppressClickRef.current = tracking.playerId;
+        setDragState({ playerId: tracking.playerId, isDragging: true });
+    };
+
+    const startTracking = ({
+        playerId,
+        index,
+        pointerType,
+        pointerId,
+        clientX,
+        clientY,
+        button,
+        target,
+        setPointerCapture
+    }: {
+        playerId: string;
+        index: number;
+        pointerType: string;
+        pointerId: number;
+        clientX: number;
+        clientY: number;
+        button?: number;
+        target: EventTarget | null;
+        setPointerCapture?: (pointerId: number) => void;
+    }) => {
+        if (button !== undefined && button !== 0 && pointerType === "mouse") {
             return;
         }
-        const target = event.target as HTMLElement;
-        if (target.closest("[data-no-drag]")) {
+        const targetNode = target as HTMLElement | null;
+        if (targetNode?.closest("[data-no-drag]")) {
             return;
         }
         const tracking: DragTracking = {
             playerId,
             fromIndex: index,
             overIndex: index,
-            pointerId: event.pointerId,
-            startX: event.clientX,
-            startY: event.clientY,
+            pointerId,
+            startX: clientX,
+            startY: clientY,
             isDragging: false,
-            isArmed: event.pointerType !== "touch",
-            pointerType: event.pointerType,
+            isArmed: pointerType !== "touch",
+            pointerType,
             longPressTimer: null
         };
         dragRef.current = tracking;
-        if (typeof event.currentTarget.setPointerCapture === "function") {
-            event.currentTarget.setPointerCapture(event.pointerId);
-        }
-        if (event.pointerType === "touch") {
+        setPointerCapture?.(pointerId);
+        if (pointerType === "touch") {
             tracking.longPressTimer = window.setTimeout(() => {
                 if (!dragRef.current || dragRef.current.playerId !== playerId) {
                     return;
                 }
-                dragRef.current.isArmed = true;
-                suppressClickRef.current = playerId;
+                beginDrag(dragRef.current);
             }, LONG_PRESS_MS);
         }
     };
 
-    const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const handlePointerMoveInternal = ({
+        clientX,
+        clientY,
+        pointerId,
+        preventDefault
+    }: {
+        clientX: number;
+        clientY: number;
+        pointerId: number | null;
+        preventDefault?: () => void;
+    }) => {
         const tracking = dragRef.current;
-        if (!tracking || tracking.pointerId !== event.pointerId) {
+        if (!tracking) {
             return;
         }
-        const dx = event.clientX - tracking.startX;
-        const dy = event.clientY - tracking.startY;
+        if (pointerId !== null && tracking.pointerId !== pointerId) {
+            return;
+        }
+        const dx = clientX - tracking.startX;
+        const dy = clientY - tracking.startY;
         const distance = Math.hypot(dx, dy);
         if (!tracking.isDragging) {
-            if (!tracking.isArmed || distance < DRAG_THRESHOLD_PX) {
+            if (!tracking.isArmed) {
+                if (tracking.pointerType === "touch" && distance > DRAG_THRESHOLD_PX && tracking.longPressTimer) {
+                    window.clearTimeout(tracking.longPressTimer);
+                    tracking.longPressTimer = null;
+                }
+                return;
+            }
+            if (distance < DRAG_THRESHOLD_PX) {
                 return;
             }
             tracking.isDragging = true;
             tracking.overIndex = tracking.fromIndex;
-            setDragState({ playerId: tracking.playerId, overIndex: tracking.overIndex, isDragging: true });
+            setDragState({ playerId: tracking.playerId, isDragging: true });
         }
-        event.preventDefault();
-        const element = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null;
+        preventDefault?.();
+        const element = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
         const card = element?.closest("[data-roster-player-id]") as HTMLElement | null;
         const overId = card?.dataset.rosterPlayerId ?? null;
         if (!overId) {
@@ -176,18 +195,24 @@ export const RosterPanel = memo(({
             return;
         }
         const rect = card?.getBoundingClientRect();
-        const after = rect ? event.clientY > rect.top + rect.height / 2 : false;
+        const after = rect ? clientY > rect.top + rect.height / 2 : false;
         const targetIndex = Math.max(0, Math.min(players.length, baseIndex + (after ? 1 : 0)));
         if (targetIndex === tracking.overIndex) {
             return;
         }
         tracking.overIndex = targetIndex;
-        setDragState({ playerId: tracking.playerId, overIndex: targetIndex, isDragging: true });
     };
 
-    const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    const handlePointerUpInternal = ({
+        pointerId
+    }: {
+        pointerId: number | null;
+    }) => {
         const tracking = dragRef.current;
-        if (!tracking || tracking.pointerId !== event.pointerId) {
+        if (!tracking) {
+            return;
+        }
+        if (pointerId !== null && tracking.pointerId !== pointerId) {
             return;
         }
         if (tracking.longPressTimer) {
@@ -201,6 +226,133 @@ export const RosterPanel = memo(({
         }
         clearDrag();
     };
+
+    const handlePointerDown = (
+        event: ReactPointerEvent<HTMLDivElement>,
+        playerId: string,
+        index: number
+    ) => {
+        if (event.pointerType === "touch") {
+            return;
+        }
+        startTracking({
+            playerId,
+            index,
+            pointerType: event.pointerType,
+            pointerId: event.pointerId,
+            clientX: event.clientX,
+            clientY: event.clientY,
+            button: event.button,
+            target: event.target,
+            setPointerCapture: typeof event.currentTarget.setPointerCapture === "function"
+                ? (id) => event.currentTarget.setPointerCapture(id)
+                : undefined
+        });
+    };
+
+    const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+        if (event.pointerType === "touch") {
+            return;
+        }
+        handlePointerMoveInternal({
+            clientX: event.clientX,
+            clientY: event.clientY,
+            pointerId: event.pointerId,
+            preventDefault: () => event.preventDefault()
+        });
+    };
+
+    const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+        if (event.pointerType === "touch") {
+            return;
+        }
+        handlePointerUpInternal({
+            pointerId: event.pointerId
+        });
+    };
+
+    const handleTouchStart = (
+        event: ReactTouchEvent<HTMLDivElement>,
+        playerId: string,
+        index: number
+    ) => {
+        if (dragRef.current) {
+            return;
+        }
+        const touch = event.touches[0];
+        if (!touch) {
+            return;
+        }
+        startTracking({
+            playerId,
+            index,
+            pointerType: "touch",
+            pointerId: 0,
+            clientX: touch.clientX,
+            clientY: touch.clientY,
+            target: event.target
+        });
+    };
+
+    const handleTouchMove = (event: ReactTouchEvent<HTMLDivElement>) => {
+        if (!dragRef.current || dragRef.current.pointerType !== "touch") {
+            return;
+        }
+        const touch = event.touches[0];
+        if (!touch) {
+            return;
+        }
+        handlePointerMoveInternal({
+            clientX: touch.clientX,
+            clientY: touch.clientY,
+            pointerId: null
+        });
+    };
+
+    const handleTouchEnd = () => {
+        if (!dragRef.current || dragRef.current.pointerType !== "touch") {
+            return;
+        }
+        handlePointerUpInternal({
+            pointerId: null
+        });
+    };
+
+    const handlePlayerContextMenu = (event: ReactMouseEvent<HTMLDivElement>) => {
+        if (typeof window === "undefined" || typeof navigator === "undefined") {
+            return;
+        }
+        const isCoarsePointer = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+        const isTouchCapable = navigator.maxTouchPoints > 0;
+        if (isCoarsePointer || isTouchCapable) {
+            event.preventDefault();
+        }
+    };
+
+    useEffect(() => {
+        const handleTouchRelease = () => {
+            if (!dragRef.current || dragRef.current.pointerType !== "touch") {
+                return;
+            }
+            handlePointerUpInternal({ pointerId: null });
+        };
+        const handlePointerRelease = (event: PointerEvent) => {
+            if (!dragRef.current) {
+                return;
+            }
+            handlePointerUpInternal({ pointerId: event.pointerId });
+        };
+        window.addEventListener("touchend", handleTouchRelease);
+        window.addEventListener("touchcancel", handleTouchRelease);
+        window.addEventListener("pointerup", handlePointerRelease);
+        window.addEventListener("pointercancel", handlePointerRelease);
+        return () => {
+            window.removeEventListener("touchend", handleTouchRelease);
+            window.removeEventListener("touchcancel", handleTouchRelease);
+            window.removeEventListener("pointerup", handlePointerRelease);
+            window.removeEventListener("pointercancel", handlePointerRelease);
+        };
+    });
 
     return (
         <section className="generic-panel ts-panel" data-testid="roster-panel">
@@ -239,7 +391,7 @@ export const RosterPanel = memo(({
             {!isCollapsed ? (
                 <>
                     <div className={`ts-player-list${dragState?.isDragging ? " is-dragging" : ""}`}>
-                        {renderedPlayers.map((player, index) => {
+                        {players.map((player, index) => {
                             const isAssignedToDungeon = activeDungeonPartySet.has(player.id);
                             const currentAction = player.selectedActionId;
                             const combatSkillId = getCombatSkillIdForWeaponType(getEquippedWeaponType(player.equipment));
@@ -284,6 +436,11 @@ export const RosterPanel = memo(({
                                     onPointerMove={handlePointerMove}
                                     onPointerUp={handlePointerUp}
                                     onPointerCancel={handlePointerUp}
+                                    onTouchStart={(event) => handleTouchStart(event, player.id, index)}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                    onTouchCancel={handleTouchEnd}
+                                    onContextMenu={handlePlayerContextMenu}
                                     data-roster-player-id={player.id}
                                     data-testid={`roster-player-${player.id}`}
                                 >

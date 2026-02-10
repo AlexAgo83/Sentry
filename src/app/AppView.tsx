@@ -63,6 +63,29 @@ export const AppView = (props: AppViewProps) => {
         return () => mediaQuery.removeEventListener("change", handler);
     }, []);
 
+    useEffect(() => {
+        if (typeof document === "undefined") {
+            return;
+        }
+        const body = document.body;
+        const root = document.documentElement;
+        const shouldLock = isMobile && props.isRosterDrawerOpen;
+        if (!shouldLock) {
+            body.classList.remove("is-roster-drawer-open");
+            return;
+        }
+        const previousBodyOverflow = body.style.overflow;
+        const previousRootOverflow = root.style.overflow;
+        body.classList.add("is-roster-drawer-open");
+        body.style.overflow = "hidden";
+        root.style.overflow = "hidden";
+        return () => {
+            body.classList.remove("is-roster-drawer-open");
+            body.style.overflow = previousBodyOverflow;
+            root.style.overflow = previousRootOverflow;
+        };
+    }, [isMobile, props.isRosterDrawerOpen]);
+
     const {
         onOpenSystem,
         isRosterDrawerOpen = false,
@@ -94,6 +117,7 @@ export const AppView = (props: AppViewProps) => {
 
     const showRoster = !isMobile || activeScreen === "roster";
     const showMainStack = !isMobile || activeScreen !== "roster";
+    const isSingleColumnLayout = !showRoster || !showMainStack;
     const handleToggleRosterDrawer = () => {
         if (!onOpenRosterDrawer) {
             onOpenSystem();
@@ -179,7 +203,7 @@ export const AppView = (props: AppViewProps) => {
                     </div>
                 </div>
             </header>
-            <main className="app-layout generic-global ts-layout">
+            <main className={`app-layout generic-global ts-layout${isSingleColumnLayout ? " app-layout--single-column" : ""}`}>
                 {showRoster ? roster : null}
                 {showMainStack ? (
                     <div className="ts-main-stack">

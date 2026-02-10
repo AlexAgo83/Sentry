@@ -117,6 +117,10 @@ body {
     pointer-events: none;
 }
 
+body.is-roster-drawer-open {
+    overflow: hidden;
+}
+
 .app-roster-drawer.is-open {
     pointer-events: auto;
 }
@@ -449,6 +453,14 @@ body {
     align-items: start;
 }
 
+.app-layout.app-layout--single-column {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.app-layout.app-layout--single-column > * {
+    grid-column: 1 / -1;
+}
+
 @media (min-width: 1200px) {
     .app-layout {
         max-width: var(--app-max-width);
@@ -533,6 +545,21 @@ body {
 }
 
 @media (max-width: 900px) {
+    html,
+    body,
+    .app-shell {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    .app-shell::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        display: none;
+    }
+
     .app-layout {
         grid-template-columns: 1fr;
     }
