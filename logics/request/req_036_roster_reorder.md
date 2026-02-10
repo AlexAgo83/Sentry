@@ -1,7 +1,7 @@
 ## req_036_roster_reorder - Enable roster drag reordering (desktop + mobile)
 > From version: 0.9.12
-> Understanding: 76%
-> Confidence: 60%
+> Understanding: 94%
+> Confidence: 92%
 
 # Needs
 - Reorder roster entries by drag-and-drop on desktop (click-and-hold, then drag).
@@ -23,6 +23,13 @@
 - The reorder applies to roster list order and should be persisted in save data.
 - New heroes append to the end of the current order.
 - If order data is missing or invalid, fall back to id-sorted order.
+- Drag threshold: 8px (desktop + mobile).
+- Mobile long-press delay: 500ms.
+- Drag is allowed on the card body, but not on nested interactive controls (buttons/menus).
+- Desktop: click-and-hold without drag selects the hero; drag cancels selection.
+- Mobile: long-press without drag does not select (no-op).
+- Normalization: remove unknown ids, dedupe, then append missing ids in ascending id order.
+- Persistence: no migration required; normalization handles missing data.
 
 # Scope detail (draft)
 - Data:
