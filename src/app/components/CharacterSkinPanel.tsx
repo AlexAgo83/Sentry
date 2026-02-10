@@ -69,6 +69,14 @@ export const CharacterSkinPanel = memo(({
     onToggleEditMode,
     onToggleHelmet
 }: CharacterSkinPanelProps) => {
+    const heroNameLength = heroName?.trim().length ?? 0;
+    const heroNameSizeClass = heroNameLength > 16
+        ? " is-long-name"
+        : heroNameLength > 14
+            ? " is-medium-long-name"
+        : heroNameLength > 12
+            ? " is-medium-name"
+            : "";
     const avatarStyle = {
         "--ts-avatar-torso": avatarColor,
         "--ts-avatar-face": `url("${getFaceUrlByIndex(faceIndex)}")`,
@@ -93,12 +101,14 @@ export const CharacterSkinPanel = memo(({
             {!isCollapsed ? <span className="ts-skin-progress-ring" aria-hidden="true" /> : null}
             <div className="ts-panel-header">
                 <div className="ts-panel-heading">
-                    <h2 className="ts-panel-title">{heroName ?? "Hero Skin"}</h2>
+                    <h2 className={`ts-panel-title ts-skin-hero-title${heroNameSizeClass}`}>
+                        {heroName ?? "Hero Skin"}
+                    </h2>
                 </div>
                 <div className="ts-panel-actions ts-panel-actions-inline">
                     <button
                         type="button"
-                        className={`ts-icon-button ts-focusable${isEditMode ? " is-active" : ""}`}
+                        className={`ts-icon-button ts-focusable ts-skin-edit-button${isEditMode ? " is-active" : ""}`}
                         onClick={onToggleEditMode}
                         disabled={!canRenameHero}
                         aria-pressed={isEditMode}

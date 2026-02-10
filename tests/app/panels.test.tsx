@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { RosterPanel } from "../../src/app/components/RosterPanel";
 import { ActionStatusPanel } from "../../src/app/components/ActionStatusPanel";
 import { CharacterStatsPanel } from "../../src/app/components/CharacterStatsPanel";
+import { CharacterSkinPanel } from "../../src/app/components/CharacterSkinPanel";
 import { InventoryPanel } from "../../src/app/components/InventoryPanel";
 import { EquipmentPanel } from "../../src/app/components/EquipmentPanel";
 import { createPlayerState } from "../../src/core/state";
@@ -216,6 +217,82 @@ describe("panel components", () => {
 
         await user.click(screen.getByRole("button", { name: "Collapse" }));
         expect(onToggleCollapsed).toHaveBeenCalled();
+    });
+
+    it("CharacterSkinPanel marks long hero names for mobile downscaling", () => {
+        const baseProps = {
+            avatarColor: "#f2c14e",
+            faceIndex: 1,
+            hairIndex: 1,
+            hairColor: "#6c4a2d",
+            skinColor: "#d8c2a3",
+            showHelmet: true,
+            equipment: createPlayerEquipmentState(),
+            isPlaceholder: false,
+            isCollapsed: false,
+            isEditMode: false,
+            onRenameHero: vi.fn(),
+            canRenameHero: true,
+            onNextFace: vi.fn(),
+            onNextHair: vi.fn(),
+            onHairColorChange: vi.fn(),
+            onToggleCollapsed: vi.fn(),
+            onSkinColorChange: vi.fn(),
+            onToggleEditMode: vi.fn(),
+            onToggleHelmet: vi.fn()
+        };
+
+        const { rerender } = render(
+            <CharacterSkinPanel
+                {...baseProps}
+                heroName="ABCDEFGHIJKLMNOPQ"
+            />
+        );
+
+        const longNameHeading = screen.getByRole("heading", { name: "ABCDEFGHIJKLMNOPQ" });
+        expect(longNameHeading.className).toContain("ts-skin-hero-title");
+        expect(longNameHeading.className).toContain("is-long-name");
+        expect(longNameHeading.className).not.toContain("is-medium-name");
+        expect(longNameHeading.className).not.toContain("is-medium-long-name");
+
+        rerender(
+            <CharacterSkinPanel
+                {...baseProps}
+                heroName="ABCDEFGHIJKLMNO"
+            />
+        );
+
+        const mediumLongNameHeading = screen.getByRole("heading", { name: "ABCDEFGHIJKLMNO" });
+        expect(mediumLongNameHeading.className).toContain("ts-skin-hero-title");
+        expect(mediumLongNameHeading.className).toContain("is-medium-long-name");
+        expect(mediumLongNameHeading.className).not.toContain("is-medium-name");
+        expect(mediumLongNameHeading.className).not.toContain("is-long-name");
+
+        rerender(
+            <CharacterSkinPanel
+                {...baseProps}
+                heroName="ABCDEFGHIJKLM"
+            />
+        );
+
+        const mediumNameHeading = screen.getByRole("heading", { name: "ABCDEFGHIJKLM" });
+        expect(mediumNameHeading.className).toContain("ts-skin-hero-title");
+        expect(mediumNameHeading.className).toContain("is-medium-name");
+        expect(mediumNameHeading.className).not.toContain("is-medium-long-name");
+        expect(mediumNameHeading.className).not.toContain("is-long-name");
+
+        rerender(
+            <CharacterSkinPanel
+                {...baseProps}
+                heroName="Alyx"
+            />
+        );
+
+        const shortNameHeading = screen.getByRole("heading", { name: "Alyx" });
+        expect(shortNameHeading.className).toContain("ts-skin-hero-title");
+        expect(shortNameHeading.className).not.toContain("is-medium-name");
+        expect(shortNameHeading.className).not.toContain("is-medium-long-name");
+        expect(shortNameHeading.className).not.toContain("is-long-name");
     });
 
     it("CharacterStatsPanel includes gear breakdown in tooltips and formats buff timers", () => {

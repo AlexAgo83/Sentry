@@ -116,6 +116,20 @@
     color: var(--color-text-fade);
 }
 
+@media (max-width: 900px) {
+    .ts-skin-hero-title.is-medium-name {
+        font-size: calc(var(--text-l-size) * 0.8);
+    }
+
+    .ts-skin-hero-title.is-medium-long-name {
+        font-size: calc(var(--text-l-size) * 0.75);
+    }
+
+    .ts-skin-hero-title.is-long-name {
+        font-size: calc(var(--text-l-size) * 0.7);
+    }
+}
+
 .ts-skin-action-icon {
     display: inline-flex;
     align-items: center;
@@ -149,6 +163,17 @@
     display: inline-flex;
     align-items: center;
     gap: var(--m2);
+}
+
+.ts-skin-edit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
 }
 
 .ts-icon-button.is-active {
@@ -220,6 +245,21 @@
     border-color: transparent;
     background: transparent;
     box-shadow: none;
+}
+
+@media (max-width: 1000px) {
+    .ts-skin-cycle-button .ts-skin-action-label,
+    .ts-skin-rename-button .ts-skin-action-label {
+        display: none;
+    }
+
+    .ts-skin-cycle-button,
+    .ts-skin-rename-button {
+        padding-left: var(--m3);
+        padding-right: var(--m3);
+        min-width: 44px;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 900px) {
