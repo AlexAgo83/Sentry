@@ -70,15 +70,13 @@ export const AppView = (props: AppViewProps) => {
         const body = document.body;
         const root = document.documentElement;
         const shouldLock = Boolean(isMobile && props.isRosterDrawerOpen);
+        body.classList.remove("is-roster-drawer-open");
+        body.style.removeProperty("overflow");
+        body.style.removeProperty("touch-action");
+        root.style.removeProperty("overflow");
         if (shouldLock) {
             body.classList.add("is-roster-drawer-open");
             body.style.setProperty("overflow", "hidden");
-            body.style.setProperty("touch-action", "none");
-        } else {
-            body.classList.remove("is-roster-drawer-open");
-            body.style.removeProperty("overflow");
-            body.style.removeProperty("touch-action");
-            root.style.removeProperty("overflow");
         }
         return () => {
             body.classList.remove("is-roster-drawer-open");

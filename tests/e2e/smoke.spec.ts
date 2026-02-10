@@ -117,4 +117,32 @@ test.describe("mobile roster navigation", () => {
         await expect(page.locator(".app-roster-drawer")).toHaveClass(/is-open/);
         await expect(page.getByTestId("roster-panel")).toBeVisible();
     });
+
+    test("closing roster tab removes global scroll lock", async ({ page }) => {
+        await page.getByRole("button", { name: "Open roster" }).click();
+        await expect(page.locator(".app-roster-drawer")).toHaveClass(/is-open/);
+
+        await expect.poll(async () => page.evaluate(() => ({
+            classOn: document.body.classList.contains("is-roster-drawer-open"),
+            bodyOverflow: document.body.style.overflow,
+            htmlOverflow: document.documentElement.style.overflow
+        }))).toEqual({
+            classOn: true,
+            bodyOverflow: "hidden",
+            htmlOverflow: ""
+        });
+
+        await page.locator(".app-roster-drawer-backdrop").click({ position: { x: 300, y: 300 } });
+        await expect(page.locator(".app-roster-drawer")).not.toHaveClass(/is-open/);
+
+        await expect.poll(async () => page.evaluate(() => ({
+            classOn: document.body.classList.contains("is-roster-drawer-open"),
+            bodyOverflow: document.body.style.overflow,
+            htmlOverflow: document.documentElement.style.overflow
+        }))).toEqual({
+            classOn: false,
+            bodyOverflow: "",
+            htmlOverflow: ""
+        });
+    });
 });
