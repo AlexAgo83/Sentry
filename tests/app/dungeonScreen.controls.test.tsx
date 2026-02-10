@@ -62,7 +62,8 @@ const getReplay = (): DungeonReplayState => ({
     ],
     truncated: false,
     fallbackCriticalOnly: false,
-    cadenceSnapshot: []
+    cadenceSnapshot: [],
+    threatByHeroId: { "1": 0, "2": 0, "3": 0, "4": 0 }
 });
 
 describe("DungeonScreen controls", () => {

@@ -134,14 +134,14 @@ describe("OfflineSummaryModal", () => {
             && Boolean(element.textContent?.includes("Items:"))
             && Boolean(element.textContent?.includes("+2 Bones"))
         ) ?? false)).toBeTruthy();
-        expect(screen.getAllByText((_, element) => (
+        expect(screen.queryByText((_, element) => (
             element?.classList?.contains("ts-offline-gains")
             && Boolean(element.textContent?.includes("Items:"))
             && Boolean(element.textContent?.includes("None"))
-        ) ?? false).length).toBe(2);
+        ) ?? false)).toBeNull();
         expect(screen.getByText(/- \+2 Lv/)).toBeTruthy();
         expect(screen.getByText(/- \+1 Lv/)).toBeTruthy();
-        expect(screen.getByText(/Skill \+0 XP/)).toBeTruthy();
+        expect(screen.queryByText(/Skill \+0 XP/)).toBeNull();
     });
 
     it("shows processed time when the recap is capped", () => {

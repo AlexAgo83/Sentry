@@ -5,6 +5,7 @@ import {
     DUNGEON_ATTACK_INTERVAL_MAX_MS,
     DUNGEON_ATTACK_INTERVAL_MIN_MS,
     DUNGEON_BASE_ATTACK_MS,
+    DUNGEON_SIMULATION_STEP_MS,
     DUNGEON_STEP_EVENT_CAP,
     DUNGEON_TOTAL_EVENT_CAP,
     resolveHeroAttackIntervalMs
@@ -129,7 +130,7 @@ describe("dungeon cadence", () => {
     });
 
     it("drops attack events after the per-step event cap", () => {
-        const heroCount = 40;
+        const heroCount = 120;
         const state = createInitialGameState("0.9.0");
         for (let i = 1; i <= heroCount; i += 1) {
             const id = String(i) as PlayerId;
@@ -141,7 +142,7 @@ describe("dungeon cadence", () => {
         state.dungeon.runs = { [run.id]: run };
         state.dungeon.activeRunId = run.id;
 
-        const result = applyDungeonTick(state, 500, 1_500);
+        const result = applyDungeonTick(state, DUNGEON_SIMULATION_STEP_MS, 500 + DUNGEON_SIMULATION_STEP_MS);
         const nextRun = result.state.dungeon.runs[run.id];
         const attackEvents = nextRun.events.filter((event) => event.type === "attack" || event.type === "damage");
 
