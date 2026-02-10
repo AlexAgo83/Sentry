@@ -8,7 +8,11 @@ import {
     DUNGEON_SIMULATION_STEP_MS,
     DUNGEON_STEP_EVENT_CAP,
     DUNGEON_TOTAL_EVENT_CAP,
-    resolveHeroAttackIntervalMs
+    resolveArmorDamageMultiplier,
+    resolveDamageTakenMultiplier,
+    resolveHeroAttackDamage,
+    resolveHeroAttackIntervalMs,
+    resolveHeroAttackIntervalMsWithMultiplier
 } from "../../src/core/dungeon";
 import { gameReducer } from "../../src/core/reducer";
 import type { DungeonRunState, PlayerId } from "../../src/core/types";
@@ -79,6 +83,42 @@ describe("dungeon cadence", () => {
         expect(fasterInterval).toBeLessThan(baseInterval);
         expect(minInterval).toBe(DUNGEON_ATTACK_INTERVAL_MIN_MS);
         expect(maxInterval).toBeLessThanOrEqual(DUNGEON_ATTACK_INTERVAL_MAX_MS);
+    });
+
+    it("applies attack interval multipliers with clamp and fallback rules", () => {
+        const baseInterval = resolveHeroAttackIntervalMs(DUNGEON_BASE_ATTACK_MS, 0);
+        const accelerated = resolveHeroAttackIntervalMsWithMultiplier(DUNGEON_BASE_ATTACK_MS, 0, 0.5);
+        const slowed = resolveHeroAttackIntervalMsWithMultiplier(DUNGEON_BASE_ATTACK_MS, 0, 10);
+        const invalidZero = resolveHeroAttackIntervalMsWithMultiplier(DUNGEON_BASE_ATTACK_MS, 0, 0);
+        const invalidNaN = resolveHeroAttackIntervalMsWithMultiplier(DUNGEON_BASE_ATTACK_MS, 0, Number.NaN);
+
+        expect(accelerated).toBe(DUNGEON_ATTACK_INTERVAL_MIN_MS);
+        expect(slowed).toBe(DUNGEON_ATTACK_INTERVAL_MAX_MS);
+        expect(invalidZero).toBe(baseInterval);
+        expect(invalidNaN).toBe(baseInterval);
+    });
+
+    it("resolves damage taken multiplier from weapon type with melee fallback", () => {
+        expect(resolveDamageTakenMultiplier("Ranged")).toBe(1.25);
+        expect(resolveDamageTakenMultiplier("Magic")).toBe(1.1);
+        expect(resolveDamageTakenMultiplier("Melee")).toBe(0.9);
+        expect(resolveDamageTakenMultiplier(null)).toBe(0.9);
+        expect(resolveDamageTakenMultiplier(undefined)).toBe(0.9);
+    });
+
+    it("resolves armor damage multiplier with cap and invalid input handling", () => {
+        expect(resolveArmorDamageMultiplier(0)).toBe(1);
+        expect(resolveArmorDamageMultiplier(-3)).toBe(1);
+        expect(resolveArmorDamageMultiplier(Number.NaN)).toBe(1);
+        expect(resolveArmorDamageMultiplier(10)).toBe(0.9);
+        expect(resolveArmorDamageMultiplier(80)).toBe(0.5);
+    });
+
+    it("falls back safely for invalid attack inputs and damage inputs", () => {
+        expect(resolveHeroAttackIntervalMs(Number.NaN, Number.NaN)).toBe(DUNGEON_BASE_ATTACK_MS);
+        expect(resolveHeroAttackIntervalMs(-200, Number.POSITIVE_INFINITY)).toBe(DUNGEON_BASE_ATTACK_MS);
+        expect(resolveHeroAttackDamage(Number.NaN, Number.NaN)).toBe(10);
+        expect(resolveHeroAttackDamage(-999, -999)).toBe(1);
     });
 
     it("allows multi-proc attacks up to the per-hero cap", () => {

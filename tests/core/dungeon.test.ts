@@ -522,6 +522,143 @@ describe("dungeon flow", () => {
         expect(nextRun?.targetHeroId).toBe("1");
     });
 
+    it("spawns a summoned add on summon boss cadence", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.encounterStep = 29;
+        run.enemies = [{
+            id: "boss-summon",
+            name: "Summoner",
+            hp: 5_000,
+            hpMax: 5_000,
+            damage: 50,
+            isBoss: true,
+            mechanic: "summon",
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "boss-summon";
+        run.party.forEach((member) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = member.hpMax;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        expect(nextRun?.enemies.some((enemy) => enemy.name === "Summoned Add")).toBe(true);
+        expect(nextRun?.events.some((event) => event.type === "spawn" && event.label === "Summoned Add")).toBe(true);
+    });
+
+    it("casts magic heal from magic weapon holders on wounded allies", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.players["4"].equipment.slots.Weapon = "apprentice_staff";
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.enemies = [{
+            id: "mob-heal",
+            name: "Heal Dummy",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 1,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-heal";
+        run.party.forEach((member) => {
+            member.attackCooldownMs = 9_999;
+        });
+        const wounded = run.party.find((member) => member.playerId === "1");
+        expect(wounded).toBeTruthy();
+        if (!wounded) {
+            return;
+        }
+        wounded.hp = Math.floor(wounded.hpMax * 0.4);
+        const hpBefore = wounded.hp;
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        const healed = nextRun?.party.find((member) => member.playerId === "1");
+        expect(healed?.hp).toBeGreaterThan(hpBefore);
+        expect(
+            nextRun?.events.some((event) => event.type === "heal" && event.sourceId === "4" && event.targetId === "1")
+        ).toBe(true);
+    });
+
+    it("does not cast magic heal when no ally is below the heal threshold", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.players["4"].equipment.slots.Weapon = "apprentice_staff";
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.enemies = [{
+            id: "mob-no-heal",
+            name: "No Heal Dummy",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 1,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-no-heal";
+        run.party.forEach((member) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = member.hpMax;
+            member.magicHealCooldownMs = 0;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        expect(nextRun?.events.some((event) => event.type === "heal")).toBe(false);
+        const healer = nextRun?.party.find((member) => member.playerId === "4");
+        expect(healer?.magicHealCooldownMs).toBe(0);
+    });
+
     it("restores heroes to full HP when a run ends in failure", () => {
         let state = createInitialGameState("0.4.0");
         state.players["2"] = createPlayerState("2", "Mara");
@@ -690,5 +827,526 @@ describe("dungeon flow", () => {
             || event.type === "death"
             || event.type === "run_end"
         ))).toBe(true);
+    });
+
+    it("cancels auto-restart when victory has no food available", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 12;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+
+        run.status = "victory";
+        run.endReason = "victory";
+        run.restartAt = 1_100;
+        run.autoRestart = true;
+        run.party[0].hp = Math.max(1, Math.floor(run.party[0].hpMax * 0.3));
+        state.inventory.items.food = 0;
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        expect(result.state.dungeon.activeRunId).toBeNull();
+        expect(result.state.players["1"].hp).toBe(result.state.players["1"].hpMax);
+        expect(result.state.dungeon.latestReplay?.events.some((event) => (
+            event.type === "run_end" && event.label === "Auto-restart canceled"
+        ))).toBe(true);
+    });
+
+    it("auto-restarts a victorious run when restart conditions are met", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+
+        const beforeRunIndex = run.runIndex;
+        const beforeFood = state.inventory.items.food;
+        run.status = "victory";
+        run.endReason = "victory";
+        run.restartAt = 1_100;
+        run.autoRestart = true;
+        run.events.push({
+            atMs: 0,
+            type: "attack",
+            sourceId: "1",
+            targetId: "x",
+            amount: 1,
+            label: "stale event"
+        });
+        run.party[0].hp = 1;
+        run.party[1].hp = 0;
+        run.party[2].hp = 0;
+        run.party[3].hp = 0;
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        expect(nextRun?.status).toBe("running");
+        expect(nextRun?.runIndex).toBe(beforeRunIndex + 1);
+        expect(nextRun?.events.some((event) => event.label === "stale event")).toBe(false);
+        expect(nextRun?.events.some((event) => event.type === "floor_start" && event.label === "Floor 1")).toBe(true);
+        expect(result.state.inventory.items.food).toBeLessThan(beforeFood);
+        expect(nextRun?.party.every((member) => member.hp === member.hpMax)).toBe(true);
+    });
+
+    it("applies burst boss damage multiplier on burst cadence", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+
+        run.encounterStep = 19;
+        run.enemies = [{
+            id: "boss-burst",
+            name: "Burst Boss",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 100,
+            isBoss: true,
+            mechanic: "burst",
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "boss-burst";
+        run.targetHeroId = "1";
+        run.threatByHeroId = { "1": 100, "2": 0, "3": 0, "4": 0 };
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = index === 0 ? member.hpMax : 0;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        const hero = nextRun?.party.find((member) => member.playerId === "1");
+        expect(hero?.hp).toBe(hero?.hpMax ? hero.hpMax - 61 : undefined);
+    });
+
+    it("applies enrage boss damage multiplier when boss is below 30% HP", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+
+        run.encounterStep = 4;
+        run.enemies = [{
+            id: "boss-enrage",
+            name: "Enrage Boss",
+            hp: 300,
+            hpMax: 1_000,
+            damage: 100,
+            isBoss: true,
+            mechanic: "enrage",
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "boss-enrage";
+        run.targetHeroId = "1";
+        run.threatByHeroId = { "1": 100, "2": 0, "3": 0, "4": 0 };
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = index === 0 ? member.hpMax : 0;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        const hero = nextRun?.party.find((member) => member.playerId === "1");
+        expect(hero?.hp).toBe(hero?.hpMax ? hero.hpMax - 56 : undefined);
+    });
+
+    it("uses threat tie order when multiple heroes have equal threat", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+
+        run.encounterStep = 4;
+        run.enemies = [{
+            id: "mob-tie",
+            name: "Tie Mob",
+            hp: 1_000,
+            hpMax: 1_000,
+            damage: 10,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-tie";
+        run.targetHeroId = null;
+        run.threatByHeroId = { "1": 50, "2": 50, "3": 0, "4": 0 };
+        run.threatTieOrder = ["2", "1", "3", "4"];
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = index < 2 ? member.hpMax : 0;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        expect(nextRun?.targetHeroId).toBe("2");
+    });
+
+    it("reduces hero damage during the shield mechanic opening window", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.encounterStep = 0;
+        run.enemies = [{
+            id: "boss-shield",
+            name: "Shield Boss",
+            hp: 1_000,
+            hpMax: 1_000,
+            damage: 1,
+            isBoss: true,
+            mechanic: "shield",
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "boss-shield";
+        run.party.forEach((member, index) => {
+            member.hp = index === 0 ? member.hpMax : 0;
+            member.attackCooldownMs = index === 0 ? 0 : 9_999;
+        });
+
+        const shieldResult = applyDungeonTick(structuredClone(state), 100, 1_100);
+        const shieldRun = getActiveDungeonRun(shieldResult.state.dungeon);
+        const shieldDamage = shieldRun?.events.find((event) => (
+            event.type === "damage" && event.sourceId === "1" && event.targetId === "boss-shield"
+        ))?.amount ?? 0;
+
+        const baselineState = structuredClone(state);
+        const baselineRun = getActiveDungeonRun(baselineState.dungeon);
+        if (!baselineRun) {
+            return;
+        }
+        baselineRun.enemies[0].mechanic = null;
+        const baselineResult = applyDungeonTick(baselineState, 100, 1_100);
+        const baselineNextRun = getActiveDungeonRun(baselineResult.state.dungeon);
+        const baselineDamage = baselineNextRun?.events.find((event) => (
+            event.type === "damage" && event.sourceId === "1" && event.targetId === "boss-shield"
+        ))?.amount ?? 0;
+
+        expect(shieldDamage).toBeGreaterThan(0);
+        expect(baselineDamage).toBeGreaterThan(0);
+        expect(shieldDamage).toBe(Math.max(1, Math.round(baselineDamage * 0.6)));
+    });
+
+    it("caps hero attacks per step and resets cooldown to zero when still negative", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.enemies = [{
+            id: "mob-cap",
+            name: "Cap Dummy",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 1,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-cap";
+        run.party.forEach((member, index) => {
+            member.hp = index === 0 ? member.hpMax : 0;
+            member.attackCooldownMs = index === 0 ? -3_000 : 9_999;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        const attacker = nextRun?.party.find((member) => member.playerId === "1");
+        const heroDamageEvents = nextRun?.events.filter((event) => (
+            event.type === "damage" && event.sourceId === "1" && event.targetId === "mob-cap"
+        )) ?? [];
+        expect(heroDamageEvents).toHaveLength(3);
+        expect(attacker?.attackCooldownMs).toBe(0);
+    });
+
+    it("applies poison tick deaths and clears target when poisoned target dies", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.encounterStep = 4;
+        run.enemies = [{
+            id: "boss-poison-focus",
+            name: "Poison Boss",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 0,
+            isBoss: true,
+            mechanic: "poison",
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "boss-poison-focus";
+        run.targetHeroId = "1";
+        run.threatByHeroId = { "1": 100, "2": 0, "3": 0, "4": 0 };
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = index === 0 ? 2 : member.hpMax;
+        });
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        const target = nextRun?.party.find((member) => member.playerId === "1");
+        expect(target?.hp).toBe(0);
+        expect(nextRun?.targetHeroId).toBeNull();
+        expect(nextRun?.threatByHeroId["1"]).toBe(0);
+        expect(
+            nextRun?.events.some((event) => event.type === "death" && event.sourceId === "1")
+        ).toBe(true);
+    });
+
+    it("does not auto-use potions when auto consumables are disabled", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 12;
+        state.inventory.items.potion = 2;
+        state.dungeon.setup.autoConsumables = false;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.enemies = [{
+            id: "mob-no-auto",
+            name: "No Auto",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 1,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-no-auto";
+        run.party.forEach((member, index) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = index === 0 ? Math.floor(member.hpMax * 0.4) : member.hpMax;
+            member.potionCooldownMs = 0;
+        });
+
+        const hpBefore = run.party[0].hp;
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        expect(result.state.inventory.items.potion).toBe(2);
+        expect(nextRun?.party[0].hp).toBe(hpBefore);
+        expect(nextRun?.events.some((event) => event.type === "heal")).toBe(false);
+    });
+
+    it("fails with out_of_food when trying to initialize the next floor", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 1;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.enemies = [{
+            id: "floor-clear-dummy",
+            name: "Floor Dummy",
+            hp: 1,
+            hpMax: 1,
+            damage: 1,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "floor-clear-dummy";
+        run.party.forEach((member) => {
+            member.hp = member.hpMax;
+            member.attackCooldownMs = 0;
+        });
+
+        const cleared = applyDungeonTick(state, 100, 1_100).state;
+        const pendingFloorRun = getActiveDungeonRun(cleared.dungeon);
+        expect(pendingFloorRun?.floorPauseMs).toBeGreaterThan(0);
+        expect(cleared.inventory.items.food).toBe(0);
+
+        const failed = applyDungeonTick(cleared, 800, 1_900).state;
+        expect(failed.dungeon.activeRunId).toBeNull();
+        expect(failed.dungeon.latestReplay?.endReason).toBe("out_of_food");
+        expect(
+            failed.dungeon.latestReplay?.events.some((event) => event.type === "run_end" && event.label === "Out of food")
+        ).toBe(true);
+    });
+
+    it("uses party order as tie-breaker for magic heal target selection", () => {
+        let state = createInitialGameState("0.4.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.players["4"].equipment.slots.Weapon = "apprentice_staff";
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.enemies = [{
+            id: "mob-heal-tie",
+            name: "Heal Tie Dummy",
+            hp: 10_000,
+            hpMax: 10_000,
+            damage: 1,
+            isBoss: false,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "mob-heal-tie";
+        run.party.forEach((member) => {
+            member.attackCooldownMs = 9_999;
+            member.hp = member.hpMax;
+            member.magicHealCooldownMs = 0;
+        });
+
+        const firstTarget = run.party.find((member) => member.playerId === "1");
+        const secondTarget = run.party.find((member) => member.playerId === "2");
+        if (!firstTarget || !secondTarget) {
+            return;
+        }
+        firstTarget.hp = Math.floor(firstTarget.hpMax * 0.5);
+        secondTarget.hp = Math.floor(secondTarget.hpMax * 0.5);
+        const firstBefore = firstTarget.hp;
+        const secondBefore = secondTarget.hp;
+
+        const result = applyDungeonTick(state, 100, 1_100);
+        const nextRun = getActiveDungeonRun(result.state.dungeon);
+        const firstAfter = nextRun?.party.find((member) => member.playerId === "1")?.hp ?? 0;
+        const secondAfter = nextRun?.party.find((member) => member.playerId === "2")?.hp ?? 0;
+        expect(firstAfter).toBeGreaterThan(firstBefore);
+        expect(secondAfter).toBe(secondBefore);
     });
 });
