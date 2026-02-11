@@ -17,6 +17,7 @@ import { useGameRuntimeLifecycle } from "./hooks/useGameRuntimeLifecycle";
 import { useInventoryNewBadges } from "./hooks/useInventoryNewBadges";
 import { generateUniqueEnglishHeroNames } from "./ui/heroNames";
 import { StartupSplashScreen } from "./components/StartupSplashScreen";
+import { startSilentBackendWarmup } from "./backendWarmup";
 
 export const AppContainer = () => {
     useRenderCount("AppContainer");
@@ -89,37 +90,8 @@ export const AppContainer = () => {
             return;
         }
         const rawBase = (__PROD_RENDER_API_BASE__ || import.meta.env.VITE_PROD_RENDER_API_BASE || "").trim();
-        if (!rawBase) {
-            return;
-        }
-        const baseUrl = rawBase.replace(/\/+$/, "");
-        const warmupUrl = `${baseUrl}/health`;
-        const fetchWithTimeout = async (url: string, mode: "cors" | "no-cors") => {
-            const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-            const timeoutId = controller ? window.setTimeout(() => controller.abort(), 1500) : null;
-            try {
-                return await fetch(url, {
-                    method: "GET",
-                    mode,
-                    credentials: "omit",
-                    cache: "no-store",
-                    signal: controller?.signal
-                });
-            } catch {
-                return null;
-            } finally {
-                if (timeoutId) {
-                    window.clearTimeout(timeoutId);
-                }
-            }
-        };
-
-        void (async () => {
-            const response = await fetchWithTimeout(warmupUrl, "cors");
-            if (!response || !response.ok) {
-                await fetchWithTimeout(baseUrl, "no-cors");
-            }
-        })();
+        const stopWarmup = startSilentBackendWarmup(rawBase);
+        return stopWarmup ?? undefined;
     }, []);
 
     const {

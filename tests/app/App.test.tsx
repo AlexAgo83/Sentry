@@ -370,6 +370,7 @@ describe("App", () => {
         if (!telemetryDialog) {
             throw new Error("Telemetry dialog not found");
         }
-        expect(within(telemetryDialog).getByText(/Action: Roaming/)).toBeTruthy();
+        expect(within(telemetryDialog).getByText("Action")).toBeTruthy();
+        expect(within(telemetryDialog).getByText("Roaming")).toBeTruthy();
     });
 });
