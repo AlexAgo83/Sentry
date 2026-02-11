@@ -28,22 +28,35 @@ const baseProps = () => ({
 });
 
 describe("SystemModal", () => {
-    it("renders telemetry and system actions", () => {
+    it("renders settings actions and opens action journal/telemetry/save modals", () => {
         const props = baseProps();
         render(<SystemModal {...props} />);
 
-        expect(screen.getByText("v0.8.0 • Action: none • Crashes: 0")).toBeTruthy();
-        expect(screen.getByText("Tick: Δ250ms • tick 4.20ms • drift 0ms (last +12ms, ema 9.5ms)")).toBeTruthy();
-        expect(screen.getByText("Loop: 250ms (4/s) • Offline: 500ms • Catch-up: 0 / 0ms")).toBeTruthy();
-        expect(screen.getByText(/Last tick:/)).toBeTruthy();
-        expect(screen.getByText("1970-01-01T00:00:00.123Z")).toBeTruthy();
-        expect(screen.getByText("Virtual score: 128")).toBeTruthy();
+        fireEvent.click(screen.getByRole("button", { name: "Action journal" }));
+        expect(screen.getByRole("heading", { name: "Action journal" })).toBeTruthy();
+        expect(screen.getByText("No actions recorded yet.")).toBeTruthy();
+        const journalClose = screen.getAllByRole("button", { name: "Close" }).at(-1);
+        if (journalClose) {
+            fireEvent.click(journalClose);
+        }
+
+        fireEvent.click(screen.getByRole("button", { name: "Save options" }));
+        expect(screen.getByRole("heading", { name: "Save options" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Local save" }));
         expect(props.onOpenLocalSave).toHaveBeenCalledTimes(1);
 
         fireEvent.click(screen.getByRole("button", { name: "Cloud save" }));
         expect(props.onOpenCloudSave).toHaveBeenCalledTimes(1);
+
+        fireEvent.click(screen.getByRole("button", { name: "Telemetry" }));
+        expect(screen.getByRole("heading", { name: "Telemetry" })).toBeTruthy();
+        expect(screen.getByText("v0.8.0 • Action: none • Crashes: 0")).toBeTruthy();
+        expect(screen.getByText("Tick: Δ250ms • tick 4.20ms • drift 0ms (last +12ms, ema 9.5ms)")).toBeTruthy();
+        expect(screen.getByText("Loop: 250ms (4/s) • Offline: 500ms • Catch-up: 0 / 0ms")).toBeTruthy();
+        expect(screen.getByText(/Last tick:/)).toBeTruthy();
+        expect(screen.getByText("1970-01-01T00:00:00.123Z")).toBeTruthy();
+        expect(screen.getByText("Virtual score: 128")).toBeTruthy();
 
         const devButton = screen.queryByRole("button", { name: "Dev tools" });
         if (devButton) {

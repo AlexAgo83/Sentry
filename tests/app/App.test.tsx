@@ -274,7 +274,13 @@ describe("App", () => {
         await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);
         const systemDialogAgain = await screen.findByRole("dialog");
 
-        await user.click(within(systemDialogAgain).getByRole("button", { name: "Local save" }));
+        await user.click(within(systemDialogAgain).getByRole("button", { name: "Save options" }));
+        const saveOptionsDialog = (await screen.findAllByRole("dialog")).at(-1);
+        if (!saveOptionsDialog) {
+            throw new Error("Save options dialog not found");
+        }
+
+        await user.click(within(saveOptionsDialog).getByRole("button", { name: "Local save" }));
         const localDialog = (await screen.findAllByRole("dialog")).at(-1);
         if (!localDialog) {
             throw new Error("Local save dialog not found");
@@ -358,6 +364,12 @@ describe("App", () => {
         if (!systemDialog) {
             throw new Error("System dialog not found");
         }
-        expect(within(systemDialog).getByText(/Action: Roaming/)).toBeTruthy();
+        await user.click(within(systemDialog).getByRole("button", { name: "Telemetry" }));
+        const telemetryDialog = (await screen.findAllByRole("dialog")).at(-1);
+        expect(telemetryDialog).toBeTruthy();
+        if (!telemetryDialog) {
+            throw new Error("Telemetry dialog not found");
+        }
+        expect(within(telemetryDialog).getByText(/Action: Roaming/)).toBeTruthy();
     });
 });
