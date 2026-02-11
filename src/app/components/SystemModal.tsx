@@ -1,5 +1,6 @@
 import { memo, useState } from "react";
 import { ActionJournalModal } from "./ActionJournalModal";
+import { CrashReportsModal } from "./CrashReportsModal";
 import { ModalShell } from "./ModalShell";
 import { SaveOptionsModal } from "./SaveOptionsModal";
 import { TelemetryModal } from "./TelemetryModal";
@@ -54,6 +55,7 @@ export const SystemModal = memo(({
     onClose,
 }: SystemModalProps) => {
     const [isActionJournalOpen, setActionJournalOpen] = useState(false);
+    const [isCrashReportsOpen, setCrashReportsOpen] = useState(false);
     const [isTelemetryOpen, setTelemetryOpen] = useState(false);
     const [isSaveOptionsOpen, setSaveOptionsOpen] = useState(false);
 
@@ -97,6 +99,20 @@ export const SystemModal = memo(({
                             </button>
                         </div>
                     </div>
+                    {crashReports.length > 0 ? (
+                        <div className="ts-system-entry">
+                            <div className="ts-action-row">
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-devtools-button ts-focusable"
+                                    onClick={() => setCrashReportsOpen(true)}
+                                    data-testid="open-crash-reports"
+                                >
+                                    Crash reports
+                                </button>
+                            </div>
+                        </div>
+                    ) : null}
                     {import.meta.env.DEV ? (
                         <div className="ts-system-entry">
                             <div className="ts-action-row">
@@ -111,26 +127,6 @@ export const SystemModal = memo(({
                         </div>
                     ) : null}
                 </div>
-                {crashReports.length > 0 ? (
-                    <div className="ts-panel-body">
-                        <ul className="ts-list ts-crash-list">
-                            {crashReports.slice(0, 3).map((report) => (
-                                <li key={report.id}>
-                                    [{report.kind}] {report.message}
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="ts-action-row ts-system-actions ts-crash-actions">
-                            <button
-                                type="button"
-                                className="generic-field button ts-devtools-button ts-focusable"
-                                onClick={onClearCrashReports}
-                            >
-                                Clear crash reports
-                            </button>
-                        </div>
-                    </div>
-                ) : null}
             </ModalShell>
             {isTelemetryOpen ? (
                 <TelemetryModal
@@ -156,6 +152,13 @@ export const SystemModal = memo(({
                 <ActionJournalModal
                     actionJournal={actionJournal}
                     onClose={() => setActionJournalOpen(false)}
+                />
+            ) : null}
+            {isCrashReportsOpen ? (
+                <CrashReportsModal
+                    crashReports={crashReports}
+                    onClearCrashReports={onClearCrashReports}
+                    onClose={() => setCrashReportsOpen(false)}
                 />
             ) : null}
             {isSaveOptionsOpen ? (

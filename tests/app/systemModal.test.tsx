@@ -65,7 +65,7 @@ describe("SystemModal", () => {
         }
     });
 
-    it("shows crash report preview and clears", () => {
+    it("opens crash reports modal and clears entries", () => {
         const props = baseProps();
         props.crashReports = [
             {
@@ -85,6 +85,8 @@ describe("SystemModal", () => {
 
         render(<SystemModal {...props} />);
 
+        fireEvent.click(screen.getByRole("button", { name: "Crash reports" }));
+        expect(screen.getByRole("heading", { name: "Crash reports" })).toBeTruthy();
         expect(screen.getByText("[error] Boom")).toBeTruthy();
         expect(screen.getByText("[unhandledrejection] Nope")).toBeTruthy();
 
