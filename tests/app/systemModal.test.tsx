@@ -66,12 +66,18 @@ describe("SystemModal", () => {
 
         fireEvent.click(screen.getByRole("button", { name: "Telemetry" }));
         expect(screen.getByRole("heading", { name: "Telemetry" })).toBeTruthy();
-        expect(screen.getByText("v0.8.0 • Action: none • Crashes: 0")).toBeTruthy();
-        expect(screen.getByText("Tick: Δ250ms • tick 4.20ms • drift 0ms (last +12ms, ema 9.5ms)")).toBeTruthy();
-        expect(screen.getByText("Loop: 250ms (4/s) • Offline: 500ms • Catch-up: 0 / 0ms")).toBeTruthy();
-        expect(screen.getByText(/Last tick:/)).toBeTruthy();
+        expect(screen.getByText("Overview")).toBeTruthy();
+        expect(screen.getByText("Tick")).toBeTruthy();
+        expect(screen.getByText("Drift")).toBeTruthy();
+        expect(screen.getByText("Loop")).toBeTruthy();
+        expect(screen.getByText("Last Tick")).toBeTruthy();
+        expect(screen.getByText("v0.8.0")).toBeTruthy();
+        expect(screen.getByText("none")).toBeTruthy();
+        expect(screen.getByText("128")).toBeTruthy();
+        expect(screen.getByText("250ms")).toBeTruthy();
+        expect(screen.getByText("4.20ms")).toBeTruthy();
+        expect(screen.getByText("0 ticks / 0ms")).toBeTruthy();
         expect(screen.getByText("1970-01-01T00:00:00.123Z")).toBeTruthy();
-        expect(screen.getByText("Virtual score: 128")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 

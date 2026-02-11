@@ -210,6 +210,110 @@
     color: rgba(143, 209, 79, 0.95);
 }
 
+.ts-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--m4);
+    margin-top: var(--m2);
+}
+
+.ts-telemetry-card {
+    border: 1px solid rgba(93, 217, 193, 0.22);
+    border-radius: 12px;
+    background:
+        linear-gradient(140deg, rgba(14, 26, 46, 0.86), rgba(8, 14, 28, 0.86)),
+        rgba(8, 12, 22, 0.65);
+    padding: var(--m4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--m3);
+    min-width: 0;
+}
+
+.ts-telemetry-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m3);
+}
+
+.ts-telemetry-card-title {
+    margin: 0;
+    font-size: var(--text-s-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-fade);
+}
+
+.ts-telemetry-state {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px var(--m2);
+    border-radius: 999px;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid rgba(93, 217, 193, 0.35);
+    color: rgba(93, 217, 193, 0.95);
+    background: rgba(9, 16, 29, 0.72);
+    white-space: nowrap;
+}
+
+.ts-telemetry-state.is-healthy {
+    border-color: rgba(143, 209, 79, 0.55);
+    color: rgba(143, 209, 79, 0.95);
+}
+
+.ts-telemetry-state.is-warning {
+    border-color: rgba(242, 193, 78, 0.55);
+    color: rgba(242, 193, 78, 0.95);
+}
+
+.ts-telemetry-state.is-critical {
+    border-color: rgba(199, 74, 61, 0.58);
+    color: rgba(199, 74, 61, 0.95);
+}
+
+.ts-telemetry-state.is-neutral {
+    border-color: rgba(162, 175, 198, 0.45);
+    color: rgba(213, 220, 232, 0.9);
+}
+
+.ts-telemetry-kv {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+}
+
+.ts-telemetry-row {
+    display: grid;
+    grid-template-columns: minmax(0, 110px) minmax(0, 1fr);
+    gap: var(--m3);
+    align-items: baseline;
+}
+
+.ts-telemetry-row dt {
+    font-size: var(--text-xs-size);
+    color: var(--color-text-fade);
+    letter-spacing: 0.05em;
+}
+
+.ts-telemetry-row dd {
+    margin: 0;
+    min-width: 0;
+    font-size: var(--text-s-size);
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+    .ts-telemetry-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .ts-panel-body + .ts-system-cloud {
     margin-top: var(--m8);
 }
