@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { migrateAndValidateSave } from "../../../src/adapters/persistence/saveMigrations";
+import { ACTION_JOURNAL_LIMIT } from "../../../src/core/actionJournal";
 
 describe("saveMigrations", () => {
     it("selects a valid activePlayerId when input is invalid", () => {
@@ -70,5 +71,38 @@ describe("saveMigrations", () => {
         expect(result.save.inventory?.items.meat).toBe(0);
         expect(result.save.inventory?.items.bad).toBeUndefined();
     });
-});
 
+    it("sanitizes action journal entries and enforces the entry cap", () => {
+        const actionJournal = [
+            { id: "invalid-0", at: -1, label: "Invalid" },
+            ...Array.from({ length: ACTION_JOURNAL_LIMIT + 1 }, (_, index) => ({
+                id: `entry-${index}`,
+                at: index + 1,
+                label: ` Entry ${index} `
+            })),
+            { id: "invalid-1", at: 100, label: "   " }
+        ];
+        const result = migrateAndValidateSave({
+            version: "0.8.0",
+            players: {
+                "1": { id: "1", name: "Mara" },
+            },
+            actionJournal
+        });
+        expect(result.ok).toBe(true);
+        if (!result.ok) {
+            return;
+        }
+        expect(result.save.actionJournal).toHaveLength(ACTION_JOURNAL_LIMIT);
+        expect(result.save.actionJournal?.[0]).toMatchObject({
+            id: "entry-0",
+            at: 1,
+            label: "Entry 0"
+        });
+        expect(result.save.actionJournal?.[ACTION_JOURNAL_LIMIT - 1]).toMatchObject({
+            id: `entry-${ACTION_JOURNAL_LIMIT - 1}`,
+            at: ACTION_JOURNAL_LIMIT,
+            label: `Entry ${ACTION_JOURNAL_LIMIT - 1}`
+        });
+    });
+});

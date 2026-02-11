@@ -1,5 +1,6 @@
 import type {
     ActionId,
+    ActionJournalEntry,
     DungeonState,
     GameSave,
     InventoryState,
@@ -16,6 +17,7 @@ import { normalizeProgressionState } from "../../core/progression";
 import { normalizeDungeonState } from "../../core/dungeon";
 import { DEFAULT_SKILL_XP_NEXT, SKILL_MAX_LEVEL, XP_NEXT_MULTIPLIER } from "../../core/constants";
 import { getActionDefinition, getRecipeDefinition } from "../../data/definitions";
+import { ACTION_JOURNAL_LIMIT } from "../../core/actionJournal";
 
 export const LATEST_SAVE_SCHEMA_VERSION = 3;
 
@@ -197,6 +199,32 @@ const normalizeQuests = (value: unknown): QuestProgressState | undefined => {
     return { craftCounts, itemCounts, itemCountsBySkill, completed };
 };
 
+const normalizeActionJournal = (value: unknown): ActionJournalEntry[] => {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+    return value.reduce<ActionJournalEntry[]>((acc, candidate, index) => {
+        if (!isObject(candidate)) {
+            return acc;
+        }
+        const label = toNullableString(candidate.label);
+        if (!label) {
+            return acc;
+        }
+        const at = toNonNegativeNullableNumber(candidate.at);
+        if (at === null) {
+            return acc;
+        }
+        const id = toNullableString(candidate.id) ?? `entry-${Math.floor(at)}-${index}`;
+        acc.push({
+            id,
+            at: Math.floor(at),
+            label
+        });
+        return acc;
+    }, []).slice(0, ACTION_JOURNAL_LIMIT);
+};
+
 const COMBAT_SKILL_IDS = ["CombatMelee", "CombatRanged", "CombatMagic"] as const;
 type LegacySkillMap = Record<string, SkillState>;
 
@@ -366,6 +394,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
         lastNonDungeonActionByPlayer?: unknown;
         lastNonDungeonAction?: unknown;
     }).lastNonDungeonActionByPlayer ?? (input as { lastNonDungeonAction?: unknown }).lastNonDungeonAction;
+    const actionJournal = normalizeActionJournal((input as { actionJournal?: unknown }).actionJournal);
     const lastNonDungeonActionByPlayer = normalizeLastNonDungeonActionByPlayer(
         rawLastNonDungeonAction,
         players,
@@ -397,6 +426,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             version,
             lastTick,
             lastHiddenAt,
+            actionJournal,
             activePlayerId,
             lastNonDungeonActionByPlayer,
             players,

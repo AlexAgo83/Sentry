@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { migrateAndValidateSave } from "../../../src/adapters/persistence/saveMigrations";
+import { ACTION_JOURNAL_LIMIT } from "../../../src/core/actionJournal";
 
 const mulberry32 = (seed: number) => {
     let t = seed >>> 0;
@@ -74,6 +75,15 @@ describe("saveMigrations property tests", () => {
             for (const value of Object.values(items)) {
                 expect(Number.isFinite(value)).toBe(true);
                 expect(value).toBeGreaterThanOrEqual(0);
+            }
+            const actionJournal = save.actionJournal ?? [];
+            expect(actionJournal.length).toBeLessThanOrEqual(ACTION_JOURNAL_LIMIT);
+            for (const entry of actionJournal) {
+                expect(typeof entry.id).toBe("string");
+                expect(entry.id.length).toBeGreaterThan(0);
+                expect(typeof entry.label).toBe("string");
+                expect(entry.label.length).toBeGreaterThan(0);
+                expect(Number.isFinite(entry.at) && entry.at >= 0).toBe(true);
             }
         }
     });

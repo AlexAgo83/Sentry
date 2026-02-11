@@ -4,6 +4,49 @@ import { createInitialGameState, createPlayerState, hydrateGameState } from "../
 import { gameReducer } from "../../src/core/reducer";
 
 describe("serialization", () => {
+    it("round-trips action journal entries through save and hydrate", () => {
+        const state = createInitialGameState("0.3.1");
+        state.actionJournal = [
+            { id: "entry-1", at: 1_000, label: "Started gathering" },
+            { id: "entry-2", at: 2_000, label: "Finished craft" }
+        ];
+
+        const save = toGameSave(state);
+        const hydrated = hydrateGameState("0.3.1", save);
+
+        expect(save.actionJournal).toEqual(state.actionJournal);
+        expect(hydrated.actionJournal).toEqual(state.actionJournal);
+    });
+
+    it("hydrates action journal defensively from malformed saves", () => {
+        const state = createInitialGameState("0.3.1");
+        const playerId = state.activePlayerId ?? "1";
+        const malformedSave = {
+            version: "0.3.1",
+            lastTick: 123,
+            activePlayerId: playerId,
+            players: state.players,
+            actionJournal: [
+                { id: "", at: 100, label: "  First entry " },
+                { id: "bad-at", at: -5, label: "Invalid" },
+                { id: "good", at: "101", label: "Second entry" }
+            ]
+        } as unknown as ReturnType<typeof toGameSave>;
+
+        const hydrated = hydrateGameState("0.3.1", malformedSave);
+
+        expect(hydrated.actionJournal).toHaveLength(2);
+        expect(hydrated.actionJournal[0]).toMatchObject({
+            at: 100,
+            label: "First entry"
+        });
+        expect(hydrated.actionJournal[1]).toMatchObject({
+            id: "good",
+            at: 101,
+            label: "Second entry"
+        });
+    });
+
     it("strips runtime-only fields from saves", () => {
         const state = createInitialGameState("0.3.1");
         const save = toGameSave(state);

@@ -411,6 +411,7 @@ export interface GameSave {
     version: string;
     lastTick: number | null;
     lastHiddenAt?: number | null;
+    actionJournal?: ActionJournalEntry[];
     activePlayerId?: PlayerId | null;
     lastNonDungeonAction?: LastNonDungeonAction | null;
     lastNonDungeonActionByPlayer?: LastNonDungeonActionByPlayer | null;

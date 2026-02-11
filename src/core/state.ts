@@ -1,5 +1,6 @@
 import {
     ActionId,
+    ActionJournalEntry,
     ActionProgressState,
     CombatSkillId,
     GameSave,
@@ -35,6 +36,7 @@ import { createPlayerStatsState, normalizePlayerStats } from "./stats";
 import { createPlayerEquipmentState, normalizePlayerEquipment } from "./equipment";
 import { createProgressionState, normalizeProgressionState } from "./progression";
 import { createDungeonState, normalizeDungeonState } from "./dungeon";
+import { ACTION_JOURNAL_LIMIT } from "./actionJournal";
 
 export const createActionProgress = (): ActionProgressState => ({
     currentInterval: 0,
@@ -323,6 +325,38 @@ const normalizeLastNonDungeonActionByPlayer = (
     );
 };
 
+const normalizeActionJournal = (value: unknown): ActionJournalEntry[] => {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+    return value.reduce<ActionJournalEntry[]>((acc, candidate, index) => {
+        if (!candidate || typeof candidate !== "object") {
+            return acc;
+        }
+        const label = typeof (candidate as { label?: unknown }).label === "string"
+            ? (candidate as { label: string }).label.trim()
+            : "";
+        if (!label) {
+            return acc;
+        }
+        const atRaw = (candidate as { at?: unknown }).at;
+        const at = typeof atRaw === "number" ? atRaw : Number(atRaw);
+        if (!Number.isFinite(at) || at < 0) {
+            return acc;
+        }
+        const idValue = (candidate as { id?: unknown }).id;
+        const id = typeof idValue === "string" && idValue.trim().length > 0
+            ? idValue.trim()
+            : `entry-${Math.floor(at)}-${index}`;
+        acc.push({
+            id,
+            at: Math.floor(at),
+            label
+        });
+        return acc;
+    }, []).slice(0, ACTION_JOURNAL_LIMIT);
+};
+
 const hydratePlayerState = (player: PlayerSaveState): PlayerState => {
     const { storage, skills, ...rest } = player as PlayerSaveState & {
         storage?: { gold?: number };
@@ -495,7 +529,7 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         lastTickSummary: null,
         dungeon,
         appReady: true,
-        actionJournal: []
+        actionJournal: normalizeActionJournal(save.actionJournal)
     };
 };
 
