@@ -184,43 +184,6 @@
     font-family: var(--default-font);
 }
 
-@media (max-width: 760px) {
-    .ts-system-journal {
-        padding: 0 var(--m4);
-    }
-
-    .ts-system-journal-item {
-        grid-template-columns: 3px minmax(0, 1fr);
-        grid-template-areas:
-            "accent main"
-            "accent time";
-        align-items: start;
-    }
-
-    .ts-system-journal-accent {
-        grid-area: accent;
-    }
-
-    .ts-system-journal-main {
-        grid-area: main;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--m2);
-    }
-
-    .ts-system-journal-label {
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip;
-    }
-
-    .ts-system-journal-time {
-        grid-area: time;
-        margin-top: var(--m2);
-        justify-self: start;
-    }
-}
-
 .ts-system-entry {
     display: flex;
     flex-direction: column;
