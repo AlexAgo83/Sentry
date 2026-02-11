@@ -46,6 +46,10 @@ type ActionStatusPanelProps = {
     activeRecipeXpNext: number;
     activeSkillMax: number;
     activeRecipeMax: number;
+    isCombatMode?: boolean;
+    combatHpCurrent?: number;
+    combatHpMax?: number;
+    combatHpStyle?: CSSProperties;
     skillIconColor: string;
     isCollapsed: boolean;
     onToggleCollapsed: () => void;
@@ -92,6 +96,10 @@ export const ActionStatusPanel = memo(({
     activeRecipeXpNext,
     activeSkillMax,
     activeRecipeMax,
+    isCombatMode = false,
+    combatHpCurrent = 0,
+    combatHpMax = 0,
+    combatHpStyle = {},
     skillIconColor,
     isCollapsed,
     onToggleCollapsed,
@@ -319,6 +327,23 @@ export const ActionStatusPanel = memo(({
                         >
                             <span className="ts-progress-label">Recipe Lv {activeRecipeLevel}/{activeRecipeMax}</span>
                             <span className="ts-progress-value">XP {formatXp(activeRecipeXp)}/{formatXp(activeRecipeXpNext)}</span>
+                        </div>
+                    </>
+                ) : isCombatMode ? (
+                    <>
+                        <div
+                            className="generic-field panel progress-row ts-progress-row ts-progress-hp"
+                            style={combatHpStyle}
+                        >
+                            <span className="ts-progress-label">HP</span>
+                            <span className="ts-progress-value">{combatHpCurrent}/{combatHpMax}</span>
+                        </div>
+                        <div
+                            className="generic-field panel progress-row ts-progress-row ts-progress-skill"
+                            style={skillStyle}
+                        >
+                            <span className="ts-progress-label">Lvl {activeSkillLevel}/{activeSkillMax}</span>
+                            <span className="ts-progress-value">XP {formatXp(activeSkillXp)}/{formatXp(activeSkillXpNext)}</span>
                         </div>
                     </>
                 ) : null}

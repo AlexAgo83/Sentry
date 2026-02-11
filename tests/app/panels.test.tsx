@@ -152,6 +152,59 @@ describe("panel components", () => {
         expect(screen.getByText("Missing: Food x1")).toBeTruthy();
     });
 
+    it("ActionStatusPanel shows combat hp and combat xp when in combat mode", () => {
+        render(
+            <ActionStatusPanel
+                activeSkillId={""}
+                displaySkillId={"CombatMelee" as SkillId}
+                activeSkillName="Combat"
+                activeRecipeLabel="None"
+                activeConsumptionLabel="None"
+                activeProductionLabel="None"
+                activeConsumptionEntries={[]}
+                activeProductionEntries={[]}
+                actionSpeedBonusLabel="None"
+                actionSpeedBonusTooltip="Speed tooltip"
+                actionDurationLabel="None"
+                actionXpLabel="None"
+                actionXpBonusLabel="None"
+                actionXpBonusTooltip="XP tooltip"
+                stunTimeLabel={null}
+                resourceHint={null}
+                staminaStyle={{ "--progress": "0%" } as CSSProperties}
+                skillStyle={{ "--progress": "40%" } as CSSProperties}
+                recipeStyle={{ "--progress": "0%" } as CSSProperties}
+                staminaCurrent={0}
+                staminaMax={0}
+                activeSkillLevel={4}
+                activeSkillXp={40}
+                activeSkillXpNext={100}
+                activeRecipeLevel={0}
+                activeRecipeXp={0}
+                activeRecipeXpNext={0}
+                activeSkillMax={SKILL_MAX_LEVEL}
+                activeRecipeMax={RECIPE_MAX_LEVEL}
+                isCombatMode
+                combatHpCurrent={78}
+                combatHpMax={120}
+                combatHpStyle={{ "--progress": "65%" } as CSSProperties}
+                skillIconColor="#f2c14e"
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                onChangeAction={vi.fn()}
+                canChangeAction={true}
+                onInterruptAction={vi.fn()}
+                canInterruptAction={true}
+            />
+        );
+
+        expect(screen.getByText("HP")).toBeTruthy();
+        expect(screen.getByText("78/120")).toBeTruthy();
+        expect(screen.getByText(`Lvl 4/${SKILL_MAX_LEVEL}`)).toBeTruthy();
+        expect(screen.getByText("XP 40/100")).toBeTruthy();
+        expect(screen.queryByText(/Recipe Lv/)).toBeNull();
+    });
+
     it("ActionStatusPanel hides details when collapsed", () => {
         render(
             <ActionStatusPanel

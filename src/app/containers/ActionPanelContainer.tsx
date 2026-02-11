@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import type { CSSProperties } from "react";
 import { getActionDefinition, ITEM_DEFINITIONS } from "../../data/definitions";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType, getEquipmentModifiers } from "../../data/equipment";
 import { MIN_ACTION_INTERVAL_MS, RECIPE_MAX_LEVEL, SKILL_MAX_LEVEL, STAT_PERCENT_PER_POINT } from "../../core/constants";
@@ -160,6 +161,24 @@ export const ActionPanelContainer = ({
         ? getCombatSkillIdForWeaponType(getEquippedWeaponType(activePlayer.equipment))
         : null;
     const displaySkillId = isInDungeon && !activeSkillId ? combatSkillId : activeSkillId;
+    const isCombatDisplayMode = Boolean(isInDungeon && !activeSkillId && displaySkillId);
+    const displaySkillState = displaySkillId
+        ? (activePlayer?.skills[displaySkillId as SkillId] ?? null)
+        : null;
+    const displaySkillLevel = displaySkillState?.level ?? activeSkill?.level ?? 0;
+    const displaySkillXp = displaySkillState?.xp ?? activeSkill?.xp ?? 0;
+    const displaySkillXpNext = displaySkillState?.xpNext ?? activeSkill?.xpNext ?? 0;
+    const displaySkillMax = displaySkillState?.maxLevel ?? activeSkill?.maxLevel ?? SKILL_MAX_LEVEL;
+    const displaySkillPercent = displaySkillXpNext > 0
+        ? Math.max(0, Math.min(100, (displaySkillXp / displaySkillXpNext) * 100))
+        : 0;
+    const displaySkillStyle = isCombatDisplayMode
+        ? ({ "--progress": `${displaySkillPercent}%` } as CSSProperties)
+        : skillStyle;
+    const combatHpPercent = activePlayer?.hpMax
+        ? Math.max(0, Math.min(100, (activePlayer.hp / activePlayer.hpMax) * 100))
+        : 0;
+    const combatHpStyle = { "--progress": `${combatHpPercent}%` } as CSSProperties;
     const activeSkillName = displaySkillId
         ? (isInDungeon && !activeSkillId ? "Combat" : getSkillLabel(displaySkillId as SkillId))
         : "None";
@@ -216,18 +235,22 @@ export const ActionPanelContainer = ({
                 stunTimeLabel={stunTimeLabel}
                 resourceHint={resourceHint}
                 staminaStyle={staminaStyle}
-                skillStyle={skillStyle}
+                skillStyle={displaySkillStyle}
                 recipeStyle={recipeStyle}
                 staminaCurrent={activePlayer?.stamina ?? 0}
                 staminaMax={activePlayer?.staminaMax ?? 0}
-                activeSkillLevel={activeSkill?.level ?? 0}
-                activeSkillXp={activeSkill?.xp ?? 0}
-                activeSkillXpNext={activeSkill?.xpNext ?? 0}
+                activeSkillLevel={displaySkillLevel}
+                activeSkillXp={displaySkillXp}
+                activeSkillXpNext={displaySkillXpNext}
                 activeRecipeLevel={activeRecipe?.level ?? 0}
                 activeRecipeXp={activeRecipe?.xp ?? 0}
                 activeRecipeXpNext={activeRecipe?.xpNext ?? 0}
-                activeSkillMax={activeSkill?.maxLevel ?? SKILL_MAX_LEVEL}
+                activeSkillMax={displaySkillMax}
                 activeRecipeMax={activeRecipe?.maxLevel ?? RECIPE_MAX_LEVEL}
+                isCombatMode={isCombatDisplayMode}
+                combatHpCurrent={activePlayer?.hp ?? 0}
+                combatHpMax={activePlayer?.hpMax ?? 0}
+                combatHpStyle={combatHpStyle}
                 skillIconColor={skillIconColor}
                 isCollapsed={isCollapsed}
                 onToggleCollapsed={() => setCollapsed((value) => !value)}

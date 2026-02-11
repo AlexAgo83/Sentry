@@ -2,6 +2,10 @@
     background: linear-gradient(90deg, rgba(125, 199, 255, 0.4), rgba(79, 168, 255, 0.55));
 }
 
+.generic-field.panel.progress-row.ts-progress-hp::after {
+    background: linear-gradient(90deg, rgba(239, 101, 90, 0.45), rgba(199, 74, 61, 0.6));
+}
+
 .generic-field.panel.progress-row.ts-progress-skill::after {
     background: linear-gradient(90deg, rgba(143, 209, 79, 0.4), rgba(91, 191, 62, 0.55));
 }
@@ -16,6 +20,18 @@
 
 progress.generic-field.progress.ts-progress-stamina {
     accent-color: #7dc7ff;
+}
+
+progress.generic-field.progress.ts-progress-hp {
+    accent-color: #ef655a;
+}
+
+progress.generic-field.progress.ts-progress-hp::-webkit-progress-value {
+    background: linear-gradient(90deg, rgba(239, 101, 90, 0.95), rgba(199, 74, 61, 0.95));
+}
+
+progress.generic-field.progress.ts-progress-hp::-moz-progress-bar {
+    background: linear-gradient(90deg, rgba(239, 101, 90, 0.95), rgba(199, 74, 61, 0.95));
 }
 
 progress.generic-field.progress.ts-progress-stamina::-webkit-progress-value {
