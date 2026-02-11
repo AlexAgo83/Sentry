@@ -427,7 +427,10 @@ export const ActionSelectionScreen = memo(({
                                                 )}
                                                 <div className="ts-choice-details" aria-hidden="true">
                                                     <div className="ts-choice-detail-row">
-                                                        <span className="ts-choice-detail-label">Consumes</span>
+                                                        <span className="ts-choice-detail-label">
+                                                            <span className="ts-choice-detail-label-full">Consumes</span>
+                                                            <span className="ts-choice-detail-label-short">Cons</span>
+                                                        </span>
                                                         <span className="ts-choice-detail-value">
                                                             {consumptionEntries.length > 0 ? (
                                                                 <span className="ts-item-inline-list" title={consumptionFullLabel}>
@@ -443,7 +446,10 @@ export const ActionSelectionScreen = memo(({
                                                         </span>
                                                     </div>
                                                     <div className="ts-choice-detail-row">
-                                                        <span className="ts-choice-detail-label">Produces</span>
+                                                        <span className="ts-choice-detail-label">
+                                                            <span className="ts-choice-detail-label-full">Produces</span>
+                                                            <span className="ts-choice-detail-label-short">Prod</span>
+                                                        </span>
                                                         <span className="ts-choice-detail-value">
                                                             {productionEntries.length > 0 ? (
                                                                 <span className="ts-item-inline-list" title={productionFullLabel}>

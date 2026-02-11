@@ -235,6 +235,8 @@
 }
 
 .ts-choice-card.ts-recipe-choice {
+    container-type: inline-size;
+    container-name: recipe-choice;
     background: linear-gradient(
         90deg,
         var(--ts-recipe-progress-color, rgba(93, 217, 193, 0.12)) 0%,
@@ -474,6 +476,20 @@
     letter-spacing: 0.16em;
     color: var(--color-text-fade);
     flex-shrink: 0;
+}
+
+.ts-choice-detail-label-short {
+    display: none;
+}
+
+@container recipe-choice (max-width: 199px) {
+    .ts-choice-detail-label-full {
+        display: none;
+    }
+
+    .ts-choice-detail-label-short {
+        display: inline;
+    }
 }
 
 .ts-choice-detail-value {
