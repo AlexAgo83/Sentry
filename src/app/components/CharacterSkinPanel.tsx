@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import type { PlayerEquipmentState } from "../../core/types";
 import { getFaceUrlByIndex } from "../ui/heroFaces";
@@ -26,6 +26,12 @@ type CharacterSkinPanelProps = {
     equipment: PlayerEquipmentState | null;
     skillBackgroundUrl?: string | null;
     progressPercent?: number;
+    progressAnimation?: {
+        key: string;
+        intervalMs: number;
+        currentIntervalMs: number;
+        lastExecutionTimeMs: number | null;
+    } | null;
     progressColor?: string;
     isStunned?: boolean;
     heroName?: string | null;
@@ -53,6 +59,7 @@ export const CharacterSkinPanel = memo(({
     equipment,
     skillBackgroundUrl,
     progressPercent = 0,
+    progressAnimation = null,
     progressColor,
     isStunned = false,
     heroName,
@@ -88,13 +95,117 @@ export const CharacterSkinPanel = memo(({
     const ringColor = isStunned
         ? "rgba(199, 74, 61, 0.8)"
         : (progressColor ?? avatarColor);
+    const clampedProgress = Math.max(0, Math.min(100, progressPercent));
+    const panelRef = useRef<HTMLElement | null>(null);
+    const animationSeedRef = useRef<{ key: string | null; initialIntervalMs: number }>({
+        key: null,
+        initialIntervalMs: 0
+    });
+    const animationAnchorRef = useRef<{ key: string | null; anchorMs: number | null }>({
+        key: null,
+        anchorMs: null
+    });
+    const animationKey = progressAnimation?.key ?? null;
+    const animationIntervalMs = progressAnimation?.intervalMs ?? null;
+    const animationLastExecutionTimeMs = progressAnimation?.lastExecutionTimeMs ?? null;
+    if (animationKey && animationSeedRef.current.key !== animationKey) {
+        animationSeedRef.current = {
+            key: animationKey,
+            initialIntervalMs: Math.max(0, progressAnimation?.currentIntervalMs ?? 0)
+        };
+    }
     const panelStyle = {
         "--ts-skin-background": skillBackgroundUrl ? `url("${skillBackgroundUrl}")` : "none",
-        "--ts-skin-progress": `${Math.max(0, Math.min(100, progressPercent))}%`,
-        "--ts-skin-progress-color": ringColor
+        "--ts-skin-progress-color": ringColor,
+        ...(progressAnimation ? {} : { "--ts-skin-progress": `${clampedProgress}%` })
     } as CSSProperties;
+
+    useEffect(() => {
+        const panelElement = panelRef.current;
+        if (!panelElement) {
+            return;
+        }
+        const fallbackProgress = `${clampedProgress}%`;
+        const canAnimate = !isCollapsed
+            && Number.isFinite(animationIntervalMs)
+            && (animationIntervalMs ?? 0) > 0;
+        if (!canAnimate || !animationIntervalMs) {
+            animationAnchorRef.current = { key: null, anchorMs: null };
+            panelElement.style.setProperty("--ts-skin-progress", fallbackProgress);
+            return;
+        }
+
+        const intervalMs = animationIntervalMs;
+        let anchorMs: number;
+        const hasExecutionTime = typeof animationLastExecutionTimeMs === "number"
+            && Number.isFinite(animationLastExecutionTimeMs);
+        if (hasExecutionTime) {
+            anchorMs = animationLastExecutionTimeMs as number;
+            animationAnchorRef.current = {
+                key: animationKey,
+                anchorMs
+            };
+        } else {
+            if (animationAnchorRef.current.key !== animationKey || animationAnchorRef.current.anchorMs === null) {
+                const seed = animationSeedRef.current.initialIntervalMs;
+                const clampedSeed = Math.max(0, Math.min(seed, intervalMs));
+                animationAnchorRef.current = {
+                    key: animationKey,
+                    anchorMs: Date.now() - clampedSeed
+                };
+            }
+            anchorMs = animationAnchorRef.current.anchorMs ?? Date.now();
+        }
+
+        let rafId = 0;
+        const getRawProgress = () => {
+            const elapsedMs = Math.max(0, Date.now() - anchorMs);
+            return ((elapsedMs % intervalMs) / intervalMs) * 100;
+        };
+        const SMOOTHING_TAU_MS = 120;
+        const getCompensatedTargetProgress = () => {
+            const elapsedMs = Math.max(0, Date.now() - anchorMs + SMOOTHING_TAU_MS);
+            return ((elapsedMs % intervalMs) / intervalMs) * 100;
+        };
+        let displayedProgress = getRawProgress();
+        let lastFrameTs: number | null = null;
+        panelElement.style.setProperty("--ts-skin-progress", `${displayedProgress}%`);
+
+        const updateProgress = (frameTs: number) => {
+            const targetProgress = getCompensatedTargetProgress();
+            if (lastFrameTs === null) {
+                lastFrameTs = frameTs;
+                displayedProgress = targetProgress;
+            } else {
+                const deltaMs = Math.max(0, Math.min(64, frameTs - lastFrameTs));
+                lastFrameTs = frameTs;
+                const alpha = 1 - Math.exp(-deltaMs / SMOOTHING_TAU_MS);
+                const forwardDelta = targetProgress >= displayedProgress
+                    ? targetProgress - displayedProgress
+                    : (100 - displayedProgress) + targetProgress;
+                displayedProgress = forwardDelta > 0.001
+                    ? ((displayedProgress + forwardDelta * alpha) % 100)
+                    : targetProgress;
+            }
+            panelElement.style.setProperty("--ts-skin-progress", `${displayedProgress}%`);
+            rafId = window.requestAnimationFrame(updateProgress);
+        };
+
+        rafId = window.requestAnimationFrame(updateProgress);
+        return () => {
+            window.cancelAnimationFrame(rafId);
+        };
+    }, [
+        clampedProgress,
+        isCollapsed,
+        animationKey,
+        animationIntervalMs,
+        animationLastExecutionTimeMs
+    ]);
+
     return (
         <section
+            ref={panelRef}
             className={`generic-panel ts-panel ts-panel-skin${isCollapsed ? " is-collapsed" : ""}`}
             style={panelStyle}
         >

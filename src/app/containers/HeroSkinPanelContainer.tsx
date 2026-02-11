@@ -4,10 +4,14 @@ import { usePersistedCollapse } from "../hooks/usePersistedCollapse";
 import { selectActivePlayer } from "../selectors/gameSelectors";
 import { CharacterSkinPanel } from "../components/CharacterSkinPanel";
 import { getActiveDungeonRuns } from "../../core/dungeon";
+import { MIN_ACTION_INTERVAL_MS, STAT_PERCENT_PER_POINT } from "../../core/constants";
+import { resolveEffectiveStats } from "../../core/stats";
 import { getSkillIconColor } from "../ui/skillColors";
 import { getSkillBackgroundUrl } from "../ui/skillBackgrounds";
 import { getFaceIndex, normalizeFaceIndex } from "../ui/heroFaces";
 import { getHairColor, getHairIndex, getSkinColor, normalizeHairIndex } from "../ui/heroHair";
+import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../../data/definitions";
+import { getEquipmentModifiers } from "../../data/equipment";
 
 type HeroSkinPanelContainerProps = {
     onRenameHero: () => void;
@@ -62,9 +66,46 @@ export const HeroSkinPanelContainer = ({ onRenameHero, useDungeonProgress = fals
     const isCombatSkill = Boolean(activePlayer?.selectedActionId && combatSkillIds.has(activePlayer.selectedActionId));
     const progressColor = (isInDungeon || isCombatSkill) ? "rgba(239, 77, 67, 0.85)" : undefined;
     const actionProgressPercent = activePlayer?.actionProgress?.progressPercent ?? 0;
-    const progressPercent = Number.isFinite(dungeonProgressPercent ?? Number.NaN)
+    const isUsingDungeonProgress = Number.isFinite(dungeonProgressPercent ?? Number.NaN);
+    const progressAnimation = (() => {
+        if (isUsingDungeonProgress || !activePlayer?.selectedActionId) {
+            return null;
+        }
+        const actionDef = getActionDefinition(activePlayer.selectedActionId);
+        if (!actionDef) {
+            return null;
+        }
+        const skill = activePlayer.skills[actionDef.skillId];
+        const selectedRecipeId = skill?.selectedRecipeId;
+        if (!skill || !selectedRecipeId) {
+            return null;
+        }
+        const recipeDef = getRecipeDefinition(actionDef.skillId, selectedRecipeId);
+        if (recipeDef && !isRecipeUnlocked(recipeDef, skill.level)) {
+            return null;
+        }
+
+        const equipmentModifiers = getEquipmentModifiers(activePlayer.equipment);
+        const { effective } = resolveEffectiveStats(activePlayer.stats, Date.now(), equipmentModifiers);
+        const intervalMultiplier = 1 - effective.Agility * STAT_PERCENT_PER_POINT;
+        const baseInterval = Math.ceil(skill.baseInterval * intervalMultiplier);
+        const actionInterval = Math.max(MIN_ACTION_INTERVAL_MS, baseInterval)
+            + ((activePlayer.stamina ?? 0) <= 0 ? actionDef.stunTime : 0);
+        if (!Number.isFinite(actionInterval) || actionInterval <= 0) {
+            return null;
+        }
+
+        return {
+            key: `${activePlayer.id}:${actionDef.skillId}:${selectedRecipeId}:${actionInterval}`,
+            intervalMs: actionInterval,
+            currentIntervalMs: activePlayer.actionProgress.currentInterval ?? 0,
+            lastExecutionTimeMs: activePlayer.actionProgress.lastExecutionTime ?? null
+        };
+    })();
+    const baseProgressPercent = progressAnimation ? 0 : actionProgressPercent;
+    const progressPercent = isUsingDungeonProgress
         ? (dungeonProgressPercent as number)
-        : actionProgressPercent;
+        : baseProgressPercent;
     const isStunned = Boolean(activePlayer?.selectedActionId) && (activePlayer?.stamina ?? 0) <= 0;
 
     const handleNextFace = () => {
@@ -115,6 +156,7 @@ export const HeroSkinPanelContainer = ({ onRenameHero, useDungeonProgress = fals
             equipment={activePlayer?.equipment ?? null}
             skillBackgroundUrl={skillBackgroundUrl}
             progressPercent={progressPercent}
+            progressAnimation={progressAnimation}
             progressColor={progressColor}
             isStunned={isStunned}
             heroName={activePlayer?.name ?? null}
