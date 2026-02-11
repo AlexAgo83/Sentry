@@ -20,34 +20,49 @@ const baseProps = () => ({
     activeActionLabel: "none",
     actionJournal: [],
     crashReports: [] as CrashReport[],
+    onExportSave: vi.fn().mockResolvedValue("clipboard"),
+    onImportSave: vi.fn(),
+    onResetSave: vi.fn(),
+    onSimulateOffline: vi.fn(),
+    onSimulateOfflineHour: vi.fn(),
+    onSimulateOfflineDay: vi.fn(),
     onClearCrashReports: vi.fn(),
-    onOpenDevTools: vi.fn(),
-    onOpenLocalSave: vi.fn(),
-    onOpenCloudSave: vi.fn(),
     onClose: vi.fn()
 });
 
 describe("SystemModal", () => {
-    it("renders settings actions and opens action journal/telemetry/save modals", () => {
+    it("navigates modal screens without stacking and closes back to previous", () => {
         const props = baseProps();
         render(<SystemModal {...props} />);
 
+        expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
+
         fireEvent.click(screen.getByRole("button", { name: "Action journal" }));
         expect(screen.getByRole("heading", { name: "Action journal" })).toBeTruthy();
+        expect(screen.queryByRole("heading", { name: "Settings" })).toBeNull();
         expect(screen.getByText("No actions recorded yet.")).toBeTruthy();
-        const journalClose = screen.getAllByRole("button", { name: "Close" }).at(-1);
-        if (journalClose) {
-            fireEvent.click(journalClose);
-        }
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Save options" }));
         expect(screen.getByRole("heading", { name: "Save options" })).toBeTruthy();
+        expect(screen.queryByRole("heading", { name: "Settings" })).toBeNull();
 
         fireEvent.click(screen.getByRole("button", { name: "Local save" }));
-        expect(props.onOpenLocalSave).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole("heading", { name: "Local save" })).toBeTruthy();
+        expect(screen.queryByRole("heading", { name: "Save options" })).toBeNull();
+
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.getByRole("heading", { name: "Save options" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Cloud save" }));
-        expect(props.onOpenCloudSave).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole("heading", { name: "Cloud Save" })).toBeTruthy();
+
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.getByRole("heading", { name: "Save options" })).toBeTruthy();
+
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Telemetry" }));
         expect(screen.getByRole("heading", { name: "Telemetry" })).toBeTruthy();
@@ -57,11 +72,15 @@ describe("SystemModal", () => {
         expect(screen.getByText(/Last tick:/)).toBeTruthy();
         expect(screen.getByText("1970-01-01T00:00:00.123Z")).toBeTruthy();
         expect(screen.getByText("Virtual score: 128")).toBeTruthy();
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         const devButton = screen.queryByRole("button", { name: "Dev tools" });
         if (devButton) {
             fireEvent.click(devButton);
-            expect(props.onOpenDevTools).toHaveBeenCalledTimes(1);
+            expect(screen.getByRole("heading", { name: "Dev tools" })).toBeTruthy();
+            fireEvent.click(screen.getByRole("button", { name: "Back" }));
+            expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
         }
     });
 

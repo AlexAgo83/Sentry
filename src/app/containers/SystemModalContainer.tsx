@@ -9,10 +9,13 @@ export interface SystemModalContainerProps {
     version: string;
     getSkillLabel: (skillId: SkillId | "") => string;
     crashReports: CrashReport[];
+    onExportSave: () => void | Promise<"clipboard" | "prompt">;
+    onImportSave: () => void;
+    onResetSave: () => void;
+    onSimulateOffline: () => void;
+    onSimulateOfflineHour: () => void;
+    onSimulateOfflineDay: () => void;
     onClearCrashReports: () => void;
-    onOpenDevTools: () => void;
-    onOpenLocalSave: () => void;
-    onOpenCloudSave: () => void;
     onClose: () => void;
 }
 
@@ -49,10 +52,13 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
                 : "none"}
             actionJournal={actionJournal}
             crashReports={props.crashReports}
+            onExportSave={props.onExportSave}
+            onImportSave={props.onImportSave}
+            onResetSave={props.onResetSave}
+            onSimulateOffline={props.onSimulateOffline}
+            onSimulateOfflineHour={props.onSimulateOfflineHour}
+            onSimulateOfflineDay={props.onSimulateOfflineDay}
             onClearCrashReports={props.onClearCrashReports}
-            onOpenDevTools={props.onOpenDevTools}
-            onOpenLocalSave={props.onOpenLocalSave}
-            onOpenCloudSave={props.onOpenCloudSave}
             onClose={props.onClose}
         />
     );

@@ -5,6 +5,7 @@ import type { ActionJournalEntry } from "../../core/types";
 type ActionJournalModalProps = {
     actionJournal: ActionJournalEntry[];
     onClose: () => void;
+    closeLabel?: string;
 };
 
 const formatTimeAgo = (timestamp: number): string => {
@@ -21,8 +22,9 @@ const formatTimeAgo = (timestamp: number): string => {
 export const ActionJournalModal = memo(({
     actionJournal,
     onClose,
+    closeLabel,
 }: ActionJournalModalProps) => (
-    <ModalShell kicker="System" title="Action journal" onClose={onClose}>
+    <ModalShell kicker="System" title="Action journal" onClose={onClose} closeLabel={closeLabel}>
         <div className="ts-system-journal">
             <div className="ts-system-journal-header">Action journal</div>
             {actionJournal.length > 0 ? (

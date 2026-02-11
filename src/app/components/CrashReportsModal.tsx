@@ -6,14 +6,16 @@ type CrashReportsModalProps = {
     crashReports: CrashReport[];
     onClearCrashReports: () => void;
     onClose: () => void;
+    closeLabel?: string;
 };
 
 export const CrashReportsModal = memo(({
     crashReports,
     onClearCrashReports,
-    onClose
+    onClose,
+    closeLabel
 }: CrashReportsModalProps) => (
-    <ModalShell kicker="System" title="Crash reports" onClose={onClose}>
+    <ModalShell kicker="System" title="Crash reports" onClose={onClose} closeLabel={closeLabel}>
         {crashReports.length > 0 ? (
             <>
                 <ul className="ts-list ts-crash-list">

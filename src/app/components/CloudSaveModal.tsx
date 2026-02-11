@@ -5,6 +5,7 @@ import { useCloudSave } from "../hooks/useCloudSave";
 
 type CloudSaveModalProps = {
     onClose: () => void;
+    closeLabel?: string;
 };
 
 const CLOUD_EMAIL_STORAGE_KEY = "sentry.cloud.lastEmail";
@@ -31,11 +32,11 @@ const saveStoredEmail = (value: string) => {
     }
 };
 
-export const CloudSaveModal = memo(({ onClose }: CloudSaveModalProps) => (
-    <CloudSaveModalBody onClose={onClose} />
+export const CloudSaveModal = memo(({ onClose, closeLabel }: CloudSaveModalProps) => (
+    <CloudSaveModalBody onClose={onClose} closeLabel={closeLabel} />
 ));
 
-const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
+const CloudSaveModalBody = ({ onClose, closeLabel }: CloudSaveModalProps) => {
     const [email, setEmail] = useState(loadStoredEmail);
     const [password, setPassword] = useState("");
     const cloud = useCloudSave();
@@ -61,6 +62,7 @@ const CloudSaveModalBody = ({ onClose }: CloudSaveModalProps) => {
                 </span>
             )}
             onClose={onClose}
+            closeLabel={closeLabel}
         >
             <div className="ts-system-cloud-modal">
                 <CloudSavePanel

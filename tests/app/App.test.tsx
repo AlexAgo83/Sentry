@@ -268,7 +268,7 @@ describe("App", () => {
             }
             await user.click(within(devDialog).getByRole("button", { name: "Simulate +30 min" }));
             expect(testRuntime.simulateOffline).toHaveBeenCalledWith(30 * 60 * 1000);
-            await user.click(within(devDialog).getByRole("button", { name: "Close" }));
+            await user.click(within(devDialog).getByRole("button", { name: "Back" }));
         }
 
         await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);

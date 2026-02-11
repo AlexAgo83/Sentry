@@ -14,13 +14,15 @@ type DevToolsModalProps = {
     onSimulateOfflineHour: () => void;
     onSimulateOfflineDay: () => void;
     onClose: () => void;
+    closeLabel?: string;
 };
 
 export const DevToolsModal = memo(({
     onSimulateOffline,
     onSimulateOfflineHour,
     onSimulateOfflineDay,
-    onClose
+    onClose,
+    closeLabel
 }: DevToolsModalProps) => {
     const [isRenderCountsEnabled, setIsRenderCountsEnabled] = useState(() => (
         import.meta.env.DEV ? isDebugEnabled(RENDER_COUNTS_ENABLE_KEY) : false
@@ -51,7 +53,7 @@ export const DevToolsModal = memo(({
     };
 
     return (
-        <ModalShell kicker="Dev" title="Dev tools" onClose={onClose}>
+        <ModalShell kicker="Dev" title="Dev tools" onClose={onClose} closeLabel={closeLabel}>
             <ul className="ts-list">
                 <li>renderCounts: {isRenderCountsEnabled ? "on" : "off"}</li>
                 <li>profiler: {isProfilerEnabled ? "on" : "off"}</li>

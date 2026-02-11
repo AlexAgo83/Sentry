@@ -25,9 +25,6 @@ type AppModalsContainerProps = {
     onSimulateOfflineDay: () => void;
     onResetSave: () => void;
     onCloseSystem: () => void;
-    onOpenDevTools: () => void;
-    onOpenLocalSave: () => void;
-    onOpenCloudSave: () => void;
     isLocalSaveOpen: boolean;
     onCloseLocalSave: () => void;
     isCloudSaveOpen: boolean;
@@ -79,9 +76,6 @@ export const AppModalsContainer = ({
     onSimulateOfflineDay,
     onResetSave,
     onCloseSystem,
-    onOpenDevTools,
-    onOpenLocalSave,
-    onOpenCloudSave,
     isLocalSaveOpen,
     onCloseLocalSave,
     isCloudSaveOpen,
@@ -161,10 +155,13 @@ export const AppModalsContainer = ({
                     version={version}
                     getSkillLabel={getSkillLabel}
                     crashReports={crashReports}
+                    onExportSave={onExportSave}
+                    onImportSave={onImportSave}
+                    onResetSave={onResetSave}
+                    onSimulateOffline={onSimulateOffline}
+                    onSimulateOfflineHour={onSimulateOfflineHour}
+                    onSimulateOfflineDay={onSimulateOfflineDay}
                     onClearCrashReports={onClearCrashReports}
-                    onOpenDevTools={onOpenDevTools}
-                    onOpenLocalSave={onOpenLocalSave}
-                    onOpenCloudSave={onOpenCloudSave}
                     onClose={onCloseSystem}
                 />
             ) : null}

@@ -7,6 +7,7 @@ type LocalSaveModalProps = {
     onImportSave: () => void;
     onResetSave: () => void;
     onClose: () => void;
+    closeLabel?: string;
 };
 
 export const LocalSaveModal = memo(({
@@ -14,6 +15,7 @@ export const LocalSaveModal = memo(({
     onImportSave,
     onResetSave,
     onClose,
+    closeLabel
 }: LocalSaveModalProps) => {
     const [exportFeedback, setExportFeedback] = useState<string | null>(null);
 
@@ -28,7 +30,7 @@ export const LocalSaveModal = memo(({
     }, [exportFeedback]);
 
     return (
-        <ModalShell title="Local save" onClose={onClose}>
+        <ModalShell title="Local save" onClose={onClose} closeLabel={closeLabel}>
             <div className="ts-system-entry-list">
                 <div className="ts-system-entry">
                     <div className="ts-action-row">

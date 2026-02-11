@@ -5,14 +5,16 @@ type SaveOptionsModalProps = {
     onOpenLocalSave: () => void;
     onOpenCloudSave: () => void;
     onClose: () => void;
+    closeLabel?: string;
 };
 
 export const SaveOptionsModal = memo(({
     onOpenLocalSave,
     onOpenCloudSave,
     onClose,
+    closeLabel
 }: SaveOptionsModalProps) => (
-    <ModalShell kicker="System" title="Save options" onClose={onClose}>
+    <ModalShell kicker="System" title="Save options" onClose={onClose} closeLabel={closeLabel}>
         <div className="ts-system-entry-list">
             <div className="ts-system-entry">
                 <div className="ts-action-row ts-action-stack">

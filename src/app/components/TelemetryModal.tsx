@@ -18,6 +18,7 @@ type TelemetryModalProps = {
     activeActionLabel: string;
     crashCount: number;
     onClose: () => void;
+    closeLabel?: string;
 };
 
 const formatMs = (value: number, options?: { decimals?: number; plus?: boolean }) => {
@@ -49,11 +50,12 @@ export const TelemetryModal = memo(({
     activeActionLabel,
     crashCount,
     onClose,
+    closeLabel
 }: TelemetryModalProps) => {
     const lastTickIso = lastTick !== null ? new Date(lastTick).toISOString() : null;
 
     return (
-        <ModalShell kicker="System" title="Telemetry" onClose={onClose}>
+        <ModalShell kicker="System" title="Telemetry" onClose={onClose} closeLabel={closeLabel}>
             <p className="ts-system-helper">Runtime loop, performance drift, and score diagnostics.</p>
             <ul className="ts-list">
                 <li>v{version} • Action: {activeActionLabel} • Crashes: {crashCount}</li>

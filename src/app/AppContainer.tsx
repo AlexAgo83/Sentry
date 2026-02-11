@@ -49,13 +49,10 @@ export const AppContainer = () => {
         openSystem,
         closeSystem,
         isDevToolsOpen,
-        openDevTools,
         closeDevTools,
         isLocalSaveOpen,
-        openLocalSave,
         closeLocalSave,
         isCloudSaveOpen,
-        openCloudSave,
         closeCloudSave,
         openActionSelection,
         closeActionSelection,
@@ -387,9 +384,6 @@ export const AppContainer = () => {
                 onSimulateOfflineDay={handleSimulateOfflineDay}
                 onResetSave={resetSave}
                 onCloseSystem={closeSystem}
-                onOpenDevTools={openDevTools}
-                onOpenLocalSave={openLocalSave}
-                onOpenCloudSave={openCloudSave}
                 isLocalSaveOpen={isLocalSaveOpen}
                 onCloseLocalSave={closeLocalSave}
                 isCloudSaveOpen={isCloudSaveOpen}

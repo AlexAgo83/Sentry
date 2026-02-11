@@ -1,11 +1,25 @@
 import { memo, useState } from "react";
 import { ActionJournalModal } from "./ActionJournalModal";
+import { CloudSaveModal } from "./CloudSaveModal";
 import { CrashReportsModal } from "./CrashReportsModal";
+import { DevToolsModal } from "./DevToolsModal";
+import { LocalSaveModal } from "./LocalSaveModal";
 import { ModalShell } from "./ModalShell";
 import { SaveOptionsModal } from "./SaveOptionsModal";
 import { TelemetryModal } from "./TelemetryModal";
 import type { CrashReport } from "../../observability/crashReporter";
 import type { ActionJournalEntry } from "../../core/types";
+import type { SaveCopyResult } from "../hooks/useSaveManagement";
+
+type SystemModalView =
+    | "settings"
+    | "actionJournal"
+    | "telemetry"
+    | "saveOptions"
+    | "localSave"
+    | "cloudSave"
+    | "crashReports"
+    | "devTools";
 
 type SystemModalProps = {
     version: string;
@@ -24,10 +38,13 @@ type SystemModalProps = {
     activeActionLabel: string;
     actionJournal: ActionJournalEntry[];
     crashReports: CrashReport[];
+    onExportSave: () => void | Promise<SaveCopyResult>;
+    onImportSave: () => void;
+    onResetSave: () => void;
+    onSimulateOffline: () => void;
+    onSimulateOfflineHour: () => void;
+    onSimulateOfflineDay: () => void;
     onClearCrashReports: () => void;
-    onOpenDevTools: () => void;
-    onOpenLocalSave: () => void;
-    onOpenCloudSave: () => void;
     onClose: () => void;
 };
 
@@ -48,127 +65,184 @@ export const SystemModal = memo(({
     activeActionLabel,
     actionJournal,
     crashReports,
+    onExportSave,
+    onImportSave,
+    onResetSave,
+    onSimulateOffline,
+    onSimulateOfflineHour,
+    onSimulateOfflineDay,
     onClearCrashReports,
-    onOpenDevTools,
-    onOpenLocalSave,
-    onOpenCloudSave,
     onClose,
 }: SystemModalProps) => {
-    const [isActionJournalOpen, setActionJournalOpen] = useState(false);
-    const [isCrashReportsOpen, setCrashReportsOpen] = useState(false);
-    const [isTelemetryOpen, setTelemetryOpen] = useState(false);
-    const [isSaveOptionsOpen, setSaveOptionsOpen] = useState(false);
+    const [viewStack, setViewStack] = useState<SystemModalView[]>(["settings"]);
+    const currentView = viewStack[viewStack.length - 1] ?? "settings";
+
+    const openView = (view: SystemModalView) => {
+        setViewStack((prev) => [...prev, view]);
+    };
+
+    const closeCurrentView = () => {
+        setViewStack((prev) => {
+            if (prev.length <= 1) {
+                onClose();
+                return prev;
+            }
+            return prev.slice(0, -1);
+        });
+    };
+
+    if (currentView === "actionJournal") {
+        return (
+            <ActionJournalModal
+                actionJournal={actionJournal}
+                onClose={closeCurrentView}
+                closeLabel="Back"
+            />
+        );
+    }
+
+    if (currentView === "telemetry") {
+        return (
+            <TelemetryModal
+                version={version}
+                lastTick={lastTick}
+                lastTickDurationMs={lastTickDurationMs}
+                lastDeltaMs={lastDeltaMs}
+                lastDriftMs={lastDriftMs}
+                driftEmaMs={driftEmaMs}
+                driftLabel={driftLabel}
+                lastOfflineTicks={lastOfflineTicks}
+                lastOfflineDurationMs={lastOfflineDurationMs}
+                tickRate={tickRate}
+                loopInterval={loopInterval}
+                offlineInterval={offlineInterval}
+                virtualScore={virtualScore}
+                activeActionLabel={activeActionLabel}
+                crashCount={crashReports.length}
+                onClose={closeCurrentView}
+                closeLabel="Back"
+            />
+        );
+    }
+
+    if (currentView === "saveOptions") {
+        return (
+            <SaveOptionsModal
+                onOpenLocalSave={() => openView("localSave")}
+                onOpenCloudSave={() => openView("cloudSave")}
+                onClose={closeCurrentView}
+                closeLabel="Back"
+            />
+        );
+    }
+
+    if (currentView === "localSave") {
+        return (
+            <LocalSaveModal
+                onExportSave={onExportSave}
+                onImportSave={onImportSave}
+                onResetSave={onResetSave}
+                onClose={closeCurrentView}
+                closeLabel="Back"
+            />
+        );
+    }
+
+    if (currentView === "cloudSave") {
+        return <CloudSaveModal onClose={closeCurrentView} closeLabel="Back" />;
+    }
+
+    if (currentView === "crashReports") {
+        return (
+            <CrashReportsModal
+                crashReports={crashReports}
+                onClearCrashReports={onClearCrashReports}
+                onClose={closeCurrentView}
+                closeLabel="Back"
+            />
+        );
+    }
+
+    if (currentView === "devTools") {
+        return (
+            <DevToolsModal
+                onClose={closeCurrentView}
+                onSimulateOffline={onSimulateOffline}
+                onSimulateOfflineHour={onSimulateOfflineHour}
+                onSimulateOfflineDay={onSimulateOfflineDay}
+                closeLabel="Back"
+            />
+        );
+    }
 
     return (
-        <>
-            <ModalShell kicker="System" title="Settings" onClose={onClose}>
-                <div className="ts-system-entry-list">
-                    <div className="ts-system-entry">
-                        <div className="ts-action-row">
-                            <button
-                                type="button"
-                                className="generic-field button ts-devtools-button ts-focusable"
-                                onClick={() => setActionJournalOpen(true)}
-                                data-testid="open-action-journal"
-                            >
-                                Action journal
-                            </button>
-                        </div>
+        <ModalShell kicker="System" title="Settings" onClose={onClose}>
+            <div className="ts-system-entry-list">
+                <div className="ts-system-entry">
+                    <div className="ts-action-row">
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={() => openView("actionJournal")}
+                            data-testid="open-action-journal"
+                        >
+                            Action journal
+                        </button>
                     </div>
-                    <div className="ts-system-entry">
-                        <div className="ts-action-row">
-                            <button
-                                type="button"
-                                className="generic-field button ts-devtools-button ts-focusable"
-                                onClick={() => setTelemetryOpen(true)}
-                                data-testid="open-telemetry"
-                            >
-                                Telemetry
-                            </button>
-                        </div>
-                    </div>
-                    <div className="ts-system-entry">
-                        <div className="ts-action-row">
-                            <button
-                                type="button"
-                                className="generic-field button ts-devtools-button ts-focusable"
-                                onClick={() => setSaveOptionsOpen(true)}
-                                data-testid="open-save-options"
-                            >
-                                Save options
-                            </button>
-                        </div>
-                    </div>
-                    {crashReports.length > 0 ? (
-                        <div className="ts-system-entry">
-                            <div className="ts-action-row">
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-devtools-button ts-focusable"
-                                    onClick={() => setCrashReportsOpen(true)}
-                                    data-testid="open-crash-reports"
-                                >
-                                    Crash reports
-                                </button>
-                            </div>
-                        </div>
-                    ) : null}
-                    {import.meta.env.DEV ? (
-                        <div className="ts-system-entry">
-                            <div className="ts-action-row">
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-devtools-button ts-focusable"
-                                    onClick={onOpenDevTools}
-                                >
-                                    Dev tools
-                                </button>
-                            </div>
-                        </div>
-                    ) : null}
                 </div>
-            </ModalShell>
-            {isTelemetryOpen ? (
-                <TelemetryModal
-                    version={version}
-                    lastTick={lastTick}
-                    lastTickDurationMs={lastTickDurationMs}
-                    lastDeltaMs={lastDeltaMs}
-                    lastDriftMs={lastDriftMs}
-                    driftEmaMs={driftEmaMs}
-                    driftLabel={driftLabel}
-                    lastOfflineTicks={lastOfflineTicks}
-                    lastOfflineDurationMs={lastOfflineDurationMs}
-                    tickRate={tickRate}
-                    loopInterval={loopInterval}
-                    offlineInterval={offlineInterval}
-                    virtualScore={virtualScore}
-                    activeActionLabel={activeActionLabel}
-                    crashCount={crashReports.length}
-                    onClose={() => setTelemetryOpen(false)}
-                />
-            ) : null}
-            {isActionJournalOpen ? (
-                <ActionJournalModal
-                    actionJournal={actionJournal}
-                    onClose={() => setActionJournalOpen(false)}
-                />
-            ) : null}
-            {isCrashReportsOpen ? (
-                <CrashReportsModal
-                    crashReports={crashReports}
-                    onClearCrashReports={onClearCrashReports}
-                    onClose={() => setCrashReportsOpen(false)}
-                />
-            ) : null}
-            {isSaveOptionsOpen ? (
-                <SaveOptionsModal
-                    onOpenLocalSave={onOpenLocalSave}
-                    onOpenCloudSave={onOpenCloudSave}
-                    onClose={() => setSaveOptionsOpen(false)}
-                />
-            ) : null}
-        </>
+                <div className="ts-system-entry">
+                    <div className="ts-action-row">
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={() => openView("telemetry")}
+                            data-testid="open-telemetry"
+                        >
+                            Telemetry
+                        </button>
+                    </div>
+                </div>
+                <div className="ts-system-entry">
+                    <div className="ts-action-row">
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={() => openView("saveOptions")}
+                            data-testid="open-save-options"
+                        >
+                            Save options
+                        </button>
+                    </div>
+                </div>
+                {crashReports.length > 0 ? (
+                    <div className="ts-system-entry">
+                        <div className="ts-action-row">
+                            <button
+                                type="button"
+                                className="generic-field button ts-devtools-button ts-focusable"
+                                onClick={() => openView("crashReports")}
+                                data-testid="open-crash-reports"
+                            >
+                                Crash reports
+                            </button>
+                        </div>
+                    </div>
+                ) : null}
+                {import.meta.env.DEV ? (
+                    <div className="ts-system-entry">
+                        <div className="ts-action-row">
+                            <button
+                                type="button"
+                                className="generic-field button ts-devtools-button ts-focusable"
+                                onClick={() => openView("devTools")}
+                            >
+                                Dev tools
+                            </button>
+                        </div>
+                    </div>
+                ) : null}
+            </div>
+        </ModalShell>
     );
 });
 
