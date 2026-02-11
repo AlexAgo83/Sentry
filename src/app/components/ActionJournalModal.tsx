@@ -19,6 +19,17 @@ const formatTimeAgo = (timestamp: number): string => {
     return `${Math.round(diffMinutes / 1440)}d ago`;
 };
 
+const splitTimeAgoLabel = (value: string): { value: string; suffix: string } => {
+    const match = value.match(/^(\d+)([mhd]\sago)$/u);
+    if (!match) {
+        return { value, suffix: "" };
+    }
+    return {
+        value: match[1] ?? value,
+        suffix: match[2] ?? ""
+    };
+};
+
 type ActionJournalKind = "action" | "recipe" | "dungeon-start" | "dungeon-end" | "offline" | "event";
 
 type ActionJournalMeta = {
@@ -97,6 +108,8 @@ export const ActionJournalModal = memo(({
                 <ul className="ts-system-journal-list">
                     {actionJournal.map((entry) => {
                         const meta = parseJournalLabel(entry.label);
+                        const timeAgo = formatTimeAgo(entry.at);
+                        const timeParts = splitTimeAgoLabel(timeAgo);
                         return (
                             <li key={entry.id} className={`ts-system-journal-item is-${meta.kind}`}>
                                 <span className="ts-system-journal-accent" aria-hidden="true" />
@@ -105,7 +118,8 @@ export const ActionJournalModal = memo(({
                                     <span className="ts-system-journal-label">{meta.detail}</span>
                                 </div>
                                 <time className="ts-system-journal-time" dateTime={toIsoDate(entry.at)}>
-                                    {formatTimeAgo(entry.at)}
+                                    <span className="ts-system-journal-time-value">{timeParts.value}</span>
+                                    <span className="ts-system-journal-time-suffix">{timeParts.suffix}</span>
                                 </time>
                             </li>
                         );

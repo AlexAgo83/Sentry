@@ -172,16 +172,26 @@
 }
 
 .ts-system-journal-time {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
     white-space: nowrap;
     justify-self: end;
     margin-left: var(--m2);
-    padding: 2px var(--m2);
-    border-radius: 999px;
-    border: 1px solid rgba(93, 217, 193, 0.24);
-    background: rgba(8, 15, 28, 0.8);
+    padding: 0;
+    border: none;
+    background: transparent;
     color: var(--color-text-muted);
     font-variant-numeric: tabular-nums;
     font-family: var(--default-font);
+}
+
+.ts-system-journal-time-value {
+    color: var(--color-text);
+}
+
+.ts-system-journal-time-suffix {
+    opacity: 0.58;
 }
 
 .ts-system-entry {
