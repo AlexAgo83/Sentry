@@ -301,7 +301,7 @@ body.is-roster-drawer-open {
     background: none;
     border: 0;
     padding: 0;
-    cursor: pointer;
+    cursor: default;
     display: inline-flex;
     align-items: center;
     color: inherit;

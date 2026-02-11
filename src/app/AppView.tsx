@@ -136,12 +136,7 @@ export const AppView = (props: AppViewProps) => {
                 <div className="app-topbar-surface">
                     <div className="app-topbar-inner">
                         <div className="app-topbar-left">
-                            <button
-                                type="button"
-                                className="app-title-button ts-focusable"
-                                onClick={onOpenSystem}
-                                aria-label="Open settings"
-                            >
+                            <div className="app-title-button">
                                 <div className="app-title-block">
                                     <img
                                         className="app-title-icon"
@@ -151,7 +146,7 @@ export const AppView = (props: AppViewProps) => {
                                     />
                                     <h1 className="app-title">Sentry</h1>
                                 </div>
-                            </button>
+                            </div>
                         </div>
                         <div className="app-topbar-center">
                             <div className="app-topbar-actions">

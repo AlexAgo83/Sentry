@@ -102,7 +102,7 @@ export const AppViewContainer = ({
                             onAddPlayer={onAddPlayer}
                             onAfterSetActivePlayer={onRosterPlayerSelect}
                             onOpenSystem={onOpenSystem}
-                            showSettingsButton={false}
+                            showSettingsButton
                             getSkillLabel={getSkillLabel}
                             getRecipeLabel={getRecipeLabelNonNull}
                         />

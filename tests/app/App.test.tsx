@@ -256,7 +256,7 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Close" }));
         expect(testStore.getState().offlineSummary).toBeNull();
 
-        await user.click(screen.getByRole("button", { name: "Open settings" }));
+        await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);
         const systemDialog = await screen.findByRole("dialog");
 
         const devToolsButton = within(systemDialog).queryByRole("button", { name: "Dev tools" });
@@ -271,7 +271,7 @@ describe("App", () => {
             await user.click(within(devDialog).getByRole("button", { name: "Close" }));
         }
 
-        await user.click(screen.getByRole("button", { name: "Open settings" }));
+        await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);
         const systemDialogAgain = await screen.findByRole("dialog");
 
         await user.click(within(systemDialogAgain).getByRole("button", { name: "Local save" }));
@@ -295,7 +295,7 @@ describe("App", () => {
         expect(shell).toBeTruthy();
         expect(shell?.className).not.toContain("is-modal-open");
 
-        await user.click(screen.getByRole("button", { name: "Open settings" }));
+        await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);
         const systemDialog = await screen.findByRole("dialog");
         await waitFor(() => {
             expect(document.querySelector(".app-shell")?.className).toContain("is-modal-open");
@@ -351,7 +351,7 @@ describe("App", () => {
         await user.click(screen.getByRole("tab", { name: "Equip" }));
         expect(screen.getByRole("heading", { name: "Equipment" })).toBeTruthy();
 
-        await user.click(screen.getByRole("button", { name: "Open settings" }));
+        await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);
         const dialogs = await screen.findAllByRole("dialog");
         const systemDialog = dialogs.at(-1);
         expect(systemDialog).toBeTruthy();

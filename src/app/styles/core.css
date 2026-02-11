@@ -606,6 +606,17 @@
     padding-right: var(--m8);
 }
 
+.ts-roster-settings-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+}
+
 .ts-add-player {
     margin-top: var(--m4);
 }

@@ -368,7 +368,7 @@ export const RosterPanel = memo(({
                     {showSettingsButton ? (
                         <button
                             type="button"
-                            className="ts-icon-button ts-panel-action-button ts-focusable"
+                            className="ts-icon-button ts-panel-action-button ts-roster-settings-button ts-focusable"
                             onClick={onOpenSystem}
                             aria-label="Open settings"
                         >

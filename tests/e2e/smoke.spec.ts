@@ -89,7 +89,7 @@ test("cloud auth, upload, download, conflict", async ({ page }) => {
         await route.fallback();
     });
 
-    await page.getByRole("button", { name: "Open settings" }).click();
+    await page.getByRole("button", { name: "Open settings" }).first().click();
     await page.getByTestId("open-cloud-save").click();
 
     await page.getByTestId("cloud-email").fill("e2e@example.com");
