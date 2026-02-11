@@ -119,10 +119,18 @@
 .ts-quest-toggle {
     display: inline-flex;
     align-items: center;
-    gap: var(--m2);
-    min-height: 36px;
-    padding: 6px 18px;
-    letter-spacing: 0.12em;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    flex: 0 0 44px;
+    gap: 0;
+    padding: 0;
+}
+
+.ts-quest-toggle .ts-panel-action-label {
+    display: none;
 }
 
 .ts-shop-tile {

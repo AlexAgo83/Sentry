@@ -96,13 +96,14 @@ export const QuestsPanel = memo(({
                         className={`ts-icon-button ts-panel-action-button ts-focusable ts-quest-toggle${showCompleted ? " is-active" : ""}`}
                         onClick={() => setQuestFilters((prev) => ({ ...prev, showCompleted: !prev.showCompleted }))}
                         aria-pressed={showCompleted}
+                        aria-label={showCompleted ? "Hide completed quests" : "Show completed quests"}
                         title={showCompleted ? "Hide completed quests" : "Show completed quests"}
                     >
                         <span className="ts-panel-action-icon" aria-hidden="true">
                             {showCompleted ? <QuestCompletedHideIcon /> : <QuestCompletedShowIcon />}
                         </span>
                         <span className="ts-panel-action-label">
-                            {showCompleted ? "Hide Completed" : "Show Completed"}
+                            Completed quests
                         </span>
                     </button>
                     <button
