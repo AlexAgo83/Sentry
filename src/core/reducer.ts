@@ -264,6 +264,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 }
             };
             const lastNonDungeonActionByPlayer = { ...state.lastNonDungeonActionByPlayer };
+            let selectedRecipeLabel: string | null = null;
             if (action.actionId) {
                 const actionDef = getActionDefinition(action.actionId);
                 const skill = actionDef ? player.skills[action.actionId] : null;
@@ -275,12 +276,14 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                             skillId: action.actionId,
                             recipeId: selectedRecipeId
                         };
+                        selectedRecipeLabel = recipeDef.name;
                     }
                 }
             }
             const actionLabel = action.actionId
                 ? getSkillDefinition(action.actionId)?.name ?? action.actionId
                 : "None";
+            const actionWithRecipeLabel = selectedRecipeLabel ? `${actionLabel} / ${selectedRecipeLabel}` : actionLabel;
             if (player.selectedActionId === action.actionId) {
                 return {
                     ...nextState,
@@ -292,7 +295,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     ...nextState,
                     lastNonDungeonActionByPlayer
                 },
-                createJournalEntry(`Action: ${player.name} -> ${actionLabel}`)
+                createJournalEntry(`Action: ${player.name} -> ${actionWithRecipeLabel}`)
             );
         }
         case "selectRecipe": {
@@ -324,7 +327,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     }
                 }
                 : state.lastNonDungeonActionByPlayer;
-            return {
+            const nextState = {
                 ...state,
                 lastNonDungeonActionByPlayer,
                 players: {
@@ -342,6 +345,17 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     }
                 }
             };
+            if (skill.selectedRecipeId === action.recipeId) {
+                return nextState;
+            }
+            const skillLabel = getSkillDefinition(action.skillId)?.name ?? action.skillId;
+            const recipeLabel = action.recipeId
+                ? getRecipeDefinition(action.skillId, action.recipeId)?.name ?? action.recipeId
+                : "None";
+            return appendActionJournalEntry(
+                nextState,
+                createJournalEntry(`Recipe: ${player.name} -> ${skillLabel} / ${recipeLabel}`)
+            );
         }
         case "debugAddItem": {
             if (!import.meta.env.DEV && !import.meta.env.VITE_E2E) {

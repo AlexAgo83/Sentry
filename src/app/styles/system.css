@@ -30,14 +30,28 @@
     padding: 0 var(--m7);
     display: flex;
     flex-direction: column;
-    gap: var(--m3);
+    gap: var(--m4);
 }
 
 .ts-system-journal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m3);
     font-size: var(--text-xs-size);
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--color-text-fade);
+}
+
+.ts-system-journal-count {
+    min-width: 2ch;
+    text-align: center;
+    padding: 2px var(--m2);
+    border-radius: 999px;
+    border: 1px solid rgba(93, 217, 193, 0.35);
+    background: rgba(12, 18, 32, 0.75);
+    color: var(--color-text);
 }
 
 .ts-system-journal-list {
@@ -46,30 +60,165 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--m2);
+    gap: var(--m4);
 }
 
 .ts-system-journal-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 3px minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
     gap: var(--m4);
-    padding: var(--m2) var(--m4);
-    border-radius: 10px;
-    border: 1px solid rgba(93, 217, 193, 0.2);
-    background: rgba(10, 16, 28, 0.6);
+    padding: var(--m3) calc(var(--m4) + var(--m1));
+    border-radius: 12px;
+    border: none;
+    background:
+        linear-gradient(120deg, rgba(14, 26, 46, 0.82), rgba(9, 15, 31, 0.82)),
+        rgba(10, 16, 28, 0.6);
+    box-shadow: none;
     font-size: var(--text-xs-size);
     color: var(--color-text);
 }
 
-.ts-system-journal-label {
-    flex: 1;
+.ts-system-journal-accent {
+    align-self: stretch;
+    border-radius: 999px;
+    background: rgba(93, 217, 193, 0.55);
+    box-shadow: 0 0 10px rgba(93, 217, 193, 0.35);
+}
+
+.ts-system-journal-item.is-action .ts-system-journal-accent {
+    background: rgba(242, 193, 78, 0.85);
+    box-shadow: 0 0 10px rgba(242, 193, 78, 0.4);
+}
+
+.ts-system-journal-item.is-recipe .ts-system-journal-accent {
+    background: rgba(93, 217, 193, 0.85);
+    box-shadow: 0 0 10px rgba(93, 217, 193, 0.42);
+}
+
+.ts-system-journal-item.is-dungeon-start .ts-system-journal-accent {
+    background: rgba(143, 209, 79, 0.9);
+    box-shadow: 0 0 10px rgba(143, 209, 79, 0.45);
+}
+
+.ts-system-journal-item.is-dungeon-end .ts-system-journal-accent {
+    background: rgba(199, 74, 61, 0.9);
+    box-shadow: 0 0 10px rgba(199, 74, 61, 0.45);
+}
+
+.ts-system-journal-item.is-offline .ts-system-journal-accent {
+    background: rgba(111, 164, 255, 0.9);
+    box-shadow: 0 0 10px rgba(111, 164, 255, 0.45);
+}
+
+.ts-system-journal-main {
     min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--m4);
+    padding-right: var(--m2);
+    font-family: var(--default-font);
+}
+
+.ts-system-journal-kind {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px var(--m2);
+    border-radius: 999px;
+    border: 1px solid rgba(93, 217, 193, 0.45);
+    font-size: 0.68rem;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(93, 217, 193, 0.95);
+    background: rgba(8, 16, 30, 0.7);
+    white-space: nowrap;
+    font-family: var(--default-font);
+}
+
+.ts-system-journal-kind.is-action {
+    border-color: rgba(242, 193, 78, 0.55);
+    color: rgba(242, 193, 78, 0.98);
+}
+
+.ts-system-journal-kind.is-recipe {
+    border-color: rgba(93, 217, 193, 0.55);
+    color: rgba(93, 217, 193, 0.98);
+}
+
+.ts-system-journal-kind.is-dungeon-start {
+    border-color: rgba(143, 209, 79, 0.6);
+    color: rgba(143, 209, 79, 0.98);
+}
+
+.ts-system-journal-kind.is-dungeon-end {
+    border-color: rgba(199, 74, 61, 0.6);
+    color: rgba(199, 74, 61, 0.98);
+}
+
+.ts-system-journal-kind.is-offline {
+    border-color: rgba(111, 164, 255, 0.6);
+    color: rgba(111, 164, 255, 0.98);
+}
+
+.ts-system-journal-label {
+    min-width: 0;
+    font-size: var(--text-xs-size);
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .ts-system-journal-time {
     white-space: nowrap;
+    justify-self: end;
+    margin-left: var(--m2);
+    padding: 2px var(--m2);
+    border-radius: 999px;
+    border: 1px solid rgba(93, 217, 193, 0.24);
+    background: rgba(8, 15, 28, 0.8);
     color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    font-family: var(--default-font);
+}
+
+@media (max-width: 760px) {
+    .ts-system-journal {
+        padding: 0 var(--m4);
+    }
+
+    .ts-system-journal-item {
+        grid-template-columns: 3px minmax(0, 1fr);
+        grid-template-areas:
+            "accent main"
+            "accent time";
+        align-items: start;
+    }
+
+    .ts-system-journal-accent {
+        grid-area: accent;
+    }
+
+    .ts-system-journal-main {
+        grid-area: main;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--m2);
+    }
+
+    .ts-system-journal-label {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .ts-system-journal-time {
+        grid-area: time;
+        margin-top: var(--m2);
+        justify-self: start;
+    }
 }
 
 .ts-system-entry {
