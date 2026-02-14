@@ -13,6 +13,7 @@ Users cannot access repository change history from inside the app because there 
 # Scope
 - In:
 - Add a `Changelogs` action in Settings UI.
+- Place `Changelogs` directly before `About` in the Settings button list.
 - Wire action to open a dedicated changelogs modal route/state in the existing modal system.
 - Keep alignment with existing settings action style and interaction patterns.
 - Out:
@@ -21,6 +22,7 @@ Users cannot access repository change history from inside the app because there 
 
 # Acceptance criteria
 - `Settings` displays a `Changelogs` action.
+- `Changelogs` is positioned immediately before `About`.
 - Clicking `Changelogs` opens the expected modal shell.
 - Existing settings actions continue to work unchanged.
 
@@ -31,4 +33,3 @@ Users cannot access repository change history from inside the app because there 
 # Notes
 - Derived from `logics/request/req_039_settings_changelogs_modal_with_paginated_github_commits.md`.
 - Main references: `src/app/components/SystemModal.tsx`, `src/app/containers/AppModalsContainer.tsx`.
-

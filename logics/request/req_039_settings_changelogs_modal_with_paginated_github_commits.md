@@ -8,6 +8,7 @@
 
 # Needs
 - Add a `Changelogs` entry in `Settings`.
+- Place `Changelogs` immediately before the `About` button in the Settings action list.
 - Open a dedicated modal that lists project commits from GitHub.
 - Display commits in a scrollable list with pagination (`10` commits per page).
 
@@ -26,6 +27,7 @@
 
 # Locked decisions (v1)
 - Entry point: `Settings` includes a new `Changelogs` action button.
+- Ordering rule: `Changelogs` is rendered directly before `About` in the Settings list.
 - Changelog view: modal-based, same modal system conventions as existing system/settings modals.
 - Pagination: fixed `10` items per page.
 - Commit fields shown in UI:
@@ -93,6 +95,7 @@
 
 # Acceptance criteria
 - `Settings` shows a `Changelogs` action.
+- `Changelogs` appears directly before `About` in the Settings action list.
 - Clicking it opens a modal dedicated to changelogs.
 - Modal loads commits from GitHub-backed source and renders them in descending chronology.
 - Pagination works with exactly `10` commits per page.

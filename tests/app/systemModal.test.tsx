@@ -36,6 +36,7 @@ describe("SystemModal", () => {
 
     it("navigates modal screens without stacking and closes back to previous", () => {
         const props = baseProps();
+        const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
         render(<SystemModal {...props} />);
 
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
@@ -107,6 +108,14 @@ describe("SystemModal", () => {
             fireEvent.click(screen.getByRole("button", { name: "Back" }));
             expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
         }
+
+        fireEvent.click(screen.getByRole("button", { name: "About" }));
+        expect(openSpy).toHaveBeenCalledWith(
+            "https://github.com/AlexAgo83/Sentry",
+            "_blank",
+            "noopener,noreferrer"
+        );
+        openSpy.mockRestore();
     });
 
     it("opens crash reports modal and clears entries", async () => {

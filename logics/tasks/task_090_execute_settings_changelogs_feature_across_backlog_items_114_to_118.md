@@ -23,6 +23,7 @@ This task orchestrates end-to-end delivery of the in-app changelogs feature (Set
 # Decisions (v1)
 - Source of truth is GitHub commits via backend proxy endpoint, not a static local changelog file.
 - Pagination is fixed to 10 commits per page.
+- Settings ordering rule: `Changelogs` is placed directly before `About`.
 - Backend supports:
   - required repo targeting env (`GITHUB_OWNER`, `GITHUB_REPO`),
   - optional auth token (`GITHUB_TOKEN`, recommended),
@@ -35,8 +36,9 @@ This task orchestrates end-to-end delivery of the in-app changelogs feature (Set
   - Confirm current Settings/modal flow baseline.
   - Pin existing tests covering Settings and modal stack.
 - [ ] 2. Execute `item_114` (Settings entrypoint):
-  - Add `Changelogs` action in Settings.
-  - Wire modal open action through existing modal architecture.
+- Add `Changelogs` action in Settings.
+- Position `Changelogs` directly before `About`.
+- Wire modal open action through existing modal architecture.
 - [ ] 3. Execute `item_115` (backend proxy route):
   - Add backend changelog endpoint with GitHub pagination mapping.
   - Implement token/no-token path and normalized response contract.
@@ -69,4 +71,3 @@ Final gate (mandatory at task end):
 
 # Report
 - Pending execution.
-

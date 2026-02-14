@@ -256,6 +256,18 @@ export const SystemModal = memo(({
                         </div>
                     </div>
                 ) : null}
+                <div className="ts-system-entry">
+                    <div className="ts-action-row">
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={() => window.open("https://github.com/AlexAgo83/Sentry", "_blank", "noopener,noreferrer")}
+                            data-testid="open-about-link"
+                        >
+                            About
+                        </button>
+                    </div>
+                </div>
             </div>
         </ModalShell>
     );
