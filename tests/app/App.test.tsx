@@ -346,7 +346,7 @@ describe("App", () => {
         });
     });
 
-    it("renders the equipment panel and shows the active action label in telemetry", async () => {
+    it("renders the equipment panel and opens telemetry diagnostics", async () => {
         const { user } = renderApp({ food: 2 });
 
         await user.click(screen.getByRole("button", { name: "Change" }));
@@ -370,7 +370,9 @@ describe("App", () => {
         if (!telemetryDialog) {
             throw new Error("Telemetry dialog not found");
         }
-        expect(within(telemetryDialog).getByText("Action")).toBeTruthy();
-        expect(within(telemetryDialog).getByText("Roaming")).toBeTruthy();
+        expect(within(telemetryDialog).getByText("Overview")).toBeTruthy();
+        expect(within(telemetryDialog).getByText("Loop")).toBeTruthy();
+        expect(within(telemetryDialog).getByText("Backend")).toBeTruthy();
+        expect(within(telemetryDialog).getByText("Response time")).toBeTruthy();
     });
 });
