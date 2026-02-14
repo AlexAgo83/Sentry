@@ -9,7 +9,10 @@ export const DungeonArenaRenderer = memo(({
 }: DungeonArenaRendererProps) => {
     const hostRef = useRef<HTMLDivElement | null>(null);
     const runtimeRef = useRef<PixiRuntime | null>(null);
+    const frameRef = useRef(frame);
     const [disabled, setDisabled] = useState(false);
+
+    frameRef.current = frame;
 
     useEffect(() => {
         const hostElement = hostRef.current;
@@ -27,6 +30,9 @@ export const DungeonArenaRenderer = memo(({
                     return;
                 }
                 runtimeRef.current = runtime;
+                if (frameRef.current) {
+                    updateFrame(runtime, frameRef.current);
+                }
                 setDisabled(false);
             } catch {
                 setDisabled(true);
@@ -51,7 +57,11 @@ export const DungeonArenaRenderer = memo(({
         if (!runtime || !frame) {
             return;
         }
-        updateFrame(runtime, frame);
+        try {
+            updateFrame(runtime, frame);
+        } catch {
+            setDisabled(true);
+        }
     }, [frame]);
 
     return (

@@ -2,7 +2,7 @@
 > From version: 0.9.24
 > Understanding: 95%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Architecture
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -26,37 +26,37 @@ This task executes the full core dungeon refactor from a monolithic `src/core/du
 - Every phase requires validation before moving to the next phase.
 
 # Plan
-- [ ] 1. Baseline and migration guardrails:
+- [x] 1. Baseline and migration guardrails:
   - Capture current behavior assumptions for start/stop/tick/replay/state normalization.
   - Identify and pin critical tests to protect before refactor.
-- [ ] 2. Execute `item_107` (constants + formulas extraction):
+- [x] 2. Execute `item_107` (constants + formulas extraction):
   - Create `constants.ts` and `formulas.ts`.
   - Move pure helpers and tuning constants with no behavior change.
-- [ ] 3. Execute `item_108` (replay pipeline extraction):
+- [x] 3. Execute `item_108` (replay pipeline extraction):
   - Move replay/event cap/truncation logic to `replay.ts`.
   - Preserve replay payload shape and capping semantics.
-- [ ] 4. Execute `item_109` (state extraction):
+- [x] 4. Execute `item_109` (state extraction):
   - Move state factory/normalization/selectors to `state.ts`.
   - Keep save normalization and active-run selection parity.
-- [ ] 5. Execute `item_110` (lifecycle extraction):
+- [x] 5. Execute `item_110` (lifecycle extraction):
   - Move run lifecycle transitions to `lifecycle.ts` (`start`, `stop`, floor init, finalize).
   - Keep reducer/loop/runtime integrations stable.
-- [ ] 6. Execute `item_111` (tick engine split):
+- [x] 6. Execute `item_111` (tick engine split):
   - Move `applyDungeonTick` to `tick.ts`.
   - Split into explicit phases while preserving ordering and side-effects.
-- [ ] 7. Execute `item_112` (facade + import migration):
+- [x] 7. Execute `item_112` (facade + import migration):
   - Add `src/core/dungeon/index.ts` as stable entrypoint.
   - Migrate internal imports safely and keep temporary compatibility exports as needed.
-- [ ] 8. Execute `item_113` (test and validation gate):
+- [x] 8. Execute `item_113` (test and validation gate):
   - Add/update focused unit + non-regression tests for extracted modules.
   - Validate full test matrix and resolve regressions.
-- [ ] 9. Final stabilization:
+- [x] 9. Final stabilization:
   - Remove migration leftovers/dead exports once all call sites are updated.
   - Ensure documentation and references match final structure.
-- [ ] 10. Final mandatory full test battery:
+- [x] 10. Final mandatory full test battery:
   - Run the complete validation suite at task end on the final code state.
   - Fix all failing checks before considering the task complete.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # Validation
 Final gate (mandatory at task end):
@@ -69,4 +69,23 @@ Final gate (mandatory at task end):
 - npm run build
 
 # Report
-- Pending execution.
+- Implemented split modules:
+  - `src/core/dungeon/constants.ts`
+  - `src/core/dungeon/formulas.ts`
+  - `src/core/dungeon/replay.ts`
+  - `src/core/dungeon/state.ts`
+  - `src/core/dungeon/lifecycle.ts`
+  - `src/core/dungeon/tick.ts`
+  - `src/core/dungeon/index.ts`
+  - compatibility facade `src/core/dungeon.ts`
+- Added dedicated split tests:
+  - `tests/core/dungeonFormulasSplit.test.ts`
+  - `tests/core/dungeonReplaySplit.test.ts`
+- Final validation (mandatory gate) executed successfully:
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run typecheck:tests`
+  - `npm run tests`
+  - `npm run test:ci`
+  - `npm run coverage`
+  - `npm run build`
