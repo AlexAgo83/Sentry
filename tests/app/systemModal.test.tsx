@@ -37,7 +37,7 @@ describe("SystemModal", () => {
     it("navigates modal screens without stacking and closes back to previous", async () => {
         const props = baseProps();
         const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
-        const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(
+        const fetchSpy = vi.fn().mockResolvedValue(new Response(
             JSON.stringify({
                 items: [
                     {
@@ -59,6 +59,7 @@ describe("SystemModal", () => {
                 headers: { "content-type": "application/json" }
             }
         ));
+        vi.stubGlobal("fetch", fetchSpy);
         render(<SystemModal {...props} />);
 
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
@@ -151,7 +152,7 @@ describe("SystemModal", () => {
         );
         expect(fetchSpy).toHaveBeenCalled();
         openSpy.mockRestore();
-        fetchSpy.mockRestore();
+        vi.unstubAllGlobals();
     });
 
     it("opens crash reports modal and clears entries", async () => {
