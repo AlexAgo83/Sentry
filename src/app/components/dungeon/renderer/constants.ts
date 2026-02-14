@@ -1,0 +1,15 @@
+export const WORLD_WIDTH = 1_000;
+export const WORLD_HEIGHT = 560;
+export const MAX_FLOAT_POOL = 24;
+export const PHASE_LABEL_Y = 38;
+export const HERO_BODY_RADIUS = 16;
+export const ENEMY_SPAWN_FADE_MS = 280;
+export const DAMAGE_TINT_MS = 360;
+export const DAMAGE_SHAKE_MS = 240;
+export const DAMAGE_TINT_COLOR = 0xff3b3b;
+export const ATTACK_LUNGE_MS = 220;
+export const ATTACK_LUNGE_DISTANCE = 18;
+export const MAGIC_PULSE_MS = 700;
+export const MAGIC_PULSE_COLOR = 0x5fe3a2;
+export const MAGIC_PULSE_OFFSET_Y = Math.round(HERO_BODY_RADIUS * 0.75);
+export const MOBILE_VIEWPORT_MAX = 520;
