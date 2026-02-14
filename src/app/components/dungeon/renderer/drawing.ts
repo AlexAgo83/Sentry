@@ -57,6 +57,14 @@ const OUTLINE_DIRECTIONS: Array<[number, number]> = [
     [-1, -1]
 ];
 
+const offsetPolygon = (points: number[], offsetX: number, offsetY: number) => {
+    const shifted: number[] = [];
+    for (let i = 0; i < points.length; i += 2) {
+        shifted.push(points[i] + offsetX, points[i + 1] + offsetY);
+    }
+    return shifted;
+};
+
 const drawOutlinePass = (
     gfx: any,
     alpha: number,
@@ -79,6 +87,11 @@ export const drawHeroBody = (node: UnitNode, unit: NonNullable<DungeonArenaFrame
     const hair = parseHexColor(unit.hairColor, 0x5a402f);
     drawOutlinePass(node.silhouette, alpha, (target, offsetX, offsetY) => {
         target.drawCircle(offsetX, offsetY, HERO_BODY_RADIUS + 0.6);
+        if (unit.helmetVisible) {
+            target.drawRoundedRect(-17 + offsetX, -16 + offsetY, 34, 12, 5);
+        } else {
+            target.drawEllipse(offsetX, -9 + offsetY, 13, 7);
+        }
     });
 
     node.body.clear();
@@ -155,12 +168,14 @@ export const drawEnemyBody = (node: UnitNode, unit: NonNullable<DungeonArenaFram
     drawOutlinePass(node.silhouette, alpha, (target, offsetX, offsetY) => {
         if (unit.isBoss) {
             target.drawRoundedRect(-24 + offsetX, -20 + offsetY, 48, 40, 10);
-            target.drawPolygon([-20 + offsetX, -20 + offsetY, -10 + offsetX, -34 + offsetY, 0 + offsetX, -20 + offsetY]);
-            target.drawPolygon([20 + offsetX, -20 + offsetY, 10 + offsetX, -34 + offsetY, 0 + offsetX, -20 + offsetY]);
+            target.drawPolygon(offsetPolygon([-20, -20, -10, -34, 0, -20, 10, -34, 20, -20, 20, -10, -20, -10], offsetX, offsetY));
+            target.drawPolygon(offsetPolygon([-24, -6, -34, 0, -24, 6], offsetX, offsetY));
+            target.drawPolygon(offsetPolygon([24, -6, 34, 0, 24, 6], offsetX, offsetY));
+            target.drawCircle(0 + offsetX, 2 + offsetY, 7);
         } else {
             target.drawRoundedRect(-16 + offsetX, -14 + offsetY, 32, 28, 8);
-            target.drawPolygon([-14 + offsetX, -14 + offsetY, -6 + offsetX, -24 + offsetY, 2 + offsetX, -14 + offsetY]);
-            target.drawPolygon([14 + offsetX, -14 + offsetY, 6 + offsetX, -24 + offsetY, -2 + offsetX, -14 + offsetY]);
+            target.drawPolygon(offsetPolygon([-14, -14, -6, -24, 2, -14], offsetX, offsetY));
+            target.drawPolygon(offsetPolygon([14, -14, 6, -24, -2, -14], offsetX, offsetY));
         }
     });
 
