@@ -32,33 +32,70 @@ const baseProps = () => ({
 describe("SystemModal", () => {
     beforeEach(() => {
         window.localStorage.removeItem("sentry.graphicsSettings");
+        window.localStorage.removeItem("sentry.cloud.accessToken");
+        window.localStorage.removeItem("sentry.cloud.csrfToken");
     });
 
     it("navigates modal screens without stacking and closes back to previous", async () => {
         const props = baseProps();
         const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
-        const fetchSpy = vi.fn().mockResolvedValue(new Response(
-            JSON.stringify({
-                items: [
+        const fetchSpy = vi.fn().mockImplementation(async (input: string | URL | Request) => {
+            const url = String(input);
+            if (url.includes("/api/v1/leaderboard")) {
+                return new Response(
+                    JSON.stringify({
+                        items: [
+                            {
+                                userId: "u1",
+                                displayName: "Aegis",
+                                virtualScore: 2500,
+                                updatedAt: "2026-02-14T12:00:00.000Z",
+                                appVersion: "0.9.27",
+                                isExAequo: true
+                            },
+                            {
+                                userId: "u2",
+                                displayName: "Guard",
+                                virtualScore: 2500,
+                                updatedAt: "2026-02-14T11:00:00.000Z",
+                                appVersion: "0.9.27",
+                                isExAequo: true
+                            }
+                        ],
+                        page: 1,
+                        perPage: 10,
+                        hasNextPage: false
+                    }),
                     {
-                        sha: "abcdef1234567890",
-                        shortSha: "abcdef1",
-                        message: "Latest commit",
-                        author: "Alex",
-                        committedAt: Date.parse("2026-02-14T12:00:00.000Z"),
-                        url: "https://github.com/AlexAgo83/Sentry/commit/abcdef1234567890"
+                        status: 200,
+                        headers: { "content-type": "application/json" }
                     }
-                ],
-                page: 1,
-                perPage: 10,
-                hasNextPage: false,
-                source: "github"
-            }),
-            {
-                status: 200,
-                headers: { "content-type": "application/json" }
+                );
             }
-        ));
+
+            return new Response(
+                JSON.stringify({
+                    items: [
+                        {
+                            sha: "abcdef1234567890",
+                            shortSha: "abcdef1",
+                            message: "Latest commit",
+                            author: "Alex",
+                            committedAt: Date.parse("2026-02-14T12:00:00.000Z"),
+                            url: "https://github.com/AlexAgo83/Sentry/commit/abcdef1234567890"
+                        }
+                    ],
+                    page: 1,
+                    perPage: 10,
+                    hasNextPage: false,
+                    source: "github"
+                }),
+                {
+                    status: 200,
+                    headers: { "content-type": "application/json" }
+                }
+            );
+        });
         vi.stubGlobal("fetch", fetchSpy);
         render(<SystemModal {...props} />);
 
@@ -131,6 +168,17 @@ describe("SystemModal", () => {
             fireEvent.click(screen.getByRole("button", { name: "Back" }));
             expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
         }
+
+        const saveOptionsButton = screen.getByRole("button", { name: "Save options" });
+        const leaderboardButton = screen.getByRole("button", { name: "Leaderboard" });
+        expect(saveOptionsButton.compareDocumentPosition(leaderboardButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+        fireEvent.click(leaderboardButton);
+        expect(screen.getByRole("heading", { name: "Leaderboard" })).toBeTruthy();
+        expect(await screen.findByText("Aegis")).toBeTruthy();
+        expect(screen.getAllByText("Ex aequo").length).toBeGreaterThan(0);
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         const changelogsButton = screen.getByRole("button", { name: "Changelogs" });
         const aboutButton = screen.getByRole("button", { name: "About" });

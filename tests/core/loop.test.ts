@@ -246,7 +246,7 @@ describe("core loop", () => {
         const next = applyTick(state, actionInterval, Date.now());
         expect(next.players[playerId].selectedActionId).toBe(null);
         expect(next.inventory.items.meat ?? 0).toBe(0);
-        expect(next.inventory.items.food ?? 0).toBe(0);
+        expect(next.inventory.items.food ?? 0).toBe(state.inventory.items.food ?? 0);
     });
 
     it("adds herbalism items to the global inventory", () => {

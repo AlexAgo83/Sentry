@@ -3,7 +3,8 @@
   "version": "0.9.27",
   "description": "Sentry Idle",
   "scripts": {
-    "dev": "vite --debug",
+    "dev": "vite",
+    "dev:debug": "vite --debug",
     "live": "vite",
     "build": "vite build",
     "preview": "vite preview",

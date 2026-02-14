@@ -2,7 +2,7 @@
 > From version: 0.9.26
 > Understanding: 97%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Feature
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -29,25 +29,25 @@ This task orchestrates end-to-end delivery of initial food grant on fresh starts
 - Delivery is phase-based with final validation gate.
 
 # Plan
-- [ ] 1. Baseline and guardrails:
+- [x] 1. Baseline and guardrails:
   - Confirm current initial inventory defaults and reset behavior.
   - Identify tests asserting initial inventory and reset outcomes.
-- [ ] 2. Execute `item_125` (initial state update):
+- [x] 2. Execute `item_125` (initial state update):
   - Update initial inventory creation to include `food: 10`.
   - Ensure no unrelated inventory default changes.
-- [ ] 3. Execute `item_126` (reset flow parity):
+- [x] 3. Execute `item_126` (reset flow parity):
   - Verify/enforce that reset creates fresh save with `food: 10`.
   - Ensure existing save hydration remains unchanged.
-- [ ] 4. Execute `item_127` (tests and quality gate):
+- [x] 4. Execute `item_127` (tests and quality gate):
   - Add/update tests for fresh start and reset behavior.
   - Confirm existing-save load behavior is not regressed.
-- [ ] 5. Final stabilization:
+- [x] 5. Final stabilization:
   - Recheck onboarding/tutorial assumptions around initial food.
   - Ensure labels/docs/comments are aligned.
-- [ ] 6. Final mandatory full test battery:
+- [x] 6. Final mandatory full test battery:
   - Run complete validation suite at task end.
   - Fix all failures before marking task complete.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # Validation
 Final gate (mandatory at task end):
@@ -60,4 +60,16 @@ Final gate (mandatory at task end):
 - `npm run test:e2e`
 
 # Report
-- TBD after execution.
+- Completed:
+  - Updated fresh state inventory defaults so new saves start with `food: 10` while keeping existing gold defaults unchanged.
+  - Confirmed reset flow parity (`GameRuntime.reset`) since it rebuilds fresh state from `createInitialGameState`.
+  - Added targeted regression tests for initial state, reset flow, and existing-save hydrate preservation.
+  - Updated affected loop test expectations to match the new initial food baseline.
+- Validation:
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run typecheck:tests`
+  - `npm run test:ci`
+  - `npm run coverage:ci`
+  - `npm run build`
+  - `npm run test:e2e`

@@ -46,7 +46,8 @@ export const createActionProgress = (): ActionProgressState => ({
 
 const createInventoryState = (gold: number): InventoryState => ({
     items: {
-        gold
+        gold,
+        food: 10
     }
 });
 

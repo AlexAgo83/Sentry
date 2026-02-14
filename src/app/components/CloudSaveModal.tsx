@@ -1,6 +1,7 @@
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { ModalShell } from "./ModalShell";
 import { CloudSavePanel } from "./CloudSavePanel";
+import { HeroNameModal } from "./HeroNameModal";
 import { useCloudSave } from "../hooks/useCloudSave";
 
 type CloudSaveModalProps = {
@@ -39,6 +40,9 @@ export const CloudSaveModal = memo(({ onClose, closeLabel }: CloudSaveModalProps
 const CloudSaveModalBody = ({ onClose, closeLabel }: CloudSaveModalProps) => {
     const [email, setEmail] = useState(loadStoredEmail);
     const [password, setPassword] = useState("");
+    const [isEditUsernameOpen, setEditUsernameOpen] = useState(false);
+    const [usernameDraft, setUsernameDraft] = useState("");
+    const [usernameError, setUsernameError] = useState<string | null>(null);
     const cloud = useCloudSave();
     const handleEmailChange = useCallback((value: string) => {
         setEmail(value);
@@ -51,6 +55,60 @@ const CloudSaveModalBody = ({ onClose, closeLabel }: CloudSaveModalProps) => {
         : backendUnavailable
         ? "is-warming"
         : "is-online";
+    const canEditUsername = Boolean(cloud.accessToken);
+    const effectiveUsername = cloud.profile?.username ?? null;
+    const usernameDisplay = useMemo(() => cloud.profile?.displayName ?? null, [cloud.profile]);
+
+    const openEditUsername = useCallback(() => {
+        if (!canEditUsername) {
+            return;
+        }
+        setUsernameDraft(effectiveUsername ?? "");
+        setUsernameError(null);
+        setEditUsernameOpen(true);
+    }, [canEditUsername, effectiveUsername]);
+
+    const closeEditUsername = useCallback(() => {
+        setEditUsernameOpen(false);
+        setUsernameError(null);
+    }, []);
+
+    const submitUsername = useCallback(async () => {
+        const result = await cloud.updateUsername(usernameDraft);
+        if (result.ok) {
+            setEditUsernameOpen(false);
+            setUsernameError(null);
+            return;
+        }
+        setUsernameError(result.error);
+    }, [cloud, usernameDraft]);
+
+    if (isEditUsernameOpen) {
+        return (
+            <HeroNameModal
+                kicker="Cloud"
+                title="Username"
+                name={usernameDraft}
+                submitLabel="Save username"
+                isSubmitDisabled={cloud.isUpdatingProfile}
+                onNameChange={(value) => {
+                    setUsernameDraft(value);
+                    if (usernameError) {
+                        setUsernameError(null);
+                    }
+                }}
+                onSubmit={() => {
+                    void submitUsername();
+                }}
+                onClose={closeEditUsername}
+                fieldLabel="Username"
+                inputId="cloud-username-input"
+                maxLength={16}
+                placeholder="Letters and numbers only"
+                helperText={usernameError}
+            />
+        );
+    }
 
     return (
         <ModalShell
@@ -80,6 +138,8 @@ const CloudSaveModalBody = ({ onClose, closeLabel }: CloudSaveModalProps) => {
                     lastSyncAt={cloud.lastSyncAt}
                     localHasActiveDungeonRun={cloud.localHasActiveDungeonRun}
                     cloudHasActiveDungeonRun={cloud.cloudHasActiveDungeonRun}
+                    username={effectiveUsername}
+                    displayName={usernameDisplay}
                     showHeader={false}
                     onEmailChange={handleEmailChange}
                     onPasswordChange={setPassword}
@@ -88,6 +148,7 @@ const CloudSaveModalBody = ({ onClose, closeLabel }: CloudSaveModalProps) => {
                     onRefresh={cloud.refreshCloud}
                     onWarmupRetryNow={cloud.retryWarmupNow}
                     onLogout={cloud.logout}
+                    onEditUsername={openEditUsername}
                     onLoadCloud={cloud.loadCloud}
                     onOverwriteCloud={cloud.overwriteCloud}
                 />

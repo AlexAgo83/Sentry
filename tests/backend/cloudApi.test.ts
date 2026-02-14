@@ -3,7 +3,14 @@ import { describe, expect, it, beforeEach } from "vitest";
 
 const buildMockPrisma = () => {
     const db = {
-        users: [] as Array<{ id: string; email: string; passwordHash: string; createdAt: Date }>,
+        users: [] as Array<{
+            id: string;
+            email: string;
+            passwordHash: string;
+            username: string | null;
+            usernameCanonical: string | null;
+            createdAt: Date;
+        }>,
         saves: [] as Array<{
             id: string;
             userId: string;
@@ -48,20 +55,88 @@ const buildMockPrisma = () => {
                 }
                 return null;
             },
+            findFirst: async ({ where }: { where: { usernameCanonical?: string; id?: { not?: string } } }) => {
+                const candidate = db.users.find((user) => {
+                    if (typeof where.usernameCanonical === "string" && user.usernameCanonical !== where.usernameCanonical) {
+                        return false;
+                    }
+                    if (where.id?.not && user.id === where.id.not) {
+                        return false;
+                    }
+                    return true;
+                });
+                return candidate ?? null;
+            },
             create: async ({ data }: { data: { email: string; passwordHash: string } }) => {
                 const user = {
                     id: `user_${userCounter++}`,
                     email: data.email,
                     passwordHash: data.passwordHash,
+                    username: null,
+                    usernameCanonical: null,
                     createdAt: new Date()
                 };
                 db.users.push(user);
+                return user;
+            },
+            update: async ({
+                where,
+                data
+            }: {
+                where: { id: string };
+                data: { username?: string | null; usernameCanonical?: string | null };
+            }) => {
+                const user = db.users.find((entry) => entry.id === where.id);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                if ("username" in data) {
+                    user.username = data.username ?? null;
+                }
+                if ("usernameCanonical" in data) {
+                    user.usernameCanonical = data.usernameCanonical ?? null;
+                }
                 return user;
             }
         },
         save: {
             findUnique: async ({ where }: { where: { userId: string } }) => {
                 return db.saves.find((s) => s.userId === where.userId) ?? null;
+            },
+            findMany: async ({
+                skip = 0,
+                take = db.saves.length,
+                include
+            }: {
+                skip?: number;
+                take?: number;
+                orderBy?: Array<{ virtualScore?: "desc" | "asc"; updatedAt?: "desc" | "asc"; id?: "desc" | "asc" }>;
+                include?: { user?: { select?: { id?: boolean; email?: boolean; username?: boolean } } };
+            }) => {
+                const ordered = [...db.saves].sort((a, b) => {
+                    if (a.virtualScore !== b.virtualScore) {
+                        return b.virtualScore - a.virtualScore;
+                    }
+                    if (a.updatedAt.getTime() !== b.updatedAt.getTime()) {
+                        return b.updatedAt.getTime() - a.updatedAt.getTime();
+                    }
+                    return a.id.localeCompare(b.id);
+                });
+                const sliced = ordered.slice(skip, skip + take);
+                if (!include?.user) {
+                    return sliced;
+                }
+                return sliced.map((save) => ({
+                    ...save,
+                    user: db.users.find((entry) => entry.id === save.userId) ?? {
+                        id: save.userId,
+                        email: "unknown@example.com",
+                        passwordHash: "",
+                        username: null,
+                        usernameCanonical: null,
+                        createdAt: new Date(0)
+                    }
+                }));
             },
             upsert: async ({ where, create, update }: {
                 where: { userId: string };
@@ -417,6 +492,147 @@ describe("cloud API", () => {
             }
         });
         expect(saveResponse.statusCode).toBe(413);
+
+        await app.close();
+    });
+
+    it("updates cloud username with validation and uniqueness checks", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        const firstUser = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/register",
+            payload: { email: "first@example.com", password: "password123" }
+        });
+        const secondUser = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/register",
+            payload: { email: "second@example.com", password: "password123" }
+        });
+        const firstToken = firstUser.json().accessToken;
+        const secondToken = secondUser.json().accessToken;
+
+        const setUsername = await app.inject({
+            method: "PATCH",
+            url: "/api/v1/users/me/profile",
+            headers: { Authorization: `Bearer ${firstToken}` },
+            payload: { username: "Aegis01" }
+        });
+        expect(setUsername.statusCode).toBe(200);
+        expect(setUsername.json().profile.username).toBe("Aegis01");
+        expect(setUsername.json().profile.displayName).toBe("Aegis01");
+
+        const profile = await app.inject({
+            method: "GET",
+            url: "/api/v1/users/me/profile",
+            headers: { Authorization: `Bearer ${firstToken}` }
+        });
+        expect(profile.statusCode).toBe(200);
+        expect(profile.json().profile.displayName).toBe("Aegis01");
+
+        const duplicateUsername = await app.inject({
+            method: "PATCH",
+            url: "/api/v1/users/me/profile",
+            headers: { Authorization: `Bearer ${secondToken}` },
+            payload: { username: "aegis01" }
+        });
+        expect(duplicateUsername.statusCode).toBe(409);
+
+        const invalidChars = await app.inject({
+            method: "PATCH",
+            url: "/api/v1/users/me/profile",
+            headers: { Authorization: `Bearer ${secondToken}` },
+            payload: { username: "bad name!" }
+        });
+        expect(invalidChars.statusCode).toBe(400);
+
+        const tooLong = await app.inject({
+            method: "PATCH",
+            url: "/api/v1/users/me/profile",
+            headers: { Authorization: `Bearer ${secondToken}` },
+            payload: { username: "ABCDEFGHIJKLMNOPQ" }
+        });
+        expect(tooLong.statusCode).toBe(400);
+
+        const clearUsername = await app.inject({
+            method: "PATCH",
+            url: "/api/v1/users/me/profile",
+            headers: { Authorization: `Bearer ${firstToken}` },
+            payload: { username: "   " }
+        });
+        expect(clearUsername.statusCode).toBe(200);
+        expect(clearUsername.json().profile.username).toBeNull();
+        expect(clearUsername.json().profile.displayName).toBe("f***t@example.com");
+
+        await app.close();
+    });
+
+    it("returns leaderboard sorted by score with masked fallback, app version, and tie marker", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        const registerAndSave = async (email: string, score: number, appVersion: string, username?: string) => {
+            const register = await app.inject({
+                method: "POST",
+                url: "/api/v1/auth/register",
+                payload: { email, password: "password123" }
+            });
+            const token = register.json().accessToken as string;
+            if (username) {
+                await app.inject({
+                    method: "PATCH",
+                    url: "/api/v1/users/me/profile",
+                    headers: { Authorization: `Bearer ${token}` },
+                    payload: { username }
+                });
+            }
+            await app.inject({
+                method: "PUT",
+                url: "/api/v1/saves/latest",
+                headers: { Authorization: `Bearer ${token}` },
+                payload: {
+                    payload: { version: appVersion, players: { "1": { id: "1" } } },
+                    virtualScore: score,
+                    appVersion
+                }
+            });
+        };
+
+        await registerAndSave("top@example.com", 2000, "0.9.27", "TopDog");
+        await registerAndSave("tie@example.com", 1500, "0.9.26");
+        await registerAndSave("tie2@example.com", 1500, "0.9.25");
+        await registerAndSave("low@example.com", 250, "0.9.24");
+
+        const firstPage = await app.inject({
+            method: "GET",
+            url: "/api/v1/leaderboard?page=1&perPage=2"
+        });
+
+        expect(firstPage.statusCode).toBe(200);
+        const firstPayload = firstPage.json();
+        expect(firstPayload.page).toBe(1);
+        expect(firstPayload.perPage).toBe(2);
+        expect(firstPayload.hasNextPage).toBe(true);
+        expect(firstPayload.items).toHaveLength(2);
+        expect(firstPayload.items[0].displayName).toBe("TopDog");
+        expect(firstPayload.items[0].virtualScore).toBe(2000);
+        expect(firstPayload.items[0].appVersion).toBe("0.9.27");
+        expect(firstPayload.items[1].displayName).toBe("t**2@example.com");
+        expect(firstPayload.items[1].isExAequo).toBe(true);
+
+        const secondPage = await app.inject({
+            method: "GET",
+            url: "/api/v1/leaderboard?page=2&perPage=2"
+        });
+        expect(secondPage.statusCode).toBe(200);
+        const secondPayload = secondPage.json();
+        expect(secondPayload.items).toHaveLength(2);
+        expect(secondPayload.items[0].isExAequo).toBe(true);
+        expect(secondPayload.items[1].virtualScore).toBe(250);
+        expect(secondPayload.hasNextPage).toBe(false);
 
         await app.close();
     });

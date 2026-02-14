@@ -5,6 +5,7 @@ import { ChangelogsModal } from "./ChangelogsModal";
 import { CrashReportsModal } from "./CrashReportsModal";
 import { DevToolsModal } from "./DevToolsModal";
 import { GraphicsModal } from "./GraphicsModal";
+import { LeaderboardModal } from "./LeaderboardModal";
 import { LocalSaveModal } from "./LocalSaveModal";
 import { ModalShell } from "./ModalShell";
 import { SaveOptionsModal } from "./SaveOptionsModal";
@@ -21,6 +22,7 @@ type SystemModalView =
     | "saveOptions"
     | "localSave"
     | "cloudSave"
+    | "leaderboard"
     | "changelogs"
     | "crashReports"
     | "devTools";
@@ -157,6 +159,10 @@ export const SystemModal = memo(({
         return <CloudSaveModal onClose={closeCurrentView} closeLabel="Back" />;
     }
 
+    if (currentView === "leaderboard") {
+        return <LeaderboardModal onClose={closeCurrentView} closeLabel="Back" />;
+    }
+
     if (currentView === "changelogs") {
         return <ChangelogsModal onClose={closeCurrentView} closeLabel="Back" />;
     }
@@ -232,6 +238,18 @@ export const SystemModal = memo(({
                             data-testid="open-save-options"
                         >
                             Save options
+                        </button>
+                    </div>
+                </div>
+                <div className="ts-system-entry">
+                    <div className="ts-action-row">
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={() => openView("leaderboard")}
+                            data-testid="open-leaderboard"
+                        >
+                            Leaderboard
                         </button>
                     </div>
                 </div>

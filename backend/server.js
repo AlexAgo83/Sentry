@@ -15,6 +15,9 @@ const CSRF_COOKIE_NAME = "refreshCsrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const CHANGELOG_DEFAULT_PER_PAGE = 10;
 const CHANGELOG_MAX_PER_PAGE = 10;
+const LEADERBOARD_DEFAULT_PER_PAGE = 10;
+const LEADERBOARD_MAX_PER_PAGE = 10;
+const USERNAME_MAX_LENGTH = 16;
 const GITHUB_API_BASE = "https://api.github.com";
 
 const parsePositiveInt = (value, fallback) => {
@@ -107,6 +110,59 @@ const normalizeGithubCommit = (entry) => {
     return item;
 };
 
+const maskEmail = (email) => {
+    if (typeof email !== "string") {
+        return "****";
+    }
+    const [localPartRaw, domainRaw] = email.split("@");
+    const localPart = (localPartRaw ?? "").trim();
+    const domain = (domainRaw ?? "").trim();
+    if (!localPart || !domain) {
+        return "****";
+    }
+    if (localPart.length <= 2) {
+        return `${localPart[0] ?? "*"}***${localPart[1] ?? ""}@${domain}`;
+    }
+    const maskedMiddle = "*".repeat(Math.max(1, localPart.length - 2));
+    return `${localPart[0]}${maskedMiddle}${localPart[localPart.length - 1]}@${domain}`;
+};
+
+const normalizeUsernameInput = (value) => {
+    if (value === null || value === undefined) {
+        return null;
+    }
+    if (typeof value !== "string") {
+        return "__invalid__";
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return null;
+    }
+    return trimmed;
+};
+
+const isUsernameValid = (username) => {
+    if (typeof username !== "string") {
+        return false;
+    }
+    if (username.length > USERNAME_MAX_LENGTH) {
+        return false;
+    }
+    return /^[a-z0-9]+$/iu.test(username);
+};
+
+const normalizeUsernameCanonical = (username) => (
+    typeof username === "string" ? username.toLowerCase() : null
+);
+
+const resolveDisplayName = (user) => {
+    const username = typeof user?.username === "string" ? user.username.trim() : "";
+    if (username) {
+        return username;
+    }
+    return maskEmail(typeof user?.email === "string" ? user.email : "");
+};
+
 const buildConfig = () => {
     const ACCESS_TTL_MINUTES = Number(process.env.ACCESS_TOKEN_TTL_MINUTES ?? 15);
     const REFRESH_TTL_DAYS = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 30);
@@ -136,7 +192,7 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
     app.register(cors, {
         origin: true,
         credentials: true,
-        methods: ["GET", "POST", "PUT", "OPTIONS"],
+        methods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
         allowedHeaders: ["Authorization", "Content-Type", CSRF_HEADER_NAME]
     });
 
@@ -255,6 +311,74 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
             perPage,
             hasNextPage,
             source: "github"
+        });
+    });
+
+    app.get("/api/v1/leaderboard", async (request, reply) => {
+        const page = parsePositiveInt(request.query?.page, 1);
+        const requestedPerPage = parsePositiveInt(request.query?.perPage, LEADERBOARD_DEFAULT_PER_PAGE);
+        const perPage = Math.min(LEADERBOARD_MAX_PER_PAGE, requestedPerPage);
+        const offset = (page - 1) * perPage;
+        const orderBy = [
+            { virtualScore: "desc" },
+            { updatedAt: "desc" },
+            { id: "asc" }
+        ];
+        const includeUser = {
+            user: {
+                select: {
+                    id: true,
+                    email: true,
+                    username: true
+                }
+            }
+        };
+
+        const [rows, previousRowResult] = await Promise.all([
+            prisma.save.findMany({
+                skip: offset,
+                take: perPage + 1,
+                orderBy,
+                include: includeUser
+            }),
+            offset > 0
+                ? prisma.save.findMany({
+                    skip: offset - 1,
+                    take: 1,
+                    orderBy,
+                    include: includeUser
+                })
+                : Promise.resolve([])
+        ]);
+
+        const hasNextPage = rows.length > perPage;
+        const pageRows = rows.slice(0, perPage);
+        const previousRow = previousRowResult[0] ?? null;
+        const nextRow = hasNextPage ? rows[perPage] ?? null : null;
+
+        const items = pageRows.map((entry, index) => {
+            const previousScore = index > 0
+                ? pageRows[index - 1]?.virtualScore ?? null
+                : previousRow?.virtualScore ?? null;
+            const nextScore = index < pageRows.length - 1
+                ? pageRows[index + 1]?.virtualScore ?? null
+                : nextRow?.virtualScore ?? null;
+            const isExAequo = entry.virtualScore === previousScore || entry.virtualScore === nextScore;
+            return {
+                userId: entry.user.id,
+                displayName: resolveDisplayName(entry.user),
+                virtualScore: entry.virtualScore,
+                updatedAt: entry.updatedAt.toISOString(),
+                appVersion: entry.appVersion,
+                isExAequo
+            };
+        });
+
+        reply.send({
+            items,
+            page,
+            perPage,
+            hasNextPage
         });
     });
 
@@ -563,6 +687,98 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
                 appVersion: saved.appVersion
             }
         });
+    });
+
+    app.get("/api/v1/users/me/profile", { preHandler: [app.authenticate] }, async (request, reply) => {
+        const userId = request.user?.sub;
+        if (!userId) {
+            reply.code(401).send({ error: "Unauthorized" });
+            return;
+        }
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                email: true,
+                username: true
+            }
+        });
+        if (!user) {
+            reply.code(404).send({ error: "User not found." });
+            return;
+        }
+        reply.send({
+            profile: {
+                email: user.email,
+                username: user.username ?? null,
+                maskedEmail: maskEmail(user.email),
+                displayName: resolveDisplayName(user)
+            }
+        });
+    });
+
+    app.patch("/api/v1/users/me/profile", { preHandler: [app.authenticate] }, async (request, reply) => {
+        const userId = request.user?.sub;
+        if (!userId) {
+            reply.code(401).send({ error: "Unauthorized" });
+            return;
+        }
+        const rawUsername = request.body?.username;
+        const normalizedUsername = normalizeUsernameInput(rawUsername);
+        if (normalizedUsername === "__invalid__") {
+            reply.code(400).send({ error: "Invalid username payload." });
+            return;
+        }
+        if (normalizedUsername !== null && normalizedUsername.length > USERNAME_MAX_LENGTH) {
+            reply.code(400).send({ error: `Username must be ${USERNAME_MAX_LENGTH} characters or fewer.` });
+            return;
+        }
+        if (normalizedUsername !== null && !isUsernameValid(normalizedUsername)) {
+            reply.code(400).send({ error: "Username must use letters and numbers only." });
+            return;
+        }
+
+        const usernameCanonical = normalizeUsernameCanonical(normalizedUsername);
+        if (usernameCanonical) {
+            const existing = await prisma.user.findFirst({
+                where: {
+                    usernameCanonical,
+                    id: { not: userId }
+                },
+                select: { id: true }
+            });
+            if (existing) {
+                reply.code(409).send({ error: "Username is already taken." });
+                return;
+            }
+        }
+
+        try {
+            const updated = await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    username: normalizedUsername,
+                    usernameCanonical
+                },
+                select: {
+                    email: true,
+                    username: true
+                }
+            });
+            reply.send({
+                profile: {
+                    email: updated.email,
+                    username: updated.username ?? null,
+                    maskedEmail: maskEmail(updated.email),
+                    displayName: resolveDisplayName(updated)
+                }
+            });
+        } catch (error) {
+            if (error && typeof error === "object" && error.code === "P2002") {
+                reply.code(409).send({ error: "Username is already taken." });
+                return;
+            }
+            throw error;
+        }
     });
 
     app.addHook("onClose", async () => {

@@ -18,6 +18,17 @@ type CloudSaveMetaResponse = {
     meta: CloudSaveMeta;
 };
 
+export type CloudProfile = {
+    email: string;
+    username: string | null;
+    maskedEmail: string;
+    displayName: string;
+};
+
+type CloudProfileResponse = {
+    profile: CloudProfile;
+};
+
 const ACCESS_TOKEN_KEY = "sentry.cloud.accessToken";
 const CSRF_COOKIE_NAME = "refreshCsrf";
 const CSRF_TOKEN_KEY = "sentry.cloud.csrfToken";
@@ -192,6 +203,26 @@ const putLatestSave = async (
     });
 };
 
+const getProfile = async (accessToken: string | null): Promise<CloudProfile> => {
+    const response = await requestJson<CloudProfileResponse>("/api/v1/users/me/profile", {
+        method: "GET",
+        headers: authHeaders(accessToken)
+    });
+    return response.profile;
+};
+
+const updateProfile = async (
+    accessToken: string | null,
+    username: string | null
+): Promise<CloudProfile> => {
+    const response = await requestJson<CloudProfileResponse>("/api/v1/users/me/profile", {
+        method: "PATCH",
+        headers: authHeaders(accessToken),
+        body: JSON.stringify({ username })
+    });
+    return response.profile;
+};
+
 const probeReady = async (): Promise<void> => {
     const url = buildUrl("/api/v1/saves/latest");
     if (!url) {
@@ -217,5 +248,7 @@ export const cloudClient = {
     refresh,
     getLatestSave,
     putLatestSave,
+    getProfile,
+    updateProfile,
     probeReady
 };

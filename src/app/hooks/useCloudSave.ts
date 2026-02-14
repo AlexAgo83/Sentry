@@ -5,7 +5,7 @@ import { readRawSave } from "../../adapters/persistence/localStorageKeys";
 import { selectVirtualScore } from "../selectors/gameSelectors";
 import { useGameStore } from "./useGameStore";
 import { gameRuntime, gameStore } from "../game";
-import { CloudApiError, cloudClient } from "../api/cloudClient";
+import { CloudApiError, cloudClient, type CloudProfile } from "../api/cloudClient";
 
 export type CloudSaveMeta = {
     updatedAt: Date | null;
@@ -26,6 +26,8 @@ type CloudSaveState = {
     cloudHasActiveDungeonRun: boolean;
     isAvailable: boolean;
     accessToken: string | null;
+    profile: CloudProfile | null;
+    isUpdatingProfile: boolean;
 };
 
 const toDateOrNull = (value: string | Date | null): Date | null => {
@@ -100,6 +102,8 @@ export const useCloudSave = () => {
     const [warmupRetrySeconds, setWarmupRetrySeconds] = useState<number | null>(null);
     const [isBackendAwake, setIsBackendAwake] = useState(false);
     const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
+    const [profile, setProfile] = useState<CloudProfile | null>(null);
+    const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isOnline, setIsOnline] = useState(() => (typeof navigator !== "undefined" ? navigator.onLine : true));
     const warmupRetrySignalRef = useRef<(() => void) | null>(null);
     const backendProbeInFlightRef = useRef(false);
@@ -167,6 +171,7 @@ export const useCloudSave = () => {
             setCloudPayload(null);
             setHasCloudSave(false);
             setCloudHasActiveDungeonRun(false);
+            setProfile(null);
             setStatus("idle");
             setError("Session expired. Please log in again.");
             return;
@@ -307,6 +312,58 @@ export const useCloudSave = () => {
         }
     }, [applyRequestError, isAvailable, withRefreshRetry, withWarmupRetry]);
 
+    const refreshProfile = useCallback(async () => {
+        lastRequestRef.current = refreshProfile;
+        if (!isAvailable) {
+            setIsBackendAwake(false);
+            setStatus("offline");
+            setError("Cloud sync is unavailable.");
+            return;
+        }
+        setError(null);
+        try {
+            const profileResponse = await withWarmupRetry("idle", () => withRefreshRetry((token) => cloudClient.getProfile(token)));
+            setIsBackendAwake(true);
+            setProfile(profileResponse);
+            setStatus("ready");
+        } catch (err) {
+            applyRequestError(err, "Failed to fetch cloud profile.");
+        }
+    }, [applyRequestError, isAvailable, withRefreshRetry, withWarmupRetry]);
+
+    const updateUsername = useCallback(async (usernameInput: string): Promise<{ ok: true } | { ok: false; error: string }> => {
+        lastRequestRef.current = async () => {
+            await updateUsername(usernameInput);
+        };
+        if (!isAvailable) {
+            setIsBackendAwake(false);
+            setStatus("offline");
+            const message = "Cloud sync is unavailable.";
+            setError(message);
+            return { ok: false, error: message };
+        }
+        setError(null);
+        setIsUpdatingProfile(true);
+        const normalizedInput = usernameInput.trim();
+        try {
+            const profileResponse = await withWarmupRetry("idle", () => withRefreshRetry((token) => cloudClient.updateProfile(
+                token,
+                normalizedInput.length > 0 ? normalizedInput : null
+            )));
+            setIsBackendAwake(true);
+            setProfile(profileResponse);
+            setStatus("ready");
+            setError(null);
+            return { ok: true };
+        } catch (err) {
+            const message = resolveErrorMessage(err, "Failed to update username.");
+            applyRequestError(err, message);
+            return { ok: false, error: message };
+        } finally {
+            setIsUpdatingProfile(false);
+        }
+    }, [applyRequestError, isAvailable, resolveErrorMessage, withRefreshRetry, withWarmupRetry]);
+
     const probeBackend = useCallback(async () => {
         if (backendProbeInFlightRef.current) {
             return;
@@ -336,7 +393,8 @@ export const useCloudSave = () => {
             return;
         }
         refreshCloud();
-    }, [accessToken, isAvailable, refreshCloud]);
+        refreshProfile();
+    }, [accessToken, isAvailable, refreshCloud, refreshProfile]);
 
     useEffect(() => {
         if (!isAvailable) {
@@ -405,6 +463,8 @@ export const useCloudSave = () => {
         setCloudPayload(null);
         setHasCloudSave(false);
         setCloudHasActiveDungeonRun(false);
+        setProfile(null);
+        setIsUpdatingProfile(false);
         setStatus("idle");
         setError(null);
         setWarmupRetrySeconds(null);
@@ -440,8 +500,12 @@ export const useCloudSave = () => {
         cloudHasActiveDungeonRun,
         isAvailable,
         accessToken,
+        profile,
+        isUpdatingProfile,
         authenticate,
         refreshCloud,
+        refreshProfile,
+        updateUsername,
         loadCloud,
         overwriteCloud,
         logout,
@@ -449,6 +513,8 @@ export const useCloudSave = () => {
     } satisfies CloudSaveState & {
         authenticate: (mode: "login" | "register", email: string, password: string) => Promise<void>;
         refreshCloud: () => Promise<void>;
+        refreshProfile: () => Promise<void>;
+        updateUsername: (usernameInput: string) => Promise<{ ok: true } | { ok: false; error: string }>;
         loadCloud: () => Promise<boolean>;
         overwriteCloud: () => Promise<void>;
         logout: () => void;

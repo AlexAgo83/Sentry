@@ -17,6 +17,8 @@ export type CloudSavePanelProps = {
     lastSyncAt: Date | null;
     localHasActiveDungeonRun: boolean;
     cloudHasActiveDungeonRun: boolean;
+    username: string | null;
+    displayName: string | null;
     showHeader?: boolean;
     onEmailChange: (value: string) => void;
     onPasswordChange: (value: string) => void;
@@ -25,6 +27,7 @@ export type CloudSavePanelProps = {
     onRefresh: () => void;
     onWarmupRetryNow: () => void;
     onLogout: () => void;
+    onEditUsername?: () => void;
     onLoadCloud: () => void | Promise<unknown>;
     onOverwriteCloud: () => void;
 };
@@ -71,6 +74,8 @@ export const CloudSavePanel = memo(({
     lastSyncAt,
     localHasActiveDungeonRun,
     cloudHasActiveDungeonRun,
+    username,
+    displayName,
     showHeader = true,
     onEmailChange,
     onPasswordChange,
@@ -79,6 +84,7 @@ export const CloudSavePanel = memo(({
     onRefresh,
     onWarmupRetryNow,
     onLogout,
+    onEditUsername,
     onLoadCloud,
     onOverwriteCloud
 }: CloudSavePanelProps) => {
@@ -272,6 +278,33 @@ export const CloudSavePanel = memo(({
             ) : null}
             {isAuthenticated ? (
                 <>
+                    <div className="ts-system-cloud-profile" data-testid="cloud-profile">
+                        <div className="ts-system-cloud-profile-row">
+                            <span className="ts-system-cloud-profile-label">Display name</span>
+                            <span className="ts-system-cloud-profile-value" data-testid="cloud-profile-display-name">
+                                {displayName ?? "--"}
+                            </span>
+                        </div>
+                        <div className="ts-system-cloud-profile-row">
+                            <span className="ts-system-cloud-profile-label">Username</span>
+                            <span className="ts-system-cloud-profile-value">
+                                {username ?? "Not set"}
+                            </span>
+                        </div>
+                        {onEditUsername ? (
+                            <div className="ts-action-row ts-system-cloud-profile-actions">
+                                <button
+                                    type="button"
+                                    className="generic-field button ts-devtools-button ts-focusable"
+                                    onClick={onEditUsername}
+                                    disabled={authDisabled}
+                                    data-testid="cloud-edit-username"
+                                >
+                                    Edit username
+                                </button>
+                            </div>
+                        ) : null}
+                    </div>
                     <div className="ts-system-cloud-sync" title={lastSyncTitle}>
                         Last sync: {lastSyncLabel}
                     </div>

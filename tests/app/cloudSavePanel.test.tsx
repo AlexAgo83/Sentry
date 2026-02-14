@@ -25,6 +25,9 @@ const baseProps = {
     lastSyncAt: null,
     localHasActiveDungeonRun: false,
     cloudHasActiveDungeonRun: false,
+    username: "Aegis",
+    displayName: "Aegis",
+    maskedEmail: "a***s@example.com",
     onEmailChange: vi.fn(),
     onPasswordChange: vi.fn(),
     onLogin: vi.fn(),
@@ -32,6 +35,7 @@ const baseProps = {
     onRefresh: vi.fn(),
     onWarmupRetryNow: vi.fn(),
     onLogout: vi.fn(),
+    onEditUsername: vi.fn(),
     onLoadCloud: vi.fn(),
     onOverwriteCloud: vi.fn()
 };
@@ -44,6 +48,9 @@ describe("CloudSavePanel", () => {
         expect(screen.getByText(/Last sync:/)).toBeTruthy();
         expect(screen.getByRole("button", { name: "Load cloud save" })).toBeTruthy();
         expect(screen.getByRole("button", { name: "Overwrite cloud with local" })).toBeTruthy();
+        expect(screen.getByText("Display name")).toBeTruthy();
+        expect(screen.getByTestId("cloud-profile-display-name").textContent).toBe("Aegis");
+        expect(screen.getByRole("button", { name: "Edit username" })).toBeTruthy();
     });
 
     it("disables actions when unavailable", () => {
