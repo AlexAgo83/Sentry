@@ -5,7 +5,8 @@ import type { DungeonArenaRendererProps, PixiRuntime } from "./renderer/types";
 
 export const DungeonArenaRenderer = memo(({
     frame,
-    className
+    className,
+    style
 }: DungeonArenaRendererProps) => {
     const hostRef = useRef<HTMLDivElement | null>(null);
     const runtimeRef = useRef<PixiRuntime | null>(null);
@@ -68,6 +69,7 @@ export const DungeonArenaRenderer = memo(({
         <div
             ref={hostRef}
             className={`ts-dungeon-arena${className ? ` ${className}` : ""}${disabled ? " is-disabled" : ""}`}
+            style={style}
             data-testid="dungeon-arena-renderer"
             aria-label="Dungeon arena renderer"
         >

@@ -7,6 +7,7 @@ import { DungeonSetupView } from "./dungeonScreen/components/DungeonSetupView";
 import { useDungeonLivePlayback } from "./dungeonScreen/hooks/useDungeonLivePlayback";
 import { useDungeonReplayPlayback } from "./dungeonScreen/hooks/useDungeonReplayPlayback";
 import { useDungeonReplayDerived } from "./dungeonScreen/hooks/useDungeonReplayDerived";
+import { getDungeonBackgroundUrl } from "../ui/dungeonBackgrounds";
 import type { DamageTotals, DungeonScreenProps } from "./dungeonScreen/types";
 
 export const DungeonScreen = memo(({
@@ -129,6 +130,12 @@ export const DungeonScreen = memo(({
         }
         return buildDungeonArenaReplayFrame(latestReplay, players, replayCursorMs);
     }, [latestReplay, players, replayCursorMs]);
+    const liveDungeonBackgroundUrl = activeRun
+        ? getDungeonBackgroundUrl(activeRun.dungeonId)
+        : getDungeonBackgroundUrl(selectedDungeon?.id ?? null);
+    const replayDungeonBackgroundUrl = latestReplay
+        ? getDungeonBackgroundUrl(latestReplay.dungeonId)
+        : getDungeonBackgroundUrl(selectedDungeon?.id ?? null);
 
     const isReplayScreen = !activeRun && showReplay && Boolean(latestReplay);
 
@@ -190,6 +197,7 @@ export const DungeonScreen = memo(({
                     <DungeonReplayView
                         latestReplay={latestReplay}
                         replayFrame={replayFrame}
+                        dungeonBackgroundUrl={replayDungeonBackgroundUrl}
                         replaySpeed={replaySpeed}
                         onReplaySpeedChange={setReplaySpeed}
                         replayTotalMs={replayTotalMs}
@@ -216,6 +224,7 @@ export const DungeonScreen = memo(({
                     selectedDungeonName={selectedDungeon?.name ?? activeRun.dungeonId}
                     safeCompletionCounts={safeCompletionCounts}
                     liveFrame={liveFrame}
+                    dungeonBackgroundUrl={liveDungeonBackgroundUrl}
                     liveDamageTotals={liveDamageTotals}
                     threatTotal={threatTotal}
                     topThreatValue={topThreatValue}

@@ -210,53 +210,8 @@ export const drawCombatTypeIcon = (
     }
 };
 
-export const drawArena = (arena: any, frame: DungeonArenaFrame, isCompact: boolean) => {
+export const drawArena = (arena: any) => {
     arena.clear();
-
-    if (!isCompact) {
-        arena.beginFill(0x0b111a, 1);
-        arena.drawRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-        arena.endFill();
-
-        arena.beginFill(0x142235, 0.55);
-        arena.drawCircle(WORLD_WIDTH * 0.22, WORLD_HEIGHT * 0.22, 260);
-        arena.endFill();
-
-        arena.beginFill(0x2b1b13, 0.35);
-        arena.drawCircle(WORLD_WIDTH * 0.85, WORLD_HEIGHT * 0.72, 300);
-        arena.endFill();
-
-        arena.beginFill(0x0b0f16, 0.35);
-        arena.drawRoundedRect(12, 12, WORLD_WIDTH - 24, WORLD_HEIGHT - 24, 26);
-        arena.endFill();
-
-        arena.beginFill(0x203651, 0.1);
-        arena.drawEllipse(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 460, 255);
-        arena.endFill();
-    }
-
-    arena.lineStyle(2, 0x1f334d, 0.8);
-    arena.drawEllipse(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 420, 230);
-
-    arena.lineStyle(1, 0x25374f, 0.45);
-    for (let i = 1; i < 6; i += 1) {
-        const x = (WORLD_WIDTH / 6) * i;
-        arena.moveTo(x, 28);
-        arena.lineTo(x, WORLD_HEIGHT - 28);
-    }
-    for (let i = 1; i < 4; i += 1) {
-        const y = (WORLD_HEIGHT / 4) * i;
-        arena.moveTo(28, y);
-        arena.lineTo(WORLD_WIDTH - 28, y);
-    }
-
-    if (frame.floorLabel) {
-        const hash = Math.abs(frame.floorLabel.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0));
-        const pulseAlpha = 0.04 + (hash % 6) * 0.01;
-        arena.beginFill(0xf1635a, pulseAlpha);
-        arena.drawCircle(WORLD_WIDTH * 0.82, WORLD_HEIGHT * 0.5, 72);
-        arena.endFill();
-    }
 };
 
 export const getAutoFitScale = (viewportWidth: number, viewportHeight: number, units: DungeonArenaFrame["units"]) => {

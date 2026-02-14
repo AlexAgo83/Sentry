@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { DungeonId, DungeonRunState, PlayerId, PlayerState } from "../../../../core/types";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../../../data/equipment";
 import { SkillIcon } from "../../../ui/skillIcons";
@@ -13,6 +14,7 @@ type DungeonLiveViewProps = {
     selectedDungeonName: string;
     safeCompletionCounts: Record<DungeonId, number>;
     liveFrame: DungeonArenaFrame | null;
+    dungeonBackgroundUrl: string;
     liveDamageTotals: DamageTotals;
     threatTotal: number;
     topThreatValue: number;
@@ -24,14 +26,19 @@ export const DungeonLiveView = ({
     selectedDungeonName,
     safeCompletionCounts,
     liveFrame,
+    dungeonBackgroundUrl,
     liveDamageTotals,
     threatTotal,
     topThreatValue
 }: DungeonLiveViewProps) => {
+    const arenaStyle = {
+        "--ts-dungeon-bg-image": `url("${dungeonBackgroundUrl}")`
+    } as CSSProperties;
+
     return (
         <div className="ts-dungeon-live-grid">
             <div className="ts-dungeon-live-body">
-                <DungeonArenaRenderer frame={liveFrame} />
+                <DungeonArenaRenderer frame={liveFrame} style={arenaStyle} />
                 <div className="ts-dungeon-live-meta-row">
                     <span className="ts-dungeon-live-meta-pill">
                         <span className="ts-dungeon-live-meta-label">Dungeon</span>

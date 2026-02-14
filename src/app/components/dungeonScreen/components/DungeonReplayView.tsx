@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { DungeonDefinition, DungeonId, DungeonReplayState, PlayerId } from "../../../../core/types";
 import { getCombatSkillIdForWeaponType } from "../../../../data/equipment";
 import { SkillIcon } from "../../../ui/skillIcons";
@@ -12,6 +13,7 @@ type ReplayDeathMark = { atMs: number; label: string; id: string };
 type DungeonReplayViewProps = {
     latestReplay: DungeonReplayState;
     replayFrame: DungeonArenaFrame | null;
+    dungeonBackgroundUrl: string;
     replaySpeed: 1 | 2 | 4;
     onReplaySpeedChange: (speed: 1 | 2 | 4) => void;
     replayTotalMs: number;
@@ -42,6 +44,7 @@ type DungeonReplayViewProps = {
 export const DungeonReplayView = ({
     latestReplay,
     replayFrame,
+    dungeonBackgroundUrl,
     replaySpeed,
     onReplaySpeedChange,
     replayTotalMs,
@@ -60,9 +63,13 @@ export const DungeonReplayView = ({
     heroNameById,
     selectedDungeon
 }: DungeonReplayViewProps) => {
+    const arenaStyle = {
+        "--ts-dungeon-bg-image": `url("${dungeonBackgroundUrl}")`
+    } as CSSProperties;
+
     return (
         <div className="ts-dungeon-replay-body">
-            <DungeonArenaRenderer frame={replayFrame} />
+            <DungeonArenaRenderer frame={replayFrame} style={arenaStyle} />
             <div className="ts-dungeon-control-row">
                 <div className="ts-dungeon-speed-group" role="group" aria-label="Replay speed">
                     {[1, 2, 4].map((speed) => (

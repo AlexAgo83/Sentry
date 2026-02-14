@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { DungeonArenaFrame } from "../arenaPlayback";
 
 export type PixiModule = typeof import("pixi.js");
@@ -5,6 +6,7 @@ export type PixiModule = typeof import("pixi.js");
 export type DungeonArenaRendererProps = {
     frame: DungeonArenaFrame | null;
     className?: string;
+    style?: CSSProperties;
 };
 
 export type UnitNode = {

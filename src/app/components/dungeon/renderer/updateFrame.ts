@@ -22,8 +22,7 @@ import {
     drawHeroBody,
     drawHp,
     drawTargetAndDeath,
-    getAutoFitScale,
-    isCompactViewport
+    getAutoFitScale
 } from "./drawing";
 import { clamp, hashString, mixColors, toWorldX, toWorldY } from "./math";
 import type { PixiRuntime } from "./types";
@@ -31,8 +30,7 @@ import type { PixiRuntime } from "./types";
 export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     const viewportWidth = runtime.app.screen?.width ?? runtime.app.renderer.width;
     const viewportHeight = runtime.app.screen?.height ?? runtime.app.renderer.height;
-    const isCompact = isCompactViewport(viewportWidth, viewportHeight);
-    drawArena(runtime.arena, frame, isCompact);
+    drawArena(runtime.arena);
 
     const unitById = new Map(frame.units.map((unit) => [unit.id, unit]));
     const attackBySource = new Map(frame.attackCues.map((cue) => [cue.sourceId, cue]));

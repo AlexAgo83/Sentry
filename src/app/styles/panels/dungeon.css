@@ -437,9 +437,14 @@
     min-height: clamp(280px, 46vh, 460px);
     border: 1px solid rgba(93, 217, 193, 0.24);
     border-radius: 12px;
-    background:
+    background-image:
+        linear-gradient(160deg, rgba(6, 10, 19, 0.45), rgba(6, 10, 19, 0.72)),
+        var(--ts-dungeon-bg-image, none),
         radial-gradient(circle at 80% 50%, rgba(239, 77, 67, 0.09), transparent 44%),
         radial-gradient(circle at 20% 50%, rgba(93, 217, 193, 0.08), transparent 40%);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     overflow: hidden;
 }
 
