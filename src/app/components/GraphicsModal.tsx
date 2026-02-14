@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { ModalShell } from "./ModalShell";
+import { useGraphicsSettings } from "../hooks/useGraphicsSettings";
 
 type GraphicsModalProps = {
     onClose: () => void;
@@ -7,12 +8,32 @@ type GraphicsModalProps = {
 };
 
 export const GraphicsModal = memo(({ onClose, closeLabel }: GraphicsModalProps) => {
+    const { settings, setSmoothActionProgress } = useGraphicsSettings();
+
     return (
         <ModalShell kicker="System" title="Graphics" onClose={onClose} closeLabel={closeLabel}>
-            <p className="ts-system-helper">Graphics settings will be available soon.</p>
+            <div className="ts-system-entry-list ts-graphics-settings-list">
+                <div className="ts-system-entry ts-graphics-settings-entry">
+                    <label className="ts-graphics-setting-row">
+                        <span className="ts-graphics-setting-meta">
+                            <span className="ts-graphics-setting-title">Smooth action progress</span>
+                            <span className="ts-system-helper ts-graphics-setting-helper">
+                                If disabled, action progress updates once per loop tick.
+                            </span>
+                        </span>
+                        <input
+                            type="checkbox"
+                            className="ts-graphics-setting-toggle"
+                            checked={settings.smoothActionProgress}
+                            onChange={(event) => setSmoothActionProgress(event.target.checked)}
+                            aria-label="Smooth action progress"
+                            data-testid="graphics-smooth-progress-toggle"
+                        />
+                    </label>
+                </div>
+            </div>
         </ModalShell>
     );
 });
 
 GraphicsModal.displayName = "GraphicsModal";
-

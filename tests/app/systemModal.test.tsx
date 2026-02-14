@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CrashReport } from "../../src/observability/crashReporter";
 import { SystemModal } from "../../src/app/components/SystemModal";
 
@@ -30,6 +30,10 @@ const baseProps = () => ({
 });
 
 describe("SystemModal", () => {
+    beforeEach(() => {
+        window.localStorage.removeItem("sentry.graphicsSettings");
+    });
+
     it("navigates modal screens without stacking and closes back to previous", () => {
         const props = baseProps();
         render(<SystemModal {...props} />);
@@ -83,7 +87,11 @@ describe("SystemModal", () => {
 
         fireEvent.click(screen.getByRole("button", { name: "Graphics" }));
         expect(screen.getByRole("heading", { name: "Graphics" })).toBeTruthy();
-        expect(screen.getByText("Graphics settings will be available soon.")).toBeTruthy();
+        const smoothToggle = screen.getByRole("checkbox", { name: "Smooth action progress" }) as HTMLInputElement;
+        expect(smoothToggle.checked).toBe(true);
+        fireEvent.click(smoothToggle);
+        expect(smoothToggle.checked).toBe(false);
+        expect(screen.getByText("If disabled, action progress updates once per loop tick.")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 

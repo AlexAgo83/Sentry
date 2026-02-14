@@ -210,6 +210,56 @@
     color: rgba(143, 209, 79, 0.95);
 }
 
+.ts-graphics-setting-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--m6);
+    padding: var(--m4) var(--m5);
+    border: 1px solid rgba(93, 217, 193, 0.2);
+    border-radius: 14px;
+    background: rgba(10, 16, 28, 0.55);
+    cursor: pointer;
+}
+
+.ts-graphics-settings-list {
+    gap: var(--m6);
+}
+
+.ts-graphics-settings-entry {
+    padding-inline: var(--m6);
+}
+
+.ts-graphics-setting-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
+    min-width: 0;
+}
+
+.ts-graphics-setting-title {
+    font-size: var(--text-s-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--color-text);
+}
+
+.ts-graphics-setting-helper {
+    line-height: 1.4;
+    max-width: 56ch;
+}
+
+.ts-graphics-setting-toggle {
+    width: 22px;
+    height: 22px;
+    margin-top: 0;
+    align-self: center;
+    flex-shrink: 0;
+    accent-color: rgba(93, 217, 193, 0.95);
+    cursor: pointer;
+}
+
 .ts-telemetry-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

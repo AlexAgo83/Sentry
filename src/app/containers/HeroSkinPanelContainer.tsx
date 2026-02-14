@@ -12,6 +12,7 @@ import { getFaceIndex, normalizeFaceIndex } from "../ui/heroFaces";
 import { getHairColor, getHairIndex, getSkinColor, normalizeHairIndex } from "../ui/heroHair";
 import { getActionDefinition, getRecipeDefinition, isRecipeUnlocked } from "../../data/definitions";
 import { getEquipmentModifiers } from "../../data/equipment";
+import { useGraphicsSettings } from "../hooks/useGraphicsSettings";
 
 type HeroSkinPanelContainerProps = {
     onRenameHero: () => void;
@@ -19,6 +20,7 @@ type HeroSkinPanelContainerProps = {
 };
 
 export const HeroSkinPanelContainer = ({ onRenameHero, useDungeonProgress = false }: HeroSkinPanelContainerProps) => {
+    const { settings: graphicsSettings } = useGraphicsSettings();
     const activePlayer = useGameStore(selectActivePlayer);
     const activePlayerId = activePlayer?.id ?? null;
     const combatSkillIds = new Set(["CombatMelee", "CombatRanged", "CombatMagic"]);
@@ -68,7 +70,7 @@ export const HeroSkinPanelContainer = ({ onRenameHero, useDungeonProgress = fals
     const actionProgressPercent = activePlayer?.actionProgress?.progressPercent ?? 0;
     const isUsingDungeonProgress = Number.isFinite(dungeonProgressPercent ?? Number.NaN);
     const progressAnimation = (() => {
-        if (isUsingDungeonProgress || !activePlayer?.selectedActionId) {
+        if (!graphicsSettings.smoothActionProgress || isUsingDungeonProgress || !activePlayer?.selectedActionId) {
             return null;
         }
         const actionDef = getActionDefinition(activePlayer.selectedActionId);
