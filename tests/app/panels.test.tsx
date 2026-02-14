@@ -10,6 +10,7 @@ import { EquipmentPanel } from "../../src/app/components/EquipmentPanel";
 import { createPlayerState } from "../../src/core/state";
 import { computeEffectiveStats, createPlayerStatsState } from "../../src/core/stats";
 import { createPlayerEquipmentState } from "../../src/core/equipment";
+import { DUNGEON_BASE_ATTACK_MS, resolveHeroAttackIntervalMs } from "../../src/core/dungeon";
 import { SKILL_DEFINITIONS } from "../../src/data/definitions";
 import { RECIPE_MAX_LEVEL, SKILL_MAX_LEVEL } from "../../src/core/constants";
 import { EQUIPMENT_DEFINITIONS } from "../../src/data/equipment";
@@ -538,6 +539,8 @@ describe("panel components", () => {
         const stats = createPlayerStatsState();
         stats.base.Strength = 5;
         stats.base.Agility = 5;
+        const expectedAttackCadenceMs = resolveHeroAttackIntervalMs(DUNGEON_BASE_ATTACK_MS, stats.base.Agility);
+        const expectedAttacksPerSecond = (1000 / expectedAttackCadenceMs).toFixed(2);
 
         render(
             <CharacterStatsPanel
@@ -557,8 +560,8 @@ describe("panel components", () => {
         expect(screen.getByText("Attack cadence")).toBeTruthy();
         expect(screen.getByText("Attacks/sec")).toBeTruthy();
         expect(screen.getByText("Damage")).toBeTruthy();
-        expect(screen.getAllByText("455ms").length).toBeGreaterThan(0);
-        expect(screen.getAllByText("2.20").length).toBeGreaterThan(0);
+        expect(screen.getAllByText(`${expectedAttackCadenceMs}ms`).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(expectedAttacksPerSecond).length).toBeGreaterThan(0);
     });
 
     it("InventoryPanel selects items and paginates", async () => {

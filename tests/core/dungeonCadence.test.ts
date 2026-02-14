@@ -160,7 +160,7 @@ describe("dungeon cadence", () => {
             hero.attackCooldownMs = 0;
         }
 
-        const result = applyDungeonTick(state, 500, 1_500);
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 1_000 + DUNGEON_BASE_ATTACK_MS);
         const nextRun = result.state.dungeon.activeRunId
             ? result.state.dungeon.runs[result.state.dungeon.activeRunId]
             : null;
@@ -182,7 +182,11 @@ describe("dungeon cadence", () => {
         state.dungeon.runs = { [run.id]: run };
         state.dungeon.activeRunId = run.id;
 
-        const result = applyDungeonTick(state, DUNGEON_SIMULATION_STEP_MS, 500 + DUNGEON_SIMULATION_STEP_MS);
+        const result = applyDungeonTick(
+            state,
+            DUNGEON_SIMULATION_STEP_MS,
+            DUNGEON_BASE_ATTACK_MS + DUNGEON_SIMULATION_STEP_MS
+        );
         const nextRun = result.state.dungeon.runs[run.id];
         const attackEvents = nextRun.events.filter((event) => event.type === "attack" || event.type === "damage");
 
@@ -232,7 +236,7 @@ describe("dungeon cadence", () => {
             member.hp = index === 0 ? 1 : 0;
         });
 
-        const result = applyDungeonTick(state, 500, 1_500);
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 1_000 + DUNGEON_BASE_ATTACK_MS);
         const nextRun = result.state.dungeon.runs[run.id];
         const eventTypes = nextRun.events.map((event) => event.type);
 

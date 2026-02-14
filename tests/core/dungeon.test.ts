@@ -2,12 +2,20 @@ import { describe, expect, it } from "vitest";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
 import {
     applyDungeonTick,
+    DUNGEON_BASE_ATTACK_MS,
+    DUNGEON_BURST_INTERVAL_MS,
+    DUNGEON_SIMULATION_STEP_MS,
+    DUNGEON_SUMMON_INTERVAL_MS,
     getActiveDungeonRun,
     getActiveDungeonRunIds,
     getActiveDungeonRuns,
     isPlayerAssignedToActiveDungeonRun
 } from "../../src/core/dungeon";
 import { gameReducer } from "../../src/core/reducer";
+
+const BASE_ATTACK_STEP_INDEX = (DUNGEON_BASE_ATTACK_MS / DUNGEON_SIMULATION_STEP_MS) - 1;
+const BURST_STEP_INDEX = (DUNGEON_BURST_INTERVAL_MS / DUNGEON_SIMULATION_STEP_MS) - 1;
+const SUMMON_STEP_INDEX = (DUNGEON_SUMMON_INTERVAL_MS / DUNGEON_SIMULATION_STEP_MS) - 1;
 
 describe("dungeon flow", () => {
     it("enables dungeon onboarding when starting without a seeded hero", () => {
@@ -110,7 +118,7 @@ describe("dungeon flow", () => {
         }];
         run.targetEnemyId = "boss-test";
 
-        const result = applyDungeonTick(state, 500, 1_500);
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 1_000 + DUNGEON_BASE_ATTACK_MS);
         const expectedFloorXp = 6 + (1 * 3) + run.floorCount;
         const expectedTotalXp = expectedFloorXp + (expectedFloorXp * 2);
 
@@ -288,7 +296,7 @@ describe("dungeon flow", () => {
         activeRun.party[0].hp = woundedHp;
         activeRun.party[0].potionCooldownMs = 0;
 
-        const result = applyDungeonTick(state, 500, 1_500);
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 1_000 + DUNGEON_BASE_ATTACK_MS);
         const nextRun = getActiveDungeonRun(result.state.dungeon);
         expect(result.state.inventory.items.potion).toBe(0);
         expect(nextRun?.party[0].hp).toBeGreaterThan(woundedHp);
@@ -319,7 +327,7 @@ describe("dungeon flow", () => {
         activeRun.party[0].hp = halfHp;
         activeRun.party[0].potionCooldownMs = 0;
 
-        const result = applyDungeonTick(state, 500, 1_500);
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 1_000 + DUNGEON_BASE_ATTACK_MS);
         const nextRun = getActiveDungeonRun(result.state.dungeon);
         expect(result.state.inventory.items.potion).toBe(0);
         expect(nextRun?.party[0].hp).toBeGreaterThan(halfHp);
@@ -541,7 +549,7 @@ describe("dungeon flow", () => {
         if (!run) {
             return;
         }
-        run.encounterStep = 29;
+        run.encounterStep = SUMMON_STEP_INDEX;
         run.enemies = [{
             id: "boss-summon",
             name: "Summoner",
@@ -693,7 +701,7 @@ describe("dungeon flow", () => {
         }];
         run.targetEnemyId = "boss-poison-test";
 
-        const result = applyDungeonTick(state, 500, 1_500);
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 1_000 + DUNGEON_BASE_ATTACK_MS);
         expect(result.state.dungeon.activeRunId).toBeNull();
         expect(result.state.players["1"].hp).toBe(result.state.players["1"].hpMax);
         expect(result.state.players["2"].hp).toBe(result.state.players["2"].hpMax);
@@ -737,7 +745,7 @@ describe("dungeon flow", () => {
         activeRun.party[2].hp = 3;
         activeRun.party[3].hp = 4;
 
-        const result = applyDungeonTick(state, 500, 1_500);
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 1_000 + DUNGEON_BASE_ATTACK_MS);
         const pendingRestartRun = getActiveDungeonRun(result.state.dungeon);
         expect(pendingRestartRun?.status).toBe("victory");
         expect(pendingRestartRun?.restartAt).not.toBeNull();
@@ -933,7 +941,7 @@ describe("dungeon flow", () => {
             return;
         }
 
-        run.encounterStep = 19;
+        run.encounterStep = BURST_STEP_INDEX;
         run.enemies = [{
             id: "boss-burst",
             name: "Burst Boss",
@@ -978,7 +986,7 @@ describe("dungeon flow", () => {
             return;
         }
 
-        run.encounterStep = 4;
+        run.encounterStep = BASE_ATTACK_STEP_INDEX;
         run.enemies = [{
             id: "boss-enrage",
             name: "Enrage Boss",
@@ -1023,7 +1031,7 @@ describe("dungeon flow", () => {
             return;
         }
 
-        run.encounterStep = 4;
+        run.encounterStep = BASE_ATTACK_STEP_INDEX;
         run.enemies = [{
             id: "mob-tie",
             name: "Tie Mob",
@@ -1171,7 +1179,7 @@ describe("dungeon flow", () => {
         if (!run) {
             return;
         }
-        run.encounterStep = 4;
+        run.encounterStep = BASE_ATTACK_STEP_INDEX;
         run.enemies = [{
             id: "boss-poison-focus",
             name: "Poison Boss",
@@ -1459,7 +1467,7 @@ describe("dungeon flow", () => {
         if (!run) {
             return;
         }
-        run.encounterStep = 4;
+        run.encounterStep = BASE_ATTACK_STEP_INDEX;
         run.enemies = [{
             id: "mob-journal",
             name: "Journal Mob",
