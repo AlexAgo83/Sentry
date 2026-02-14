@@ -8,7 +8,11 @@ type GraphicsModalProps = {
 };
 
 export const GraphicsModal = memo(({ onClose, closeLabel }: GraphicsModalProps) => {
-    const { settings, setSmoothActionProgress } = useGraphicsSettings();
+    const {
+        settings,
+        setSmoothActionProgress,
+        setForceCollapsedSkinPreview
+    } = useGraphicsSettings();
 
     return (
         <ModalShell kicker="System" title="Graphics" onClose={onClose} closeLabel={closeLabel}>
@@ -26,8 +30,27 @@ export const GraphicsModal = memo(({ onClose, closeLabel }: GraphicsModalProps) 
                             className="ts-graphics-setting-toggle"
                             checked={settings.smoothActionProgress}
                             onChange={(event) => setSmoothActionProgress(event.target.checked)}
+                            disabled={settings.forceCollapsedSkinPreview}
                             aria-label="Smooth action progress"
                             data-testid="graphics-smooth-progress-toggle"
+                        />
+                    </label>
+                </div>
+                <div className="ts-system-entry ts-graphics-settings-entry">
+                    <label className="ts-graphics-setting-row">
+                        <span className="ts-graphics-setting-meta">
+                            <span className="ts-graphics-setting-title">Disable character rendering</span>
+                            <span className="ts-system-helper ts-graphics-setting-helper">
+                                Keep skin preview panels collapsed on screens.
+                            </span>
+                        </span>
+                        <input
+                            type="checkbox"
+                            className="ts-graphics-setting-toggle"
+                            checked={settings.forceCollapsedSkinPreview}
+                            onChange={(event) => setForceCollapsedSkinPreview(event.target.checked)}
+                            aria-label="Disable character rendering"
+                            data-testid="graphics-force-collapsed-skin-toggle"
                         />
                     </label>
                 </div>

@@ -348,6 +348,72 @@ describe("panel components", () => {
         expect(shortNameHeading.className).not.toContain("is-long-name");
     });
 
+    it("CharacterSkinPanel can hide collapse button", () => {
+        render(
+            <CharacterSkinPanel
+                avatarColor="#f2c14e"
+                faceIndex={1}
+                hairIndex={1}
+                hairColor="#6c4a2d"
+                skinColor="#d8c2a3"
+                showHelmet={true}
+                equipment={createPlayerEquipmentState()}
+                isPlaceholder={false}
+                isCollapsed={true}
+                showCollapseButton={false}
+                isEditMode={false}
+                onRenameHero={vi.fn()}
+                canRenameHero={true}
+                onNextFace={vi.fn()}
+                onNextHair={vi.fn()}
+                onHairColorChange={vi.fn()}
+                onToggleCollapsed={vi.fn()}
+                onSkinColorChange={vi.fn()}
+                onToggleEditMode={vi.fn()}
+                onToggleHelmet={vi.fn()}
+            />
+        );
+
+        expect(screen.queryByRole("button", { name: "Expand" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Collapse" })).toBeNull();
+    });
+
+    it("CharacterSkinPanel can replace edit toggle with rename action", async () => {
+        const user = userEvent.setup();
+        const onRenameHero = vi.fn();
+
+        render(
+            <CharacterSkinPanel
+                avatarColor="#f2c14e"
+                faceIndex={1}
+                hairIndex={1}
+                hairColor="#6c4a2d"
+                skinColor="#d8c2a3"
+                showHelmet={true}
+                equipment={createPlayerEquipmentState()}
+                isPlaceholder={false}
+                isCollapsed={true}
+                showCollapseButton={false}
+                replaceEditWithRename={true}
+                isEditMode={false}
+                onRenameHero={onRenameHero}
+                canRenameHero={true}
+                onNextFace={vi.fn()}
+                onNextHair={vi.fn()}
+                onHairColorChange={vi.fn()}
+                onToggleCollapsed={vi.fn()}
+                onSkinColorChange={vi.fn()}
+                onToggleEditMode={vi.fn()}
+                onToggleHelmet={vi.fn()}
+            />
+        );
+
+        expect(screen.queryByRole("button", { name: "Enable edit" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Disable edit" })).toBeNull();
+        await user.click(screen.getByRole("button", { name: "Rename" }));
+        expect(onRenameHero).toHaveBeenCalledTimes(1);
+    });
+
     it("CharacterStatsPanel includes gear breakdown in tooltips and formats buff timers", () => {
         const stats = createPlayerStatsState();
         stats.base.Strength = 1.5;

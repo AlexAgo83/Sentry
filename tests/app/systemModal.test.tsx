@@ -89,9 +89,14 @@ describe("SystemModal", () => {
         expect(screen.getByRole("heading", { name: "Graphics" })).toBeTruthy();
         const smoothToggle = screen.getByRole("checkbox", { name: "Smooth action progress" }) as HTMLInputElement;
         expect(smoothToggle.checked).toBe(true);
-        fireEvent.click(smoothToggle);
-        expect(smoothToggle.checked).toBe(false);
         expect(screen.getByText("If disabled, action progress updates once per loop tick.")).toBeTruthy();
+        const forceCollapsedToggle = screen.getByRole("checkbox", { name: "Disable character rendering" }) as HTMLInputElement;
+        expect(forceCollapsedToggle.checked).toBe(false);
+        fireEvent.click(forceCollapsedToggle);
+        expect(forceCollapsedToggle.checked).toBe(true);
+        expect(smoothToggle.checked).toBe(false);
+        expect(smoothToggle.disabled).toBe(true);
+        expect(screen.getByText("Keep skin preview panels collapsed on screens.")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 

@@ -37,6 +37,8 @@ type CharacterSkinPanelProps = {
     heroName?: string | null;
     isPlaceholder: boolean;
     isCollapsed: boolean;
+    showCollapseButton?: boolean;
+    replaceEditWithRename?: boolean;
     isEditMode: boolean;
     onRenameHero: () => void;
     canRenameHero: boolean;
@@ -65,6 +67,8 @@ export const CharacterSkinPanel = memo(({
     heroName,
     isPlaceholder,
     isCollapsed,
+    showCollapseButton = true,
+    replaceEditWithRename = false,
     isEditMode,
     onRenameHero,
     canRenameHero,
@@ -163,28 +167,44 @@ export const CharacterSkinPanel = memo(({
                     </h2>
                 </div>
                 <div className="ts-panel-actions ts-panel-actions-inline">
-                    <button
-                        type="button"
-                        className={`ts-icon-button ts-focusable ts-skin-edit-button${isEditMode ? " is-active" : ""}`}
-                        onClick={onToggleEditMode}
-                        disabled={!canRenameHero}
-                        aria-pressed={isEditMode}
-                        aria-label={isEditMode ? "Disable edit" : "Enable edit"}
-                    >
-                        <span className="ts-skin-action-icon">
-                            {isEditMode ? <EditOnIcon /> : <EditOffIcon />}
-                        </span>
-                    </button>
-                    <button
-                        type="button"
-                        className="ts-collapse-button ts-focusable"
-                        onClick={onToggleCollapsed}
-                        aria-label={isCollapsed ? "Expand" : "Collapse"}
-                    >
-                        <span className="ts-collapse-label">
-                            <CollapseIcon isCollapsed={isCollapsed} />
-                        </span>
-                    </button>
+                    {replaceEditWithRename ? (
+                        <button
+                            type="button"
+                            className="ts-icon-button ts-focusable ts-skin-edit-button"
+                            onClick={onRenameHero}
+                            disabled={!canRenameHero}
+                            aria-label="Rename"
+                        >
+                            <span className="ts-skin-action-icon">
+                                <RenameIcon />
+                            </span>
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            className={`ts-icon-button ts-focusable ts-skin-edit-button${isEditMode ? " is-active" : ""}`}
+                            onClick={onToggleEditMode}
+                            disabled={!canRenameHero}
+                            aria-pressed={isEditMode}
+                            aria-label={isEditMode ? "Disable edit" : "Enable edit"}
+                        >
+                            <span className="ts-skin-action-icon">
+                                {isEditMode ? <EditOnIcon /> : <EditOffIcon />}
+                            </span>
+                        </button>
+                    )}
+                    {showCollapseButton ? (
+                        <button
+                            type="button"
+                            className="ts-collapse-button ts-focusable"
+                            onClick={onToggleCollapsed}
+                            aria-label={isCollapsed ? "Expand" : "Collapse"}
+                        >
+                            <span className="ts-collapse-label">
+                                <CollapseIcon isCollapsed={isCollapsed} />
+                            </span>
+                        </button>
+                    ) : null}
                 </div>
             </div>
             {!isCollapsed ? (

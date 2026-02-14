@@ -109,6 +109,8 @@ export const HeroSkinPanelContainer = ({ onRenameHero, useDungeonProgress = fals
         ? (dungeonProgressPercent as number)
         : baseProgressPercent;
     const isStunned = Boolean(activePlayer?.selectedActionId) && (activePlayer?.stamina ?? 0) <= 0;
+    const isForcedCollapsed = graphicsSettings.forceCollapsedSkinPreview;
+    const resolvedIsCollapsed = isForcedCollapsed || isSkinCollapsed;
 
     const handleNextFace = () => {
         if (!activePlayerId) {
@@ -163,7 +165,9 @@ export const HeroSkinPanelContainer = ({ onRenameHero, useDungeonProgress = fals
             isStunned={isStunned}
             heroName={activePlayer?.name ?? null}
             isPlaceholder={!activePlayer}
-            isCollapsed={isSkinCollapsed}
+            isCollapsed={resolvedIsCollapsed}
+            showCollapseButton={!isForcedCollapsed}
+            replaceEditWithRename={isForcedCollapsed}
             isEditMode={isSkinEditMode}
             onRenameHero={onRenameHero}
             canRenameHero={Boolean(activePlayer)}
@@ -172,7 +176,12 @@ export const HeroSkinPanelContainer = ({ onRenameHero, useDungeonProgress = fals
             onHairColorChange={handleHairColorChange}
             onSkinColorChange={handleSkinColorChange}
             onToggleHelmet={handleToggleHelmet}
-            onToggleCollapsed={() => setSkinCollapsed((value) => !value)}
+            onToggleCollapsed={() => {
+                if (isForcedCollapsed) {
+                    return;
+                }
+                setSkinCollapsed((value) => !value);
+            }}
             onToggleEditMode={() => setSkinEditMode((value) => !value)}
         />
     );

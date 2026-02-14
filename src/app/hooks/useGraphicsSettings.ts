@@ -5,10 +5,12 @@ const GRAPHICS_SETTINGS_EVENT = "sentry:graphics-settings";
 
 export type GraphicsSettings = {
     smoothActionProgress: boolean;
+    forceCollapsedSkinPreview: boolean;
 };
 
 const DEFAULT_GRAPHICS_SETTINGS: GraphicsSettings = {
-    smoothActionProgress: true
+    smoothActionProgress: true,
+    forceCollapsedSkinPreview: false
 };
 
 const normalizeGraphicsSettings = (value: unknown): GraphicsSettings => {
@@ -16,11 +18,22 @@ const normalizeGraphicsSettings = (value: unknown): GraphicsSettings => {
         return DEFAULT_GRAPHICS_SETTINGS;
     }
     const smoothActionProgress = (value as { smoothActionProgress?: unknown }).smoothActionProgress;
-    return {
+    const forceCollapsedSkinPreview = (value as { forceCollapsedSkinPreview?: unknown }).forceCollapsedSkinPreview;
+    const normalized = {
         smoothActionProgress: typeof smoothActionProgress === "boolean"
             ? smoothActionProgress
-            : DEFAULT_GRAPHICS_SETTINGS.smoothActionProgress
+            : DEFAULT_GRAPHICS_SETTINGS.smoothActionProgress,
+        forceCollapsedSkinPreview: typeof forceCollapsedSkinPreview === "boolean"
+            ? forceCollapsedSkinPreview
+            : DEFAULT_GRAPHICS_SETTINGS.forceCollapsedSkinPreview
     };
+    if (normalized.forceCollapsedSkinPreview) {
+        return {
+            ...normalized,
+            smoothActionProgress: false
+        };
+    }
+    return normalized;
 };
 
 const readGraphicsSettings = (): GraphicsSettings => {
@@ -85,10 +98,31 @@ export const useGraphicsSettings = () => {
 
     const setSmoothActionProgress = useCallback((enabled: boolean) => {
         setSettings((previous) => {
-            if (previous.smoothActionProgress === enabled) {
+            const resolvedEnabled = previous.forceCollapsedSkinPreview ? false : enabled;
+            if (previous.smoothActionProgress === resolvedEnabled) {
                 return previous;
             }
-            const next = { ...previous, smoothActionProgress: enabled };
+            const next = { ...previous, smoothActionProgress: resolvedEnabled };
+            writeGraphicsSettings(next);
+            emitGraphicsSettingsChange();
+            return next;
+        });
+    }, []);
+
+    const setForceCollapsedSkinPreview = useCallback((enabled: boolean) => {
+        setSettings((previous) => {
+            const smoothActionProgress = enabled ? false : previous.smoothActionProgress;
+            if (
+                previous.forceCollapsedSkinPreview === enabled
+                && previous.smoothActionProgress === smoothActionProgress
+            ) {
+                return previous;
+            }
+            const next = {
+                ...previous,
+                forceCollapsedSkinPreview: enabled,
+                smoothActionProgress
+            };
             writeGraphicsSettings(next);
             emitGraphicsSettingsChange();
             return next;
@@ -97,6 +131,7 @@ export const useGraphicsSettings = () => {
 
     return {
         settings,
-        setSmoothActionProgress
+        setSmoothActionProgress,
+        setForceCollapsedSkinPreview
     };
 };
