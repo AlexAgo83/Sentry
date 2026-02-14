@@ -543,13 +543,29 @@
 }
 
 .ts-prog-chart-axis {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: var(--m1);
+    position: relative;
+    min-height: 1.35em;
     font-size: var(--text-xs-size);
     color: var(--color-text-fade);
-    text-align: center;
     letter-spacing: 0.08em;
+}
+
+.ts-prog-chart-axis span {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    text-align: center;
+}
+
+.ts-prog-chart-axis span:first-child {
+    transform: translateX(0);
+    text-align: left;
+}
+
+.ts-prog-chart-axis span:last-child {
+    transform: translateX(-100%);
+    text-align: right;
 }
 
 .ts-prog-chart-legend {
@@ -853,10 +869,6 @@
 
     .ts-prog-list-row {
         padding: var(--m3) var(--m4);
-    }
-
-    .ts-prog-chart-axis {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .ts-prog-chart-axis span:nth-child(odd) {

@@ -7,7 +7,7 @@ export const useDungeonReplayPlayback = (
     frameIntervalMs: number
 ) => {
     const [replayPaused, setReplayPaused] = useState(true);
-    const [replaySpeed, setReplaySpeed] = useState<1 | 2 | 4>(1);
+    const [replaySpeed, setReplaySpeed] = useState<0.2 | 0.5 | 1 | 2 | 4>(1);
     const [replayCursorMs, setReplayCursorMs] = useState(0);
     const replayCursorRef = useRef(0);
     const replayTotalMs = latestReplay ? Math.max(latestReplay.elapsedMs, latestReplay.events.at(-1)?.atMs ?? 0) : 0;

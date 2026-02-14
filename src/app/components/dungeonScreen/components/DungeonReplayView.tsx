@@ -14,8 +14,8 @@ type DungeonReplayViewProps = {
     latestReplay: DungeonReplayState;
     replayFrame: DungeonArenaFrame | null;
     dungeonBackgroundUrl: string;
-    replaySpeed: 1 | 2 | 4;
-    onReplaySpeedChange: (speed: 1 | 2 | 4) => void;
+    replaySpeed: 0.2 | 0.5 | 1 | 2 | 4;
+    onReplaySpeedChange: (speed: 0.2 | 0.5 | 1 | 2 | 4) => void;
     replayTotalMs: number;
     replayCursorMs: number;
     replayTrackGradient: string;
@@ -63,6 +63,7 @@ export const DungeonReplayView = ({
     heroNameById,
     selectedDungeon
 }: DungeonReplayViewProps) => {
+    const replaySpeedOptions: Array<0.2 | 0.5 | 1 | 2 | 4> = [0.2, 0.5, 1, 2, 4];
     const arenaStyle = {
         "--ts-dungeon-bg-image": `url("${dungeonBackgroundUrl}")`
     } as CSSProperties;
@@ -72,12 +73,12 @@ export const DungeonReplayView = ({
             <DungeonArenaRenderer frame={replayFrame} style={arenaStyle} />
             <div className="ts-dungeon-control-row">
                 <div className="ts-dungeon-speed-group" role="group" aria-label="Replay speed">
-                    {[1, 2, 4].map((speed) => (
+                    {replaySpeedOptions.map((speed) => (
                         <button
                             key={speed}
                             type="button"
                             className={`ts-icon-button ts-focusable ts-dungeon-replay-button ts-dungeon-replay-speed${replaySpeed === speed ? " is-active" : ""}`}
-                            onClick={() => onReplaySpeedChange(speed as 1 | 2 | 4)}
+                            onClick={() => onReplaySpeedChange(speed)}
                         >
                             x{speed}
                         </button>

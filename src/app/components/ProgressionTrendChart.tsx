@@ -44,6 +44,7 @@ export const ProgressionTrendChart = memo(({
         return {
             width,
             height,
+            padding,
             xpMax,
             goldMax,
             xpPoints,
@@ -119,9 +120,22 @@ export const ProgressionTrendChart = memo(({
                 ) : null}
             </div>
             <div className="ts-prog-chart-axis" aria-hidden="true">
-                {labels.map((label) => (
-                    <span key={label}>{label}</span>
-                ))}
+                {labels.map((label, index) => {
+                    const fallbackX = labels.length > 1
+                        ? chart.padding + ((chart.width - chart.padding * 2) / (labels.length - 1)) * index
+                        : chart.width / 2;
+                    const x = chart.xpPoints[index]?.x ?? fallbackX;
+                    return (
+                        <span
+                            key={`${label}-${index}`}
+                            style={{
+                                left: `${(x / chart.width) * 100}%`
+                            } as CSSProperties}
+                        >
+                            {label}
+                        </span>
+                    );
+                })}
             </div>
         </>
     );

@@ -108,6 +108,7 @@ describe("DungeonScreen controls", () => {
 
         expect(screen.getByRole("button", { name: "Back to dungeon" })).toBeTruthy();
         expect(screen.getByLabelText("Replay timeline")).toBeTruthy();
+        expect(screen.getByRole("button", { name: "x0.2" })).toBeTruthy();
         expect(screen.queryByRole("button", { name: /auto restart/i })).toBeNull();
         expect(screen.queryByRole("button", { name: "Start run" })).toBeNull();
         expect(screen.queryByRole("button", { name: "Show replay" })).toBeNull();
