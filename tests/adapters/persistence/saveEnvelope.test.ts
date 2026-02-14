@@ -2,9 +2,66 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState } from "../../../src/core/state";
 import { toGameSave } from "../../../src/core/serialization";
-import { createSaveEnvelopeV2, parseSaveEnvelopeOrLegacy } from "../../../src/adapters/persistence/saveEnvelope";
+import {
+    createSaveEnvelopeV2,
+    createSaveEnvelopeV3,
+    parseSaveEnvelopeOrLegacy,
+    parseSaveEnvelopeV3
+} from "../../../src/adapters/persistence/saveEnvelope";
 
 describe("saveEnvelope", () => {
+    it("creates and parses v3 compressed envelopes", () => {
+        const save = toGameSave(createInitialGameState("0.8.0"));
+        const envelope = createSaveEnvelopeV3(save, 123);
+        const raw = JSON.stringify(envelope);
+
+        const parsed = parseSaveEnvelopeV3(raw);
+        expect(parsed.status).toBe("ok");
+        expect(parsed.save).toEqual(save);
+    });
+
+    it("detects v3 compressed payload corruption", () => {
+        const save = toGameSave(createInitialGameState("0.8.0"));
+        const envelope = createSaveEnvelopeV3(save, 123);
+        const tampered = {
+            ...envelope,
+            payloadCompressed: `${envelope.payloadCompressed.slice(0, -1)}A`
+        };
+
+        const parsed = parseSaveEnvelopeV3(JSON.stringify(tampered));
+        expect(parsed.status).toBe("corrupt");
+        expect(parsed.save).toBeNull();
+    });
+
+    it("detects v3 checksum mismatches", () => {
+        const save = toGameSave(createInitialGameState("0.8.0"));
+        const envelope = createSaveEnvelopeV3(save, 123);
+        const tampered = { ...envelope, checksum: "deadbeef" };
+
+        const parsed = parseSaveEnvelopeV3(JSON.stringify(tampered));
+        expect(parsed.status).toBe("corrupt");
+        expect(parsed.save).toBeNull();
+    });
+
+    it("rejects unsupported v3 payload encoding", () => {
+        const save = toGameSave(createInitialGameState("0.8.0"));
+        const envelope = createSaveEnvelopeV3(save, 123);
+        const tampered = { ...envelope, payloadEncoding: "gzip-base64" };
+
+        const parsed = parseSaveEnvelopeV3(JSON.stringify(tampered));
+        expect(parsed.status).toBe("corrupt");
+        expect(parsed.save).toBeNull();
+    });
+
+    it("rejects non-v3 payloads in v3 parser", () => {
+        const save = toGameSave(createInitialGameState("0.8.0"));
+        const envelope = createSaveEnvelopeV2(save, 123);
+
+        const parsed = parseSaveEnvelopeV3(JSON.stringify(envelope));
+        expect(parsed.status).toBe("corrupt");
+        expect(parsed.save).toBeNull();
+    });
+
     it("wraps and validates envelopes", () => {
         const save = toGameSave(createInitialGameState("0.8.0"));
         const envelope = createSaveEnvelopeV2(save, 123);
@@ -59,6 +116,13 @@ describe("saveEnvelope", () => {
         const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify({ schemaVersion: 2, checksum: "abc" }));
         expect(parsed.status).toBe("corrupt");
         expect(parsed.save).toBeNull();
+    });
+
+    it("accepts old-school plain saves with schemaVersion 2 on root payload", () => {
+        const save = toGameSave(createInitialGameState("0.8.0"));
+        const parsed = parseSaveEnvelopeOrLegacy(JSON.stringify({ ...save, schemaVersion: 2 }));
+        expect(parsed.status === "ok" || parsed.status === "migrated").toBe(true);
+        expect(parsed.save?.version).toBe(save.version);
     });
 
     it("returns corrupt when the migrated save has no valid players", () => {

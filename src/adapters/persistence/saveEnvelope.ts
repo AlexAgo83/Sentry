@@ -1,4 +1,5 @@
 import type { GameSave } from "../../core/types";
+import { deflate, inflate } from "pako";
 import { migrateAndValidateSave } from "./saveMigrations";
 
 export type SaveEnvelopeV2 = {
@@ -6,6 +7,16 @@ export type SaveEnvelopeV2 = {
     savedAt: number;
     checksum: string;
     payload: GameSave;
+};
+
+export const SAVE_ENVELOPE_V3_ENCODING = "deflate-base64" as const;
+
+export type SaveEnvelopeV3 = {
+    schemaVersion: 3;
+    savedAt: number;
+    payloadEncoding: typeof SAVE_ENVELOPE_V3_ENCODING;
+    payloadCompressed: string;
+    checksum: string;
 };
 
 export type SaveLoadResult =
@@ -40,12 +51,73 @@ const utf8ToBytes = (text: string) => {
     return new TextEncoder().encode(text);
 };
 
+const bytesToUtf8 = (bytes: Uint8Array) => {
+    return new TextDecoder().decode(bytes);
+};
+
 const toHex = (bytes: Uint8Array) => {
     let out = "";
     bytes.forEach((byte) => {
         out += byte.toString(16).padStart(2, "0");
     });
     return out;
+};
+
+const BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+const bytesToBase64 = (bytes: Uint8Array): string => {
+    let out = "";
+    for (let index = 0; index < bytes.length; index += 3) {
+        const byte1 = bytes[index] ?? 0;
+        const byte2 = bytes[index + 1] ?? 0;
+        const byte3 = bytes[index + 2] ?? 0;
+        const triplet = (byte1 << 16) | (byte2 << 8) | byte3;
+
+        out += BASE64_CHARS[(triplet >> 18) & 0x3f];
+        out += BASE64_CHARS[(triplet >> 12) & 0x3f];
+        out += index + 1 < bytes.length ? BASE64_CHARS[(triplet >> 6) & 0x3f] : "=";
+        out += index + 2 < bytes.length ? BASE64_CHARS[triplet & 0x3f] : "=";
+    }
+    return out;
+};
+
+const isValidBase64 = (value: string) => {
+    return value.length > 0 && value.length % 4 === 0 && /^[A-Za-z0-9+/]*={0,2}$/.test(value);
+};
+
+const base64ToBytes = (value: string): Uint8Array | null => {
+    if (!isValidBase64(value)) {
+        return null;
+    }
+    const reverseMap: Record<string, number> = {};
+    for (let index = 0; index < BASE64_CHARS.length; index += 1) {
+        reverseMap[BASE64_CHARS[index]] = index;
+    }
+
+    const output: number[] = [];
+    for (let index = 0; index < value.length; index += 4) {
+        const char1 = value[index];
+        const char2 = value[index + 1];
+        const char3 = value[index + 2];
+        const char4 = value[index + 3];
+        const sextet1 = reverseMap[char1];
+        const sextet2 = reverseMap[char2];
+        const sextet3 = char3 === "=" ? 0 : reverseMap[char3];
+        const sextet4 = char4 === "=" ? 0 : reverseMap[char4];
+        if (sextet1 === undefined || sextet2 === undefined || sextet3 === undefined || sextet4 === undefined) {
+            return null;
+        }
+        const chunk = (sextet1 << 18) | (sextet2 << 12) | (sextet3 << 6) | sextet4;
+
+        output.push((chunk >> 16) & 0xff);
+        if (char3 !== "=") {
+            output.push((chunk >> 8) & 0xff);
+        }
+        if (char4 !== "=") {
+            output.push(chunk & 0xff);
+        }
+    }
+    return new Uint8Array(output);
 };
 
 const sha256Hex = (message: string): string => {
@@ -143,6 +215,17 @@ const sha256Hex = (message: string): string => {
     return toHex(out);
 };
 
+const parseValidatedSave = (candidate: unknown): SaveLoadResult => {
+    if (!isGameSaveLike(candidate)) {
+        return { status: "corrupt", save: null };
+    }
+    const migrated = migrateAndValidateSave(candidate);
+    if (!migrated.ok) {
+        return { status: "corrupt", save: null };
+    }
+    return { status: migrated.migrated ? "migrated" : "ok", save: migrated.save };
+};
+
 export const createSaveEnvelopeV2 = (save: GameSave, savedAt = Date.now()): SaveEnvelopeV2 => {
     const payloadJson = JSON.stringify(save);
     return {
@@ -151,6 +234,78 @@ export const createSaveEnvelopeV2 = (save: GameSave, savedAt = Date.now()): Save
         checksum: sha256Hex(payloadJson),
         payload: save
     };
+};
+
+export const createSaveEnvelopeV3 = (save: GameSave, savedAt = Date.now()): SaveEnvelopeV3 => {
+    const payloadJson = JSON.stringify(save);
+    const payloadCompressed = bytesToBase64(deflate(payloadJson));
+    return {
+        schemaVersion: 3,
+        savedAt,
+        payloadEncoding: SAVE_ENVELOPE_V3_ENCODING,
+        payloadCompressed,
+        checksum: sha256Hex(payloadJson),
+    };
+};
+
+export const parseSaveEnvelopeV3 = (raw: string): SaveLoadResult => {
+    const parsed = (() => {
+        try {
+            return JSON.parse(raw) as unknown;
+        } catch {
+            return null;
+        }
+    })();
+
+    if (!isObject(parsed) || parsed.schemaVersion !== 3) {
+        return { status: "corrupt", save: null };
+    }
+
+    const envelope = parsed as Partial<SaveEnvelopeV3>;
+    if (
+        envelope.payloadEncoding !== SAVE_ENVELOPE_V3_ENCODING
+        || typeof envelope.payloadCompressed !== "string"
+        || typeof envelope.checksum !== "string"
+    ) {
+        return { status: "corrupt", save: null };
+    }
+
+    const compressedBytes = base64ToBytes(envelope.payloadCompressed);
+    if (!compressedBytes) {
+        return { status: "corrupt", save: null };
+    }
+
+    const payloadJson = (() => {
+        try {
+            return bytesToUtf8(inflate(compressedBytes));
+        } catch {
+            return null;
+        }
+    })();
+
+    if (!payloadJson) {
+        return { status: "corrupt", save: null };
+    }
+
+    const payloadParsed = (() => {
+        try {
+            return JSON.parse(payloadJson) as unknown;
+        } catch {
+            return null;
+        }
+    })();
+
+    if (!payloadParsed) {
+        return { status: "corrupt", save: null };
+    }
+
+    const canonicalPayload = JSON.stringify(payloadParsed);
+    const checksum = sha256Hex(canonicalPayload);
+    if (checksum !== envelope.checksum) {
+        return { status: "corrupt", save: null };
+    }
+
+    return parseValidatedSave(payloadParsed);
 };
 
 export const parseSaveEnvelopeOrLegacy = (raw: string): SaveLoadResult => {
@@ -173,28 +328,17 @@ export const parseSaveEnvelopeOrLegacy = (raw: string): SaveLoadResult => {
             if (computed !== envelope.checksum) {
                 return { status: "corrupt", save: null };
             }
-            const migrated = migrateAndValidateSave(envelope.payload);
-            if (!migrated.ok) {
-                return { status: "corrupt", save: null };
-            }
-            return { status: migrated.migrated ? "migrated" : "ok", save: migrated.save };
+            return parseValidatedSave(envelope.payload);
         }
-        if (!isGameSaveLike(parsed)) {
-            return { status: "corrupt", save: null };
+        // Backward compatibility: some old exports used schemaVersion=2 directly on save payload.
+        if (isGameSaveLike(parsed)) {
+            return parseValidatedSave(parsed);
         }
-        const migrated = migrateAndValidateSave(parsed);
-        if (!migrated.ok) {
-            return { status: "corrupt", save: null };
-        }
-        return { status: migrated.migrated ? "migrated" : "ok", save: migrated.save };
+        return { status: "corrupt", save: null };
     }
 
     if (isGameSaveLike(parsed)) {
-        const migrated = migrateAndValidateSave(parsed);
-        if (!migrated.ok) {
-            return { status: "corrupt", save: null };
-        }
-        return { status: migrated.migrated ? "migrated" : "ok", save: migrated.save };
+        return parseValidatedSave(parsed);
     }
 
     return { status: "corrupt", save: null };
@@ -206,7 +350,7 @@ export const parseSaveEnvelopeMeta = (raw: string): SaveEnvelopeMeta => {
         if (!isObject(parsed)) {
             return { savedAt: null };
         }
-        if (parsed.schemaVersion === 2) {
+        if (parsed.schemaVersion === 2 || parsed.schemaVersion === 3) {
             const savedAt = typeof parsed.savedAt === "number" ? parsed.savedAt : Number(parsed.savedAt);
             return { savedAt: Number.isFinite(savedAt) ? savedAt : null };
         }

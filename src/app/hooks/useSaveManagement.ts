@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { toGameSave } from "../../core/serialization";
 import { gameRuntime, gameStore } from "../game";
-import { createSaveEnvelopeV2, parseSaveEnvelopeOrLegacy } from "../../adapters/persistence/saveEnvelope";
+import { createSaveEnvelopeV3, parseSaveEnvelopeOrLegacy, parseSaveEnvelopeV3 } from "../../adapters/persistence/saveEnvelope";
 import { readRawLastGoodSave, readRawSave } from "../../adapters/persistence/localStorageKeys";
 
 type UseSaveManagementOptions = {
@@ -54,17 +54,18 @@ export const useSaveManagement = ({
 
     const exportSave = useCallback(async () => {
         const save = toGameSave(gameStore.getState());
-        const envelope = createSaveEnvelopeV2(save);
+        const envelope = createSaveEnvelopeV3(save);
         const raw = JSON.stringify(envelope);
-        return copyTextToClipboard(raw, "Copy your save data:");
+        return copyTextToClipboard(raw, "Copy your compressed save data:");
     }, []);
 
     const importSave = useCallback(() => {
-        const raw = window.prompt("Paste save data (JSON):", "");
+        const raw = window.prompt("Paste save data:", "");
         if (!raw) {
             return;
         }
-        const parsed = parseSaveEnvelopeOrLegacy(raw);
+        const parsedV3 = parseSaveEnvelopeV3(raw);
+        const parsed = parsedV3.status === "corrupt" ? parseSaveEnvelopeOrLegacy(raw) : parsedV3;
         if (parsed.status === "ok" || parsed.status === "migrated" || parsed.status === "recovered_last_good") {
             gameRuntime.importSave(parsed.save);
             refreshLoadReport();

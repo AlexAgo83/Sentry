@@ -13,6 +13,7 @@ let testRuntime: {
 };
 
 const parseSpy = vi.fn();
+const parseLegacySpy = vi.fn();
 const readRawSaveSpy = vi.fn();
 const readRawLastGoodSaveSpy = vi.fn();
 
@@ -31,7 +32,8 @@ vi.mock("../../../src/adapters/persistence/saveEnvelope", async () => {
     );
     return {
         ...actual,
-        parseSaveEnvelopeOrLegacy: (...args: unknown[]) => parseSpy(...args),
+        parseSaveEnvelopeV3: (...args: unknown[]) => parseSpy(...args),
+        parseSaveEnvelopeOrLegacy: (...args: unknown[]) => parseLegacySpy(...args),
     };
 });
 
@@ -74,6 +76,7 @@ describe("useSaveManagement", () => {
     beforeEach(() => {
         vi.restoreAllMocks();
         parseSpy.mockReset();
+        parseLegacySpy.mockReset();
         readRawSaveSpy.mockReset();
         readRawLastGoodSaveSpy.mockReset();
 
@@ -192,6 +195,43 @@ describe("useSaveManagement", () => {
         });
     });
 
+    it("exportSave emits a v3 compressed envelope payload", async () => {
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        Object.defineProperty(navigator, "clipboard", {
+            value: { writeText },
+            configurable: true
+        });
+
+        let api: SaveManagementApi | null = null;
+        render(
+            <TestHarness
+                options={{
+                    isSafeModeOpen: false,
+                    closeActionSelection: vi.fn(),
+                    closeAllHeroNameModals: vi.fn(),
+                    refreshLoadReport: vi.fn(),
+                    closeSafeMode: vi.fn(),
+                }}
+                onReady={(next) => { api = next; }}
+            />
+        );
+
+        await waitFor(() => {
+            expect(api).not.toBeNull();
+        });
+
+        await (api as unknown as SaveManagementApi).exportSave();
+
+        expect(writeText).toHaveBeenCalledTimes(1);
+        const exportedRaw = writeText.mock.calls[0]?.[0];
+        const parsed = JSON.parse(exportedRaw) as Record<string, unknown>;
+        expect(parsed.schemaVersion).toBe(3);
+        expect(parsed.payloadEncoding).toBe("deflate-base64");
+        expect(typeof parsed.payloadCompressed).toBe("string");
+        expect(typeof parsed.checksum).toBe("string");
+        expect(parsed.payload).toBeUndefined();
+    });
+
     it("importSave validates prompt and imports when parse succeeds", async () => {
         const prompt = vi.spyOn(window, "prompt").mockReturnValue("{\"fake\":true}");
         const alert = vi.spyOn(window, "alert").mockImplementation(() => {});
@@ -220,6 +260,69 @@ describe("useSaveManagement", () => {
         expect(prompt).toHaveBeenCalledTimes(1);
         expect(alert).not.toHaveBeenCalled();
         expect(testRuntime.importSave).toHaveBeenCalledTimes(1);
+        expect(refreshLoadReport).toHaveBeenCalledTimes(1);
+        expect(parseLegacySpy).not.toHaveBeenCalled();
+    });
+
+    it("importSave rejects invalid v3 payloads", async () => {
+        vi.spyOn(window, "prompt").mockReturnValue("{\"fake\":true}");
+        const alert = vi.spyOn(window, "alert").mockImplementation(() => {});
+        parseSpy.mockReturnValue({ status: "corrupt", save: null });
+        parseLegacySpy.mockReturnValue({ status: "corrupt", save: null });
+
+        let api: SaveManagementApi | null = null;
+        render(
+            <TestHarness
+                options={{
+                    isSafeModeOpen: false,
+                    closeActionSelection: vi.fn(),
+                    closeAllHeroNameModals: vi.fn(),
+                    refreshLoadReport: vi.fn(),
+                    closeSafeMode: vi.fn(),
+                }}
+                onReady={(next) => { api = next; }}
+            />
+        );
+
+        await waitFor(() => {
+            expect(api).not.toBeNull();
+        });
+
+        (api as unknown as SaveManagementApi).importSave();
+        expect(testRuntime.importSave).not.toHaveBeenCalled();
+        expect(alert).toHaveBeenCalledWith("Invalid save data.");
+        expect(parseLegacySpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("importSave falls back to legacy parser when v3 parse fails", async () => {
+        vi.spyOn(window, "prompt").mockReturnValue("{\"legacy\":true}");
+        const alert = vi.spyOn(window, "alert").mockImplementation(() => {});
+        const refreshLoadReport = vi.fn();
+        parseSpy.mockReturnValue({ status: "corrupt", save: null });
+        parseLegacySpy.mockReturnValue({ status: "ok", save: { version: "0.1.0", players: { "1": {} }, lastTick: null } });
+
+        let api: SaveManagementApi | null = null;
+        render(
+            <TestHarness
+                options={{
+                    isSafeModeOpen: false,
+                    closeActionSelection: vi.fn(),
+                    closeAllHeroNameModals: vi.fn(),
+                    refreshLoadReport,
+                    closeSafeMode: vi.fn(),
+                }}
+                onReady={(next) => { api = next; }}
+            />
+        );
+
+        await waitFor(() => {
+            expect(api).not.toBeNull();
+        });
+
+        (api as unknown as SaveManagementApi).importSave();
+        expect(parseLegacySpy).toHaveBeenCalledTimes(1);
+        expect(testRuntime.importSave).toHaveBeenCalledTimes(1);
+        expect(alert).not.toHaveBeenCalled();
         expect(refreshLoadReport).toHaveBeenCalledTimes(1);
     });
 

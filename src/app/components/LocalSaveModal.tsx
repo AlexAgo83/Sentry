@@ -56,7 +56,7 @@ export const LocalSaveModal = memo(({
                         </button>
                     </div>
                     <span className="ts-system-helper">
-                        {"Export, import, or reset this device's save."}
+                        {"Export compressed saves, and import both compressed and legacy save formats."}
                     </span>
                     {exportFeedback ? (
                         <span className="ts-system-helper ts-system-helper-success" data-testid="local-export-feedback">

@@ -2,7 +2,7 @@
 > From version: 0.9.28
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Feature
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -29,32 +29,32 @@ This task orchestrates end-to-end delivery of compressed and hash-verified local
 - Delivery is phase-based with mandatory final full validation battery.
 
 # Plan
-- [ ] 1. Baseline and guardrails:
+- [x] 1. Baseline and guardrails:
   - Confirm current local save import/export flow and envelope behavior.
   - Identify existing tests touching `saveEnvelope` and `useSaveManagement`.
-- [ ] 2. Execute `item_128` (v3 envelope + codec foundation):
+- [x] 2. Execute `item_128` (v3 envelope + codec foundation):
   - Add `SaveEnvelopeV3` data contract and codec helpers (compress/decompress + text-safe encoding).
   - Centralize deterministic checksum generation/verification primitives.
-- [ ] 3. Execute `item_129` (local export emits v3):
+- [x] 3. Execute `item_129` (local export emits v3):
   - Update export path to emit v3 envelope JSON string.
   - Ensure checksum is generated from canonical uncompressed payload JSON.
-- [ ] 4. Execute `item_130` (v3-only import + verification):
+- [x] 4. Execute `item_130` (v3-only import + verification):
   - Enforce v3 manual import path.
   - Decompress payload, verify checksum, then run existing migrate/validate pipeline.
   - Reject unsupported encoding and corrupted payload/checksum paths.
-- [ ] 5. Execute `item_131` (modal UX copy update):
+- [x] 5. Execute `item_131` (modal UX copy update):
   - Update local save modal helper text/messages to reflect compressed+hashed format.
   - Keep behavior and error wording aligned with current UX constraints.
-- [ ] 6. Execute `item_132` (tests and quality gate):
+- [x] 6. Execute `item_132` (tests and quality gate):
   - Add/extend adapter tests for v3 round-trip and corruption cases.
   - Add/extend save management tests for export/import success/failure behavior.
-- [ ] 7. Final stabilization:
+- [x] 7. Final stabilization:
   - Verify no regressions on local save modal import/export/reset workflows.
   - Ensure request/backlog docs stay aligned with implementation decisions.
-- [ ] 8. Final mandatory full test battery:
+- [x] 8. Final mandatory full test battery:
   - Run complete validation suite at task end.
   - Fix all failing checks before marking task complete.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # Validation
 Final gate (mandatory at task end):
@@ -67,4 +67,25 @@ Final gate (mandatory at task end):
 - `npm run test:e2e`
 
 # Report
-- Pending implementation.
+- Completed:
+  - Added v3 envelope support in `saveEnvelope` with:
+    - `schemaVersion: 3`,
+    - `payloadEncoding: "deflate-base64"`,
+    - compressed `payloadCompressed`,
+    - SHA-256 checksum integrity verification.
+  - Added dedicated v3 parser (`parseSaveEnvelopeV3`) with strict v3-only validation, decompression, canonical checksum verification, and migrate/validate pipeline.
+  - Updated local manual export/import flow (`useSaveManagement`) to:
+    - export v3 compressed envelope strings only,
+    - import via v3 parser only (legacy manual strings rejected).
+  - Updated local save modal helper copy to reflect compressed + integrity-checked behavior.
+  - Added/updated tests for:
+    - v3 envelope round-trip and corruption/error paths,
+    - hook-level export v3 shape and invalid v3 import rejection.
+- Validation:
+  - `npm run lint`
+  - `npm run typecheck -- --pretty false`
+  - `npm run typecheck:tests -- --pretty false`
+  - `npm run test:ci`
+  - `npm run coverage:ci`
+  - `npm run build`
+  - `npm run test:e2e`
