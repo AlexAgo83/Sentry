@@ -33,7 +33,7 @@ describe("ActionJournalModal", () => {
 
         const { container } = render(<ActionJournalModal actionJournal={entries} onClose={vi.fn()} />);
 
-        expect(screen.getByRole("heading", { name: "Action journal" })).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Journal" })).toBeTruthy();
         expect(screen.getByText("Latest activity")).toBeTruthy();
         const countNode = container.querySelector(".ts-system-journal-count");
         expect(countNode?.textContent).toBe("3");

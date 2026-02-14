@@ -14,7 +14,7 @@ export const SaveOptionsModal = memo(({
     onClose,
     closeLabel
 }: SaveOptionsModalProps) => (
-    <ModalShell kicker="System" title="Save options" onClose={onClose} closeLabel={closeLabel}>
+    <ModalShell kicker="System" title="Save" onClose={onClose} closeLabel={closeLabel}>
         <div className="ts-system-entry-list">
             <div className="ts-system-entry">
                 <div className="ts-action-row ts-action-stack">

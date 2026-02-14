@@ -62,7 +62,7 @@ export const CrashReportsModal = memo(({
     }, [copyFeedback]);
 
     return (
-        <ModalShell kicker="System" title="Crash reports" onClose={onClose} closeLabel={closeLabel}>
+        <ModalShell kicker="System" title="Reports" onClose={onClose} closeLabel={closeLabel}>
             {crashReports.length > 0 ? (
                 <>
                     <ul className="ts-list ts-crash-list">

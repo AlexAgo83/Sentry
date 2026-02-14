@@ -102,28 +102,28 @@ describe("SystemModal", () => {
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Action journal" }));
-        expect(screen.getByRole("heading", { name: "Action journal" })).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Journal" })).toBeTruthy();
         expect(screen.queryByRole("heading", { name: "Settings" })).toBeNull();
         expect(screen.getByText("No actions recorded yet.")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Save options" }));
-        expect(screen.getByRole("heading", { name: "Save options" })).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Save" })).toBeTruthy();
         expect(screen.queryByRole("heading", { name: "Settings" })).toBeNull();
 
         fireEvent.click(screen.getByRole("button", { name: "Local save" }));
         expect(screen.getByRole("heading", { name: "Local save" })).toBeTruthy();
-        expect(screen.queryByRole("heading", { name: "Save options" })).toBeNull();
+        expect(screen.queryByRole("heading", { name: "Save" })).toBeNull();
 
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
-        expect(screen.getByRole("heading", { name: "Save options" })).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Save" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Cloud save" }));
         expect(screen.getByRole("heading", { name: "Cloud Save" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
-        expect(screen.getByRole("heading", { name: "Save options" })).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Save" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
@@ -174,7 +174,7 @@ describe("SystemModal", () => {
         expect(saveOptionsButton.compareDocumentPosition(leaderboardButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
         fireEvent.click(leaderboardButton);
-        expect(screen.getByRole("heading", { name: "Leaderboard" })).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Scrore" })).toBeTruthy();
         expect(await screen.findByText("Aegis")).toBeTruthy();
         expect(screen.getAllByText("Ex aequo").length).toBeGreaterThan(0);
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
@@ -229,7 +229,7 @@ describe("SystemModal", () => {
         render(<SystemModal {...props} />);
 
         fireEvent.click(screen.getByRole("button", { name: "Crash reports" }));
-        expect(screen.getByRole("heading", { name: "Crash reports" })).toBeTruthy();
+        expect(screen.getByRole("heading", { name: "Reports" })).toBeTruthy();
         expect(screen.getByText("[error] Boom")).toBeTruthy();
         expect(screen.getByText("[unhandledrejection] Nope")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Copy crash logs" }));

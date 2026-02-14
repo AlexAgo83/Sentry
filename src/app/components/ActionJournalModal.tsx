@@ -98,7 +98,7 @@ export const ActionJournalModal = memo(({
     onClose,
     closeLabel,
 }: ActionJournalModalProps) => (
-    <ModalShell kicker="System" title="Action journal" onClose={onClose} closeLabel={closeLabel}>
+    <ModalShell kicker="System" title="Journal" onClose={onClose} closeLabel={closeLabel}>
         <div className="ts-system-journal">
             <div className="ts-system-journal-header">
                 <span>Latest activity</span>

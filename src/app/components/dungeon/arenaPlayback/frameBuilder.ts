@@ -246,6 +246,41 @@ export const buildDungeonArenaLiveFrame = (
         overrideStatusLabel: run.status
     });
 
+    if (frame.units.length === 0) {
+        const fallbackStates: Record<string, ArenaEntityState> = {};
+        partySeeds.forEach((seed, index) => {
+            fallbackStates[seed.id] = {
+                id: seed.id,
+                name: seed.name,
+                hp: seed.hpMax,
+                hpMax: seed.hpMax,
+                alive: true,
+                isEnemy: false,
+                isBoss: false,
+                spawnOrder: index,
+                skinColor: seed.skinColor,
+                hairColor: seed.hairColor,
+                helmetVisible: seed.helmetVisible,
+                weaponType: seed.weaponType
+            };
+        });
+        run.enemies.forEach((enemy, index) => {
+            const hpMax = Math.max(1, Math.round(enemy.hpMax || enemy.hp || 1));
+            const hp = Math.max(0, Math.min(hpMax, Math.round(enemy.hp || 0)));
+            fallbackStates[enemy.id] = {
+                id: enemy.id,
+                name: enemy.name,
+                hp,
+                hpMax,
+                alive: hp > 0,
+                isEnemy: true,
+                isBoss: enemy.isBoss,
+                spawnOrder: partySeeds.length + index
+            };
+        });
+        frame.units = toUnitPositionMap(toSortedEntities(fallbackStates));
+    }
+
     if (boundedAtMs >= run.elapsedMs) {
         const hpByHero = new Map(run.party.map((member) => [member.playerId, member]));
         frame.units = frame.units.map((unit) => {
