@@ -2,7 +2,7 @@
 > From version: 0.9.24
 > Understanding: 96%
 > Confidence: 94%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Feature
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -32,33 +32,33 @@ This task orchestrates end-to-end delivery of the in-app changelogs feature (Set
 - Delivery is phase-based; each phase is validated before the next one.
 
 # Plan
-- [ ] 1. Baseline and guardrails:
+- [x] 1. Baseline and guardrails:
   - Confirm current Settings/modal flow baseline.
   - Pin existing tests covering Settings and modal stack.
-- [ ] 2. Execute `item_114` (Settings entrypoint):
+- [x] 2. Execute `item_114` (Settings entrypoint):
 - Add `Changelogs` action in Settings.
 - Position `Changelogs` directly before `About`.
 - Wire modal open action through existing modal architecture.
-- [ ] 3. Execute `item_115` (backend proxy route):
+- [x] 3. Execute `item_115` (backend proxy route):
   - Add backend changelog endpoint with GitHub pagination mapping.
   - Implement token/no-token path and normalized response contract.
   - Implement consistent rate-limit/upstream error mapping.
-- [ ] 4. Execute `item_116` (modal UI):
+- [x] 4. Execute `item_116` (modal UI):
   - Build `ChangelogsModal` with scrollable list.
   - Implement loading/empty/error/retry states and pagination controls.
-- [ ] 5. Execute `item_117` (frontend data + state wiring):
+- [x] 5. Execute `item_117` (frontend data + state wiring):
   - Add frontend API client.
   - Wire page state, request lifecycle, retry, and optional per-page session cache.
-- [ ] 6. Execute `item_118` (tests and quality gate):
+- [x] 6. Execute `item_118` (tests and quality gate):
   - Add/extend frontend and backend tests for happy/error/rate-limit paths.
   - Add optional e2e smoke for Settings -> Changelogs -> page navigation.
-- [ ] 7. Final stabilization:
+- [x] 7. Final stabilization:
   - Verify no regressions in existing Settings/system modal flows.
   - Ensure docs/comments/contracts match final behavior.
-- [ ] 8. Final mandatory full test battery:
+- [x] 8. Final mandatory full test battery:
   - Run the complete validation suite at task end.
   - Fix all failing checks before considering the task complete.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # Validation
 Final gate (mandatory at task end):
@@ -70,4 +70,16 @@ Final gate (mandatory at task end):
 - `npm run test:e2e`
 
 # Report
-- Pending execution.
+- Delivered:
+  - Settings entrypoint includes `Changelogs` positioned directly before `About`.
+  - New backend proxy route `GET /api/changelog/commits` with GitHub pagination and error mapping.
+  - New `ChangelogsModal` with loading/error/empty states, retry, pagination, and scrollable commit list.
+  - Frontend changelog API client and modal state wiring with per-page session cache.
+  - Added backend and frontend tests for changelog feature paths.
+- Validation run:
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run typecheck:tests`
+  - `npm run test:ci`
+  - `npm run build`
+  - `npm run test:e2e`

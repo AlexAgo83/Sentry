@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
 import { ActionJournalModal } from "./ActionJournalModal";
 import { CloudSaveModal } from "./CloudSaveModal";
+import { ChangelogsModal } from "./ChangelogsModal";
 import { CrashReportsModal } from "./CrashReportsModal";
 import { DevToolsModal } from "./DevToolsModal";
 import { GraphicsModal } from "./GraphicsModal";
@@ -20,6 +21,7 @@ type SystemModalView =
     | "saveOptions"
     | "localSave"
     | "cloudSave"
+    | "changelogs"
     | "crashReports"
     | "devTools";
 
@@ -155,6 +157,10 @@ export const SystemModal = memo(({
         return <CloudSaveModal onClose={closeCurrentView} closeLabel="Back" />;
     }
 
+    if (currentView === "changelogs") {
+        return <ChangelogsModal onClose={closeCurrentView} closeLabel="Back" />;
+    }
+
     if (currentView === "crashReports") {
         return (
             <CrashReportsModal
@@ -256,6 +262,18 @@ export const SystemModal = memo(({
                         </div>
                     </div>
                 ) : null}
+                <div className="ts-system-entry">
+                    <div className="ts-action-row">
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={() => openView("changelogs")}
+                            data-testid="open-changelogs"
+                        >
+                            Changelogs
+                        </button>
+                    </div>
+                </div>
                 <div className="ts-system-entry">
                     <div className="ts-action-row">
                         <button

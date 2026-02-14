@@ -34,9 +34,31 @@ describe("SystemModal", () => {
         window.localStorage.removeItem("sentry.graphicsSettings");
     });
 
-    it("navigates modal screens without stacking and closes back to previous", () => {
+    it("navigates modal screens without stacking and closes back to previous", async () => {
         const props = baseProps();
         const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+        const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(
+            JSON.stringify({
+                items: [
+                    {
+                        sha: "abcdef1234567890",
+                        shortSha: "abcdef1",
+                        message: "Latest commit",
+                        author: "Alex",
+                        committedAt: Date.parse("2026-02-14T12:00:00.000Z"),
+                        url: "https://github.com/AlexAgo83/Sentry/commit/abcdef1234567890"
+                    }
+                ],
+                page: 1,
+                perPage: 10,
+                hasNextPage: false,
+                source: "github"
+            }),
+            {
+                status: 200,
+                headers: { "content-type": "application/json" }
+            }
+        ));
         render(<SystemModal {...props} />);
 
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
@@ -109,13 +131,27 @@ describe("SystemModal", () => {
             expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
         }
 
+        const changelogsButton = screen.getByRole("button", { name: "Changelogs" });
+        const aboutButton = screen.getByRole("button", { name: "About" });
+        const aboutEntry = aboutButton.closest(".ts-system-entry");
+        expect(aboutEntry?.previousElementSibling?.querySelector("button")?.textContent?.trim()).toBe("Changelogs");
+        expect(changelogsButton.compareDocumentPosition(aboutButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+        fireEvent.click(changelogsButton);
+        expect(screen.getByRole("heading", { name: "Change" })).toBeTruthy();
+        expect(await screen.findByText("Latest commit")).toBeTruthy();
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
+
         fireEvent.click(screen.getByRole("button", { name: "About" }));
         expect(openSpy).toHaveBeenCalledWith(
             "https://github.com/AlexAgo83/Sentry",
             "_blank",
             "noopener,noreferrer"
         );
+        expect(fetchSpy).toHaveBeenCalled();
         openSpy.mockRestore();
+        fetchSpy.mockRestore();
     });
 
     it("opens crash reports modal and clears entries", async () => {
