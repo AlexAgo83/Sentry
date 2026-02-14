@@ -3,6 +3,9 @@ import { getCombatSkillIdForWeaponType } from "../../../../data/equipment";
 import { getSkillIconColor } from "../../../ui/skillColors";
 import type { DungeonArenaFrame } from "../arenaPlayback";
 import {
+    ENTITY_OUTLINE_ALPHA,
+    ENTITY_OUTLINE_COLOR,
+    ENTITY_OUTLINE_OFFSET,
     HERO_BODY_RADIUS,
     MOBILE_VIEWPORT_MAX,
     WORLD_HEIGHT,
@@ -13,6 +16,7 @@ import type { PixiModule, UnitNode } from "./types";
 
 export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     const container = new PIXI.Container();
+    const silhouette = new PIXI.Graphics();
     const body = new PIXI.Graphics();
     const hpBack = new PIXI.Graphics();
     const hpFill = new PIXI.Graphics();
@@ -30,6 +34,7 @@ export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
 
     container.addChild(targetRing);
     container.addChild(magicPulse);
+    container.addChild(silhouette);
     container.addChild(body);
     container.addChild(combatIcon);
     container.addChild(hpBack);
@@ -38,15 +43,46 @@ export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     container.addChild(label);
     world.addChild(container);
 
-    return { container, body, hpBack, hpFill, targetRing, magicPulse, deathMark, label, combatIcon };
+    return { container, silhouette, body, hpBack, hpFill, targetRing, magicPulse, deathMark, label, combatIcon };
+};
+
+const OUTLINE_DIRECTIONS: Array<[number, number]> = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+    [1, 1],
+    [-1, 1],
+    [1, -1],
+    [-1, -1]
+];
+
+const drawOutlinePass = (
+    gfx: any,
+    alpha: number,
+    drawShape: (target: any, offsetX: number, offsetY: number) => void
+) => {
+    gfx.clear();
+    const outlineAlpha = Math.max(0, Math.min(1, alpha * ENTITY_OUTLINE_ALPHA));
+    OUTLINE_DIRECTIONS.forEach(([dirX, dirY]) => {
+        const offsetX = dirX * ENTITY_OUTLINE_OFFSET;
+        const offsetY = dirY * ENTITY_OUTLINE_OFFSET;
+        gfx.beginFill(ENTITY_OUTLINE_COLOR, outlineAlpha);
+        drawShape(gfx, offsetX, offsetY);
+        gfx.endFill();
+    });
 };
 
 export const drawHeroBody = (node: UnitNode, unit: NonNullable<DungeonArenaFrame>["units"][number]) => {
+    const alpha = unit.alive ? 1 : 0.5;
     const skin = parseHexColor(unit.skinColor, 0xe2be95);
     const hair = parseHexColor(unit.hairColor, 0x5a402f);
+    drawOutlinePass(node.silhouette, alpha, (target, offsetX, offsetY) => {
+        target.drawCircle(offsetX, offsetY, HERO_BODY_RADIUS + 0.6);
+    });
 
     node.body.clear();
-    node.body.beginFill(skin, unit.alive ? 1 : 0.5);
+    node.body.beginFill(skin, alpha);
     node.body.drawCircle(0, 0, HERO_BODY_RADIUS);
     node.body.endFill();
 
@@ -116,6 +152,17 @@ export const drawEnemyBody = (node: UnitNode, unit: NonNullable<DungeonArenaFram
     const baseColor = unit.isBoss ? 0xb02f2f : 0x9f5f2e;
     const accentColor = unit.isBoss ? 0xea6f5f : 0xc98b4e;
     const alpha = unit.alive ? 1 : 0.5;
+    drawOutlinePass(node.silhouette, alpha, (target, offsetX, offsetY) => {
+        if (unit.isBoss) {
+            target.drawRoundedRect(-24 + offsetX, -20 + offsetY, 48, 40, 10);
+            target.drawPolygon([-20 + offsetX, -20 + offsetY, -10 + offsetX, -34 + offsetY, 0 + offsetX, -20 + offsetY]);
+            target.drawPolygon([20 + offsetX, -20 + offsetY, 10 + offsetX, -34 + offsetY, 0 + offsetX, -20 + offsetY]);
+        } else {
+            target.drawRoundedRect(-16 + offsetX, -14 + offsetY, 32, 28, 8);
+            target.drawPolygon([-14 + offsetX, -14 + offsetY, -6 + offsetX, -24 + offsetY, 2 + offsetX, -14 + offsetY]);
+            target.drawPolygon([14 + offsetX, -14 + offsetY, 6 + offsetX, -24 + offsetY, -2 + offsetX, -14 + offsetY]);
+        }
+    });
 
     node.body.clear();
     if (unit.isBoss) {

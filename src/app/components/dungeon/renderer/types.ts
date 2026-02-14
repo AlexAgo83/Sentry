@@ -11,6 +11,7 @@ export type DungeonArenaRendererProps = {
 
 export type UnitNode = {
     container: any;
+    silhouette: any;
     body: any;
     hpBack: any;
     hpFill: any;

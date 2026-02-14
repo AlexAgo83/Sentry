@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useMemo } from "react";
 import type { DungeonId, DungeonRunState, PlayerId, PlayerState } from "../../../../core/types";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../../../data/equipment";
 import { SkillIcon } from "../../../ui/skillIcons";
@@ -34,6 +35,19 @@ export const DungeonLiveView = ({
     const arenaStyle = {
         "--ts-dungeon-bg-image": `url("${dungeonBackgroundUrl}")`
     } as CSSProperties;
+    const liveEnemyUnits = useMemo(() => {
+        const frameEnemies = (liveFrame?.units ?? []).filter((unit) => unit.isEnemy);
+        if (frameEnemies.length > 0) {
+            return frameEnemies;
+        }
+        return activeRun.enemies.map((enemy) => ({
+            id: enemy.id,
+            name: enemy.name,
+            hp: enemy.hp,
+            hpMax: enemy.hpMax,
+            alive: enemy.hp > 0
+        }));
+    }, [activeRun.enemies, liveFrame?.units]);
 
     return (
         <div className="ts-dungeon-live-grid">
@@ -127,9 +141,9 @@ export const DungeonLiveView = ({
                         })}
                     </div>
                     <div className="ts-dungeon-live-party">
-                        {activeRun.enemies.map((enemy) => {
+                        {liveEnemyUnits.map((enemy) => {
                             const enemyDamage = liveDamageTotals.enemyTotals.get(enemy.id) ?? 0;
-                            const isDead = enemy.hp <= 0;
+                            const isDead = enemy.hp <= 0 || enemy.alive === false;
                             return (
                                 <div key={enemy.id} className={`ts-dungeon-live-entity ts-dungeon-live-entity-enemy${isDead ? " is-dead" : ""}`}>
                                     <strong>{enemy.name}</strong>
