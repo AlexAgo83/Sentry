@@ -18,6 +18,7 @@ import { useInventoryNewBadges } from "./hooks/useInventoryNewBadges";
 import { generateUniqueEnglishHeroNames } from "./ui/heroNames";
 import { StartupSplashScreen } from "./components/StartupSplashScreen";
 import { startSilentBackendWarmup } from "./backendWarmup";
+import { resolveAutoDungeonOpenDecision } from "./autoDungeonOpen";
 
 export const AppContainer = () => {
     useRenderCount("AppContainer");
@@ -132,15 +133,18 @@ export const AppContainer = () => {
     }, [isOnboardingOpen, onboardingHeroName]);
 
     useEffect(() => {
-        if (!isDungeonRunActive) {
-            setDidAutoOpenDungeon(false);
-            return;
+        const decision = resolveAutoDungeonOpenDecision({
+            isDungeonRunActive,
+            didAutoOpenDungeon,
+            activeScreen,
+            isOnboardingOpen
+        });
+        if (decision.nextDidAutoOpenDungeon !== didAutoOpenDungeon) {
+            setDidAutoOpenDungeon(decision.nextDidAutoOpenDungeon);
         }
-        if (didAutoOpenDungeon || isOnboardingOpen || activeScreen !== "main") {
-            return;
+        if (decision.shouldOpenDungeon) {
+            openDungeonScreen();
         }
-        openDungeonScreen();
-        setDidAutoOpenDungeon(true);
     }, [activeScreen, didAutoOpenDungeon, isDungeonRunActive, isOnboardingOpen, openDungeonScreen]);
 
     const handleOpenDungeonScreen = useCallback(() => {
