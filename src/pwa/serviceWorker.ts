@@ -106,6 +106,9 @@ const scheduleUpdateChecks = (registration: ServiceWorkerRegistration) => {
             update();
         }
     });
+    window.addEventListener("online", () => {
+        update();
+    });
     window.setInterval(update, 60 * 60 * 1000);
 };
 

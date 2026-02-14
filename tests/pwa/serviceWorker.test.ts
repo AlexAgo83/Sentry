@@ -183,7 +183,7 @@ describe("pwa service worker helpers", () => {
         vi.useRealTimers();
     });
 
-    it("registerServiceWorker schedules update checks (visibility + interval)", async () => {
+    it("registerServiceWorker schedules update checks (visibility + online + interval)", async () => {
         vi.useFakeTimers();
         vi.resetModules();
 
@@ -209,10 +209,11 @@ describe("pwa service worker helpers", () => {
 
         Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
         document.dispatchEvent(new Event("visibilitychange"));
+        window.dispatchEvent(new Event("online"));
 
         vi.advanceTimersByTime(60 * 60 * 1000);
 
-        expect(update).toHaveBeenCalled();
+        expect(update).toHaveBeenCalledTimes(3);
 
         vi.useRealTimers();
     });
