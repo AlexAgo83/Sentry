@@ -29,6 +29,7 @@ describe("changelog API", () => {
         process.env.REFRESH_TOKEN_TTL_DAYS = "30";
         process.env.GITHUB_OWNER = "AlexAgo83";
         process.env.GITHUB_REPO = "Sentry";
+        process.env.GITHUB_TOKEN = "";
     });
 
     afterEach(() => {
@@ -85,6 +86,7 @@ describe("changelog API", () => {
     });
 
     it("works without token and returns rate-limit mapping", async () => {
+        process.env.GITHUB_TOKEN = "";
         const fetchMock = vi.fn().mockResolvedValue(new Response(
             JSON.stringify({ message: "API rate limit exceeded for 1.2.3.4." }),
             {
@@ -118,8 +120,8 @@ describe("changelog API", () => {
     });
 
     it("returns stable errors for missing config and upstream failures", async () => {
-        delete process.env.GITHUB_OWNER;
-        delete process.env.GITHUB_REPO;
+        process.env.GITHUB_OWNER = "";
+        process.env.GITHUB_REPO = "";
 
         const { buildServer } = await loadServer();
         const app = buildServer({ logger: false });
