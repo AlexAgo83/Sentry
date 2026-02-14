@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CrashReport } from "../../src/observability/crashReporter";
 import { SystemModal } from "../../src/app/components/SystemModal";
@@ -109,8 +109,13 @@ describe("SystemModal", () => {
         }
     });
 
-    it("opens crash reports modal and clears entries", () => {
+    it("opens crash reports modal and clears entries", async () => {
         const props = baseProps();
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        Object.defineProperty(navigator, "clipboard", {
+            configurable: true,
+            value: { writeText }
+        });
         props.crashReports = [
             {
                 id: "a",
@@ -133,6 +138,15 @@ describe("SystemModal", () => {
         expect(screen.getByRole("heading", { name: "Crash reports" })).toBeTruthy();
         expect(screen.getByText("[error] Boom")).toBeTruthy();
         expect(screen.getByText("[unhandledrejection] Nope")).toBeTruthy();
+        fireEvent.click(screen.getByRole("button", { name: "Copy crash logs" }));
+        expect(writeText).toHaveBeenCalledTimes(1);
+        expect(writeText.mock.calls[0]?.[0]).toContain("message: Boom");
+        expect(writeText.mock.calls[0]?.[0]).toContain("stack:");
+        expect(writeText.mock.calls[0]?.[0]).toContain("message: Nope");
+
+        await waitFor(() => {
+            expect(screen.getByTestId("crash-copy-feedback")).toBeTruthy();
+        });
 
         fireEvent.click(screen.getByRole("button", { name: "Clear crash reports" }));
         expect(props.onClearCrashReports).toHaveBeenCalledTimes(1);
