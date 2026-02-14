@@ -1,6 +1,6 @@
 {
   "name": "sentry",
-  "version": "0.9.26",
+  "version": "0.9.27",
   "description": "Sentry Idle",
   "scripts": {
     "dev": "vite --debug",
