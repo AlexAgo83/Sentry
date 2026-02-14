@@ -212,18 +212,40 @@
 
 .ts-graphics-setting-row {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: var(--m6);
     padding: var(--m4) var(--m5);
-    border: 1px solid rgba(93, 217, 193, 0.2);
+    border: 1px solid rgba(93, 217, 193, 0.24);
     border-radius: 14px;
-    background: rgba(10, 16, 28, 0.55);
+    background:
+        linear-gradient(120deg, rgba(9, 16, 30, 0.88), rgba(5, 12, 26, 0.88)),
+        rgba(8, 14, 28, 0.6);
+    box-shadow: inset 0 0 0 1px rgba(93, 217, 193, 0.06);
     cursor: pointer;
+    transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.ts-graphics-setting-row:hover {
+    border-color: rgba(93, 217, 193, 0.42);
+    box-shadow:
+        inset 0 0 0 1px rgba(93, 217, 193, 0.12),
+        0 8px 22px -18px rgba(93, 217, 193, 0.55);
+}
+
+.ts-graphics-setting-row.is-enabled {
+    border-color: rgba(93, 217, 193, 0.46);
+    background:
+        linear-gradient(120deg, rgba(12, 26, 38, 0.9), rgba(6, 16, 30, 0.9)),
+        rgba(8, 14, 28, 0.7);
+}
+
+.ts-graphics-setting-row.is-disabled {
+    opacity: 0.72;
 }
 
 .ts-graphics-settings-list {
-    gap: var(--m6);
+    gap: var(--m8);
 }
 
 .ts-graphics-settings-entry {
@@ -237,6 +259,13 @@
     min-width: 0;
 }
 
+.ts-graphics-setting-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--m5);
+}
+
 .ts-graphics-setting-title {
     font-size: var(--text-s-size);
     letter-spacing: 0.08em;
@@ -245,19 +274,96 @@
     color: var(--color-text);
 }
 
+.ts-graphics-setting-state {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    padding: 2px var(--m2);
+    border-radius: 999px;
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid rgba(162, 175, 198, 0.35);
+    color: rgba(223, 230, 239, 0.88);
+    background: rgba(9, 15, 27, 0.7);
+    flex-shrink: 0;
+    margin-left: var(--m4);
+}
+
+.ts-graphics-setting-state.is-on {
+    border-color: rgba(93, 217, 193, 0.55);
+    color: rgba(93, 217, 193, 0.98);
+}
+
+.ts-graphics-setting-state.is-off {
+    border-color: rgba(162, 175, 198, 0.38);
+    color: rgba(218, 224, 233, 0.82);
+}
+
+.ts-graphics-setting-state.is-locked {
+    border-color: rgba(242, 193, 78, 0.52);
+    color: rgba(242, 193, 78, 0.96);
+}
+
 .ts-graphics-setting-helper {
     line-height: 1.4;
     max-width: 56ch;
 }
 
 .ts-graphics-setting-toggle {
-    width: 22px;
-    height: 22px;
+    appearance: none;
+    width: 48px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(162, 175, 198, 0.4);
+    background: rgba(18, 24, 39, 0.85);
+    box-shadow: inset 0 0 0 1px rgba(162, 175, 198, 0.08);
+    position: relative;
     margin-top: 0;
     align-self: center;
     flex-shrink: 0;
-    accent-color: rgba(93, 217, 193, 0.95);
+    transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
     cursor: pointer;
+}
+
+.ts-graphics-setting-toggle::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    background: rgba(220, 226, 236, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    transition: transform 140ms ease, background-color 120ms ease;
+}
+
+.ts-graphics-setting-toggle:checked {
+    border-color: rgba(93, 217, 193, 0.56);
+    background: rgba(22, 77, 90, 0.78);
+    box-shadow: inset 0 0 0 1px rgba(93, 217, 193, 0.22);
+}
+
+.ts-graphics-setting-toggle:checked::before {
+    transform: translateX(20px);
+    background: rgba(178, 251, 236, 0.98);
+}
+
+.ts-graphics-setting-toggle:focus-visible {
+    outline: 2px solid rgba(93, 217, 193, 0.65);
+    outline-offset: 2px;
+}
+
+.ts-graphics-setting-toggle:disabled {
+    border-color: rgba(162, 175, 198, 0.24);
+    background: rgba(16, 22, 36, 0.62);
+    cursor: not-allowed;
+}
+
+.ts-graphics-setting-toggle:disabled::before {
+    background: rgba(169, 177, 189, 0.82);
 }
 
 .ts-telemetry-grid {
