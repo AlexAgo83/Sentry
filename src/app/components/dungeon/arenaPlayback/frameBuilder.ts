@@ -8,6 +8,7 @@ import {
     getReplayJumpMarksFromEvents,
     inferEnemyHpCap,
     isPartyEntity,
+    parseHpSnapshotFromLabel,
     toSortedEntities,
     toUnitPositionMap
 } from "./helpers";
@@ -44,8 +45,8 @@ const buildFrameFromEvents = ({
     overrideStatusLabel
 }: BuildFrameInput): DungeonArenaFrame => {
     const partyIds = new Set(partySeeds.map((seed) => seed.id));
-    const enemyHpCaps = inferEnemyHpCap(events, partyIds);
     const scopedEvents = getReplayEventsUntil(events, atMs);
+    const enemyHpCaps = inferEnemyHpCap(scopedEvents, partyIds);
     const states: Record<string, ArenaEntityState> = {};
     let spawnOrder = 0;
     let floorLabel: string | null = null;
@@ -118,6 +119,19 @@ const buildFrameFromEvents = ({
         }
 
         if (event.type === "attack") {
+            if (event.targetId) {
+                const hpSnapshot = parseHpSnapshotFromLabel(event.label);
+                if (hpSnapshot) {
+                    const target = isPartyEntity(partyIds, event.targetId)
+                        ? states[event.targetId]
+                        : ensureEnemy(event.targetId);
+                    if (target) {
+                        target.hpMax = hpSnapshot.hpMax;
+                        target.hp = clamp(hpSnapshot.hp, 0, target.hpMax);
+                        target.alive = target.hp > 0;
+                    }
+                }
+            }
             if (event.sourceId && event.targetId) {
                 latestAttacks.set(event.sourceId, {
                     sourceId: event.sourceId,
@@ -137,7 +151,13 @@ const buildFrameFromEvents = ({
             if (!entity) {
                 return;
             }
-            entity.hp = Math.max(0, entity.hp - Math.max(0, Math.round(event.amount ?? 0)));
+            const hpSnapshot = parseHpSnapshotFromLabel(event.label);
+            if (hpSnapshot) {
+                entity.hpMax = hpSnapshot.hpMax;
+                entity.hp = clamp(hpSnapshot.hp, 0, entity.hpMax);
+            } else {
+                entity.hp = Math.max(0, entity.hp - Math.max(0, Math.round(event.amount ?? 0)));
+            }
             entity.alive = entity.hp > 0;
             return;
         }

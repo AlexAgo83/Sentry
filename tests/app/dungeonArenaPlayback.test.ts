@@ -118,4 +118,61 @@ describe("dungeon arena playback", () => {
         expect(heroBefore?.hp).toBeLessThan(heroAfter?.hp ?? 0);
         expect(getDungeonReplayJumpMarks(replay)).toEqual({ firstDeathAtMs: 900, runEndAtMs: 1_200 });
     });
+
+    it("uses hp snapshots from labels so enemy hp does not jump from future events", () => {
+        const state = createInitialGameState("0.9.0");
+        const run: DungeonRunState = {
+            id: "run-live-hp",
+            dungeonId: "dungeon_ruines_humides",
+            status: "running",
+            endReason: null,
+            startedAt: 1_000,
+            elapsedMs: 1_200,
+            stepCarryMs: 0,
+            encounterStep: 12,
+            floor: 1,
+            floorCount: 10,
+            party: [
+                { playerId: "1", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 0, magicHealCooldownMs: 0 },
+                { playerId: "2", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 0, magicHealCooldownMs: 0 },
+                { playerId: "3", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 0, magicHealCooldownMs: 0 },
+                { playerId: "4", hp: 100, hpMax: 100, potionCooldownMs: 0, attackCooldownMs: 0, magicHealCooldownMs: 0 }
+            ],
+            enemies: [
+                {
+                    id: "entity_1_1_1",
+                    name: "Crawler",
+                    hp: 80,
+                    hpMax: 100,
+                    damage: 10,
+                    isBoss: false,
+                    mechanic: null,
+                    spawnIndex: 0
+                }
+            ],
+            targetEnemyId: "entity_1_1_1",
+            targetHeroId: null,
+            autoRestart: false,
+            restartAt: null,
+            runIndex: 1,
+            startInventory: { food: 10, tonic: 0, elixir: 0, potion: 0 },
+            seed: 1,
+            events: [
+                { atMs: 0, type: "floor_start", label: "Floor 1" },
+                { atMs: 0, type: "spawn", sourceId: "entity_1_1_1", label: "Crawler" },
+                { atMs: 100, type: "damage", sourceId: "1", targetId: "entity_1_1_1", amount: 10, label: "Crawler -10 (HP 90/100)" },
+                { atMs: 1_000, type: "damage", sourceId: "1", targetId: "entity_1_1_1", amount: 10, label: "Crawler -10 (HP 80/100)" }
+            ],
+            cadenceSnapshot: [],
+            truncatedEvents: 0,
+            nonCriticalEventCount: 0,
+            threatByHeroId: { "1": 0, "2": 0, "3": 0, "4": 0 },
+            threatTieOrder: ["1", "2", "3", "4"]
+        };
+
+        const earlyFrame = buildDungeonArenaLiveFrame(run, state.players, 150);
+        const earlyEnemy = earlyFrame.units.find((unit) => unit.id === "entity_1_1_1");
+        expect(earlyEnemy?.hpMax).toBe(100);
+        expect(earlyEnemy?.hp).toBe(90);
+    });
 });

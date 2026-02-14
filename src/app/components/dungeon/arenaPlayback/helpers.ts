@@ -12,6 +12,8 @@ import type {
     PlayerState
 } from "./types";
 
+const HP_LABEL_PATTERN = /\(HP\s+(\d+)\s*\/\s*(\d+)\)/i;
+
 export const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 export const normalizeHpMax = (value: number | undefined) => {
@@ -154,6 +156,25 @@ export const inferEnemyHpCap = (
         caps[id] = normalizeHpMax(Math.max(60, scaled));
     });
     return caps;
+};
+
+export const parseHpSnapshotFromLabel = (label?: string): { hp: number; hpMax: number } | null => {
+    if (typeof label !== "string" || label.length === 0) {
+        return null;
+    }
+    const match = label.match(HP_LABEL_PATTERN);
+    if (!match) {
+        return null;
+    }
+    const hp = Number(match[1]);
+    const hpMax = Number(match[2]);
+    if (!Number.isFinite(hp) || !Number.isFinite(hpMax) || hpMax <= 0) {
+        return null;
+    }
+    return {
+        hp: clamp(Math.round(hp), 0, Math.round(hpMax)),
+        hpMax: normalizeHpMax(hpMax)
+    };
 };
 
 export const buildFloatingTexts = (
