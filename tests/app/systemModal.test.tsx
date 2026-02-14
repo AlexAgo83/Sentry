@@ -17,7 +17,6 @@ const baseProps = () => ({
     loopInterval: 250,
     offlineInterval: 500,
     virtualScore: 128,
-    activeActionLabel: "none",
     actionJournal: [],
     crashReports: [] as CrashReport[],
     onExportSave: vi.fn().mockResolvedValue("clipboard"),
@@ -70,14 +69,21 @@ describe("SystemModal", () => {
         expect(screen.getByText("Tick")).toBeTruthy();
         expect(screen.getByText("Drift")).toBeTruthy();
         expect(screen.getByText("Loop")).toBeTruthy();
+        expect(screen.getByText("Backend")).toBeTruthy();
         expect(screen.getByText("Last Tick")).toBeTruthy();
         expect(screen.getByText("v0.8.0")).toBeTruthy();
-        expect(screen.getByText("none")).toBeTruthy();
+        expect(screen.getByText("Response time")).toBeTruthy();
         expect(screen.getByText("128")).toBeTruthy();
         expect(screen.getByText("250ms")).toBeTruthy();
         expect(screen.getByText("4.20ms")).toBeTruthy();
         expect(screen.getByText("0 ticks / 0ms")).toBeTruthy();
         expect(screen.getByText("1970-01-01T00:00:00.123Z")).toBeTruthy();
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
+
+        fireEvent.click(screen.getByRole("button", { name: "Graphics" }));
+        expect(screen.getByRole("heading", { name: "Graphics" })).toBeTruthy();
+        expect(screen.getByText("Graphics settings will be available soon.")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 

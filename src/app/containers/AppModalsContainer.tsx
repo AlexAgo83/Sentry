@@ -153,7 +153,6 @@ export const AppModalsContainer = ({
             {isSystemOpen ? (
                 <SystemModalContainer
                     version={version}
-                    getSkillLabel={getSkillLabel}
                     crashReports={crashReports}
                     onExportSave={onExportSave}
                     onImportSave={onImportSave}

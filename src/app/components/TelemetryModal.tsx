@@ -1,5 +1,6 @@
-import { memo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { ModalShell } from "./ModalShell";
+import { cloudClient } from "../api/cloudClient";
 
 type TelemetryModalProps = {
     version: string;
@@ -15,13 +16,14 @@ type TelemetryModalProps = {
     loopInterval: number;
     offlineInterval: number;
     virtualScore: number;
-    activeActionLabel: string;
     crashCount: number;
     onClose: () => void;
     closeLabel?: string;
 };
 
 type TelemetryLevel = "healthy" | "warning" | "critical";
+type TelemetryTone = TelemetryLevel | "neutral";
+type BackendState = "disabled" | "checking" | "online" | "offline" | "degraded";
 
 const formatMs = (value: number, options?: { decimals?: number; plus?: boolean }) => {
     const decimals = options?.decimals ?? 0;
@@ -52,6 +54,22 @@ const resolveLevelLabel = (level: TelemetryLevel): string => {
         return "Warning";
     }
     return "Healthy";
+};
+
+const resolveBackendBadge = (state: BackendState): { label: string; tone: TelemetryTone } => {
+    if (state === "online") {
+        return { label: "Online", tone: "healthy" };
+    }
+    if (state === "degraded") {
+        return { label: "Degraded", tone: "warning" };
+    }
+    if (state === "offline") {
+        return { label: "Offline", tone: "critical" };
+    }
+    if (state === "checking") {
+        return { label: "Checking", tone: "neutral" };
+    }
+    return { label: "Disabled", tone: "neutral" };
 };
 
 const formatRelativeTime = (timestamp: number | null): string => {
@@ -93,11 +111,94 @@ export const TelemetryModal = memo(({
     loopInterval,
     offlineInterval,
     virtualScore,
-    activeActionLabel,
     crashCount,
     onClose,
     closeLabel
 }: TelemetryModalProps) => {
+    const backendBase = useMemo(() => {
+        const base = cloudClient.getApiBase()?.trim() ?? "";
+        return base.replace(/\/+$/u, "");
+    }, []);
+    const [backendState, setBackendState] = useState<BackendState>(() => {
+        if (!backendBase) {
+            return "disabled";
+        }
+        if (typeof navigator !== "undefined" && navigator.onLine === false) {
+            return "offline";
+        }
+        return "checking";
+    });
+    const [backendLatencyMs, setBackendLatencyMs] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!backendBase || typeof fetch !== "function") {
+            return;
+        }
+        let active = true;
+        const healthUrl = `${backendBase}/health`;
+
+        const probe = async () => {
+            if (!active) {
+                return;
+            }
+            if (typeof navigator !== "undefined" && navigator.onLine === false) {
+                setBackendState("offline");
+                setBackendLatencyMs(null);
+                return;
+            }
+            setBackendState((current) => (current === "online" ? current : "checking"));
+            try {
+                const startedAt = Date.now();
+                const response = await fetch(healthUrl, {
+                    method: "GET",
+                    credentials: "omit",
+                    cache: "no-store"
+                });
+                if (!active) {
+                    return;
+                }
+                const latencyMs = Math.max(0, Date.now() - startedAt);
+                setBackendLatencyMs(latencyMs);
+                if (response.ok) {
+                    setBackendState("online");
+                    return;
+                }
+                if (response.status >= 500) {
+                    setBackendState("degraded");
+                    return;
+                }
+                setBackendState("offline");
+            } catch {
+                if (active) {
+                    setBackendState("offline");
+                    setBackendLatencyMs(null);
+                }
+            }
+        };
+
+        const handleOnline = () => {
+            void probe();
+        };
+        const handleOffline = () => {
+            setBackendState("offline");
+            setBackendLatencyMs(null);
+        };
+
+        void probe();
+        const intervalId = window.setInterval(() => {
+            void probe();
+        }, 30_000);
+        window.addEventListener("online", handleOnline);
+        window.addEventListener("offline", handleOffline);
+
+        return () => {
+            active = false;
+            window.clearInterval(intervalId);
+            window.removeEventListener("online", handleOnline);
+            window.removeEventListener("offline", handleOffline);
+        };
+    }, [backendBase]);
+
     const lastTickIso = lastTick !== null ? new Date(lastTick).toISOString() : null;
     const tickBudgetMs = Math.max(1, loopInterval);
     const tickBudgetUsage = (lastTickDurationMs / tickBudgetMs) * 100;
@@ -109,6 +210,9 @@ export const TelemetryModal = memo(({
     const driftLevel: TelemetryLevel = driftAbs >= 12 ? "critical" : driftAbs >= 4 ? "warning" : "healthy";
     const catchUpLevel: TelemetryLevel = lastOfflineDurationMs >= 5000 ? "critical" : catchUpBurst ? "warning" : "healthy";
     const relativeTick = formatRelativeTime(lastTick);
+    const backendBadge = resolveBackendBadge(backendState);
+    const backendLatencyLabel = backendLatencyMs !== null ? `${backendLatencyMs}ms` : "--";
+    const backendHealthLabel = backendBase ? `${backendBase}/health` : "Not configured";
 
     return (
         <ModalShell kicker="System" title="Telemetry" onClose={onClose} closeLabel={closeLabel}>
@@ -121,7 +225,6 @@ export const TelemetryModal = memo(({
                     </header>
                     <dl className="ts-telemetry-kv">
                         <div className="ts-telemetry-row"><dt>Version</dt><dd>v{version}</dd></div>
-                        <div className="ts-telemetry-row"><dt>Action</dt><dd>{activeActionLabel}</dd></div>
                         <div className="ts-telemetry-row"><dt>Crashes</dt><dd>{crashCount}</dd></div>
                         <div className="ts-telemetry-row"><dt>Virtual score</dt><dd>{virtualScore}</dd></div>
                     </dl>
@@ -165,8 +268,19 @@ export const TelemetryModal = memo(({
 
                 <section className="ts-telemetry-card">
                     <header className="ts-telemetry-card-header">
+                        <h3 className="ts-telemetry-card-title">Backend</h3>
+                        <span className={`ts-telemetry-state is-${backendBadge.tone}`}>{backendBadge.label}</span>
+                    </header>
+                    <dl className="ts-telemetry-kv">
+                        <div className="ts-telemetry-row"><dt>Response time</dt><dd>{backendLatencyLabel}</dd></div>
+                        <div className="ts-telemetry-row"><dt>Health URL</dt><dd>{backendHealthLabel}</dd></div>
+                    </dl>
+                </section>
+
+                <section className="ts-telemetry-card">
+                    <header className="ts-telemetry-card-header">
                         <h3 className="ts-telemetry-card-title">Last Tick</h3>
-                        <span className="ts-telemetry-state is-neutral">{lastTickIso ? "Online" : "Pending"}</span>
+                        <span className="ts-telemetry-state is-neutral">{lastTickIso ? "Received" : "Pending"}</span>
                     </header>
                     <dl className="ts-telemetry-kv">
                         <div className="ts-telemetry-row"><dt>Relative</dt><dd>{relativeTick}</dd></div>

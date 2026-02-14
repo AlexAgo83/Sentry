@@ -1,13 +1,11 @@
 import { useMemo } from "react";
 import type { CrashReport } from "../../observability/crashReporter";
-import type { SkillId } from "../../core/types";
 import { SystemModal } from "../components/SystemModal";
 import { useGameStore } from "../hooks/useGameStore";
-import { selectActivePlayer, selectVirtualScore } from "../selectors/gameSelectors";
+import { selectVirtualScore } from "../selectors/gameSelectors";
 
 export interface SystemModalContainerProps {
     version: string;
-    getSkillLabel: (skillId: SkillId | "") => string;
     crashReports: CrashReport[];
     onExportSave: () => void | Promise<"clipboard" | "prompt">;
     onImportSave: () => void;
@@ -22,7 +20,6 @@ export interface SystemModalContainerProps {
 export const SystemModalContainer = (props: SystemModalContainerProps) => {
     const perf = useGameStore((state) => state.perf);
     const loop = useGameStore((state) => state.loop);
-    const activePlayer = useGameStore(selectActivePlayer);
     const virtualScore = useGameStore(selectVirtualScore);
     const actionJournal = useGameStore((state) => state.actionJournal);
 
@@ -47,9 +44,6 @@ export const SystemModalContainer = (props: SystemModalContainerProps) => {
             loopInterval={loop.loopInterval}
             offlineInterval={loop.offlineInterval}
             virtualScore={virtualScore}
-            activeActionLabel={activePlayer?.selectedActionId
-                ? props.getSkillLabel(activePlayer.selectedActionId as SkillId)
-                : "none"}
             actionJournal={actionJournal}
             crashReports={props.crashReports}
             onExportSave={props.onExportSave}

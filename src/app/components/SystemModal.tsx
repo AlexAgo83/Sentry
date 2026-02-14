@@ -3,6 +3,7 @@ import { ActionJournalModal } from "./ActionJournalModal";
 import { CloudSaveModal } from "./CloudSaveModal";
 import { CrashReportsModal } from "./CrashReportsModal";
 import { DevToolsModal } from "./DevToolsModal";
+import { GraphicsModal } from "./GraphicsModal";
 import { LocalSaveModal } from "./LocalSaveModal";
 import { ModalShell } from "./ModalShell";
 import { SaveOptionsModal } from "./SaveOptionsModal";
@@ -15,6 +16,7 @@ type SystemModalView =
     | "settings"
     | "actionJournal"
     | "telemetry"
+    | "graphics"
     | "saveOptions"
     | "localSave"
     | "cloudSave"
@@ -35,7 +37,6 @@ type SystemModalProps = {
     loopInterval: number;
     offlineInterval: number;
     virtualScore: number;
-    activeActionLabel: string;
     actionJournal: ActionJournalEntry[];
     crashReports: CrashReport[];
     onExportSave: () => void | Promise<SaveCopyResult>;
@@ -62,7 +63,6 @@ export const SystemModal = memo(({
     loopInterval,
     offlineInterval,
     virtualScore,
-    activeActionLabel,
     actionJournal,
     crashReports,
     onExportSave,
@@ -117,12 +117,15 @@ export const SystemModal = memo(({
                 loopInterval={loopInterval}
                 offlineInterval={offlineInterval}
                 virtualScore={virtualScore}
-                activeActionLabel={activeActionLabel}
                 crashCount={crashReports.length}
                 onClose={closeCurrentView}
                 closeLabel="Back"
             />
         );
+    }
+
+    if (currentView === "graphics") {
+        return <GraphicsModal onClose={closeCurrentView} closeLabel="Back" />;
     }
 
     if (currentView === "saveOptions") {
@@ -199,6 +202,18 @@ export const SystemModal = memo(({
                             data-testid="open-telemetry"
                         >
                             Telemetry
+                        </button>
+                    </div>
+                </div>
+                <div className="ts-system-entry">
+                    <div className="ts-action-row">
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={() => openView("graphics")}
+                            data-testid="open-graphics"
+                        >
+                            Graphics
                         </button>
                     </div>
                 </div>
