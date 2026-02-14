@@ -14,8 +14,9 @@ export const MIN_STAMINA_COST = 1;
 export const DEFAULT_STAMINA_REGEN = 1;
 export const DEFAULT_ROSTER_LIMIT = 1;
 export const MAX_ROSTER_LIMIT = 20;
+export const ROSTER_SLOT_FREE_SLOTS = 4;
 export const ROSTER_SLOT_COST_BASE = 10000;
-export const ROSTER_SLOT_COST_GROWTH = 5;
+export const ROSTER_SLOT_COST_GROWTH = 2.5;
 
 export const LOOP_INTERVAL = 250;
 export const OFFLINE_INTERVAL = 500;

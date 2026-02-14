@@ -19,11 +19,12 @@ describe("economy", () => {
         expect(bladeValue).toBeGreaterThan(clothCapValue);
     });
 
-    it("scales roster slot costs exponentially from a higher base", () => {
+    it("keeps early slots affordable and then scales roster slot costs exponentially", () => {
         expect(getRosterSlotCost(1)).toBe(10000);
-        expect(getRosterSlotCost(2)).toBe(50000);
-        expect(getRosterSlotCost(3)).toBe(250000);
-        expect(getRosterSlotCost(4)).toBe(1250000);
-        expect(getRosterSlotCost(5)).toBe(6250000);
+        expect(getRosterSlotCost(2)).toBe(10000);
+        expect(getRosterSlotCost(3)).toBe(10000);
+        expect(getRosterSlotCost(4)).toBe(10000);
+        expect(getRosterSlotCost(5)).toBe(25000);
+        expect(getRosterSlotCost(6)).toBe(62500);
     });
 });
