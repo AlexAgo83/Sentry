@@ -27,13 +27,16 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
         fill: 0xf5d18b,
         fontSize: 14,
         fontFamily: "monospace",
-        fontWeight: "700"
+        fontWeight: "700",
+        stroke: 0x000000,
+        strokeThickness: 4,
+        lineJoin: "round"
     });
     phaseLabel.anchor.set(0.5, 0.5);
     phaseLabel.visible = false;
     world.addChild(arena);
-    world.addChild(phaseLabel);
     app.stage.addChild(world);
+    app.stage.addChild(phaseLabel);
 
     let resizeObserver: ResizeObserver | null = null;
     if ("ResizeObserver" in window) {

@@ -10,7 +10,6 @@ import {
     MAGIC_PULSE_MS,
     MAGIC_PULSE_OFFSET_Y,
     MAX_FLOAT_POOL,
-    PHASE_LABEL_Y,
     WORLD_HEIGHT,
     WORLD_WIDTH
 } from "./constants";
@@ -30,6 +29,10 @@ import type { PixiRuntime } from "./types";
 export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     const viewportWidth = runtime.app.screen?.width ?? runtime.app.renderer.width;
     const viewportHeight = runtime.app.screen?.height ?? runtime.app.renderer.height;
+    if (runtime.phaseLabel.parent !== runtime.app.stage) {
+        runtime.phaseLabel.parent?.removeChild(runtime.phaseLabel);
+        runtime.app.stage.addChild(runtime.phaseLabel);
+    }
     drawArena(runtime.arena);
 
     const unitById = new Map(frame.units.map((unit) => [unit.id, unit]));
@@ -259,9 +262,10 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     });
     idsToRelease.forEach((id) => runtime.floatingById.delete(id));
 
-    runtime.phaseLabel.visible = Boolean(frame.bossPhaseLabel);
-    runtime.phaseLabel.text = frame.bossPhaseLabel ?? "";
-    runtime.phaseLabel.position.set(WORLD_WIDTH / 2, PHASE_LABEL_Y);
+    const overlayLabel = frame.bossPhaseLabel ?? frame.floorLabel ?? "";
+    runtime.phaseLabel.visible = overlayLabel.length > 0;
+    runtime.phaseLabel.text = overlayLabel;
+    runtime.phaseLabel.position.set(viewportWidth / 2, viewportHeight / 2);
 
     runtime.world.scale.set(getAutoFitScale(viewportWidth, viewportHeight, frame.units));
     runtime.world.pivot.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
