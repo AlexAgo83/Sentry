@@ -89,28 +89,33 @@ test("cloud auth, upload, download, conflict", async ({ page }) => {
         await route.fallback();
     });
 
-    await page.route("**/api/v1/profile", async (route) => {
+    await page.route("**/api/v1/users/me/profile", async (route) => {
         const method = route.request().method();
         if (method === "GET") {
             await route.fulfill({
                 status: 200,
                 contentType: "application/json",
-                body: JSON.stringify({
+                body: JSON.stringify({ profile: {
                     email: "e2e@example.com",
-                    username: "E2EPlayer"
-                })
+                    username: "E2EPlayer",
+                    maskedEmail: "e2e@example.com",
+                    displayName: "E2EPlayer"
+                } })
             });
             return;
         }
-        if (method === "PUT") {
+        if (method === "PATCH") {
             const requestBody = route.request().postDataJSON() as { username?: string | null };
+            const nextUsername = requestBody?.username ?? null;
             await route.fulfill({
                 status: 200,
                 contentType: "application/json",
-                body: JSON.stringify({
+                body: JSON.stringify({ profile: {
                     email: "e2e@example.com",
-                    username: requestBody?.username ?? null
-                })
+                    username: nextUsername,
+                    maskedEmail: "e2e@example.com",
+                    displayName: nextUsername || "e2e@example.com"
+                } })
             });
             return;
         }
