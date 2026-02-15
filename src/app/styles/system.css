@@ -974,6 +974,14 @@
     margin-top: var(--m2);
 }
 
+.ts-system-cloud-status-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--m4);
+}
+
 .ts-system-cloud-badge {
     font-size: var(--text-xs-size);
     letter-spacing: 0.12em;

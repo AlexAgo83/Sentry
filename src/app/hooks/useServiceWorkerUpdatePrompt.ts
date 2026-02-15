@@ -14,7 +14,16 @@ export const useServiceWorkerUpdatePrompt = () => {
             if (ignoredSwVersion === detail.version) {
                 return;
             }
-            setSwUpdate((prev) => prev ?? detail);
+            // Prefer the latest version if multiple update events arrive.
+            setSwUpdate((prev) => {
+                if (!prev) {
+                    return detail;
+                }
+                if (prev.version === detail.version) {
+                    return prev;
+                }
+                return detail;
+            });
         });
     }, [ignoredSwVersion]);
 

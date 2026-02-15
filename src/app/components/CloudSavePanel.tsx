@@ -133,6 +133,13 @@ export const CloudSavePanel = memo(({
         : "is-online";
     const lastSyncLabel = formatTimeAgo(lastSyncAt);
     const lastSyncTitle = lastSyncAt ? lastSyncAt.toLocaleString() : "Never";
+    const inlineSyncStatusRow = Boolean(
+        isAuthenticated
+        && statusMessage
+        && !isErrorMessage
+        && !backendUnavailable
+        && status !== "authenticating"
+    );
     const localDateValue = localMeta.updatedAt?.getTime() ?? null;
     const cloudDateValue = cloudMeta?.updatedAt?.getTime() ?? null;
     const dateComparison = localDateValue !== null && cloudDateValue !== null
@@ -295,8 +302,15 @@ export const CloudSavePanel = memo(({
                 </>
             )}
             {statusMessage ? (
-                <div className="ts-system-cloud-status">
-                    {isErrorMessage ? (
+                <div className={`ts-system-cloud-status${inlineSyncStatusRow ? " ts-system-cloud-status-row" : ""}`}>
+                    {inlineSyncStatusRow ? (
+                        <span>
+                            {statusMessage}{" "}
+                            <span className="ts-system-cloud-sync" title={lastSyncTitle}>
+                                Last sync: {lastSyncLabel}
+                            </span>
+                        </span>
+                    ) : isErrorMessage ? (
                         <span className="ts-system-cloud-error">{statusMessage}</span>
                     ) : (
                         <span>{statusMessage}</span>
@@ -318,9 +332,11 @@ export const CloudSavePanel = memo(({
             ) : null}
             {isAuthenticated ? (
                 <>
-                    <div className="ts-system-cloud-sync" title={lastSyncTitle}>
-                        Last sync: {lastSyncLabel}
-                    </div>
+                    {!inlineSyncStatusRow ? (
+                        <div className="ts-system-cloud-sync" title={lastSyncTitle}>
+                            Last sync: {lastSyncLabel}
+                        </div>
+                    ) : null}
                     <div className="ts-system-cloud-diff">
                         <div
                             className="ts-system-cloud-diff-row ts-system-cloud-diff-header"
