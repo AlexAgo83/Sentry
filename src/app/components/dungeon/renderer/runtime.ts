@@ -38,6 +38,10 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
         rangedProjectile: PIXI.Texture.from(assetUrl("assets/vfx/ranged_projectile.svg")),
         magicOrb: PIXI.Texture.from(assetUrl("assets/vfx/magic_orb.svg"))
     };
+    const entityTextures = {
+        enemyMob: PIXI.Texture.from(assetUrl("assets/entities/enemy_mob.svg")),
+        enemyBoss: PIXI.Texture.from(assetUrl("assets/entities/enemy_boss.svg"))
+    };
     const phaseLabel = new PIXI.Text("", {
         fill: 0xf5d18b,
         fontSize: 14,
@@ -75,6 +79,7 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
         arena,
         vfxLayer,
         vfxTextures,
+        entityTextures,
         phaseLabel,
         unitNodes: new Map(),
         floatingPool: [],

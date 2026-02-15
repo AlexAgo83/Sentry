@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-48 -48 96 96">
+  <!-- Boss icon as a standalone SVG (bigger silhouette + crown/horns). -->
+  <g stroke="#12090a" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- body -->
+    <rect x="-26" y="-22" width="52" height="44" rx="12" fill="#b02f2f"/>
+
+    <!-- crown / spikes -->
+    <path d="M -22 -22 L -10 -38 L 0 -22 L 10 -38 L 22 -22 L 22 -12 L -22 -12 Z" fill="#ea6f5f"/>
+
+    <!-- side fins -->
+    <path d="M -26 -6 L -38 0 L -26 6 Z" fill="#ea6f5f"/>
+    <path d="M 26 -6 L 38 0 L 26 6 Z" fill="#ea6f5f"/>
+
+    <!-- face plate -->
+    <circle cx="0" cy="4" r="8" fill="#f7d27c" stroke="none"/>
+
+    <!-- eyes -->
+    <circle cx="-9" cy="-6" r="2.6" fill="#1a1f2e" stroke="none"/>
+    <circle cx="9" cy="-6" r="2.6" fill="#1a1f2e" stroke="none"/>
+  </g>
+</svg>
+

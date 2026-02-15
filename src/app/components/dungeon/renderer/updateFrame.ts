@@ -30,7 +30,6 @@ import {
     drawArena,
     drawAttackCharge,
     drawCombatTypeIcon,
-    drawEnemyBody,
     drawHeroBody,
     drawHp,
     drawTargetAndDeath,
@@ -202,8 +201,26 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         node.lastHp = unit.hp;
 
         if (unit.isEnemy) {
-            drawEnemyBody(node, unit);
+            // Enemies are rendered from standalone SVG assets (mob/boss).
+            node.body.clear();
+            node.body.visible = false;
+            node.silhouette.clear();
+            node.silhouette.visible = false;
+            if (node.enemySprite) {
+                node.enemySprite.visible = true;
+                node.enemySprite.texture = unit.isBoss ? runtime.entityTextures.enemyBoss : runtime.entityTextures.enemyMob;
+                // Match the approximate footprint of the previous Graphics icons.
+                const scale = unit.isBoss ? 1.0 : 0.85;
+                node.enemySprite.scale.set(scale);
+                node.enemySprite.alpha = unit.alive ? 1 : 0.5;
+                node.enemySprite.tint = 0xffffff;
+            }
         } else {
+            if (node.enemySprite) {
+                node.enemySprite.visible = false;
+            }
+            node.body.visible = true;
+            node.silhouette.visible = true;
             drawHeroBody(node, unit);
         }
         if (!unit.isEnemy) {
@@ -267,7 +284,12 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         }
 
         const tintStrength = damagePulse * 0.85;
-        node.body.tint = tintStrength > 0 ? mixColors(0xffffff, DAMAGE_TINT_COLOR, tintStrength) : 0xffffff;
+        const nextTint = tintStrength > 0 ? mixColors(0xffffff, DAMAGE_TINT_COLOR, tintStrength) : 0xffffff;
+        if (unit.isEnemy && node.enemySprite?.visible) {
+            node.enemySprite.tint = nextTint;
+        } else {
+            node.body.tint = nextTint;
+        }
 
         if (!Number.isFinite(node.shakeSeed)) {
             node.shakeSeed = hashString(unit.id);
@@ -450,6 +472,9 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             node.spawnAtMs = undefined;
             node.magicPulse.clear();
             node.magicPulse.visible = false;
+            if (node.enemySprite) {
+                node.enemySprite.visible = false;
+            }
             node.attackBack.clear();
             node.attackFill.clear();
             node.attackBack.visible = false;

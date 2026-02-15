@@ -14,6 +14,7 @@ export type UnitNode = {
     container: any;
     silhouette: any;
     body: any;
+    enemySprite?: any;
     attackBack: any;
     attackFill: any;
     hpBack: any;
@@ -40,6 +41,10 @@ export type PixiRuntime = {
         meleeArc: any;
         rangedProjectile: any;
         magicOrb: any;
+    };
+    entityTextures: {
+        enemyMob: any;
+        enemyBoss: any;
     };
     phaseLabel: any;
     unitNodes: Map<string, UnitNode>;
