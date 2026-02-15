@@ -210,7 +210,8 @@ export const drawHp = (node: UnitNode, hp: number, hpMax: number) => {
     const width = 44;
     const height = 6;
     const left = -width / 2;
-    const top = -34;
+    // HP bar sits above the attack charge bar.
+    const top = -42;
 
     node.hpBack.clear();
     node.hpBack.beginFill(0x0e1220, 0.85);
@@ -234,7 +235,8 @@ export const drawAttackCharge = (
     const width = 44;
     const height = 4;
     const left = -width / 2;
-    const top = -42;
+    // Attack charge bar sits just under the HP bar.
+    const top = -34;
 
     const alpha = isAlive ? 0.95 : 0.35;
     const fillColor = isEnemy
