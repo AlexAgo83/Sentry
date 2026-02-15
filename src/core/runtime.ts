@@ -217,8 +217,11 @@ export class GameRuntime {
         const processedMs = Math.min(diff, GameRuntime.MAX_OFFLINE_CATCH_UP_MS);
         const end = from + processedMs;
         const offlineInterval = this.store.getState().loop.offlineInterval;
-        const stepMs = Math.max(offlineInterval, GameRuntime.MAX_OFFLINE_STEP_MS);
+        // Cap the offline stepping interval; it must be a maximum (not a floor) so tests and telemetry
+        // reflect the actual stepping behavior.
+        const stepMs = Math.min(offlineInterval, GameRuntime.MAX_OFFLINE_STEP_MS);
         let tickTime = from;
+        let ticks = 0;
         const totalItemDeltas: ItemDelta = {};
         const playerItemDeltas: Record<string, ItemDelta> = {};
         const dungeonItemDeltas: ItemDelta = {};
@@ -230,6 +233,7 @@ export class GameRuntime {
             const deltaMs = nextTickTime - tickTime;
             tickTime = nextTickTime;
             this.store.dispatch({ type: "tick", deltaMs, timestamp: tickTime });
+            ticks += 1;
             this.collectTickDeltas(
                 totalItemDeltas,
                 playerItemDeltas,
@@ -248,7 +252,7 @@ export class GameRuntime {
             diff,
             processedMs,
             capped,
-            ticks: processedMs > 0 ? Math.ceil(processedMs / offlineInterval) : 0,
+            ticks,
             totalItemDeltas,
             playerItemDeltas,
             dungeonItemDeltas,

@@ -238,6 +238,28 @@ describe("GameRuntime", () => {
         }
     });
 
+    it("caps offline stepping size and reports ticks based on actual stepping", () => {
+        const initial = createInitialGameState("0.4.0");
+        const store = createGameStore(initial);
+        const persistence = buildPersistence(null);
+        const runtime = new GameRuntime(store, persistence, "0.4.0");
+        runtimes.push(runtime);
+
+        // Force an oversized offlineInterval to ensure MAX_OFFLINE_STEP_MS is applied as a cap.
+        store.getState().loop.offlineInterval = 20000;
+
+        vi.spyOn(Date, "now").mockReturnValue(100000);
+        runtime.simulateOffline(60000);
+
+        const summary = store.getState().offlineSummary;
+        expect(summary).not.toBeNull();
+        if (summary) {
+            // With a 60s window and a 5s max step, we should process in 12 steps.
+            expect(summary.processedMs).toBe(60000);
+            expect(summary.ticks).toBe(12);
+        }
+    });
+
     it("persists on the first tick and updates perf", () => {
         console.info("[runtime.test] first tick persistence - start");
         const initial = createInitialGameState("0.4.0");

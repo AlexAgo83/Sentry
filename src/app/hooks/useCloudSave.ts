@@ -54,11 +54,24 @@ const buildLocalMeta = (virtualScore: number, appVersion: string): CloudSaveMeta
 const isUnauthorizedError = (err: unknown) => (
     err instanceof CloudApiError && (err.status === 401 || err.status === 403)
 );
-const WARMUP_RETRY_DELAYS_MS = [1000, 2000, 4000];
+const WARMUP_RETRY_DELAYS_MS = [1000, 2000, 4000, 8000, 16000, 30000];
+
+class CloudWarmupCancelledError extends Error {
+    constructor() {
+        super("Cloud warmup cancelled.");
+        this.name = "CloudWarmupCancelledError";
+    }
+}
 
 const isWarmupError = (err: unknown) => {
     if (err instanceof CloudApiError) {
         return [502, 503, 504].includes(err.status);
+    }
+    if (err instanceof DOMException && err.name === "AbortError") {
+        return true;
+    }
+    if (err instanceof Error && err.name === "AbortError") {
+        return true;
     }
     if (err instanceof TypeError) {
         return err.message.toLowerCase().includes("fetch");
@@ -106,8 +119,10 @@ export const useCloudSave = () => {
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isOnline, setIsOnline] = useState(() => (typeof navigator !== "undefined" ? navigator.onLine : true));
     const warmupRetrySignalRef = useRef<(() => void) | null>(null);
+    const warmupCancelIdRef = useRef(0);
     const backendProbeInFlightRef = useRef(false);
     const lastRequestRef = useRef<(() => Promise<void>) | null>(null);
+    const hasAttemptedSilentRefreshRef = useRef(false);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -125,6 +140,13 @@ export const useCloudSave = () => {
 
     const localMeta = useMemo(() => buildLocalMeta(virtualScore, appVersion), [virtualScore, appVersion]);
     const isAvailable = Boolean(cloudClient.getApiBase()) && isOnline;
+    const cancelWarmupRetry = useCallback(() => {
+        warmupCancelIdRef.current += 1;
+        if (warmupRetrySignalRef.current) {
+            warmupRetrySignalRef.current();
+        }
+        warmupRetrySignalRef.current = null;
+    }, []);
     const retryWarmupNow = useCallback(() => {
         if (warmupRetrySignalRef.current) {
             warmupRetrySignalRef.current();
@@ -185,7 +207,11 @@ export const useCloudSave = () => {
         statusOnStart: CloudSaveState["status"],
         action: () => Promise<T>
     ): Promise<T> => {
+        const runId = warmupCancelIdRef.current;
         for (let attempt = 0; attempt <= WARMUP_RETRY_DELAYS_MS.length; attempt += 1) {
+            if (warmupCancelIdRef.current !== runId) {
+                throw new CloudWarmupCancelledError();
+            }
             setWarmupRetrySeconds(null);
             setStatus(statusOnStart);
             try {
@@ -197,7 +223,9 @@ export const useCloudSave = () => {
                     setWarmupRetrySeconds(null);
                     throw err;
                 }
-                const waitMs = WARMUP_RETRY_DELAYS_MS[attempt];
+                const baseMs = WARMUP_RETRY_DELAYS_MS[attempt];
+                // Small jitter avoids synchronized thundering-herd retries across clients.
+                const waitMs = Math.round(baseMs * (0.85 + Math.random() * 0.3));
                 const waitSeconds = Math.max(1, Math.round(waitMs / 1000));
                 setStatus("warming");
                 setError(warmupMessage(waitSeconds));
@@ -234,31 +262,60 @@ export const useCloudSave = () => {
             setAccessToken(token);
             setStatus("ready");
         } catch (err) {
+            if (err instanceof CloudWarmupCancelledError) {
+                return;
+            }
             applyRequestError(err, "Authentication failed.");
         }
     }, [applyRequestError, isAvailable, withWarmupRetry]);
 
-    const refreshToken = useCallback(async () => {
+    const refreshToken = useCallback(async (options?: { silent?: boolean }) => {
         if (!isAvailable) {
-            setIsBackendAwake(false);
-            setStatus("offline");
-            setError("Cloud sync is unavailable.");
+            if (!options?.silent) {
+                setIsBackendAwake(false);
+                setStatus("offline");
+                setError("Cloud sync is unavailable.");
+            }
             return null;
         }
-        setError(null);
+
+        if (!options?.silent) {
+            setError(null);
+        }
         try {
-            const token = await withWarmupRetry("authenticating", () => cloudClient.refresh());
+            const attemptRefresh = () => withWarmupRetry("authenticating", () => cloudClient.refresh());
+            let token: string | null = null;
+            try {
+                token = await attemptRefresh();
+            } catch (err) {
+                // If CSRF is stale, clear it and retry once (best effort).
+                if (err instanceof CloudApiError && err.status === 403) {
+                    cloudClient.clearCsrfToken();
+                    token = await attemptRefresh();
+                } else {
+                    throw err;
+                }
+            }
             setIsBackendAwake(true);
             setAccessToken(token);
             return token;
         } catch (err) {
-            cloudClient.clearAccessToken();
-            cloudClient.clearCsrfToken();
-            setAccessToken(null);
+            if (err instanceof CloudWarmupCancelledError) {
+                return null;
+            }
+            // If we were not authenticated yet (startup silent refresh), do not treat 401/403 as an error.
+            if (isUnauthorizedError(err) && !accessToken) {
+                setIsBackendAwake(true);
+                setStatus("idle");
+                if (!options?.silent) {
+                    setError(null);
+                }
+                return null;
+            }
             applyRequestError(err, "Refresh failed.");
             return null;
         }
-    }, [applyRequestError, isAvailable, withWarmupRetry]);
+    }, [accessToken, applyRequestError, isAvailable, withWarmupRetry]);
 
     const withRefreshRetry = useCallback(async <T,>(action: (token: string | null) => Promise<T>): Promise<T> => {
         const token = accessToken ?? (await refreshToken());
@@ -308,6 +365,9 @@ export const useCloudSave = () => {
             setLastSyncAt(new Date());
             setStatus("ready");
         } catch (err) {
+            if (err instanceof CloudWarmupCancelledError) {
+                return;
+            }
             applyRequestError(err, "Failed to fetch cloud save.");
         }
     }, [applyRequestError, isAvailable, withRefreshRetry, withWarmupRetry]);
@@ -327,6 +387,9 @@ export const useCloudSave = () => {
             setProfile(profileResponse);
             setStatus("ready");
         } catch (err) {
+            if (err instanceof CloudWarmupCancelledError) {
+                return;
+            }
             applyRequestError(err, "Failed to fetch cloud profile.");
         }
     }, [applyRequestError, isAvailable, withRefreshRetry, withWarmupRetry]);
@@ -356,6 +419,9 @@ export const useCloudSave = () => {
             setError(null);
             return { ok: true };
         } catch (err) {
+            if (err instanceof CloudWarmupCancelledError) {
+                return { ok: false, error: "Cloud request cancelled." };
+            }
             const message = resolveErrorMessage(err, "Failed to update username.");
             applyRequestError(err, message);
             return { ok: false, error: message };
@@ -382,6 +448,9 @@ export const useCloudSave = () => {
             setIsBackendAwake(true);
             setStatus((currentStatus) => (currentStatus === "warming" ? "idle" : currentStatus));
         } catch (err) {
+            if (err instanceof CloudWarmupCancelledError) {
+                return;
+            }
             applyRequestError(err, "Cloud backend is unavailable.");
         } finally {
             backendProbeInFlightRef.current = false;
@@ -395,6 +464,23 @@ export const useCloudSave = () => {
         refreshCloud();
         refreshProfile();
     }, [accessToken, isAvailable, refreshCloud, refreshProfile]);
+
+    useEffect(() => {
+        if (!isAvailable) {
+            hasAttemptedSilentRefreshRef.current = false;
+            return;
+        }
+        if (accessToken || hasAttemptedSilentRefreshRef.current) {
+            return;
+        }
+        // Only attempt silent refresh when we have CSRF persisted from a prior login.
+        if (!cloudClient.hasStoredCsrfToken()) {
+            hasAttemptedSilentRefreshRef.current = true;
+            return;
+        }
+        hasAttemptedSilentRefreshRef.current = true;
+        void refreshToken({ silent: true });
+    }, [accessToken, isAvailable, refreshToken]);
 
     useEffect(() => {
         if (!isAvailable) {
@@ -451,11 +537,15 @@ export const useCloudSave = () => {
             setLastSyncAt(new Date());
             setStatus("ready");
         } catch (err) {
+            if (err instanceof CloudWarmupCancelledError) {
+                return;
+            }
             applyRequestError(err, "Failed to upload cloud save.");
         }
     }, [appVersion, applyRequestError, isAvailable, virtualScore, withRefreshRetry, withWarmupRetry]);
 
     const logout = useCallback(() => {
+        cancelWarmupRetry();
         cloudClient.clearAccessToken();
         cloudClient.clearCsrfToken();
         setAccessToken(null);
@@ -469,7 +559,15 @@ export const useCloudSave = () => {
         setError(null);
         setWarmupRetrySeconds(null);
         setLastSyncAt(null);
-    }, []);
+    }, [cancelWarmupRetry]);
+
+    useEffect(() => {
+        if (isAvailable) {
+            return;
+        }
+        // Stop any pending warmup retries when cloud becomes unavailable (offline / missing API base).
+        cancelWarmupRetry();
+    }, [cancelWarmupRetry, isAvailable]);
 
     useEffect(() => {
         if (status !== "warming") {

@@ -237,8 +237,22 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
     const shouldDisconnect = !prismaClient;
     const app = fastify({ logger, bodyLimit: MAX_SAVE_BYTES });
 
+    const corsOrigins = String(process.env.CORS_ORIGINS || "")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+    const isOriginAllowed = (origin) => {
+        if (!origin) {
+            return true;
+        }
+        if (!config.isProduction) {
+            return true;
+        }
+        return corsOrigins.includes(origin);
+    };
+
     app.register(cors, {
-        origin: true,
+        origin: (origin, cb) => cb(null, isOriginAllowed(origin)),
         credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
         allowedHeaders: ["Authorization", "Content-Type", CSRF_HEADER_NAME]
@@ -534,7 +548,7 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
                 throw new Error("Invalid token type.");
             }
         } catch {
-            reply.code(401).send({ error: "Unauthorized" });
+            return reply.code(401).send({ error: "Unauthorized" });
         }
     });
 

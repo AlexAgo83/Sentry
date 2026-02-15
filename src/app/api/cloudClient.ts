@@ -29,8 +29,7 @@ type CloudProfileResponse = {
     profile: CloudProfile;
 };
 
-const ACCESS_TOKEN_KEY = "sentry.cloud.accessToken";
-const CSRF_COOKIE_NAME = "refreshCsrf";
+const LEGACY_ACCESS_TOKEN_KEY = "sentry.cloud.accessToken";
 const CSRF_TOKEN_KEY = "sentry.cloud.csrfToken";
 
 export class CloudApiError extends Error {
@@ -47,6 +46,12 @@ export class CloudApiError extends Error {
 
 const getApiBase = () => import.meta.env?.VITE_API_BASE ?? "";
 
+// Access tokens must be memory-only (never persisted) to reduce XSS blast radius.
+let memoryAccessToken: string | null = null;
+
+const DEFAULT_REQUEST_TIMEOUT_MS = 4000;
+const SAVE_WRITE_TIMEOUT_MS = 8000;
+
 const buildUrl = (path: string) => {
     const base = getApiBase();
     if (!base) {
@@ -56,37 +61,35 @@ const buildUrl = (path: string) => {
 };
 
 const loadAccessToken = (): string | null => {
-    if (typeof localStorage === "undefined") {
-        return null;
-    }
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+    return memoryAccessToken;
 };
 
 const saveAccessToken = (token: string | null) => {
+    memoryAccessToken = token;
+};
+
+const clearAccessToken = () => {
+    saveAccessToken(null);
+    // Best-effort cleanup of older persisted tokens (security migration).
     if (typeof localStorage === "undefined") {
         return;
     }
-    if (!token) {
-        localStorage.removeItem(ACCESS_TOKEN_KEY);
-        return;
+    try {
+        localStorage.removeItem(LEGACY_ACCESS_TOKEN_KEY);
+    } catch {
+        // ignore
     }
-    localStorage.setItem(ACCESS_TOKEN_KEY, token);
 };
 
-const clearAccessToken = () => saveAccessToken(null);
-
 const loadCsrfToken = (): string | null => {
-    if (typeof localStorage !== "undefined") {
-        const stored = localStorage.getItem(CSRF_TOKEN_KEY);
-        if (stored) {
-            return stored;
-        }
-    }
-    if (typeof document === "undefined") {
+    if (typeof localStorage === "undefined") {
         return null;
     }
-    const match = document.cookie.match(new RegExp(`(?:^|; )${CSRF_COOKIE_NAME}=([^;]*)`));
-    return match ? decodeURIComponent(match[1]) : null;
+    try {
+        return localStorage.getItem(CSRF_TOKEN_KEY);
+    } catch {
+        return null;
+    }
 };
 
 const saveCsrfToken = (token: string | null) => {
@@ -102,6 +105,11 @@ const saveCsrfToken = (token: string | null) => {
 
 const clearCsrfToken = () => saveCsrfToken(null);
 
+const hasStoredCsrfToken = (): boolean => {
+    const token = loadCsrfToken();
+    return typeof token === "string" && token.trim().length > 0;
+};
+
 const persistAuthResponse = (data: CloudAuthResponse) => {
     saveAccessToken(data.accessToken);
     if (typeof data.csrfToken === "string" && data.csrfToken.trim().length > 0) {
@@ -111,7 +119,32 @@ const persistAuthResponse = (data: CloudAuthResponse) => {
     clearCsrfToken();
 };
 
-const requestJson = async <T>(path: string, options: globalThis.RequestInit = {}): Promise<T> => {
+// Security migration: remove persisted access tokens from older builds.
+clearAccessToken();
+
+const fetchWithTimeout = async (url: string, init: globalThis.RequestInit, timeoutMs: number) => {
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timeoutId = controller
+        ? globalThis.setTimeout(() => controller.abort(), Math.max(0, Math.floor(timeoutMs)))
+        : null;
+
+    try {
+        return await fetch(url, {
+            ...init,
+            signal: controller?.signal
+        });
+    } finally {
+        if (timeoutId !== null) {
+            globalThis.clearTimeout(timeoutId);
+        }
+    }
+};
+
+const requestJson = async <T>(
+    path: string,
+    options: globalThis.RequestInit = {},
+    timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS
+): Promise<T> => {
     const url = buildUrl(path);
     if (!url) {
         throw new Error("Cloud API base is not configured.");
@@ -121,11 +154,11 @@ const requestJson = async <T>(path: string, options: globalThis.RequestInit = {}
     if (hasBody && !(options.body instanceof FormData) && !headers.has("Content-Type")) {
         headers.set("Content-Type", "application/json");
     }
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
         credentials: "include",
         ...options,
         headers
-    });
+    }, timeoutMs);
     if (!response.ok) {
         const message = await response.text();
         throw new CloudApiError(response.status, message);
@@ -176,10 +209,10 @@ const getLatestSave = async (accessToken: string | null): Promise<CloudSaveRespo
     if (!url) {
         throw new Error("Cloud API base is not configured.");
     }
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
         credentials: "include",
         headers: authHeaders(accessToken)
-    });
+    }, DEFAULT_REQUEST_TIMEOUT_MS);
     if (response.status === 204) {
         return null;
     }
@@ -200,7 +233,7 @@ const putLatestSave = async (
         method: "PUT",
         headers: authHeaders(accessToken),
         body: JSON.stringify({ payload, virtualScore, appVersion })
-    });
+    }, SAVE_WRITE_TIMEOUT_MS);
 };
 
 const getProfile = async (accessToken: string | null): Promise<CloudProfile> => {
@@ -228,9 +261,9 @@ const probeReady = async (): Promise<void> => {
     if (!url) {
         throw new Error("Cloud API base is not configured.");
     }
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
         credentials: "include"
-    });
+    }, DEFAULT_REQUEST_TIMEOUT_MS);
     if ([200, 204, 401].includes(response.status)) {
         return;
     }
@@ -243,6 +276,7 @@ export const cloudClient = {
     loadAccessToken,
     clearAccessToken,
     clearCsrfToken,
+    hasStoredCsrfToken,
     register,
     login,
     refresh,

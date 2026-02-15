@@ -65,7 +65,7 @@ describe("service worker", () => {
             "/manifest.webmanifest",
             "/icon.svg"
         ]));
-        expect(self.skipWaiting).toHaveBeenCalled();
+        expect(self.skipWaiting).not.toHaveBeenCalled();
     });
 
     it("precaches build assets from Vite manifest when available", async () => {

@@ -19,7 +19,8 @@ export const ROSTER_SLOT_COST_BASE = 10000;
 export const ROSTER_SLOT_COST_GROWTH = 2.5;
 
 export const LOOP_INTERVAL = 250;
-export const OFFLINE_INTERVAL = 500;
+// Offline catch-up is processed in coarse steps to avoid long-freezes after extended idle time.
+export const OFFLINE_INTERVAL = 5000;
 export const OFFLINE_THRESHOLD = 1.5;
 export const OFFLINE_CAP_DAYS = 7;
 

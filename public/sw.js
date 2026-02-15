@@ -179,7 +179,6 @@ self.addEventListener("install", (event) => {
             // Manifest not available (dev) or fetch failed.
         }
     })());
-    self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {

@@ -20,7 +20,7 @@ describe("GameRuntime offline loop", () => {
 
         const summary = store.getState().offlineSummary;
         expect(summary).not.toBeNull();
-        expect(summary?.ticks).toBe(10);
+        expect(summary?.ticks).toBe(1);
         expect(summary?.totalItemDeltas.gold).toBe(1);
         expect(summary?.totalItemDeltas.bones).toBe(1);
         expect(summary?.totalItemDeltas.food).toBe(-1);

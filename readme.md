@@ -196,10 +196,15 @@ GitHub Actions CI on `push`/`pull_request` to `main` runs:
 6. `npm run test:ci`
 7. `npm run coverage:ci`
 8. Playwright install + `npm run test:e2e`
-9. `npm audit --audit-level=moderate`
+9. `npm audit --audit-level=high`
 10. `npm run build`
 11. `npm run bundle:check`
 12. offline recap smoke test
+
+Security note:
+
+- PR/push CI fails only on `high` (or above) `npm audit` findings to avoid non-deterministic red builds from newly published moderate advisories.
+- A scheduled workflow (`Security audit`) runs `npm audit --audit-level=moderate` in report-only mode.
 
 ## Notes
 
