@@ -15,4 +15,20 @@ export const ATTACK_LUNGE_DISTANCE = 18;
 export const MAGIC_PULSE_MS = 700;
 export const MAGIC_PULSE_COLOR = 0x5fe3a2;
 export const MAGIC_PULSE_OFFSET_Y = Math.round(HERO_BODY_RADIUS * 0.75);
+
+// Attack VFX (arc/projectile/beam)
+export const MAX_ATTACK_VFX_POOL = 28;
+export const MELEE_ARC_VFX_MS = 200;
+export const RANGED_PROJECTILE_VFX_MS = 180;
+export const MAGIC_BEAM_VFX_MS = 170;
+export const MELEE_ARC_VFX_COLOR = 0xf5d18b;
+export const RANGED_PROJECTILE_VFX_COLOR = 0x7ad6ff;
+export const MAGIC_BEAM_VFX_COLOR = 0x7ff0c4;
+export const MELEE_ARC_VFX_RADIUS = 22;
+export const MELEE_ARC_VFX_SPREAD_RAD = Math.PI * 0.9;
+export const MELEE_ARC_VFX_OFFSET = 18;
+export const PROJECTILE_VFX_RADIUS = 4.8;
+export const PROJECTILE_VFX_OUTLINE = 0x0e1220;
+export const BEAM_VFX_WIDTH = 3.2;
+export const BEAM_VFX_GLOW_WIDTH = 7.5;
 export const MOBILE_VIEWPORT_MAX = 520;

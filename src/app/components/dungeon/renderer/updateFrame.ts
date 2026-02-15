@@ -2,14 +2,28 @@ import type { DungeonArenaFrame } from "../arenaPlayback";
 import {
     ATTACK_LUNGE_DISTANCE,
     ATTACK_LUNGE_MS,
+    BEAM_VFX_GLOW_WIDTH,
+    BEAM_VFX_WIDTH,
     DAMAGE_SHAKE_MS,
     DAMAGE_TINT_COLOR,
     DAMAGE_TINT_MS,
     ENEMY_SPAWN_FADE_MS,
+    MAGIC_BEAM_VFX_COLOR,
+    MAGIC_BEAM_VFX_MS,
     MAGIC_PULSE_COLOR,
     MAGIC_PULSE_MS,
     MAGIC_PULSE_OFFSET_Y,
     MAX_FLOAT_POOL,
+    MAX_ATTACK_VFX_POOL,
+    MELEE_ARC_VFX_COLOR,
+    MELEE_ARC_VFX_MS,
+    MELEE_ARC_VFX_OFFSET,
+    MELEE_ARC_VFX_RADIUS,
+    MELEE_ARC_VFX_SPREAD_RAD,
+    PROJECTILE_VFX_OUTLINE,
+    PROJECTILE_VFX_RADIUS,
+    RANGED_PROJECTILE_VFX_COLOR,
+    RANGED_PROJECTILE_VFX_MS,
     WORLD_HEIGHT,
     WORLD_WIDTH
 } from "./constants";
@@ -26,6 +40,62 @@ import {
 import { clamp, hashString, mixColors, toWorldX, toWorldY } from "./math";
 import type { PixiRuntime } from "./types";
 
+export type AttackVfxKind = "melee_arc" | "ranged_projectile" | "magic_beam";
+
+export const resolveAttackVfxKind = (weaponType?: string | null): AttackVfxKind => {
+    if (weaponType === "Ranged") {
+        return "ranged_projectile";
+    }
+    if (weaponType === "Magic") {
+        return "magic_beam";
+    }
+    return "melee_arc";
+};
+
+export const shouldApplyLunge = (weaponType?: string | null) => resolveAttackVfxKind(weaponType) === "melee_arc";
+
+const getAttackVfxDurationMs = (kind: AttackVfxKind) => {
+    if (kind === "ranged_projectile") {
+        return RANGED_PROJECTILE_VFX_MS;
+    }
+    if (kind === "magic_beam") {
+        return MAGIC_BEAM_VFX_MS;
+    }
+    return MELEE_ARC_VFX_MS;
+};
+
+export type AttackVfxSpec = {
+    key: string;
+    kind: AttackVfxKind;
+    sourceId: string;
+    targetId: string;
+    atMs: number;
+};
+
+const buildAttackVfxKey = (spec: Omit<AttackVfxSpec, "key">) => (
+    `${spec.kind}:${spec.sourceId}:${spec.targetId}:${spec.atMs}`
+);
+
+const getAttackVfxSpecsForUnitMap = (frame: DungeonArenaFrame, unitById: Map<string, DungeonArenaFrame["units"][number]>) => {
+    const specs: AttackVfxSpec[] = [];
+    frame.attackCues.forEach((cue) => {
+        const source = unitById.get(cue.sourceId);
+        const target = unitById.get(cue.targetId);
+        if (!source || !target) {
+            return;
+        }
+        const kind = resolveAttackVfxKind(source.weaponType);
+        const core = { kind, sourceId: cue.sourceId, targetId: cue.targetId, atMs: cue.atMs };
+        specs.push({ ...core, key: buildAttackVfxKey(core) });
+    });
+    return specs;
+};
+
+export const getAttackVfxSpecs = (frame: DungeonArenaFrame) => {
+    const unitById = new Map(frame.units.map((unit) => [unit.id, unit]));
+    return getAttackVfxSpecsForUnitMap(frame, unitById);
+};
+
 export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     const viewportWidth = runtime.app.screen?.width ?? runtime.app.renderer.width;
     const viewportHeight = runtime.app.screen?.height ?? runtime.app.renderer.height;
@@ -38,8 +108,45 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     const unitById = new Map(frame.units.map((unit) => [unit.id, unit]));
     const attackBySource = new Map(frame.attackCues.map((cue) => [cue.sourceId, cue]));
     const magicBySource = new Map(frame.magicCues.map((cue) => [cue.sourceId, cue]));
+    const attackVfxSpecs = getAttackVfxSpecsForUnitMap(frame, unitById);
     const seen = new Set<string>();
     const lastSeen = runtime.lastSeen;
+
+    if (runtime.attackVfxPool.length === 0) {
+        for (let i = 0; i < MAX_ATTACK_VFX_POOL; i += 1) {
+            const gfx = new runtime.PIXI.Graphics();
+            gfx.visible = false;
+            gfx.alpha = 0;
+            runtime.vfxLayer.addChild(gfx);
+            runtime.attackVfxPool.push(gfx);
+        }
+    }
+
+    const acquireAttackVfxNode = (key: string) => {
+        const existing = runtime.attackVfxByKey.get(key);
+        if (existing) {
+            return existing;
+        }
+        const freeNode = runtime.attackVfxPool.find((candidate) => !(candidate as any).__vfxKey);
+        if (!freeNode) {
+            return null;
+        }
+        (freeNode as any).__vfxKey = key;
+        runtime.attackVfxByKey.set(key, freeNode);
+        return freeNode;
+    };
+
+    attackVfxSpecs.forEach((spec) => {
+        const node = acquireAttackVfxNode(spec.key);
+        if (!node) {
+            return;
+        }
+        (node as any).__vfxKind = spec.kind;
+        (node as any).__vfxSourceId = spec.sourceId;
+        (node as any).__vfxTargetId = spec.targetId;
+        (node as any).__vfxAtMs = spec.atMs;
+    });
+
     frame.units.forEach((unit) => {
         const node = runtime.unitNodes.get(unit.id) ?? createUnitNode(runtime.PIXI, runtime.world);
         if (!runtime.unitNodes.has(unit.id)) {
@@ -144,7 +251,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         let lungeX = 0;
         let lungeY = 0;
         const attackCue = attackBySource.get(unit.id);
-        if (attackCue) {
+        if (attackCue && shouldApplyLunge(unit.weaponType)) {
             const age = frame.atMs - attackCue.atMs;
             if (age >= 0 && age <= ATTACK_LUNGE_MS) {
                 const target = unitById.get(attackCue.targetId);
@@ -165,6 +272,99 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
 
         node.container.position.set(baseX + offsetX + lungeX, baseY + offsetY + lungeY);
     });
+
+    const vfxKeysToRelease: string[] = [];
+    runtime.attackVfxByKey.forEach((gfx, key) => {
+        const kind = (gfx as any).__vfxKind as AttackVfxKind | undefined;
+        const sourceId = String((gfx as any).__vfxSourceId ?? "");
+        const targetId = String((gfx as any).__vfxTargetId ?? "");
+        const atMs = Number((gfx as any).__vfxAtMs);
+        if (!kind || !sourceId || !targetId || !Number.isFinite(atMs)) {
+            gfx.visible = false;
+            gfx.alpha = 0;
+            gfx.clear?.();
+            (gfx as any).__vfxKey = undefined;
+            vfxKeysToRelease.push(key);
+            return;
+        }
+
+        const durationMs = getAttackVfxDurationMs(kind);
+        const age = frame.atMs - atMs;
+        if (age < 0) {
+            gfx.visible = false;
+            return;
+        }
+        if (age > durationMs) {
+            gfx.visible = false;
+            gfx.alpha = 0;
+            gfx.clear();
+            (gfx as any).__vfxKey = undefined;
+            vfxKeysToRelease.push(key);
+            return;
+        }
+
+        const sourceUnit = unitById.get(sourceId);
+        const targetUnit = unitById.get(targetId);
+        if (!sourceUnit || !targetUnit) {
+            gfx.visible = false;
+            gfx.alpha = 0;
+            gfx.clear();
+            (gfx as any).__vfxKey = undefined;
+            vfxKeysToRelease.push(key);
+            return;
+        }
+
+        const sourceNode = runtime.unitNodes.get(sourceId);
+        const targetNode = runtime.unitNodes.get(targetId);
+        const sx = Number(sourceNode?.container?.position?.x) || toWorldX(sourceUnit.x);
+        const sy = Number(sourceNode?.container?.position?.y) || toWorldY(sourceUnit.y);
+        const tx = Number(targetNode?.container?.position?.x) || toWorldX(targetUnit.x);
+        const ty = Number(targetNode?.container?.position?.y) || toWorldY(targetUnit.y);
+        const dx = tx - sx;
+        const dy = ty - sy;
+        const length = Math.hypot(dx, dy) || 1;
+        const nx = dx / length;
+        const ny = dy / length;
+
+        const progress = clamp(age / durationMs, 0, 1);
+        const alpha = clamp(1 - progress, 0, 1);
+
+        gfx.visible = alpha > 0.02;
+        gfx.alpha = 1;
+        gfx.clear();
+
+        if (kind === "melee_arc") {
+            const angle = Math.atan2(dy, dx);
+            gfx.position.set(sx + nx * MELEE_ARC_VFX_OFFSET, sy + ny * MELEE_ARC_VFX_OFFSET);
+            gfx.rotation = angle;
+            const radius = MELEE_ARC_VFX_RADIUS * (1 + progress * 0.12);
+            const spread = MELEE_ARC_VFX_SPREAD_RAD;
+            const start = -spread / 2;
+            const end = spread / 2;
+            gfx.lineStyle(9, MELEE_ARC_VFX_COLOR, 0.22 * alpha);
+            gfx.arc(0, 0, radius, start, end);
+            gfx.lineStyle(4.2, MELEE_ARC_VFX_COLOR, 0.55 * alpha);
+            gfx.arc(0, 0, radius, start, end);
+        } else if (kind === "ranged_projectile") {
+            const t = 1 - Math.pow(1 - clamp(progress * 1.08, 0, 1), 3);
+            gfx.position.set(sx + dx * t, sy + dy * t);
+            const radius = PROJECTILE_VFX_RADIUS * (0.95 + (1 - progress) * 0.15);
+            gfx.lineStyle(2, PROJECTILE_VFX_OUTLINE, 0.55 * alpha);
+            gfx.beginFill(RANGED_PROJECTILE_VFX_COLOR, 0.85 * alpha);
+            gfx.drawCircle(0, 0, radius);
+            gfx.endFill();
+        } else {
+            gfx.position.set(sx, sy);
+            gfx.rotation = 0;
+            gfx.lineStyle(BEAM_VFX_GLOW_WIDTH, MAGIC_BEAM_VFX_COLOR, 0.14 * alpha);
+            gfx.moveTo(0, 0);
+            gfx.lineTo(dx, dy);
+            gfx.lineStyle(BEAM_VFX_WIDTH, MAGIC_BEAM_VFX_COLOR, 0.48 * alpha);
+            gfx.moveTo(0, 0);
+            gfx.lineTo(dx, dy);
+        }
+    });
+    vfxKeysToRelease.forEach((id) => runtime.attackVfxByKey.delete(id));
 
     runtime.unitNodes.forEach((node, id) => {
         if (!seen.has(id)) {
@@ -188,6 +388,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
                 fontWeight: "700"
             });
             text.anchor.set(0.5, 0.5);
+            text.zIndex = 30;
             text.visible = false;
             runtime.world.addChild(text);
             runtime.floatingPool.push(text);

@@ -1,8 +1,8 @@
 ## task_097_execute_dungeon_attack_vfx_across_backlog_items_148_to_151 - Execute dungeon attack VFX across backlog items 148 to 151
 > From version: 0.9.30
-> Understanding: 90%
-> Confidence: 86%
-> Progress: 0%
+> Understanding: 94%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Visuals
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -30,19 +30,19 @@ This task adds lightweight, readable attack VFX (arc/projectile/beam) in the Pix
 - Final delivery requires full test battery pass.
 
 # Plan
-- [ ] 1. Execute `item_148` (VFX layer + pooling):
+- [x] 1. Execute `item_148` (VFX layer + pooling):
   - Add VFX container and pool in Pixi runtime.
   - Add constants for durations/sizes/colors and a max concurrent cap.
-- [ ] 2. Execute `item_149` (melee arc + lunge gating):
+- [x] 2. Execute `item_149` (melee arc + lunge gating):
   - Draw oriented arc in front of attacker.
   - Apply lunge only for melee attackers.
-- [ ] 3. Execute `item_150` (ranged + magic VFX):
+- [x] 3. Execute `item_150` (ranged + magic VFX):
   - Add projectile travel for ranged.
   - Add translucent beam for magic.
-- [ ] 4. Execute `item_151` (tests + full battery):
+- [x] 4. Execute `item_151` (tests + full battery):
   - Add targeted regression tests.
   - Run full validation battery and fix failures.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # Validation
 Final gate (mandatory at task end):
@@ -53,4 +53,3 @@ Final gate (mandatory at task end):
 - `npm run coverage:ci`
 - `npm run build`
 - `npm run test:e2e`
-

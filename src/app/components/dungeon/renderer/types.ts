@@ -32,10 +32,13 @@ export type PixiRuntime = {
     app: any;
     world: any;
     arena: any;
+    vfxLayer: any;
     phaseLabel: any;
     unitNodes: Map<string, UnitNode>;
     floatingPool: any[];
     floatingById: Map<string, any>;
+    attackVfxPool: any[];
+    attackVfxByKey: Map<string, any>;
     resizeObserver: ResizeObserver | null;
     lastSeen: Set<string>;
 };

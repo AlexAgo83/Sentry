@@ -16,6 +16,7 @@ import type { PixiModule, UnitNode } from "./types";
 
 export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     const container = new PIXI.Container();
+    container.zIndex = 10;
     const silhouette = new PIXI.Graphics();
     const body = new PIXI.Graphics();
     const hpBack = new PIXI.Graphics();

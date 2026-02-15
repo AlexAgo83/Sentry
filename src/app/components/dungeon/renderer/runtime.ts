@@ -22,7 +22,11 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
     hostElement.appendChild(app.view as HTMLCanvasElement);
 
     const world = new PIXI.Container();
+    world.sortableChildren = true;
     const arena = new PIXI.Graphics();
+    arena.zIndex = 0;
+    const vfxLayer = new PIXI.Container();
+    vfxLayer.zIndex = 20;
     const phaseLabel = new PIXI.Text("", {
         fill: 0xf5d18b,
         fontSize: 14,
@@ -35,6 +39,7 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
     phaseLabel.anchor.set(0.5, 0.5);
     phaseLabel.visible = false;
     world.addChild(arena);
+    world.addChild(vfxLayer);
     app.stage.addChild(world);
     app.stage.addChild(phaseLabel);
 
@@ -57,10 +62,13 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
         app,
         world,
         arena,
+        vfxLayer,
         phaseLabel,
         unitNodes: new Map(),
         floatingPool: [],
         floatingById: new Map(),
+        attackVfxPool: [],
+        attackVfxByKey: new Map(),
         resizeObserver,
         lastSeen: new Set()
     };
