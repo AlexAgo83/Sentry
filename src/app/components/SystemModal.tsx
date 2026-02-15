@@ -136,7 +136,7 @@ export const SystemModal = memo(({
     };
 
     const loadingFallback = (
-        <ModalShell kicker="System" title="Loading" onClose={closeCurrentView} closeLabel="Back">
+        <ModalShell kicker={`System - v${version}`} title="Loading" onClose={closeCurrentView} closeLabel="Back">
             <p className="ts-system-helper">Loading...</p>
         </ModalShell>
     );
@@ -265,7 +265,7 @@ export const SystemModal = memo(({
     }
 
     return (
-        <ModalShell kicker="System" title="Settings" onClose={onClose}>
+        <ModalShell kicker={`System - v${version}`} title="Settings" onClose={onClose}>
             <div className="ts-system-entry-list">
                 <div className="ts-system-entry">
                     <div className="ts-action-row">
