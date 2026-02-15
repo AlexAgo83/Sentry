@@ -2,14 +2,15 @@ import type { DungeonArenaFrame } from "../arenaPlayback";
 import {
     ATTACK_LUNGE_DISTANCE,
     ATTACK_LUNGE_MS,
-    BEAM_VFX_GLOW_WIDTH,
-    BEAM_VFX_WIDTH,
     DAMAGE_SHAKE_MS,
     DAMAGE_TINT_COLOR,
     DAMAGE_TINT_MS,
     ENEMY_SPAWN_FADE_MS,
     MAGIC_BEAM_VFX_COLOR,
     MAGIC_BEAM_VFX_MS,
+    MAGIC_ORBS_VFX_RADIUS,
+    MAGIC_ORBS_VFX_SPACING,
+    MAGIC_ORBS_VFX_TRAIL,
     MAGIC_PULSE_COLOR,
     MAGIC_PULSE_MS,
     MAGIC_PULSE_OFFSET_Y,
@@ -354,14 +355,39 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             gfx.drawCircle(0, 0, radius);
             gfx.endFill();
         } else {
+            // Magic: a moving trail of glowing orbs along the path.
             gfx.position.set(sx, sy);
             gfx.rotation = 0;
-            gfx.lineStyle(BEAM_VFX_GLOW_WIDTH, MAGIC_BEAM_VFX_COLOR, 0.14 * alpha);
-            gfx.moveTo(0, 0);
-            gfx.lineTo(dx, dy);
-            gfx.lineStyle(BEAM_VFX_WIDTH, MAGIC_BEAM_VFX_COLOR, 0.48 * alpha);
-            gfx.moveTo(0, 0);
-            gfx.lineTo(dx, dy);
+
+            const count = clamp(Math.round(length / MAGIC_ORBS_VFX_SPACING) + 1, 4, 10);
+            const head = clamp(progress * 1.18, 0, 1);
+            const tail = clamp(head - MAGIC_ORBS_VFX_TRAIL, 0, 1);
+            const span = Math.max(1e-4, head - tail);
+
+            for (let i = 0; i < count; i += 1) {
+                const t = count === 1 ? 0 : i / (count - 1);
+                if (t < tail || t > head) {
+                    continue;
+                }
+                const local = (t - tail) / span; // 0..1
+                const orbAlpha = Math.sin(Math.PI * local) * alpha;
+                if (orbAlpha <= 0.02) {
+                    continue;
+                }
+
+                const x = dx * t;
+                const y = dy * t;
+                const r = MAGIC_ORBS_VFX_RADIUS * (0.85 + 0.25 * Math.sin(Math.PI * local));
+
+                gfx.beginFill(MAGIC_BEAM_VFX_COLOR, 0.14 * orbAlpha);
+                gfx.drawCircle(x, y, r + 7);
+                gfx.endFill();
+
+                gfx.lineStyle(2, MAGIC_BEAM_VFX_COLOR, 0.5 * orbAlpha);
+                gfx.beginFill(MAGIC_BEAM_VFX_COLOR, 0.55 * orbAlpha);
+                gfx.drawCircle(x, y, r);
+                gfx.endFill();
+            }
         }
     });
     vfxKeysToRelease.forEach((id) => runtime.attackVfxByKey.delete(id));
