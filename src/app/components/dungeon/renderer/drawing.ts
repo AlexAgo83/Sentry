@@ -258,8 +258,11 @@ export const getAutoFitScale = (viewportWidth: number, viewportHeight: number, u
     const viewportHalfHeight = Math.max(72, viewportHeight / 2 - 20);
     const centerX = WORLD_WIDTH / 2;
     const centerY = WORLD_HEIGHT / 2;
-    let requiredHalfWidth = 220;
-    let requiredHalfHeight = 160;
+    // Keep the camera scale stable across floors. If we compute the fit purely from the currently
+    // visible unit positions, the scale "pops" when the boss spawns (boss X is further right than
+    // normal mobs). Start from a minimum envelope that already includes the boss formation.
+    let requiredHalfWidth = 392;
+    let requiredHalfHeight = 200;
 
     units.forEach((unit) => {
         const x = toWorldX(unit.x);

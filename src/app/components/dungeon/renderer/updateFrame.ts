@@ -210,7 +210,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
                 node.enemySprite.visible = true;
                 node.enemySprite.texture = unit.isBoss ? runtime.entityTextures.enemyBoss : runtime.entityTextures.enemyMob;
                 // Match the approximate footprint of the previous Graphics icons.
-                const scale = unit.isBoss ? 1.0 : 0.85;
+                const scale = unit.isBoss ? 0.5 : 0.425;
                 node.enemySprite.scale.set(scale);
                 node.enemySprite.alpha = unit.alive ? 1 : 0.5;
                 node.enemySprite.tint = 0xffffff;
