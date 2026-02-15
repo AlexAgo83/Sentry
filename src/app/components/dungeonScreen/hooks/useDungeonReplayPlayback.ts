@@ -34,6 +34,12 @@ export const useDungeonReplayPlayback = (
         let lastTs = performance.now();
         let lastRenderTs = lastTs;
         let cursorMs = replayCursorRef.current;
+        // Keep visual playback smooth at high replay speeds by rendering more often (up to ~60fps),
+        // otherwise short-lived animations like lunge/shake can look "steppy" when `atMs` jumps.
+        const effectiveFrameIntervalMs = Math.max(
+            16,
+            Math.min(frameIntervalMs, frameIntervalMs / Math.max(1, replaySpeed))
+        );
         const animate = (nextTs: number) => {
             const deltaMs = Math.max(0, nextTs - lastTs);
             lastTs = nextTs;
@@ -42,7 +48,7 @@ export const useDungeonReplayPlayback = (
             } else {
                 cursorMs = Math.min(replayTotalMs, cursorMs + deltaMs * replaySpeed);
             }
-            if (nextTs - lastRenderTs >= frameIntervalMs) {
+            if (nextTs - lastRenderTs >= effectiveFrameIntervalMs) {
                 lastRenderTs = nextTs;
                 setReplayCursorMs(() => {
                     replayCursorRef.current = cursorMs;

@@ -12,6 +12,10 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
     const baseUrl = (import.meta as any).env?.BASE_URL ?? "/";
     const assetUrl = (path: string) => `${String(baseUrl).replace(/\/?$/, "/")}${path.replace(/^\/+/, "")}`;
 
+    // This host is dedicated to Pixi. Clear any stale canvases (e.g. dev StrictMode double-mount)
+    // to avoid the "rendered twice" look from two stacked <canvas> elements.
+    hostElement.replaceChildren();
+
     const bounds = hostElement.getBoundingClientRect();
     const app = new PIXI.Application({
         antialias: true,
@@ -85,5 +89,8 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
 export const destroyPixiRuntime = (runtime: PixiRuntime, hostElement: HTMLDivElement) => {
     runtime.resizeObserver?.disconnect();
     runtime.app.destroy(true, { children: true, texture: true, baseTexture: true });
-    hostElement.innerHTML = "";
+    const view = runtime.app.view as unknown as Node | null;
+    if (view && view.parentNode === hostElement) {
+        hostElement.removeChild(view);
+    }
 };
