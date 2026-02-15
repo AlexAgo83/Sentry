@@ -3,11 +3,17 @@ import { describe, expect, it } from "vitest";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
 import type { DungeonReplayState, DungeonRunState, PlayerState } from "../../src/core/types";
 import { DUNGEON_DEFINITIONS } from "../../src/data/dungeons";
+import { ITEM_DEFINITIONS } from "../../src/data/definitions/items";
 import { DungeonScreen } from "../../src/app/components/DungeonScreen";
 
 const getPlayersSorted = (players: Record<string, PlayerState>) => (
     Object.values(players).sort((a, b) => Number(a.id) - Number(b.id))
 );
+
+const ITEM_NAME_BY_ID = ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, item) => {
+    acc[item.id] = item.name;
+    return acc;
+}, {});
 
 const getBaseRun = (): DungeonRunState => ({
     id: "run-1",
@@ -87,6 +93,9 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
                 currentPower={0}
                 usesPartyPower
                 autoConsumables={false}
@@ -129,6 +138,9 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
                 currentPower={0}
                 usesPartyPower
                 autoConsumables={false}
@@ -173,6 +185,9 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
                 currentPower={0}
                 usesPartyPower
                 autoConsumables={false}
@@ -215,6 +230,9 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
                 currentPower={3}
                 usesPartyPower
                 autoConsumables={false}
@@ -253,6 +271,9 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
                 currentPower={3}
                 usesPartyPower={false}
                 autoConsumables={false}
@@ -291,6 +312,9 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
                 currentPower={3}
                 usesPartyPower
                 autoConsumables={false}
@@ -329,6 +353,9 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={0}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
                 currentPower={3}
                 usesPartyPower
                 autoConsumables={false}
@@ -366,6 +393,9 @@ describe("DungeonScreen controls", () => {
                 selectedPartyPlayerIds={["1", "2", "3", "4"]}
                 canEnterDungeon
                 foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
                 currentPower={0}
                 usesPartyPower
                 autoConsumables={false}
@@ -389,5 +419,79 @@ describe("DungeonScreen controls", () => {
         fireEvent.click(toggleButton);
         expect(screen.getByRole("log")).toBeTruthy();
         expect(screen.getByText("Dungeon: Damp Ruins")).toBeTruthy();
+    });
+
+    it("renders dungeon loot table with masked undiscovered entries and revealed discovered entries", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        const { rerender } = render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={3}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByText("Loot table")).toBeTruthy();
+        expect(screen.getAllByText("??").length).toBeGreaterThan(0);
+
+        rerender(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{ traveler_cape: 0 }}
+                discoveredItemIds={{ traveler_cape: true }}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={3}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByText("Traveler Cape")).toBeTruthy();
     });
 });

@@ -9,6 +9,7 @@ import {
 } from "../data/quests";
 import { createActionProgress } from "./state";
 import { applyProgressionDelta, createProgressionState } from "./progression";
+import { mergeDiscoveredItemIdsFromDelta } from "./inventory";
 import {
     DEFAULT_HP_MAX,
     DEFAULT_STAMINA_MAX,
@@ -112,9 +113,18 @@ const applyItemDelta = (
         nextItems[itemId] = Math.max(0, nextValue);
         addItemDelta(summary, itemId, change);
     });
+    const discoveryDelta = Object.entries(deltas).reduce<ItemDelta>((acc, [itemId, amount]) => {
+        const change = amount * multiplier;
+        if (change > 0) {
+            acc[itemId] = change;
+        }
+        return acc;
+    }, {});
+    const discoveredItemIds = mergeDiscoveredItemIdsFromDelta(inventory.discoveredItemIds, discoveryDelta);
     return {
         ...inventory,
-        items: nextItems
+        items: nextItems,
+        discoveredItemIds
     };
 };
 

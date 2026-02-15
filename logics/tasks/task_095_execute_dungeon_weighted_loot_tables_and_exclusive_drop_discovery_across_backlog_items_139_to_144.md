@@ -2,7 +2,7 @@
 > From version: 0.9.28
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Feature
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -30,31 +30,31 @@ This task orchestrates end-to-end delivery of dungeon-specific weighted loot wit
 - Final delivery requires full test battery pass.
 
 # Plan
-- [ ] 1. Baseline and guardrails:
+- [x] 1. Baseline and guardrails:
   - Confirm current dungeon reward paths and inventory/journal integration points.
   - Define seed-based deterministic test strategy.
-- [ ] 2. Execute `item_139` (loot schema + validation):
+- [x] 2. Execute `item_139` (loot schema + validation):
   - Add typed loot table contracts and per-dungeon data coverage.
   - Add schema/guard validation tests.
-- [ ] 3. Execute `item_140` (exclusive items + metadata):
+- [x] 3. Execute `item_140` (exclusive items + metadata):
   - Add ring/amulet exclusive rare items and source metadata.
   - Ensure non-dungeon loops cannot grant exclusive items.
-- [ ] 4. Execute `item_141` (runtime integration):
+- [x] 4. Execute `item_141` (runtime integration):
   - Implement exactly one weighted reward on victory.
   - Enforce no loot on failed/aborted runs.
-- [ ] 5. Execute `item_142` (inventory + journal + discovery state):
+- [x] 5. Execute `item_142` (inventory + journal + discovery state):
   - Persist loot + discovery flags.
   - Emit journal/event messages for obtained loot.
-- [ ] 6. Execute `item_143` (balance tuning):
+- [x] 6. Execute `item_143` (balance tuning):
   - Tune weights and power progression by dungeon tier.
   - Validate rarity/economy constraints.
-- [ ] 7. Execute `item_144` (coverage + regression):
+- [x] 7. Execute `item_144` (coverage + regression):
   - Add deterministic and UI masking tests.
   - Validate no regressions in dungeon/replay flows.
-- [ ] 8. Final mandatory full test battery:
+- [x] 8. Final mandatory full test battery:
   - Run complete validation suite.
   - Fix all failing checks before marking task complete.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # Validation
 Final gate (mandatory at task end):
@@ -67,4 +67,10 @@ Final gate (mandatory at task end):
 - `npm run test:e2e`
 
 # Report
-- Pending implementation.
+- Added typed dungeon loot table schema with validation helpers and per-dungeon table coverage.
+- Added dungeon-exclusive rare ring/amulet item set with metadata (`rarityTier`, `acquisitionSource`).
+- Integrated deterministic weighted loot roll at dungeon victory with exactly one non-gold reward per clear.
+- Wired loot inventory persistence, discovery flags, and action journal loot event entries.
+- Tuned loot pools to include shared and rare-exclusive entries with tier-based power progression.
+- Added regression coverage for runtime rules, loot table integrity, exclusivity constraints, and setup masking UI.
+- Full validation battery passed (`lint`, `typecheck`, `typecheck:tests`, `test:ci`, `coverage:ci`, `build`, `test:e2e`).

@@ -57,6 +57,31 @@ describe("serialization", () => {
         expect(save.inventory?.items.gold).toBe(state.inventory.items.gold);
     });
 
+    it("round-trips inventory discovery state and derives it from current inventory when missing", () => {
+        const state = createInitialGameState("0.9.0");
+        state.inventory.items.signet_ring = 1;
+        state.inventory.discoveredItemIds = {
+            ...(state.inventory.discoveredItemIds ?? {}),
+            signet_ring: true
+        };
+
+        const save = toGameSave(state);
+        const hydrated = hydrateGameState("0.9.0", save);
+        expect(hydrated.inventory.discoveredItemIds?.signet_ring).toBe(true);
+
+        const legacyLikeSave = {
+            ...save,
+            inventory: {
+                items: {
+                    ...save.inventory?.items,
+                    warding_amulet: 2
+                }
+            }
+        };
+        const hydratedLegacy = hydrateGameState("0.9.0", legacyLikeSave);
+        expect(hydratedLegacy.inventory.discoveredItemIds?.warding_amulet).toBe(true);
+    });
+
     it("hydrates active player from save when available", () => {
         const state = createInitialGameState("0.3.1");
         const save = toGameSave(state);

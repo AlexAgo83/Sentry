@@ -37,6 +37,11 @@ import { createPlayerEquipmentState, normalizePlayerEquipment } from "./equipmen
 import { createProgressionState, normalizeProgressionState } from "./progression";
 import { createDungeonState, normalizeDungeonState } from "./dungeon";
 import { ACTION_JOURNAL_LIMIT } from "./actionJournal";
+import {
+    mergeDiscoveredItemIds,
+    normalizeDiscoveredItemIds,
+    normalizeInventoryItems
+} from "./inventory";
 
 export const createActionProgress = (): ActionProgressState => ({
     currentInterval: 0,
@@ -48,6 +53,10 @@ const createInventoryState = (gold: number): InventoryState => ({
     items: {
         gold,
         food: 10
+    },
+    discoveredItemIds: {
+        gold: true,
+        food: true
     }
 });
 
@@ -415,19 +424,15 @@ const resolveInventory = (
         const candidate = (player as PlayerSaveState & { storage?: { gold?: number } }).storage?.gold ?? 0;
         return acc + (Number.isFinite(candidate) ? candidate : 0);
     }, 0);
-    const nextItems: Record<string, number> = {};
-    if (inventory?.items) {
-        Object.entries(inventory.items).forEach(([key, value]) => {
-            const numeric = Number(value);
-            if (Number.isFinite(numeric)) {
-                nextItems[key] = Math.max(0, Math.floor(numeric));
-            }
-        });
-    }
+    const nextItems = normalizeInventoryItems(inventory?.items);
     if (nextItems.gold === undefined) {
         nextItems.gold = legacyGold;
     }
-    return { items: nextItems };
+    const discoveredItemIds = mergeDiscoveredItemIds(
+        nextItems,
+        normalizeDiscoveredItemIds(inventory?.discoveredItemIds)
+    );
+    return { items: nextItems, discoveredItemIds };
 };
 
 export const normalizeRosterOrder = (

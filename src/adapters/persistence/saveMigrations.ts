@@ -16,6 +16,11 @@ import type { ProgressionState } from "../../core/types";
 import { normalizeProgressionState } from "../../core/progression";
 import { normalizeDungeonState } from "../../core/dungeon";
 import { DEFAULT_SKILL_XP_NEXT, SKILL_MAX_LEVEL, XP_NEXT_MULTIPLIER } from "../../core/constants";
+import {
+    mergeDiscoveredItemIds,
+    normalizeDiscoveredItemIds,
+    normalizeInventoryItems
+} from "../../core/inventory";
 import { getActionDefinition, getRecipeDefinition } from "../../data/definitions";
 import { ACTION_JOURNAL_LIMIT } from "../../core/actionJournal";
 
@@ -140,18 +145,12 @@ const normalizeInventory = (value: unknown): InventoryState | undefined => {
     if (!isObject(value)) {
         return undefined;
     }
-    const items = isObject(value.items) ? value.items : null;
-    if (!items) {
-        return { items: {} };
-    }
-    const next: Record<string, number> = {};
-    Object.entries(items).forEach(([key, amount]) => {
-        const numeric = typeof amount === "number" ? amount : Number(amount);
-        if (Number.isFinite(numeric)) {
-            next[key] = Math.max(0, Math.floor(numeric));
-        }
-    });
-    return { items: next };
+    const items = normalizeInventoryItems(value.items);
+    const discoveredItemIds = mergeDiscoveredItemIds(
+        items,
+        normalizeDiscoveredItemIds(value.discoveredItemIds)
+    );
+    return { items, discoveredItemIds };
 };
 
 const normalizeQuests = (value: unknown): QuestProgressState | undefined => {
@@ -372,13 +371,14 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
     const inventory = normalizeInventory(input.inventory);
     const legacyGold = legacyGoldFromPlayers(players);
     const finalInventory: InventoryState | undefined = (() => {
-        const base = inventory ?? { items: {} };
+        const base = inventory ?? { items: {}, discoveredItemIds: {} };
         if (!base) {
             return undefined;
         }
         if (base.items.gold === undefined) {
             base.items.gold = legacyGold;
         }
+        base.discoveredItemIds = mergeDiscoveredItemIds(base.items, base.discoveredItemIds);
         return base;
     })();
 

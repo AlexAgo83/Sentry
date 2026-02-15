@@ -21,6 +21,9 @@ type DungeonSetupViewProps = {
     safeRequiredFoodForStart: number;
     safeFoodCount: number;
     hasEnoughFood: boolean;
+    itemNameById: Record<string, string>;
+    discoveredItemIds?: Record<string, true>;
+    inventoryItems: Record<string, number>;
 };
 
 export const DungeonSetupView = ({
@@ -39,8 +42,15 @@ export const DungeonSetupView = ({
     hasPartySelection,
     safeRequiredFoodForStart,
     safeFoodCount,
-    hasEnoughFood
+    hasEnoughFood,
+    itemNameById,
+    discoveredItemIds,
+    inventoryItems
 }: DungeonSetupViewProps) => {
+    const selectedDungeon = definitions.find((definition) => definition.id === selectedDungeonId) ?? null;
+    const lootEntries = selectedDungeon?.lootTable.entries ?? [];
+    const totalLootWeight = lootEntries.reduce((sum, entry) => sum + Math.max(0, entry.weight), 0);
+
     return (
         <div className="ts-dungeon-setup-grid">
             <div className="ts-dungeon-card">
@@ -136,6 +146,30 @@ export const DungeonSetupView = ({
                 {!hasEnoughFood ? (
                     <p className="ts-system-helper ts-dungeon-cost-warning">Not enough food to start this dungeon.</p>
                 ) : null}
+
+                <div className="ts-dungeon-loot-table">
+                    <p className="ts-dungeon-loot-title">Loot table</p>
+                    <p className="ts-dungeon-loot-subtitle">1 reward per clear</p>
+                    {lootEntries.map((entry, index) => {
+                        const chance = totalLootWeight > 0 ? (entry.weight / totalLootWeight) * 100 : 0;
+                        const hasBeenDiscovered = Boolean(discoveredItemIds?.[entry.itemId])
+                            || (inventoryItems[entry.itemId] ?? 0) > 0;
+                        const displayName = hasBeenDiscovered ? (itemNameById[entry.itemId] ?? entry.itemId) : "??";
+                        const quantityLabel = entry.quantityMin === entry.quantityMax
+                            ? `x${entry.quantityMin}`
+                            : `x${entry.quantityMin}-${entry.quantityMax}`;
+                        return (
+                            <div
+                                key={`${entry.itemId}-${index}`}
+                                className={`ts-dungeon-loot-row${hasBeenDiscovered ? "" : " is-unknown"}`}
+                            >
+                                <span className="ts-dungeon-loot-name">{displayName}</span>
+                                <span className="ts-dungeon-loot-meta">{chance.toFixed(1)}%</span>
+                                <span className="ts-dungeon-loot-meta">{quantityLabel}</span>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );

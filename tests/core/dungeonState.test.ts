@@ -225,7 +225,11 @@ describe("dungeon selectors and helpers", () => {
             floorCount: 1,
             recommendedPower: 1,
             bossName: "Boss",
-            bossMechanic: "burst"
+            bossMechanic: "burst",
+            lootTable: {
+                rewardsPerClear: 1,
+                entries: [{ itemId: "food", weight: 1, quantityMin: 1, quantityMax: 1 }]
+            }
         };
         const multiFloor: DungeonDefinition = {
             id: "dungeon_multi",
@@ -234,7 +238,11 @@ describe("dungeon selectors and helpers", () => {
             floorCount: 10,
             recommendedPower: 1,
             bossName: "Boss",
-            bossMechanic: "burst"
+            bossMechanic: "burst",
+            lootTable: {
+                rewardsPerClear: 1,
+                entries: [{ itemId: "food", weight: 1, quantityMin: 1, quantityMax: 1 }]
+            }
         };
 
         expect(getDungeonStartFoodCost(singleFloor)).toBe(2);

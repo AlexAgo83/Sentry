@@ -3,6 +3,7 @@ import { gameStore } from "../game";
 import { useGameStore } from "../hooks/useGameStore";
 import { DUNGEON_DEFINITIONS } from "../../data/dungeons";
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
+import { ITEM_DEFINITIONS } from "../../data/definitions";
 import { getActiveDungeonRun } from "../../core/dungeon";
 import type { PlayerId } from "../../core/types";
 import { DungeonScreen } from "../components/DungeonScreen";
@@ -14,6 +15,8 @@ export const DungeonScreenContainer = () => {
     const activePlayerId = useGameStore((state) => state.activePlayerId);
     const setup = useGameStore((state) => state.dungeon.setup);
     const dungeon = useGameStore((state) => state.dungeon);
+    const inventoryItems = useGameStore((state) => state.inventory.items);
+    const discoveredItemIds = useGameStore((state) => state.inventory.discoveredItemIds);
     const foodCount = useGameStore((state) => state.inventory.items.food ?? 0);
     const autoConsumables = useGameStore((state) => state.dungeon.setup.autoConsumables);
     const consumablesCount = useGameStore((state) => {
@@ -29,6 +32,12 @@ export const DungeonScreenContainer = () => {
     const canEnterDungeon = playerCount >= 4;
     const [showReplay, setShowReplay] = useState(false);
     const hasPartySelection = setup.selectedPartyPlayerIds.length > 0;
+    const itemNameById = useMemo(() => {
+        return ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, item) => {
+            acc[item.id] = item.name;
+            return acc;
+        }, {});
+    }, []);
     const currentPower = useMemo(() => {
         const resolvePlayerPower = (playerId: PlayerId) => {
             const player = players[playerId];
@@ -96,6 +105,9 @@ export const DungeonScreenContainer = () => {
             selectedPartyPlayerIds={setup.selectedPartyPlayerIds}
             canEnterDungeon={canEnterDungeon}
             foodCount={foodCount}
+            inventoryItems={inventoryItems}
+            discoveredItemIds={discoveredItemIds}
+            itemNameById={itemNameById}
             currentPower={currentPower}
             usesPartyPower={hasPartySelection}
             autoConsumables={autoConsumables}

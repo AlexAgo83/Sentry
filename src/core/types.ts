@@ -57,6 +57,8 @@ export interface EquipmentItemDefinition {
     name: string;
     slot: EquipmentSlotId;
     weaponType?: WeaponType;
+    rarityTier?: "common" | "rare";
+    acquisitionSource?: "general" | "dungeon";
     modifiers: EquipmentStatModifier[];
 }
 
@@ -73,6 +75,7 @@ export interface PlayerStatsState {
 
 export interface InventoryState {
     items: Record<ItemId, number>;
+    discoveredItemIds?: Record<ItemId, true>;
 }
 
 export interface ItemDelta {
@@ -353,6 +356,19 @@ export interface DungeonDefinition {
     recommendedPower: number;
     bossName: string;
     bossMechanic: DungeonBossMechanicId;
+    lootTable: DungeonLootTable;
+}
+
+export interface DungeonLootEntry {
+    itemId: ItemId;
+    weight: number;
+    quantityMin: number;
+    quantityMax: number;
+}
+
+export interface DungeonLootTable {
+    rewardsPerClear: 1;
+    entries: DungeonLootEntry[];
 }
 
 export type PlayerSaveState = Omit<PlayerState, "actionProgress">;

@@ -127,6 +127,124 @@ describe("dungeon flow", () => {
         });
     });
 
+    it("grants exactly one non-gold loot reward on victory and marks it as discovered", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+
+        run.floor = run.floorCount;
+        run.encounterStep = 0;
+        run.enemies = [{
+            id: "boss-test",
+            name: "Test Boss",
+            hp: 1,
+            hpMax: 1,
+            damage: 1,
+            isBoss: true,
+            mechanic: null,
+            spawnIndex: 0
+        }];
+        run.targetEnemyId = "boss-test";
+
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 2_000);
+        const nonGoldLootEntries = Object.entries(result.itemDeltas).filter(([itemId, amount]) => itemId !== "gold" && amount > 0);
+        expect(nonGoldLootEntries).toHaveLength(1);
+        const droppedItemId = nonGoldLootEntries[0]?.[0];
+        expect(droppedItemId).toBeTruthy();
+        if (!droppedItemId) {
+            return;
+        }
+        expect(result.state.inventory.discoveredItemIds?.[droppedItemId]).toBe(true);
+    });
+
+    it("does not grant dungeon loot when the party wipes", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.inventory.items.food = 20;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const run = getActiveDungeonRun(state.dungeon);
+        expect(run).toBeTruthy();
+        if (!run) {
+            return;
+        }
+        run.party = run.party.map((member) => ({ ...member, hp: 0 }));
+
+        const result = applyDungeonTick(state, DUNGEON_BASE_ATTACK_MS, 2_000);
+        expect(result.state.dungeon.latestReplay?.status).toBe("failed");
+        const nonGoldLootEntries = Object.entries(result.itemDeltas).filter(([itemId, amount]) => itemId !== "gold" && amount > 0);
+        expect(nonGoldLootEntries).toHaveLength(0);
+    });
+
+    it("produces deterministic loot rewards with the same seed context", () => {
+        let baseState = createInitialGameState("0.9.0");
+        baseState.players["2"] = createPlayerState("2", "Mara");
+        baseState.players["3"] = createPlayerState("3", "Iris");
+        baseState.players["4"] = createPlayerState("4", "Kai");
+        baseState.inventory.items.food = 20;
+
+        baseState = gameReducer(baseState, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const configureBossKill = (state: typeof baseState) => {
+            const run = getActiveDungeonRun(state.dungeon);
+            if (!run) {
+                return;
+            }
+            run.floor = run.floorCount;
+            run.encounterStep = 0;
+            run.enemies = [{
+                id: "boss-test",
+                name: "Test Boss",
+                hp: 1,
+                hpMax: 1,
+                damage: 1,
+                isBoss: true,
+                mechanic: null,
+                spawnIndex: 0
+            }];
+            run.targetEnemyId = "boss-test";
+        };
+
+        const firstState = JSON.parse(JSON.stringify(baseState)) as typeof baseState;
+        const secondState = JSON.parse(JSON.stringify(baseState)) as typeof baseState;
+        configureBossKill(firstState);
+        configureBossKill(secondState);
+
+        const firstResult = applyDungeonTick(firstState, DUNGEON_BASE_ATTACK_MS, 2_000);
+        const secondResult = applyDungeonTick(secondState, DUNGEON_BASE_ATTACK_MS, 2_000);
+        const firstLoot = Object.entries(firstResult.itemDeltas).filter(([itemId, amount]) => itemId !== "gold" && amount > 0);
+        const secondLoot = Object.entries(secondResult.itemDeltas).filter(([itemId, amount]) => itemId !== "gold" && amount > 0);
+        expect(firstLoot).toEqual(secondLoot);
+    });
+
     it("updates auto restart for setup and active run", () => {
         let state = createInitialGameState("0.4.0");
         state.players["2"] = createPlayerState("2", "Mara");

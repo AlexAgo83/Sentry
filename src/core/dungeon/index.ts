@@ -4,3 +4,4 @@ export * from "./replay";
 export * from "./state";
 export * from "./lifecycle";
 export * from "./tick";
+export * from "./loot";

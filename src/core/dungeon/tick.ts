@@ -1,6 +1,9 @@
 import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../data/equipment";
 import { getDungeonDefinition } from "../../data/dungeons";
+import { ITEM_DEFINITIONS } from "../../data/definitions/items";
 import { appendActionJournalEntry } from "../actionJournal";
+import { mergeDiscoveredItemIdsFromDelta } from "../inventory";
+import { hashStringToSeed } from "../rng";
 import type {
     CombatSkillId,
     DungeonReplayEvent,
@@ -42,6 +45,7 @@ import {
     resolveMagicHealAmount,
     resolveThreatMultiplier
 } from "./formulas";
+import { rollDungeonLootReward } from "./loot";
 import {
     buildJournalEntryId,
     ensureRunCadenceState,
@@ -70,6 +74,11 @@ import {
     resolveTargetEnemy,
     resolveTargetHeroId
 } from "./state";
+
+const ITEM_NAME_BY_ID = ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, item) => {
+    acc[item.id] = item.name;
+    return acc;
+}, {});
 
 export type ApplyDungeonTickResult = {
     state: GameState;
@@ -547,6 +556,7 @@ export const applyDungeonTick = (
     const itemDeltas: ItemDelta = {};
     const combatActiveMsByPlayer: Record<PlayerId, number> = {};
     const combatXpByPlayer: Record<PlayerId, Partial<Record<CombatSkillId, number>>> = {};
+    let lootJournalLabel: string | null = null;
 
     runAutoRestartPhase(mutable, timestamp, itemDeltas);
     ensureRunCadenceState(mutable.run, mutable.players, timestamp);
@@ -630,6 +640,20 @@ export const applyDungeonTick = (
                 const bossGold = Math.max(25, definition.tier * 75);
                 mutable.inventory.items.gold = normalizeInventoryCount(mutable.inventory.items.gold) + bossGold;
                 addItemDelta(itemDeltas, "gold", bossGold);
+                const completionIndex = mutable.completionCounts[mutable.run.dungeonId] ?? 0;
+                const lootSeed = hashStringToSeed(`${mutable.run.seed}:loot:${mutable.run.runIndex}:${completionIndex}`);
+                const lootReward = rollDungeonLootReward(definition.lootTable, lootSeed);
+                if (lootReward && lootReward.quantity > 0) {
+                    mutable.inventory.items[lootReward.itemId] = normalizeInventoryCount(mutable.inventory.items[lootReward.itemId])
+                        + lootReward.quantity;
+                    addItemDelta(itemDeltas, lootReward.itemId, lootReward.quantity);
+                    mutable.inventory.discoveredItemIds = mergeDiscoveredItemIdsFromDelta(
+                        mutable.inventory.discoveredItemIds,
+                        { [lootReward.itemId]: lootReward.quantity }
+                    );
+                    const lootName = ITEM_NAME_BY_ID[lootReward.itemId] ?? lootReward.itemId;
+                    lootJournalLabel = `Dungeon loot: ${lootName} x${lootReward.quantity}`;
+                }
                 mutable.run.status = "victory";
                 mutable.run.endReason = "victory";
                 mutable.run.floorPauseMs = null;
@@ -722,6 +746,13 @@ export const applyDungeonTick = (
             at: timestamp,
             label: `Dungeon ended: ${dungeonLabel} (${reasonLabel})`
         });
+        if (lootJournalLabel) {
+            nextState = appendActionJournalEntry(nextState, {
+                id: buildJournalEntryId(timestamp + 1),
+                at: timestamp,
+                label: lootJournalLabel
+            });
+        }
     }
 
     return {

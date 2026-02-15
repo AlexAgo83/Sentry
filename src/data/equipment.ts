@@ -176,13 +176,133 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         id: "signet_ring",
         name: "Signet Ring",
         slot: "Ring",
+        rarityTier: "common",
+        acquisitionSource: "general",
         modifiers: [{ stat: "Luck", kind: "flat", value: 1 }]
     },
     {
         id: "warding_amulet",
         name: "Warding Amulet",
         slot: "Amulet",
+        rarityTier: "common",
+        acquisitionSource: "general",
         modifiers: [{ stat: "Intellect", kind: "flat", value: 1 }]
+    },
+    {
+        id: "ruins_luck_loop",
+        name: "Ruins Luck Loop",
+        slot: "Ring",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Luck", kind: "flat", value: 2 },
+            { stat: "Agility", kind: "flat", value: 1 }
+        ]
+    },
+    {
+        id: "cryptbone_charm",
+        name: "Cryptbone Charm",
+        slot: "Amulet",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Intellect", kind: "flat", value: 3 },
+            { stat: "Endurance", kind: "flat", value: 1 }
+        ]
+    },
+    {
+        id: "forgeheart_band",
+        name: "Forgeheart Band",
+        slot: "Ring",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 3 },
+            { stat: "Luck", kind: "flat", value: 2 }
+        ]
+    },
+    {
+        id: "nightveil_pendant",
+        name: "Nightveil Pendant",
+        slot: "Amulet",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Intellect", kind: "flat", value: 4 },
+            { stat: "Agility", kind: "flat", value: 2 }
+        ]
+    },
+    {
+        id: "citadel_bloodseal",
+        name: "Citadel Bloodseal",
+        slot: "Ring",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 4 },
+            { stat: "Luck", kind: "flat", value: 2 },
+            { stat: "Endurance", kind: "flat", value: 1 }
+        ]
+    },
+    {
+        id: "ember_oath_talisman",
+        name: "Ember Oath Talisman",
+        slot: "Amulet",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Intellect", kind: "flat", value: 5 },
+            { stat: "Endurance", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 1 }
+        ]
+    },
+    {
+        id: "abyssal_orbit",
+        name: "Abyssal Orbit",
+        slot: "Ring",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 5 },
+            { stat: "Luck", kind: "flat", value: 3 },
+            { stat: "Agility", kind: "flat", value: 1 }
+        ]
+    },
+    {
+        id: "thronebrand_amulet",
+        name: "Thronebrand Amulet",
+        slot: "Amulet",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Intellect", kind: "flat", value: 6 },
+            { stat: "Endurance", kind: "flat", value: 2 },
+            { stat: "Armor", kind: "flat", value: 2 }
+        ]
+    },
+    {
+        id: "nightless_sigil",
+        name: "Nightless Sigil",
+        slot: "Ring",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Strength", kind: "flat", value: 6 },
+            { stat: "Luck", kind: "flat", value: 3 },
+            { stat: "Agility", kind: "flat", value: 2 }
+        ]
+    },
+    {
+        id: "frostspire_relic",
+        name: "Frostspire Relic",
+        slot: "Amulet",
+        rarityTier: "rare",
+        acquisitionSource: "dungeon",
+        modifiers: [
+            { stat: "Intellect", kind: "flat", value: 7 },
+            { stat: "Endurance", kind: "flat", value: 3 },
+            { stat: "Armor", kind: "flat", value: 2 }
+        ]
     },
     {
         id: "invocation_tablet",
@@ -254,6 +374,16 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         modifiers: [{ stat: "Intellect", kind: "flat", value: 4 }]
     }
 ];
+
+export const DUNGEON_EXCLUSIVE_EQUIPMENT_IDS = EQUIPMENT_DEFINITIONS
+    .filter((item) => item.acquisitionSource === "dungeon")
+    .map((item) => item.id);
+
+const DUNGEON_EXCLUSIVE_EQUIPMENT_ID_SET = new Set(DUNGEON_EXCLUSIVE_EQUIPMENT_IDS);
+
+export const isDungeonExclusiveEquipmentItem = (itemId: string): boolean => {
+    return DUNGEON_EXCLUSIVE_EQUIPMENT_ID_SET.has(itemId);
+};
 
 const EQUIPMENT_BY_ID = EQUIPMENT_DEFINITIONS.reduce<Record<string, EquipmentItemDefinition>>((acc, item) => {
     acc[item.id] = item;

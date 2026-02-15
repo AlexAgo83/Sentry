@@ -36,6 +36,7 @@ import {
     updateDungeonOnboardingRequired
 } from "./dungeon";
 import { appendActionJournalEntry } from "./actionJournal";
+import { mergeDiscoveredItemIdsFromDelta } from "./inventory";
 
 const buildJournalEntryId = (timestamp: number) => {
     const suffix = Math.random().toString(36).slice(2, 8);
@@ -366,6 +367,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 return state;
             }
             const current = state.inventory.items[action.itemId] ?? 0;
+            const discoveredItemIds = mergeDiscoveredItemIdsFromDelta(state.inventory.discoveredItemIds, {
+                [action.itemId]: safeCount
+            });
             return {
                 ...state,
                 inventory: {
@@ -373,7 +377,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     items: {
                         ...state.inventory.items,
                         [action.itemId]: current + safeCount
-                    }
+                    },
+                    discoveredItemIds
                 }
             };
         }

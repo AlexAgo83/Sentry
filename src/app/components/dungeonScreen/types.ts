@@ -15,6 +15,9 @@ export type DungeonScreenProps = {
     selectedPartyPlayerIds: PlayerId[];
     canEnterDungeon: boolean;
     foodCount: number;
+    inventoryItems: Record<string, number>;
+    discoveredItemIds?: Record<string, true>;
+    itemNameById: Record<string, string>;
     currentPower: number;
     usesPartyPower: boolean;
     autoConsumables: boolean;

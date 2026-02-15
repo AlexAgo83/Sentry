@@ -7,6 +7,8 @@ export type {
     EquipmentSlotId,
     DungeonDefinition,
     DungeonId,
+    DungeonLootEntry,
+    DungeonLootTable,
     DungeonReplayEvent,
     DungeonReplayState,
     DungeonRunState,

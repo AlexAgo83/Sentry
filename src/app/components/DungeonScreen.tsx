@@ -18,6 +18,9 @@ export const DungeonScreen = memo(({
     selectedPartyPlayerIds,
     canEnterDungeon,
     foodCount,
+    inventoryItems,
+    discoveredItemIds,
+    itemNameById,
     currentPower,
     usesPartyPower,
     autoConsumables,
@@ -191,6 +194,9 @@ export const DungeonScreen = memo(({
                     safeRequiredFoodForStart={safeRequiredFoodForStart}
                     safeFoodCount={safeFoodCount}
                     hasEnoughFood={hasEnoughFood}
+                    itemNameById={itemNameById}
+                    discoveredItemIds={discoveredItemIds}
+                    inventoryItems={inventoryItems}
                 />
             ) : isReplayScreen && latestReplay ? (
                 <div className="ts-dungeon-replay-screen">
