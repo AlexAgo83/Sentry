@@ -23,9 +23,12 @@ describe("saveEnvelope", () => {
     it("detects v3 compressed payload corruption", () => {
         const save = toGameSave(createInitialGameState("0.8.0"));
         const envelope = createSaveEnvelopeV3(save, 123);
+        const pivotIndex = Math.floor(envelope.payloadCompressed.length / 2);
+        const pivotChar = envelope.payloadCompressed[pivotIndex] ?? "A";
+        const replacementChar = pivotChar === "A" ? "B" : "A";
         const tampered = {
             ...envelope,
-            payloadCompressed: `${envelope.payloadCompressed.slice(0, -1)}A`
+            payloadCompressed: `${envelope.payloadCompressed.slice(0, pivotIndex)}${replacementChar}${envelope.payloadCompressed.slice(pivotIndex + 1)}`
         };
 
         const parsed = parseSaveEnvelopeV3(JSON.stringify(tampered));
