@@ -223,8 +223,22 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
     color: var(--color-primary);
 }
 
+.ts-cloud-login-prompt-title-full {
+    display: inline;
+}
+
 .ts-cloud-login-prompt-title-mobile {
     display: none;
+}
+
+@media (max-width: 900px) {
+    .ts-cloud-login-prompt-title-full {
+        display: none;
+    }
+
+    .ts-cloud-login-prompt-title-mobile {
+        display: inline;
+    }
 }
 
 .ts-modal-close {
