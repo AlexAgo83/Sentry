@@ -1,8 +1,8 @@
 ## item_152_cloud_auth_memory_only_access_token_and_silent_refresh_autologin - Keep auto-login while removing persistent access token storage
 > From version: 0.9.31
-> Understanding: 95%
-> Confidence: 88%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: High
 > Theme: Security / Reliability
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -40,10 +40,20 @@ The Cloud access token is currently persisted in browser storage, which increase
 - Only 401/403 invalidates the session; network/warmup failures do not.
 - Tests exist covering token storage and silent refresh behavior.
 
+# Implementation notes
+- Access token storage is memory-only (legacy persisted tokens are purged best-effort):
+  - `src/app/api/cloudClient.ts`
+- Startup silent refresh + warmup semantics:
+  - `src/app/hooks/useCloudSave.ts`
+- Test coverage:
+  - `tests/app/cloudSavePanel.test.tsx`
+  - `tests/app/cloudSaveModal.test.tsx`
+
+Delivered in commits: `14a419e`.
+
 # Priority
 - Impact: High
 - Urgency: High
 
 # Notes
 - Derived from `logics/request/req_047_security_pwa_offline_ci_hardening_and_maintainability.md`.
-

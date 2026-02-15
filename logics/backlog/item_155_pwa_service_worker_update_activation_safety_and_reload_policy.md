@@ -1,8 +1,8 @@
 ## item_155_pwa_service_worker_update_activation_safety_and_reload_policy - Prevent mixed-version runtime by hardening SW update flow
 > From version: 0.9.31
 > Understanding: 92%
-> Confidence: 84%
-> Progress: 0%
+> Confidence: 88%
+> Progress: 100%
 > Complexity: High
 > Theme: PWA / Reliability
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -31,10 +31,20 @@ If the service worker activates immediately, a page can continue running with ol
 - “Update available” UX remains functional and results in controlled reload.
 - Tests exist for the client-side wiring at minimum.
 
+# Implementation notes
+- Remove auto-`skipWaiting()` on install; keep explicit activation via message + controlled reload:
+  - `public/sw.js`
+  - `src/pwa/serviceWorker.ts`
+  - `src/app/hooks/useServiceWorkerUpdatePrompt.ts`
+- Tests:
+  - `tests/pwa/serviceWorker.test.ts`
+  - `tests/public/sw.test.ts`
+
+Delivered in commits: `14a419e`.
+
 # Priority
 - Impact: High
 - Urgency: High
 
 # Notes
 - Derived from `logics/request/req_047_security_pwa_offline_ci_hardening_and_maintainability.md`.
-

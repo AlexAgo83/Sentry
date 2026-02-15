@@ -1,8 +1,8 @@
 ## item_153_backend_cors_allowlist_and_auth_middleware_short_circuit - Restrict CORS and ensure auth middleware stops execution
 > From version: 0.9.31
 > Understanding: 92%
-> Confidence: 86%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Security
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -29,10 +29,18 @@ Backend CORS is overly permissive in production and auth middleware may continue
 - Unauthorized requests do not proceed past auth middleware.
 - Tests cover both behaviors.
 
+# Implementation notes
+- CORS allowlist (`CORS_ORIGINS`) + auth short-circuit:
+  - `backend/server.js`
+  - `.env.example`
+- Tests:
+  - `tests/backend/corsAuth.test.ts`
+
+Delivered in commits: `14a419e`, `1794ea2`.
+
 # Priority
 - Impact: High
 - Urgency: High
 
 # Notes
 - Derived from `logics/request/req_047_security_pwa_offline_ci_hardening_and_maintainability.md`.
-

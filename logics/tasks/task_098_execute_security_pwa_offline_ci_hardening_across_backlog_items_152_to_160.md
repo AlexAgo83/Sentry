@@ -1,8 +1,8 @@
 ## task_098_execute_security_pwa_offline_ci_hardening_across_backlog_items_152_to_160 - Execute security, PWA, offline, and CI hardening across backlog items 152 to 160
 > From version: 0.9.31
-> Understanding: 93%
-> Confidence: 87%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: High
 > Theme: Security / Reliability / Refactor
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -37,38 +37,51 @@ This task hardens cloud auth security (no persistent access token), preserves au
 - Final delivery requires the full validation battery.
 
 # Plan
-- [ ] 1. Execute `item_152` (cloud auth: memory-only access token + auto-login):
+- [x] 1. Execute `item_152` (cloud auth: memory-only access token + auto-login):
   - Remove persistent access token storage.
   - Add startup silent refresh flow and state semantics.
   - Add/adjust tests for auto-login, refresh, and storage behavior.
-- [ ] 2. Execute `item_154` (warmup robustness):
+- [x] 2. Execute `item_154` (warmup robustness):
   - Introduce retry/backoff policy and copy/UX for warming/offline vs unauthorized.
   - Ensure warmup failures never clear auth (unless 401/403).
   - Add tests for recovery path.
-- [ ] 3. Execute `item_153` (backend CORS allowlist + auth short-circuit):
+- [x] 3. Execute `item_153` (backend CORS allowlist + auth short-circuit):
   - Add `CORS_ORIGINS` allowlist in production.
   - Ensure auth preHandler returns/throws after 401.
   - Add backend tests for allowlist logic and auth gating.
-- [ ] 4. Execute `item_155` (PWA update safety):
+- [x] 4. Execute `item_155` (PWA update safety):
   - Adjust SW install/activate behavior to avoid mixed-version runtime.
   - Align client update UX and controller-change reload behavior.
   - Add tests for the client-side wiring.
-- [ ] 5. Execute `item_156` (offline catch-up step cap correctness + tests):
+- [x] 5. Execute `item_156` (offline catch-up step cap correctness + tests):
   - Fix step cap semantics.
   - Add regression tests for invariants and long-away capping.
-- [ ] 6. Execute `item_157` (CI audit policy determinism):
+- [x] 6. Execute `item_157` (CI audit policy determinism):
   - Adjust `.github/workflows/ci.yml` audit step to the recommended policy.
   - Add or update documentation for the policy.
-- [ ] 7. Execute `item_158` (phase 2 refactor: backend route split):
+- [x] 7. Execute `item_158` (phase 2 refactor: backend route split):
   - Split `backend/server.js` into domain modules without behavior changes.
   - Keep tests green.
-- [ ] 8. Execute `item_159` (phase 2 refactor: core/renderer split):
+- [x] 8. Execute `item_159` (phase 2 refactor: core/renderer split):
   - Split hotspot modules along low-risk seams.
   - Keep tests green and avoid behavior changes.
-- [ ] 9. Execute `item_160` (req047 regression coverage + full battery):
+- [x] 9. Execute `item_160` (req047 regression coverage + full battery):
   - Ensure cross-cutting regression coverage exists.
   - Run the full validation suite and fix any failures.
-- [ ] FINAL: Update related Logics docs (request/backlog/task alignment)
+- [x] FINAL: Update related Logics docs (request/backlog/task alignment)
+
+# Implementation
+Delivered in:
+- `14a419e` (phase 1): security + offline + PWA + CI hardening.
+- `1794ea2` (phase 2): backend route split + hotspot refactors.
+
+Key outputs:
+- Cloud access token is memory-only (security migration included), auto-login preserved via startup silent refresh.
+- Warmup/backoff uses bounded delays + jitter and is cancellable (logout/offline).
+- Backend CORS is allowlisted in prod via `CORS_ORIGINS`, and auth middleware short-circuits.
+- Service worker update flow is explicit (no immediate takeover), preventing mixed-version runtime.
+- Offline stepping cap semantics + tick reporting are corrected and covered by regression tests.
+- CI audit policy is deterministic on PR/push; scheduled audit is report-only.
 
 # Validation
 Final gate (mandatory at task end):
@@ -80,3 +93,4 @@ Final gate (mandatory at task end):
 - `npm run build`
 - `npm run test:e2e`
 
+Status: all commands above executed successfully (2026-02-15).

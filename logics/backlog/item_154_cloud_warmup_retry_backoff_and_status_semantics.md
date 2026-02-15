@@ -1,8 +1,8 @@
 ## item_154_cloud_warmup_retry_backoff_and_status_semantics - Handle backend warmup without false logout
 > From version: 0.9.31
 > Understanding: 93%
-> Confidence: 85%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Reliability / UX
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -31,10 +31,19 @@ Render cold starts can cause slow or failing initial backend requests. If we tre
 - Cold-start backend behavior yields a recoverable UX (warming/offline) without forcing logout.
 - Retry policy is implemented and test-covered.
 
+# Implementation notes
+- Warmup retry/backoff with bounded delays + jitter; retries are cancellable on logout/offline:
+  - `src/app/hooks/useCloudSave.ts`
+- Request timeouts:
+  - `src/app/api/cloudClient.ts`
+- Existing panel tests cover warming/offline UX and retry affordance:
+  - `tests/app/cloudSavePanel.test.tsx`
+
+Delivered in commits: `14a419e`.
+
 # Priority
 - Impact: High
 - Urgency: High
 
 # Notes
 - Derived from `logics/request/req_047_security_pwa_offline_ci_hardening_and_maintainability.md`.
-
