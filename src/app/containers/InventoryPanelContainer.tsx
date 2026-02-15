@@ -62,17 +62,18 @@ export const InventoryPanelContainer = ({
     }, [setInventoryFilters]);
 
     const handleToggleInventoryItem = useCallback((itemId: string) => {
-        setSelectedInventoryItemId((current) => {
-            const nextId = current === itemId ? null : itemId;
-            if (nextId && onMarkItemSeen) {
-                onMarkItemSeen(nextId);
-            }
-            return nextId;
-        });
-    }, [onMarkItemSeen]);
+        // Keep this state update side-effect free (React may call the updater during render).
+        setSelectedInventoryItemId((current) => (current === itemId ? null : itemId));
+    }, []);
     const handleClearInventorySelection = useCallback(() => {
         setSelectedInventoryItemId(null);
     }, []);
+
+    useEffect(() => {
+        if (selectedInventoryItemId && onMarkItemSeen) {
+            onMarkItemSeen(selectedInventoryItemId);
+        }
+    }, [onMarkItemSeen, selectedInventoryItemId]);
 
     const inventoryView = useInventoryView({
         items: inventoryItems,
