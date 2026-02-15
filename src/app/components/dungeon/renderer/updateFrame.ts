@@ -6,6 +6,8 @@ import {
     DAMAGE_TINT_COLOR,
     DAMAGE_TINT_MS,
     ENEMY_SPAWN_FADE_MS,
+    MAGIC_SPIRAL_RADIUS,
+    MAGIC_SPIRAL_TURNS,
     MAGIC_BEAM_VFX_MS,
     MAGIC_ORBS_VFX_RADIUS,
     MAGIC_ORBS_VFX_SPACING,
@@ -18,6 +20,7 @@ import {
     MELEE_ARC_VFX_MS,
     MELEE_ARC_VFX_OFFSET,
     PROJECTILE_VFX_RADIUS,
+    RANGED_RECOIL_DISTANCE,
     RANGED_PROJECTILE_VFX_SCALE,
     RANGED_PROJECTILE_VFX_MS,
     VFX_SVG_BASE_MAGIC_ORB_RADIUS,
@@ -301,29 +304,52 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         const offsetX = Math.sin(shakeTime) * shakeAmplitude;
         const offsetY = Math.cos(shakeTime * 1.1) * shakeAmplitude;
 
-        let lungeX = 0;
-        let lungeY = 0;
+        let attackMotionX = 0;
+        let attackMotionY = 0;
         const attackCue = attackBySource.get(unit.id);
-        if (combatActive && attackCue && shouldApplyLunge(unit.weaponType)) {
+        if (combatActive && attackCue) {
             const age = frame.atMs - attackCue.atMs;
             if (age >= 0 && age <= ATTACK_LUNGE_MS) {
-                const target = unitById.get(attackCue.targetId);
-                if (target) {
-                    const targetX = toWorldX(target.x);
-                    const targetY = toWorldY(target.y);
-                    const dx = targetX - baseX;
-                    const dy = targetY - baseY;
-                    const length = Math.hypot(dx, dy) || 1;
-                    const phase = clamp(age / ATTACK_LUNGE_MS, 0, 1);
-                    const ease = Math.sin(Math.PI * phase);
-                    const distance = ATTACK_LUNGE_DISTANCE * (unit.isBoss ? 1.15 : 1);
-                    lungeX = (dx / length) * distance * ease;
-                    lungeY = (dy / length) * distance * ease;
+                const phase = clamp(age / ATTACK_LUNGE_MS, 0, 1);
+                const ease = Math.sin(Math.PI * phase);
+                const kind = resolveAttackVfxKind(unit.weaponType);
+                const target = unitById.get(attackCue.targetId) ?? null;
+
+                if (kind === "melee_arc") {
+                    if (target) {
+                        const targetX = toWorldX(target.x);
+                        const targetY = toWorldY(target.y);
+                        const dx = targetX - baseX;
+                        const dy = targetY - baseY;
+                        const length = Math.hypot(dx, dy) || 1;
+                        const distance = ATTACK_LUNGE_DISTANCE * (unit.isBoss ? 1.15 : 1);
+                        attackMotionX = (dx / length) * distance * ease;
+                        attackMotionY = (dy / length) * distance * ease;
+                    }
+                } else if (kind === "ranged_projectile") {
+                    // Ranged: slight recoil away from the target.
+                    if (target) {
+                        const targetX = toWorldX(target.x);
+                        const targetY = toWorldY(target.y);
+                        const dx = targetX - baseX;
+                        const dy = targetY - baseY;
+                        const length = Math.hypot(dx, dy) || 1;
+                        const distance = RANGED_RECOIL_DISTANCE * (unit.isBoss ? 1.1 : 1);
+                        attackMotionX = -(dx / length) * distance * ease;
+                        attackMotionY = -(dy / length) * distance * ease;
+                    }
+                } else {
+                    // Magic: swirl around its anchor point in a small spiral.
+                    const turns = MAGIC_SPIRAL_TURNS;
+                    const angle = phase * Math.PI * 2 * turns;
+                    const radius = MAGIC_SPIRAL_RADIUS * ease * (0.75 + 0.25 * phase);
+                    attackMotionX = Math.cos(angle) * radius;
+                    attackMotionY = Math.sin(angle) * radius;
                 }
             }
         }
 
-        node.container.position.set(baseX + offsetX + lungeX, baseY + offsetY + lungeY);
+        node.container.position.set(baseX + offsetX + attackMotionX, baseY + offsetY + attackMotionY);
     });
 
     const vfxKeysToRelease: string[] = [];
