@@ -164,6 +164,46 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
         description: "A charm that steadies the mind against harm.",
         iconId: "warding_amulet"
     },
+    ruins_luck_loop: {
+        description: "A relic ring recovered from ruined halls, humming with fortune.",
+        iconId: "ruins_luck_loop"
+    },
+    cryptbone_charm: {
+        description: "A bone charm etched with crypt runes, cold to the touch.",
+        iconId: "cryptbone_charm"
+    },
+    forgeheart_band: {
+        description: "A heavy band tempered in a forge's heartfire.",
+        iconId: "forgeheart_band"
+    },
+    nightveil_pendant: {
+        description: "A pendant that draws a thin veil of shadow around its wearer.",
+        iconId: "nightveil_pendant"
+    },
+    citadel_bloodseal: {
+        description: "A ring sealed in old blood, sworn to withstand the siege.",
+        iconId: "citadel_bloodseal"
+    },
+    ember_oath_talisman: {
+        description: "A talisman bound by an ember oath, warm even in the dark.",
+        iconId: "ember_oath_talisman"
+    },
+    abyssal_orbit: {
+        description: "A ring that spins with abyssal pull, always returning to its center.",
+        iconId: "abyssal_orbit"
+    },
+    thronebrand_amulet: {
+        description: "An amulet marked with a thronebrand, heavy with authority.",
+        iconId: "thronebrand_amulet"
+    },
+    nightless_sigil: {
+        description: "A sigil ring that refuses the night, sharp and watchful.",
+        iconId: "nightless_sigil"
+    },
+    frostspire_relic: {
+        description: "A relic from a frozen spire, clear and unyielding as ice.",
+        iconId: "frostspire_relic"
+    },
     invocation_tablet: {
         description: "Stone tablet etched with invocation sigils.",
         iconId: "invocation_tablet"
