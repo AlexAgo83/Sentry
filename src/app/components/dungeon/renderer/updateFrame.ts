@@ -28,6 +28,7 @@ import {
 import {
     createUnitNode,
     drawArena,
+    drawAttackCharge,
     drawCombatTypeIcon,
     drawEnemyBody,
     drawHeroBody,
@@ -229,6 +230,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
                 node.magicPulse.endFill();
             }
         }
+        drawAttackCharge(node, unit.attackCharge ?? 0, unit.weaponType ?? "Melee", unit.isEnemy, unit.alive);
         drawHp(node, unit.hp, unit.hpMax);
         drawTargetAndDeath(node, frame.targetEnemyId === unit.id, unit.alive);
         const baseAlpha = unit.alive ? 1 : 0.6;
@@ -444,6 +446,10 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             node.spawnAtMs = undefined;
             node.magicPulse.clear();
             node.magicPulse.visible = false;
+            node.attackBack.clear();
+            node.attackFill.clear();
+            node.attackBack.visible = false;
+            node.attackFill.visible = false;
         }
     });
     runtime.lastSeen = seen;

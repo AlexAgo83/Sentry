@@ -14,6 +14,7 @@ import {
 } from "./helpers";
 import type {
     ArenaEntityState,
+    DungeonCadenceSnapshotEntry,
     DungeonArenaFrame,
     DungeonArenaMagicCue,
     DungeonArenaAttackCue,
@@ -30,6 +31,7 @@ type BuildFrameInput = {
     partySeeds: HeroSeed[];
     totalMs: number;
     atMs: number;
+    cadenceSnapshot?: DungeonCadenceSnapshotEntry[];
     floatingAtMs?: number;
     overrideTargetEnemyId?: string | null;
     overrideStatusLabel?: string | null;
@@ -40,6 +42,7 @@ const buildFrameFromEvents = ({
     partySeeds,
     totalMs,
     atMs,
+    cadenceSnapshot,
     floatingAtMs,
     overrideTargetEnemyId,
     overrideStatusLabel
@@ -53,6 +56,7 @@ const buildFrameFromEvents = ({
     let statusLabel: string | null = overrideStatusLabel ?? null;
     let targetEnemyId: string | null = overrideTargetEnemyId ?? null;
     let bossId: string | null = null;
+    let floorStartAtMs = 0;
     const latestAttacks = new Map<string, DungeonArenaAttackCue>();
     const latestMagicHeals = new Map<string, DungeonArenaMagicCue>();
 
@@ -95,6 +99,7 @@ const buildFrameFromEvents = ({
     scopedEvents.forEach((event) => {
         if (event.type === "floor_start") {
             floorLabel = event.label ?? floorLabel;
+            floorStartAtMs = event.atMs;
             Object.keys(states).forEach((entityId) => {
                 if (!partyIds.has(entityId)) {
                     delete states[entityId];
@@ -102,6 +107,8 @@ const buildFrameFromEvents = ({
             });
             targetEnemyId = null;
             bossId = null;
+            latestAttacks.clear();
+            latestMagicHeals.clear();
             return;
         }
 
@@ -200,7 +207,22 @@ const buildFrameFromEvents = ({
         }
     });
 
-    const units = toUnitPositionMap(toSortedEntities(states));
+    const cadenceByPlayerId = new Map(
+        (cadenceSnapshot ?? []).map((entry) => [entry.playerId, entry])
+    );
+    const baseAttackMs = cadenceSnapshot?.[0]?.baseAttackMs ?? 700;
+    const units = toUnitPositionMap(toSortedEntities(states)).map((unit) => {
+        const cadence = unit.isEnemy ? null : cadenceByPlayerId.get(unit.id) ?? null;
+        const intervalMs = Math.max(
+            1,
+            Math.round(unit.isEnemy ? baseAttackMs : (cadence?.resolvedAttackIntervalMs ?? baseAttackMs))
+        );
+        const lastAttackAt = latestAttacks.get(unit.id)?.atMs;
+        const baselineAt = Number.isFinite(lastAttackAt) ? (lastAttackAt ?? floorStartAtMs) : floorStartAtMs;
+        const sinceMs = Math.max(0, atMs - baselineAt);
+        const attackCharge = intervalMs > 0 ? clamp(sinceMs / intervalMs, 0, 1) : 1;
+        return { ...unit, attackCharge };
+    });
     const boss = units.find((unit) => unit.id === bossId) ?? units.find((unit) => unit.isBoss);
     const floatingTime = Number.isFinite(floatingAtMs) ? Math.max(0, floatingAtMs ?? atMs) : atMs;
     const attackCues = [...latestAttacks.values()].filter((cue) => (
@@ -245,6 +267,7 @@ export const buildDungeonArenaLiveFrame = (
         partySeeds,
         totalMs,
         atMs: boundedAtMs,
+        cadenceSnapshot: run.cadenceSnapshot,
         floatingAtMs: floatingAtMs ?? atMs,
         overrideTargetEnemyId: run.targetEnemyId,
         overrideStatusLabel: run.status
@@ -282,7 +305,7 @@ export const buildDungeonArenaLiveFrame = (
                 spawnOrder: partySeeds.length + index
             };
         });
-        frame.units = toUnitPositionMap(toSortedEntities(fallbackStates));
+        frame.units = toUnitPositionMap(toSortedEntities(fallbackStates)).map((unit) => ({ ...unit, attackCharge: 0 }));
     }
 
     if (boundedAtMs >= run.elapsedMs) {
@@ -335,6 +358,7 @@ export const buildDungeonArenaReplayFrame = (
         partySeeds,
         totalMs,
         atMs: clamp(atMs, 0, totalMs),
+        cadenceSnapshot: replay.cadenceSnapshot,
         overrideStatusLabel: replay.status
     });
 };

@@ -19,6 +19,8 @@ export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     container.zIndex = 10;
     const silhouette = new PIXI.Graphics();
     const body = new PIXI.Graphics();
+    const attackBack = new PIXI.Graphics();
+    const attackFill = new PIXI.Graphics();
     const hpBack = new PIXI.Graphics();
     const hpFill = new PIXI.Graphics();
     const targetRing = new PIXI.Graphics();
@@ -38,13 +40,28 @@ export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     container.addChild(silhouette);
     container.addChild(body);
     container.addChild(combatIcon);
+    container.addChild(attackBack);
+    container.addChild(attackFill);
     container.addChild(hpBack);
     container.addChild(hpFill);
     container.addChild(deathMark);
     container.addChild(label);
     world.addChild(container);
 
-    return { container, silhouette, body, hpBack, hpFill, targetRing, magicPulse, deathMark, label, combatIcon };
+    return {
+        container,
+        silhouette,
+        body,
+        attackBack,
+        attackFill,
+        hpBack,
+        hpFill,
+        targetRing,
+        magicPulse,
+        deathMark,
+        label,
+        combatIcon
+    };
 };
 
 const OUTLINE_DIRECTIONS: Array<[number, number]> = [
@@ -204,6 +221,35 @@ export const drawHp = (node: UnitNode, hp: number, hpMax: number) => {
     node.hpFill.beginFill(ratio > 0.35 ? 0x4fcb99 : 0xe36d5f, 1);
     node.hpFill.drawRoundedRect(left + 1, top + 1, Math.max(0, (width - 2) * ratio), height - 2, 2);
     node.hpFill.endFill();
+};
+
+export const drawAttackCharge = (
+    node: UnitNode,
+    ratio: number,
+    weaponType: WeaponType | undefined,
+    isEnemy: boolean,
+    isAlive: boolean
+) => {
+    const clamped = Math.max(0, Math.min(1, ratio));
+    const width = 44;
+    const height = 4;
+    const left = -width / 2;
+    const top = -42;
+
+    const alpha = isAlive ? 0.95 : 0.35;
+    const fillColor = isEnemy
+        ? 0xd24a4a
+        : parseHexColor(getSkillIconColor(getCombatSkillIdForWeaponType(weaponType ?? "Melee")), 0xf2c14e);
+
+    node.attackBack.clear();
+    node.attackBack.beginFill(0x0e1220, 0.65 * alpha);
+    node.attackBack.drawRoundedRect(left, top, width, height, 2);
+    node.attackBack.endFill();
+
+    node.attackFill.clear();
+    node.attackFill.beginFill(fillColor, 0.85 * alpha);
+    node.attackFill.drawRoundedRect(left + 1, top + 1, Math.max(0, (width - 2) * clamped), height - 2, 2);
+    node.attackFill.endFill();
 };
 
 export const drawTargetAndDeath = (node: UnitNode, isTarget: boolean, isAlive: boolean) => {

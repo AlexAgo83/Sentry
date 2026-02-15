@@ -1,4 +1,5 @@
 import type {
+    DungeonCadenceSnapshotEntry,
     DungeonReplayEvent,
     DungeonReplayState,
     DungeonRunState,
@@ -9,6 +10,7 @@ import type {
 } from "../../../../core/types";
 
 export type {
+    DungeonCadenceSnapshotEntry,
     DungeonReplayEvent,
     DungeonReplayState,
     DungeonRunState,
@@ -72,6 +74,7 @@ export type DungeonArenaUnit = {
     isBoss: boolean;
     x: number;
     y: number;
+    attackCharge?: number;
     skinColor?: string;
     hairColor?: string;
     helmetVisible?: boolean;

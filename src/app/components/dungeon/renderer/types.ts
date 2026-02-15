@@ -14,6 +14,8 @@ export type UnitNode = {
     container: any;
     silhouette: any;
     body: any;
+    attackBack: any;
+    attackFill: any;
     hpBack: any;
     hpFill: any;
     targetRing: any;
