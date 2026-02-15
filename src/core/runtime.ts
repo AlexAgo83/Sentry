@@ -14,6 +14,7 @@ import { toGameSave } from "./serialization";
 import { GameStore } from "../store/gameStore";
 import { PersistenceAdapter } from "../adapters/persistence/types";
 import { OFFLINE_CAP_DAYS, RESTED_THRESHOLD_MS } from "./constants";
+import { runOfflineCatchUp } from "./runtime/offlineCatchUp";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const resolveOfflineCapDays = () => {
@@ -213,52 +214,32 @@ export class GameRuntime {
     };
 
     private runOfflineCatchUp = (from: number, to: number) => {
-        const diff = Math.max(0, to - from);
-        const processedMs = Math.min(diff, GameRuntime.MAX_OFFLINE_CATCH_UP_MS);
-        const end = from + processedMs;
         const offlineInterval = this.store.getState().loop.offlineInterval;
-        // Cap the offline stepping interval; it must be a maximum (not a floor) so tests and telemetry
-        // reflect the actual stepping behavior.
-        const stepMs = Math.min(offlineInterval, GameRuntime.MAX_OFFLINE_STEP_MS);
-        let tickTime = from;
-        let ticks = 0;
-        const totalItemDeltas: ItemDelta = {};
-        const playerItemDeltas: Record<string, ItemDelta> = {};
-        const dungeonItemDeltas: ItemDelta = {};
-        const dungeonItemDeltasByPlayer: Record<string, ItemDelta> = {};
-        const dungeonCombatXpByPlayer: Record<string, Partial<Record<CombatSkillId, number>>> = {};
-
-        while (tickTime < end) {
-            const nextTickTime = Math.min(end, tickTime + stepMs);
-            const deltaMs = nextTickTime - tickTime;
-            tickTime = nextTickTime;
-            this.store.dispatch({ type: "tick", deltaMs, timestamp: tickTime });
-            ticks += 1;
-            this.collectTickDeltas(
+        return runOfflineCatchUp({
+            from,
+            to,
+            capMs: GameRuntime.MAX_OFFLINE_CATCH_UP_MS,
+            offlineInterval,
+            maxStepMs: GameRuntime.MAX_OFFLINE_STEP_MS,
+            dispatchTick: (deltaMs, timestamp) => {
+                this.store.dispatch({ type: "tick", deltaMs, timestamp });
+            },
+            collectTickDeltas: (
                 totalItemDeltas,
                 playerItemDeltas,
                 dungeonItemDeltas,
                 dungeonItemDeltasByPlayer,
                 dungeonCombatXpByPlayer
-            );
-        }
-
-        const capped = processedMs < diff;
-        if (capped && to > end) {
-            this.store.dispatch({ type: "tick", deltaMs: 0, timestamp: to });
-        }
-
-        return {
-            diff,
-            processedMs,
-            capped,
-            ticks,
-            totalItemDeltas,
-            playerItemDeltas,
-            dungeonItemDeltas,
-            dungeonItemDeltasByPlayer,
-            dungeonCombatXpByPlayer
-        };
+            ) => {
+                this.collectTickDeltas(
+                    totalItemDeltas,
+                    playerItemDeltas,
+                    dungeonItemDeltas,
+                    dungeonItemDeltasByPlayer,
+                    dungeonCombatXpByPlayer
+                );
+            }
+        });
     };
 
     private persist = (options?: { force?: boolean; save?: GameSave; allowDisabled?: boolean }) => {

@@ -2,10 +2,14 @@ const fastify = require("fastify");
 const cors = require("@fastify/cors");
 const cookie = require("@fastify/cookie");
 const jwt = require("@fastify/jwt");
-const bcrypt = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
-const crypto = require("crypto");
 const { SAVE_SCHEMA_V1, validateSavePayload } = require("./saveSchema");
+const { registerHealthRoutes } = require("./routes/health");
+const { registerChangelogRoutes } = require("./routes/changelog");
+const { registerLeaderboardRoutes } = require("./routes/leaderboard");
+const { registerAuthRoutes } = require("./routes/auth");
+const { registerSaveRoutes } = require("./routes/saves");
+const { registerProfileRoutes } = require("./routes/profile");
 
 const MAX_SAVE_BYTES = 2 * 1024 * 1024;
 const AUTH_RATE_LIMIT_MAX = 20;
@@ -266,225 +270,6 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         secret: config.JWT_SECRET
     });
 
-    app.get("/health", async () => {
-        return { ok: true };
-    });
-
-    app.get("/api/changelog/commits", async (request, reply) => {
-        const owner = (process.env.GITHUB_OWNER || "").trim();
-        const repo = (process.env.GITHUB_REPO || "").trim();
-        if (!owner || !repo) {
-            reply.code(503).send({
-                error: "Changelog feed is not configured on the server.",
-                code: "not_configured"
-            });
-            return;
-        }
-
-        const page = parsePositiveInt(request.query?.page, 1);
-        const requestedPerPage = parsePositiveInt(request.query?.perPage, CHANGELOG_DEFAULT_PER_PAGE);
-        const perPage = Math.min(CHANGELOG_MAX_PER_PAGE, requestedPerPage);
-        const apiUrl = new URL(`/repos/${owner}/${repo}/commits`, GITHUB_API_BASE);
-        apiUrl.searchParams.set("page", String(page));
-        apiUrl.searchParams.set("per_page", String(perPage));
-
-        const headers = {
-            Accept: "application/vnd.github+json",
-            "User-Agent": "sentry-idle"
-        };
-        const githubToken = (process.env.GITHUB_TOKEN || "").trim();
-        if (githubToken) {
-            headers.Authorization = `Bearer ${githubToken}`;
-        }
-
-        let upstreamResponse;
-        try {
-            upstreamResponse = await fetch(apiUrl.toString(), {
-                method: "GET",
-                headers
-            });
-        } catch (error) {
-            request.log?.warn({ error }, "Changelog upstream request failed.");
-            reply.code(503).send({
-                error: "Changelog upstream is unreachable.",
-                code: "upstream_unreachable"
-            });
-            return;
-        }
-
-        if (!upstreamResponse.ok) {
-            const message = await parseGithubErrorMessage(upstreamResponse);
-            if (isGithubRateLimited(upstreamResponse, message)) {
-                const retryAfterSeconds = resolveRetryAfterSeconds(upstreamResponse);
-                if (retryAfterSeconds !== null) {
-                    reply.header("Retry-After", String(retryAfterSeconds));
-                }
-                reply.code(429).send({
-                    error: "GitHub rate limit reached. Please retry shortly.",
-                    code: "rate_limited"
-                });
-                return;
-            }
-            if (upstreamResponse.status === 404) {
-                reply.code(404).send({
-                    error: "Configured GitHub repository was not found.",
-                    code: "repo_not_found"
-                });
-                return;
-            }
-            request.log?.warn(
-                { status: upstreamResponse.status, message },
-                "Unexpected GitHub changelog response."
-            );
-            reply.code(502).send({
-                error: "Unable to fetch changelog commits from GitHub.",
-                code: "upstream_error"
-            });
-            return;
-        }
-
-        let commitsPayload;
-        try {
-            commitsPayload = await upstreamResponse.json();
-        } catch {
-            reply.code(502).send({
-                error: "Changelog response was invalid.",
-                code: "invalid_upstream_payload"
-            });
-            return;
-        }
-        if (!Array.isArray(commitsPayload)) {
-            reply.code(502).send({
-                error: "Changelog response was invalid.",
-                code: "invalid_upstream_payload"
-            });
-            return;
-        }
-
-        const items = commitsPayload
-            .map((entry) => normalizeGithubCommit(entry))
-            .filter((entry) => entry !== null);
-        const linkHeader = upstreamResponse.headers.get("link");
-        const hasNextPage = hasLinkRelation(linkHeader, "next");
-
-        reply.send({
-            items,
-            page,
-            perPage,
-            hasNextPage,
-            source: "github"
-        });
-    });
-
-    app.get("/api/v1/leaderboard", async (request, reply) => {
-        const cursorToken = typeof request.query?.cursor === "string"
-            ? request.query.cursor
-            : "";
-        const cursor = decodeLeaderboardCursor(cursorToken);
-
-        const page = parsePositiveInt(request.query?.page, 1);
-        const requestedPerPage = parsePositiveInt(request.query?.perPage, LEADERBOARD_DEFAULT_PER_PAGE);
-        const perPage = Math.min(LEADERBOARD_MAX_PER_PAGE, requestedPerPage);
-        if (!cursor && page > 1) {
-            reply.code(400).send({
-                error: "Legacy pagination is not supported. Please update the client.",
-                code: "legacy_pagination_not_supported"
-            });
-            return;
-        }
-
-        const orderBy = [
-            { virtualScore: "desc" },
-            { updatedAt: "desc" },
-            { id: "asc" }
-        ];
-        const includeUser = {
-            user: {
-                select: {
-                    id: true,
-                    email: true,
-                    username: true
-                }
-            }
-        };
-
-        const cursorRow = cursor
-            ? await prisma.save.findUnique({
-                where: { id: cursor.id },
-                select: { id: true, virtualScore: true, updatedAt: true }
-            })
-            : null;
-        if (cursor && !cursorRow) {
-            reply.code(400).send({
-                error: "Cursor is invalid.",
-                code: "invalid_cursor"
-            });
-            return;
-        }
-
-        const where = cursorRow
-            ? {
-                OR: [
-                    { virtualScore: { lt: cursorRow.virtualScore } },
-                    {
-                        AND: [
-                            { virtualScore: cursorRow.virtualScore },
-                            { updatedAt: { lt: cursorRow.updatedAt } }
-                        ]
-                    },
-                    {
-                        AND: [
-                            { virtualScore: cursorRow.virtualScore },
-                            { updatedAt: cursorRow.updatedAt },
-                            { id: { gt: cursorRow.id } }
-                        ]
-                    }
-                ]
-            }
-            : undefined;
-
-        const rows = await prisma.save.findMany({
-            take: perPage + 1,
-            orderBy,
-            where,
-            include: includeUser
-        });
-
-        const hasNextPage = rows.length > perPage;
-        const pageRows = rows.slice(0, perPage);
-        const previousRow = cursorRow ?? null;
-        const nextRow = hasNextPage ? rows[perPage] ?? null : null;
-
-        const items = pageRows.map((entry, index) => {
-            const previousScore = index > 0
-                ? pageRows[index - 1]?.virtualScore ?? null
-                : previousRow?.virtualScore ?? null;
-            const nextScore = index < pageRows.length - 1
-                ? pageRows[index + 1]?.virtualScore ?? null
-                : nextRow?.virtualScore ?? null;
-            const isExAequo = entry.virtualScore === previousScore || entry.virtualScore === nextScore;
-            return {
-                userId: entry.user.id,
-                displayName: resolveDisplayName(entry.user),
-                virtualScore: entry.virtualScore,
-                updatedAt: entry.updatedAt.toISOString(),
-                appVersion: entry.appVersion,
-                isExAequo
-            };
-        });
-
-        const nextCursor = hasNextPage && pageRows.length > 0
-            ? encodeLeaderboardCursor(pageRows[pageRows.length - 1].id)
-            : null;
-
-        reply.send({
-            items,
-            perPage,
-            hasNextPage,
-            nextCursor
-        });
-    });
-
     const resolveClientKey = (request) => {
         const forwardedFor = request.headers["x-forwarded-for"];
         const forwardedIp = typeof forwardedFor === "string" ? forwardedFor.split(",")[0].trim() : "";
@@ -552,336 +337,49 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
         }
     });
 
-    const signAccessToken = (userId) => app.jwt.sign(
-        { sub: userId, type: "access" },
-        { expiresIn: `${config.ACCESS_TTL_MINUTES}m` }
-    );
-
-    const signRefreshToken = (userId, tokenId) => app.jwt.sign(
-        { sub: userId, type: "refresh", jti: tokenId },
-        { expiresIn: `${config.REFRESH_TTL_DAYS}d` }
-    );
-
-    const cookieSameSite = config.isProduction ? "none" : "lax";
-    const cookieSecure = config.isProduction;
-
-    const setRefreshCookie = (reply, token) => {
-        reply.setCookie(REFRESH_COOKIE_NAME, token, {
-            httpOnly: true,
-            sameSite: cookieSameSite,
-            secure: cookieSecure,
-            path: "/api/v1/auth/refresh",
-            maxAge: config.REFRESH_TTL_DAYS * 24 * 60 * 60
-        });
-    };
-
-    const setCsrfCookie = (reply, token) => {
-        reply.setCookie(CSRF_COOKIE_NAME, token, {
-            httpOnly: false,
-            sameSite: cookieSameSite,
-            secure: cookieSecure,
-            path: "/",
-            maxAge: config.REFRESH_TTL_DAYS * 24 * 60 * 60
-        });
-    };
-
-    const hashToken = (value) => crypto.createHash("sha256").update(value).digest("hex");
-    const generateTokenId = () => (crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(16).toString("hex"));
-    const generateCsrfToken = () => crypto.randomBytes(16).toString("hex");
-
-    const issueRefreshToken = async (userId) => {
-        const tokenId = generateTokenId();
-        const refreshToken = signRefreshToken(userId, tokenId);
-        const expiresAt = new Date(Date.now() + config.REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000);
-        await prisma.refreshToken.create({
-            data: {
-                userId,
-                tokenHash: hashToken(tokenId),
-                expiresAt
-            }
-        });
-        return refreshToken;
-    };
-
-    const issueAuthTokens = async (userId, reply) => {
-        const accessToken = signAccessToken(userId);
-        const refreshToken = await issueRefreshToken(userId);
-        const csrfToken = generateCsrfToken();
-        setRefreshCookie(reply, refreshToken);
-        setCsrfCookie(reply, csrfToken);
-        return { accessToken, csrfToken };
-    };
-
-    const verifyRefreshCsrf = (request, reply) => {
-        const csrfCookie = request.cookies?.[CSRF_COOKIE_NAME];
-        const csrfHeader = request.headers?.[CSRF_HEADER_NAME];
-        if (!csrfCookie || typeof csrfHeader !== "string" || csrfCookie !== csrfHeader) {
-            reply.code(403).send({ error: "Invalid CSRF token." });
-            return false;
-        }
-        return true;
-    };
-
-    app.post("/api/v1/auth/register", {
-        preHandler: [authRateLimit]
-    }, async (request, reply) => {
-        const { email, password } = request.body ?? {};
-        if (typeof email !== "string" || typeof password !== "string") {
-            reply.code(400).send({ error: "Invalid payload." });
-            return;
-        }
-        const normalizedEmail = email.trim().toLowerCase();
-        if (!normalizedEmail || password.length < 6) {
-            reply.code(400).send({ error: "Email or password is invalid." });
-            return;
-        }
-
-        const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-        if (existing) {
-            reply.code(409).send({ error: "Account already exists." });
-            return;
-        }
-
-        const passwordHash = await bcrypt.hash(password, 10);
-        const user = await prisma.user.create({
-            data: {
-                email: normalizedEmail,
-                passwordHash
-            }
-        });
-
-        const { accessToken, csrfToken } = await issueAuthTokens(user.id, reply);
-        reply.send({ accessToken, csrfToken });
+    registerHealthRoutes(app);
+    registerChangelogRoutes(app, {
+        parsePositiveInt,
+        hasLinkRelation,
+        normalizeGithubCommit,
+        parseGithubErrorMessage,
+        isGithubRateLimited,
+        resolveRetryAfterSeconds,
+        githubApiBase: GITHUB_API_BASE,
+        defaultPerPage: CHANGELOG_DEFAULT_PER_PAGE,
+        maxPerPage: CHANGELOG_MAX_PER_PAGE
     });
-
-    app.post("/api/v1/auth/login", {
-        preHandler: [authRateLimit]
-    }, async (request, reply) => {
-        const { email, password } = request.body ?? {};
-        if (typeof email !== "string" || typeof password !== "string") {
-            reply.code(400).send({ error: "Invalid payload." });
-            return;
-        }
-
-        const normalizedEmail = email.trim().toLowerCase();
-        const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-        if (!user) {
-            reply.code(401).send({ error: "Invalid credentials." });
-            return;
-        }
-
-        const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) {
-            reply.code(401).send({ error: "Invalid credentials." });
-            return;
-        }
-
-        const { accessToken, csrfToken } = await issueAuthTokens(user.id, reply);
-        reply.send({ accessToken, csrfToken });
+    registerLeaderboardRoutes(app, {
+        prisma,
+        parsePositiveInt,
+        decodeLeaderboardCursor,
+        encodeLeaderboardCursor,
+        resolveDisplayName,
+        defaultPerPage: LEADERBOARD_DEFAULT_PER_PAGE,
+        maxPerPage: LEADERBOARD_MAX_PER_PAGE
     });
-
-    app.post("/api/v1/auth/refresh", {
-        preHandler: [authRateLimit]
-    }, async (request, reply) => {
-        const token = request.cookies?.[REFRESH_COOKIE_NAME];
-        if (!token) {
-            reply.code(401).send({ error: "Missing refresh token." });
-            return;
-        }
-        if (!verifyRefreshCsrf(request, reply)) {
-            return;
-        }
-
-        try {
-            const payload = await app.jwt.verify(token);
-            if (!payload || payload.type !== "refresh" || !payload.jti) {
-                reply.code(401).send({ error: "Invalid refresh token." });
-                return;
-            }
-            const userId = typeof payload.sub === "string" ? payload.sub : null;
-            if (!userId) {
-                reply.code(401).send({ error: "Invalid refresh token." });
-                return;
-            }
-            const record = await prisma.refreshToken.findUnique({
-                where: { tokenHash: hashToken(payload.jti) }
-            });
-            if (!record || record.revokedAt || record.expiresAt <= new Date() || record.userId !== userId) {
-                reply.code(401).send({ error: "Invalid refresh token." });
-                return;
-            }
-            await prisma.refreshToken.update({
-                where: { tokenHash: hashToken(payload.jti) },
-                data: { revokedAt: new Date() }
-            });
-
-            const { accessToken, csrfToken } = await issueAuthTokens(userId, reply);
-            reply.send({ accessToken, csrfToken });
-        } catch {
-            reply.code(401).send({ error: "Invalid refresh token." });
-        }
+    registerAuthRoutes(app, {
+        prisma,
+        config,
+        authRateLimit,
+        refreshCookieName: REFRESH_COOKIE_NAME,
+        csrfCookieName: CSRF_COOKIE_NAME,
+        csrfHeaderName: CSRF_HEADER_NAME
     });
-
-    app.get("/api/v1/saves/latest", { preHandler: [app.authenticate] }, async (request, reply) => {
-        const userId = request.user?.sub;
-        if (!userId) {
-            reply.code(401).send({ error: "Unauthorized" });
-            return;
-        }
-
-        const save = await prisma.save.findUnique({ where: { userId } });
-        if (!save) {
-            reply.code(204).send();
-            return;
-        }
-
-        reply.send({
-            payload: save.payload,
-            meta: {
-                updatedAt: save.updatedAt.toISOString(),
-                virtualScore: save.virtualScore,
-                appVersion: save.appVersion
-            }
-        });
+    registerSaveRoutes(app, {
+        prisma,
+        validateSavePayload,
+        saveSchemaV1: SAVE_SCHEMA_V1,
+        maxSaveBytes: MAX_SAVE_BYTES
     });
-
-    app.put("/api/v1/saves/latest", { preHandler: [app.authenticate], bodyLimit: MAX_SAVE_BYTES }, async (request, reply) => {
-        const userId = request.user?.sub;
-        if (!userId) {
-            reply.code(401).send({ error: "Unauthorized" });
-            return;
-        }
-
-        const { payload, virtualScore, appVersion } = request.body ?? {};
-        const validation = validateSavePayload(payload);
-        if (!validation.ok) {
-            request.log?.warn({ reason: validation.error, schema: SAVE_SCHEMA_V1.$id }, "Invalid save payload.");
-            reply.code(400).send({ error: validation.error });
-            return;
-        }
-        if (!Number.isFinite(virtualScore)) {
-            reply.code(400).send({ error: "Invalid virtual score." });
-            return;
-        }
-        if (typeof appVersion !== "string" || appVersion.trim().length === 0) {
-            reply.code(400).send({ error: "Invalid app version." });
-            return;
-        }
-
-        const saved = await prisma.save.upsert({
-            where: { userId },
-            update: {
-                payload,
-                virtualScore: Math.floor(virtualScore),
-                appVersion: appVersion.trim()
-            },
-            create: {
-                userId,
-                payload,
-                virtualScore: Math.floor(virtualScore),
-                appVersion: appVersion.trim()
-            }
-        });
-
-        reply.send({
-            meta: {
-                updatedAt: saved.updatedAt.toISOString(),
-                virtualScore: saved.virtualScore,
-                appVersion: saved.appVersion
-            }
-        });
-    });
-
-    app.get("/api/v1/users/me/profile", { preHandler: [app.authenticate] }, async (request, reply) => {
-        const userId = request.user?.sub;
-        if (!userId) {
-            reply.code(401).send({ error: "Unauthorized" });
-            return;
-        }
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                email: true,
-                username: true
-            }
-        });
-        if (!user) {
-            reply.code(404).send({ error: "User not found." });
-            return;
-        }
-        reply.send({
-            profile: {
-                email: user.email,
-                username: user.username ?? null,
-                maskedEmail: maskEmail(user.email),
-                displayName: resolveDisplayName(user)
-            }
-        });
-    });
-
-    app.patch("/api/v1/users/me/profile", { preHandler: [app.authenticate] }, async (request, reply) => {
-        const userId = request.user?.sub;
-        if (!userId) {
-            reply.code(401).send({ error: "Unauthorized" });
-            return;
-        }
-        const rawUsername = request.body?.username;
-        const normalizedUsername = normalizeUsernameInput(rawUsername);
-        if (normalizedUsername === "__invalid__") {
-            reply.code(400).send({ error: "Invalid username payload." });
-            return;
-        }
-        if (normalizedUsername !== null && normalizedUsername.length > USERNAME_MAX_LENGTH) {
-            reply.code(400).send({ error: `Username must be ${USERNAME_MAX_LENGTH} characters or fewer.` });
-            return;
-        }
-        if (normalizedUsername !== null && !isUsernameValid(normalizedUsername)) {
-            reply.code(400).send({ error: "Username must use letters and numbers only." });
-            return;
-        }
-
-        const usernameCanonical = normalizeUsernameCanonical(normalizedUsername);
-        if (usernameCanonical) {
-            const existing = await prisma.user.findFirst({
-                where: {
-                    usernameCanonical,
-                    id: { not: userId }
-                },
-                select: { id: true }
-            });
-            if (existing) {
-                reply.code(409).send({ error: "Username is already taken." });
-                return;
-            }
-        }
-
-        try {
-            const updated = await prisma.user.update({
-                where: { id: userId },
-                data: {
-                    username: normalizedUsername,
-                    usernameCanonical
-                },
-                select: {
-                    email: true,
-                    username: true
-                }
-            });
-            reply.send({
-                profile: {
-                    email: updated.email,
-                    username: updated.username ?? null,
-                    maskedEmail: maskEmail(updated.email),
-                    displayName: resolveDisplayName(updated)
-                }
-            });
-        } catch (error) {
-            if (error && typeof error === "object" && error.code === "P2002") {
-                reply.code(409).send({ error: "Username is already taken." });
-                return;
-            }
-            throw error;
-        }
+    registerProfileRoutes(app, {
+        prisma,
+        maskEmail,
+        resolveDisplayName,
+        normalizeUsernameInput,
+        isUsernameValid,
+        normalizeUsernameCanonical,
+        usernameMaxLength: USERNAME_MAX_LENGTH
     });
 
     app.addHook("onClose", async () => {
