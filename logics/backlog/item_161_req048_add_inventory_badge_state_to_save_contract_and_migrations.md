@@ -1,8 +1,8 @@
 ## item_161_req048_add_inventory_badge_state_to_save_contract_and_migrations - Persist inventory NEW badge state inside the save contract (schema + migrations)
 > From version: 0.9.31
 > Understanding: 95%
-> Confidence: 88%
-> Progress: 0%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Persistence / UX
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -41,4 +41,3 @@ Inventory "NEW item" badges are currently local-only (stored in `localStorage`),
 
 # Notes
 - Derived from `logics/request/req_048_persist_inventory_new_item_badges_in_save.md`.
-

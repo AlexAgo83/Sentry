@@ -1,8 +1,8 @@
 ## item_162_req048_wire_inventory_new_badges_to_persisted_state_and_remove_localstorage_source_of_truth - Make NEW badges derive from persisted save state (not localStorage)
 > From version: 0.9.31
 > Understanding: 92%
-> Confidence: 86%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UX / State
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -39,4 +39,3 @@ Even if we add persisted badge fields, the UI will remain inconsistent until the
 
 # Notes
 - Derived from `logics/request/req_048_persist_inventory_new_item_badges_in_save.md`.
-

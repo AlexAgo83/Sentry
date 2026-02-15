@@ -1,8 +1,8 @@
 ## task_099_execute_inventory_new_badge_persistence_across_backlog_items_161_to_163 - Execute inventory NEW badge persistence across backlog items 161 to 163
 > From version: 0.9.31
 > Understanding: 95%
-> Confidence: 88%
-> Progress: 0%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UX / Persistence
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -27,16 +27,16 @@ This task moves inventory "NEW item" badge state from device-local storage into 
 - Final delivery requires tests covering serialization + upgrade invariants.
 
 # Plan
-- [ ] 1. Execute `item_161` (schema + migrations):
+- [x] 1. Execute `item_161` (schema + migrations):
   - Add persisted badge state fields to the save contract.
   - Implement safe defaults + normalization/migrations.
-- [ ] 2. Execute `item_162` (runtime wiring):
+- [x] 2. Execute `item_162` (runtime wiring):
   - Compute NEW badges from inventory ownership + persisted seen sets.
   - Ensure mark-seen updates game state (persisted), not `localStorage`.
-- [ ] 3. Execute `item_163` (legacy import + regression tests):
+- [x] 3. Execute `item_163` (legacy import + regression tests):
   - One-time legacy import when save has no badge state.
   - Add tests for round-trip + upgrade behavior + “no flood of NEW”.
-- [ ] FINAL: Update related Logics docs (request/backlog/task alignment)
+- [x] FINAL: Update related Logics docs (request/backlog/task alignment)
 
 # Validation
 Final gate (mandatory at task end):
@@ -44,4 +44,3 @@ Final gate (mandatory at task end):
 - `npm run typecheck`
 - `npm run typecheck:tests`
 - `npm run test:ci`
-

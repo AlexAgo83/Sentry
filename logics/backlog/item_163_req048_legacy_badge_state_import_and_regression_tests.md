@@ -1,8 +1,8 @@
 ## item_163_req048_legacy_badge_state_import_and_regression_tests - Import legacy localStorage badge state once and add regression tests
 > From version: 0.9.31
 > Understanding: 90%
-> Confidence: 82%
-> Progress: 0%
+> Confidence: 88%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Migration / Testing
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -46,4 +46,3 @@ Existing players may have a long history of seen/unseen badges stored in `localS
 
 # Notes
 - Derived from `logics/request/req_048_persist_inventory_new_item_badges_in_save.md`.
-
