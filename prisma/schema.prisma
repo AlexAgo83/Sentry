@@ -27,6 +27,10 @@ model Save {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Supports deterministic leaderboard ordering and keyset (cursor) pagination:
+  // virtualScore DESC, updatedAt DESC, id ASC.
+  @@index([virtualScore(sort: Desc), updatedAt(sort: Desc), id(sort: Asc)])
 }
 
 model RefreshToken {

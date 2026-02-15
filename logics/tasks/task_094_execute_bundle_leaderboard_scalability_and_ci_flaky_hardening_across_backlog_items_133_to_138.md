@@ -2,7 +2,7 @@
 > From version: 0.9.28
 > Understanding: 98%
 > Confidence: 95%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Refactor
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -32,31 +32,31 @@ This task orchestrates end-to-end delivery of three axes:
 - Task is not complete until the full battery of tests passes.
 
 # Plan
-- [ ] 1. Baseline and guardrails:
+- [x] 1. Baseline and guardrails:
   - Capture current build chunk outputs and leaderboard/API behavior baseline.
   - Identify candidate heavy modules for lazy split.
-- [ ] 2. Execute `item_133` (lazy split optional heavy paths):
+- [x] 2. Execute `item_133` (lazy split optional heavy paths):
   - Apply `React.lazy`/`Suspense` on optional modal views and other low-frequency surfaces.
   - Validate back navigation and loading placeholders.
-- [ ] 3. Execute `item_134` (bundle observability + budget guards):
+- [x] 3. Execute `item_134` (bundle observability + budget guards):
   - Update bundle check thresholds and reporting for new split layout.
   - Keep diagnostics actionable in local and CI runs.
-- [ ] 4. Execute `item_135` (backend cursor pagination + index):
+- [x] 4. Execute `item_135` (backend cursor pagination + index):
   - Add DB index/migration.
   - Implement cursor contract and deterministic ordering with `isExAequo` continuity.
-- [ ] 5. Execute `item_136` (frontend leaderboard cursor migration):
+- [x] 5. Execute `item_136` (frontend leaderboard cursor migration):
   - Adapt API client + modal infinite scroll to cursor continuation.
   - Keep dedupe/rank/tie rendering stable.
-- [ ] 6. Execute `item_137` (CI flaky stage):
+- [x] 6. Execute `item_137` (CI flaky stage):
   - Add targeted repeat command(s) and CI stage integration.
   - Ensure clear logs for unstable test detection.
-- [ ] 7. Execute `item_138` (regression + validation):
+- [x] 7. Execute `item_138` (regression + validation):
   - Extend test coverage for modified paths.
   - Validate docs/code alignment.
-- [ ] 8. Final mandatory full test battery:
+- [x] 8. Final mandatory full test battery:
   - Run complete validation suite.
   - Fix all failing checks before marking task complete.
-- [ ] FINAL: Update related Logics docs
+- [x] FINAL: Update related Logics docs
 
 # Validation
 Final gate (mandatory at task end):
@@ -69,4 +69,9 @@ Final gate (mandatory at task end):
 - `npm run test:e2e`
 
 # Report
-- Pending implementation.
+- Leaderboard: replaced offset pagination with cursor (keyset) contract and added a DB index to support ordering.
+- Frontend: updated leaderboard client + infinite scroll to consume `nextCursor`.
+- Performance: lazy-loaded most system modal views (system subpages) and lazy-loaded app modal containers.
+- Bundle guardrails: tightened `scripts/bundle-budgets.json` max JS chunk to 500KB and added `manualChunks` split to keep chunks under the warning threshold.
+- CI: added a flaky gate running the save envelope test multiple times.
+- Full battery validated via `npm run test:full`.

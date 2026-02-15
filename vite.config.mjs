@@ -27,6 +27,20 @@ export default defineConfig(({ mode }) => {
                 input: [
                     "./index.html"
                 ],
+                output: {
+                    manualChunks(id) {
+                        if (id.includes("/node_modules/pixi.js/") || id.includes("/node_modules/@pixi/")) {
+                            return "pixi";
+                        }
+                        if (id.includes("node_modules")) {
+                            return "vendor";
+                        }
+                        if (id.includes("/src/core/")) {
+                            return "core";
+                        }
+                        return undefined;
+                    }
+                },
                 plugins: [
                     visualizer({
                         filename: "dist/bundle-report.html",

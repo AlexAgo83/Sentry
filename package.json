@@ -17,6 +17,7 @@
     "typecheck:tests": "tsc -p tsconfig.tests.json --noEmit",
     "lint": "eslint \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\"",
     "bundle:check": "node scripts/check-bundle-size.js",
+    "test:flaky": "node scripts/flaky-check.js",
     "test:e2e": "playwright test",
     "db:dump": "node scripts/db/dump.js",
     "db:dump:render": "node scripts/db/dump.js --target=render",

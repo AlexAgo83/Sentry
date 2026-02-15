@@ -257,30 +257,30 @@ describe("App", () => {
         expect(testStore.getState().offlineSummary).toBeNull();
 
         await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);
+        await screen.findByRole("heading", { name: "Settings" });
         const systemDialog = await screen.findByRole("dialog");
 
         const devToolsButton = within(systemDialog).queryByRole("button", { name: "Dev tools" });
         if (devToolsButton) {
             await user.click(devToolsButton);
+            const simulateButton = await screen.findByRole("button", { name: "Simulate +30 min" });
+            await user.click(simulateButton);
+            expect(testRuntime.simulateOffline).toHaveBeenCalledWith(30 * 60 * 1000);
             const devDialog = (await screen.findAllByRole("dialog")).at(-1);
             if (!devDialog) {
                 throw new Error("Dev tools dialog not found");
             }
-            await user.click(within(devDialog).getByRole("button", { name: "Simulate +30 min" }));
-            expect(testRuntime.simulateOffline).toHaveBeenCalledWith(30 * 60 * 1000);
             await user.click(within(devDialog).getByRole("button", { name: "Back" }));
         }
 
         await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);
+        await screen.findByRole("heading", { name: "Settings" });
         const systemDialogAgain = await screen.findByRole("dialog");
 
         await user.click(within(systemDialogAgain).getByRole("button", { name: "Save options" }));
-        const saveOptionsDialog = (await screen.findAllByRole("dialog")).at(-1);
-        if (!saveOptionsDialog) {
-            throw new Error("Save options dialog not found");
-        }
-
-        await user.click(within(saveOptionsDialog).getByRole("button", { name: "Local save" }));
+        await screen.findByRole("heading", { name: "Save" });
+        const localSaveButton = await screen.findByRole("button", { name: "Local save" });
+        await user.click(localSaveButton);
         const localDialog = (await screen.findAllByRole("dialog")).at(-1);
         if (!localDialog) {
             throw new Error("Local save dialog not found");
@@ -289,9 +289,10 @@ describe("App", () => {
         const confirmSpy = vi.spyOn(window, "confirm");
         confirmSpy.mockReturnValueOnce(false).mockReturnValueOnce(true);
 
-        await user.click(within(localDialog).getByRole("button", { name: "Reset save" }));
+        const resetButton = await screen.findByRole("button", { name: "Reset save" });
+        await user.click(resetButton);
         expect(testRuntime.reset).not.toHaveBeenCalled();
-        await user.click(within(localDialog).getByRole("button", { name: "Reset save" }));
+        await user.click(resetButton);
         expect(testRuntime.reset).toHaveBeenCalled();
     });
 
@@ -365,6 +366,7 @@ describe("App", () => {
             throw new Error("System dialog not found");
         }
         await user.click(within(systemDialog).getByRole("button", { name: "Telemetry" }));
+        await screen.findByRole("heading", { name: "Telemetry" });
         const telemetryDialog = (await screen.findAllByRole("dialog")).at(-1);
         expect(telemetryDialog).toBeTruthy();
         if (!telemetryDialog) {

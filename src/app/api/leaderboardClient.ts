@@ -9,9 +9,9 @@ export type LeaderboardEntry = {
 
 export type LeaderboardResponse = {
     items: LeaderboardEntry[];
-    page: number;
     perPage: number;
     hasNextPage: boolean;
+    nextCursor: string | null;
 };
 
 type LeaderboardErrorBody = {
@@ -60,13 +60,12 @@ const parseErrorResponse = async (response: Response): Promise<LeaderboardApiErr
 };
 
 export const leaderboardClient = {
-    async getEntries(page: number, perPage = 10): Promise<LeaderboardResponse> {
-        const safePage = Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
+    async getEntries(cursor: string | null, perPage = 10): Promise<LeaderboardResponse> {
         const safePerPage = Number.isFinite(perPage) ? Math.max(1, Math.min(10, Math.floor(perPage))) : 10;
-        const query = new URLSearchParams({
-            page: String(safePage),
-            perPage: String(safePerPage)
-        });
+        const query = new URLSearchParams({ perPage: String(safePerPage) });
+        if (typeof cursor === "string" && cursor.trim().length > 0) {
+            query.set("cursor", cursor.trim());
+        }
         const response = await fetch(buildUrl(`/api/v1/leaderboard?${query.toString()}`), {
             method: "GET",
             credentials: "omit",

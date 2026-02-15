@@ -1,8 +1,8 @@
 ## item_136_update_leaderboard_frontend_infinite_scroll_to_cursor_contract - Update leaderboard frontend infinite scroll to cursor contract
 > From version: 0.9.28
 > Understanding: 97%
-> Confidence: 94%
-> Progress: 0%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UI
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.

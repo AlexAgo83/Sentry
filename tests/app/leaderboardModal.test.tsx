@@ -39,9 +39,9 @@ describe("LeaderboardModal", () => {
                         isExAequo: true
                     }
                 ],
-                page: 1,
                 perPage: 10,
-                hasNextPage: true
+                hasNextPage: true,
+                nextCursor: "cursor_1"
             })
             .mockResolvedValueOnce({
                 items: [
@@ -54,26 +54,27 @@ describe("LeaderboardModal", () => {
                         isExAequo: true
                     }
                 ],
-                page: 2,
                 perPage: 10,
-                hasNextPage: false
+                hasNextPage: false,
+                nextCursor: null
             });
 
         render(<LeaderboardModal onClose={vi.fn()} />);
 
-        expect(screen.getByTestId("leaderboard-loading")).toBeTruthy();
-        expect(await screen.findByText("Aegis")).toBeTruthy();
-        expect(getEntriesMock).toHaveBeenCalledWith(1, 10);
-
         const shell = screen.getByTestId("leaderboard-list-shell");
         Object.defineProperty(shell, "clientHeight", { value: 240, configurable: true });
         Object.defineProperty(shell, "scrollHeight", { value: 500, configurable: true });
+
+        expect(screen.getByTestId("leaderboard-loading")).toBeTruthy();
+        expect(await screen.findByText("Aegis")).toBeTruthy();
+        expect(getEntriesMock).toHaveBeenCalledWith(null, 10);
+
         Object.defineProperty(shell, "scrollTop", { value: 270, configurable: true, writable: true });
         fireEvent.scroll(shell);
 
         expect(await screen.findByText("Guard")).toBeTruthy();
-        expect(getEntriesMock).toHaveBeenCalledWith(2, 10);
-        expect(screen.getByTestId("leaderboard-end")).toBeTruthy();
+        expect(getEntriesMock).toHaveBeenCalledWith("cursor_1", 10);
+        expect(await screen.findByTestId("leaderboard-end")).toBeTruthy();
         expect(screen.getAllByText("Ex aequo").length).toBe(2);
     });
 
@@ -91,9 +92,9 @@ describe("LeaderboardModal", () => {
                         isExAequo: false
                     }
                 ],
-                page: 1,
                 perPage: 10,
-                hasNextPage: false
+                hasNextPage: false,
+                nextCursor: null
             });
 
         render(<LeaderboardModal onClose={vi.fn()} />);

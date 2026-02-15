@@ -28,6 +28,8 @@ jobs:
         run: npm run typecheck
       - name: Typecheck (tests)
         run: npm run typecheck:tests
+      - name: Flaky gate (save envelope)
+        run: npm run test:flaky
       - name: Tests (CI config)
         run: npm run test:ci
       - name: Coverage (CI config)

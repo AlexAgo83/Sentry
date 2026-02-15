@@ -1,18 +1,58 @@
-import { memo, useState } from "react";
-import { ActionJournalModal } from "./ActionJournalModal";
-import { CloudSaveModal } from "./CloudSaveModal";
-import { ChangelogsModal } from "./ChangelogsModal";
-import { CrashReportsModal } from "./CrashReportsModal";
-import { DevToolsModal } from "./DevToolsModal";
-import { GraphicsModal } from "./GraphicsModal";
-import { LeaderboardModal } from "./LeaderboardModal";
-import { LocalSaveModal } from "./LocalSaveModal";
+import { lazy, memo, Suspense, useState } from "react";
 import { ModalShell } from "./ModalShell";
-import { SaveOptionsModal } from "./SaveOptionsModal";
-import { TelemetryModal } from "./TelemetryModal";
 import type { CrashReport } from "../../observability/crashReporter";
 import type { ActionJournalEntry } from "../../core/types";
 import type { SaveCopyResult } from "../hooks/useSaveManagement";
+
+const LazyActionJournalModal = lazy(async () => {
+    const mod = await import("./ActionJournalModal");
+    return { default: mod.ActionJournalModal };
+});
+
+const LazyCloudSaveModal = lazy(async () => {
+    const mod = await import("./CloudSaveModal");
+    return { default: mod.CloudSaveModal };
+});
+
+const LazyChangelogsModal = lazy(async () => {
+    const mod = await import("./ChangelogsModal");
+    return { default: mod.ChangelogsModal };
+});
+
+const LazyCrashReportsModal = lazy(async () => {
+    const mod = await import("./CrashReportsModal");
+    return { default: mod.CrashReportsModal };
+});
+
+const LazyDevToolsModal = lazy(async () => {
+    const mod = await import("./DevToolsModal");
+    return { default: mod.DevToolsModal };
+});
+
+const LazyGraphicsModal = lazy(async () => {
+    const mod = await import("./GraphicsModal");
+    return { default: mod.GraphicsModal };
+});
+
+const LazyLeaderboardModal = lazy(async () => {
+    const mod = await import("./LeaderboardModal");
+    return { default: mod.LeaderboardModal };
+});
+
+const LazyLocalSaveModal = lazy(async () => {
+    const mod = await import("./LocalSaveModal");
+    return { default: mod.LocalSaveModal };
+});
+
+const LazySaveOptionsModal = lazy(async () => {
+    const mod = await import("./SaveOptionsModal");
+    return { default: mod.SaveOptionsModal };
+});
+
+const LazyTelemetryModal = lazy(async () => {
+    const mod = await import("./TelemetryModal");
+    return { default: mod.TelemetryModal };
+});
 
 type SystemModalView =
     | "settings"
@@ -95,98 +135,132 @@ export const SystemModal = memo(({
         });
     };
 
+    const loadingFallback = (
+        <ModalShell kicker="System" title="Loading" onClose={closeCurrentView} closeLabel="Back">
+            <p className="ts-system-helper">Loading...</p>
+        </ModalShell>
+    );
+
     if (currentView === "actionJournal") {
         return (
-            <ActionJournalModal
-                actionJournal={actionJournal}
-                onClose={closeCurrentView}
-                closeLabel="Back"
-            />
+            <Suspense fallback={loadingFallback}>
+                <LazyActionJournalModal
+                    actionJournal={actionJournal}
+                    onClose={closeCurrentView}
+                    closeLabel="Back"
+                />
+            </Suspense>
         );
     }
 
     if (currentView === "telemetry") {
         return (
-            <TelemetryModal
-                version={version}
-                lastTick={lastTick}
-                lastTickDurationMs={lastTickDurationMs}
-                lastDeltaMs={lastDeltaMs}
-                lastDriftMs={lastDriftMs}
-                driftEmaMs={driftEmaMs}
-                driftLabel={driftLabel}
-                lastOfflineTicks={lastOfflineTicks}
-                lastOfflineDurationMs={lastOfflineDurationMs}
-                tickRate={tickRate}
-                loopInterval={loopInterval}
-                offlineInterval={offlineInterval}
-                virtualScore={virtualScore}
-                crashCount={crashReports.length}
-                onClose={closeCurrentView}
-                closeLabel="Back"
-            />
+            <Suspense fallback={loadingFallback}>
+                <LazyTelemetryModal
+                    version={version}
+                    lastTick={lastTick}
+                    lastTickDurationMs={lastTickDurationMs}
+                    lastDeltaMs={lastDeltaMs}
+                    lastDriftMs={lastDriftMs}
+                    driftEmaMs={driftEmaMs}
+                    driftLabel={driftLabel}
+                    lastOfflineTicks={lastOfflineTicks}
+                    lastOfflineDurationMs={lastOfflineDurationMs}
+                    tickRate={tickRate}
+                    loopInterval={loopInterval}
+                    offlineInterval={offlineInterval}
+                    virtualScore={virtualScore}
+                    crashCount={crashReports.length}
+                    onClose={closeCurrentView}
+                    closeLabel="Back"
+                />
+            </Suspense>
         );
     }
 
     if (currentView === "graphics") {
-        return <GraphicsModal onClose={closeCurrentView} closeLabel="Back" />;
+        return (
+            <Suspense fallback={loadingFallback}>
+                <LazyGraphicsModal onClose={closeCurrentView} closeLabel="Back" />
+            </Suspense>
+        );
     }
 
     if (currentView === "saveOptions") {
         return (
-            <SaveOptionsModal
-                onOpenLocalSave={() => openView("localSave")}
-                onOpenCloudSave={() => openView("cloudSave")}
-                onClose={closeCurrentView}
-                closeLabel="Back"
-            />
+            <Suspense fallback={loadingFallback}>
+                <LazySaveOptionsModal
+                    onOpenLocalSave={() => openView("localSave")}
+                    onOpenCloudSave={() => openView("cloudSave")}
+                    onClose={closeCurrentView}
+                    closeLabel="Back"
+                />
+            </Suspense>
         );
     }
 
     if (currentView === "localSave") {
         return (
-            <LocalSaveModal
-                onExportSave={onExportSave}
-                onImportSave={onImportSave}
-                onResetSave={onResetSave}
-                onClose={closeCurrentView}
-                closeLabel="Back"
-            />
+            <Suspense fallback={loadingFallback}>
+                <LazyLocalSaveModal
+                    onExportSave={onExportSave}
+                    onImportSave={onImportSave}
+                    onResetSave={onResetSave}
+                    onClose={closeCurrentView}
+                    closeLabel="Back"
+                />
+            </Suspense>
         );
     }
 
     if (currentView === "cloudSave") {
-        return <CloudSaveModal onClose={closeCurrentView} closeLabel="Back" />;
+        return (
+            <Suspense fallback={loadingFallback}>
+                <LazyCloudSaveModal onClose={closeCurrentView} closeLabel="Back" />
+            </Suspense>
+        );
     }
 
     if (currentView === "leaderboard") {
-        return <LeaderboardModal onClose={closeCurrentView} closeLabel="Back" />;
+        return (
+            <Suspense fallback={loadingFallback}>
+                <LazyLeaderboardModal onClose={closeCurrentView} closeLabel="Back" />
+            </Suspense>
+        );
     }
 
     if (currentView === "changelogs") {
-        return <ChangelogsModal onClose={closeCurrentView} closeLabel="Back" />;
+        return (
+            <Suspense fallback={loadingFallback}>
+                <LazyChangelogsModal onClose={closeCurrentView} closeLabel="Back" />
+            </Suspense>
+        );
     }
 
     if (currentView === "crashReports") {
         return (
-            <CrashReportsModal
-                crashReports={crashReports}
-                onClearCrashReports={onClearCrashReports}
-                onClose={closeCurrentView}
-                closeLabel="Back"
-            />
+            <Suspense fallback={loadingFallback}>
+                <LazyCrashReportsModal
+                    crashReports={crashReports}
+                    onClearCrashReports={onClearCrashReports}
+                    onClose={closeCurrentView}
+                    closeLabel="Back"
+                />
+            </Suspense>
         );
     }
 
     if (currentView === "devTools") {
         return (
-            <DevToolsModal
-                onClose={closeCurrentView}
-                onSimulateOffline={onSimulateOffline}
-                onSimulateOfflineHour={onSimulateOfflineHour}
-                onSimulateOfflineDay={onSimulateOfflineDay}
-                closeLabel="Back"
-            />
+            <Suspense fallback={loadingFallback}>
+                <LazyDevToolsModal
+                    onClose={closeCurrentView}
+                    onSimulateOffline={onSimulateOffline}
+                    onSimulateOfflineHour={onSimulateOfflineHour}
+                    onSimulateOfflineDay={onSimulateOfflineDay}
+                    closeLabel="Back"
+                />
+            </Suspense>
         );
     }
 

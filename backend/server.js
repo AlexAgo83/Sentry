@@ -81,6 +81,54 @@ const resolveRetryAfterSeconds = (response) => {
     return null;
 };
 
+const toBase64Url = (value) => (
+    Buffer.from(value, "utf8")
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "")
+);
+
+const fromBase64Url = (value) => {
+    const normalized = String(value ?? "")
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    return Buffer.from(padded, "base64").toString("utf8");
+};
+
+const encodeLeaderboardCursor = (id) => {
+    if (typeof id !== "string" || id.trim().length === 0) {
+        return null;
+    }
+    return toBase64Url(JSON.stringify({ v: 1, id }));
+};
+
+const decodeLeaderboardCursor = (token) => {
+    if (typeof token !== "string") {
+        return null;
+    }
+    const trimmed = token.trim();
+    if (!trimmed) {
+        return null;
+    }
+    try {
+        const payload = JSON.parse(fromBase64Url(trimmed));
+        if (!payload || typeof payload !== "object") {
+            return null;
+        }
+        if (payload.v !== 1) {
+            return null;
+        }
+        if (typeof payload.id !== "string" || payload.id.trim().length === 0) {
+            return null;
+        }
+        return { id: payload.id };
+    } catch {
+        return null;
+    }
+};
+
 const normalizeGithubCommit = (entry) => {
     if (!entry || typeof entry.sha !== "string" || entry.sha.trim().length === 0) {
         return null;
@@ -315,10 +363,22 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
     });
 
     app.get("/api/v1/leaderboard", async (request, reply) => {
+        const cursorToken = typeof request.query?.cursor === "string"
+            ? request.query.cursor
+            : "";
+        const cursor = decodeLeaderboardCursor(cursorToken);
+
         const page = parsePositiveInt(request.query?.page, 1);
         const requestedPerPage = parsePositiveInt(request.query?.perPage, LEADERBOARD_DEFAULT_PER_PAGE);
         const perPage = Math.min(LEADERBOARD_MAX_PER_PAGE, requestedPerPage);
-        const offset = (page - 1) * perPage;
+        if (!cursor && page > 1) {
+            reply.code(400).send({
+                error: "Legacy pagination is not supported. Please update the client.",
+                code: "legacy_pagination_not_supported"
+            });
+            return;
+        }
+
         const orderBy = [
             { virtualScore: "desc" },
             { updatedAt: "desc" },
@@ -334,26 +394,51 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
             }
         };
 
-        const [rows, previousRowResult] = await Promise.all([
-            prisma.save.findMany({
-                skip: offset,
-                take: perPage + 1,
-                orderBy,
-                include: includeUser
-            }),
-            offset > 0
-                ? prisma.save.findMany({
-                    skip: offset - 1,
-                    take: 1,
-                    orderBy,
-                    include: includeUser
-                })
-                : Promise.resolve([])
-        ]);
+        const cursorRow = cursor
+            ? await prisma.save.findUnique({
+                where: { id: cursor.id },
+                select: { id: true, virtualScore: true, updatedAt: true }
+            })
+            : null;
+        if (cursor && !cursorRow) {
+            reply.code(400).send({
+                error: "Cursor is invalid.",
+                code: "invalid_cursor"
+            });
+            return;
+        }
+
+        const where = cursorRow
+            ? {
+                OR: [
+                    { virtualScore: { lt: cursorRow.virtualScore } },
+                    {
+                        AND: [
+                            { virtualScore: cursorRow.virtualScore },
+                            { updatedAt: { lt: cursorRow.updatedAt } }
+                        ]
+                    },
+                    {
+                        AND: [
+                            { virtualScore: cursorRow.virtualScore },
+                            { updatedAt: cursorRow.updatedAt },
+                            { id: { gt: cursorRow.id } }
+                        ]
+                    }
+                ]
+            }
+            : undefined;
+
+        const rows = await prisma.save.findMany({
+            take: perPage + 1,
+            orderBy,
+            where,
+            include: includeUser
+        });
 
         const hasNextPage = rows.length > perPage;
         const pageRows = rows.slice(0, perPage);
-        const previousRow = previousRowResult[0] ?? null;
+        const previousRow = cursorRow ?? null;
         const nextRow = hasNextPage ? rows[perPage] ?? null : null;
 
         const items = pageRows.map((entry, index) => {
@@ -374,11 +459,15 @@ const buildServer = ({ prismaClient, logger = true } = {}) => {
             };
         });
 
+        const nextCursor = hasNextPage && pageRows.length > 0
+            ? encodeLeaderboardCursor(pageRows[pageRows.length - 1].id)
+            : null;
+
         reply.send({
             items,
-            page,
             perPage,
-            hasNextPage
+            hasNextPage,
+            nextCursor
         });
     });
 

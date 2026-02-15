@@ -3,7 +3,6 @@ import {
     leaderboardClient,
     LeaderboardApiError,
     type LeaderboardEntry,
-    type LeaderboardResponse
 } from "../api/leaderboardClient";
 import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 import { ModalShell } from "./ModalShell";
@@ -67,15 +66,13 @@ const withRanks = (items: LeaderboardEntry[]): RankedEntry[] => {
 
 export const LeaderboardModal = memo(({ onClose, closeLabel }: LeaderboardModalProps) => {
     const [items, setItems] = useState<LeaderboardEntry[]>([]);
-    const [nextPage, setNextPage] = useState(1);
+    const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [hasNextPage, setHasNextPage] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [loadedAtLeastOnce, setLoadedAtLeastOnce] = useState(false);
     const [error, setError] = useState<LeaderboardApiError | null>(null);
-    const pageCacheRef = useRef<Map<number, LeaderboardResponse>>(new Map());
-    const loadedPagesRef = useRef<Set<number>>(new Set());
     const requestIdRef = useRef(0);
-    const failedPageRef = useRef<number | null>(null);
+    const failedCursorRef = useRef<string | null>(null);
     const listShellRef = useRef<HTMLDivElement | null>(null);
     const bootstrappedRef = useRef(false);
 
@@ -94,20 +91,9 @@ export const LeaderboardModal = memo(({ onClose, closeLabel }: LeaderboardModalP
         });
     }, []);
 
-    const loadPage = useCallback(async (pageToLoad: number, options?: { force?: boolean }) => {
+    const loadMore = useCallback(async (cursor: string | null, options?: { force?: boolean }) => {
         const force = options?.force ?? false;
-        if (!force && (isLoading || loadedPagesRef.current.has(pageToLoad))) {
-            return;
-        }
-
-        const cached = pageCacheRef.current.get(pageToLoad);
-        if (cached && !force) {
-            loadedPagesRef.current.add(pageToLoad);
-            appendUniqueItems(cached.items);
-            setNextPage(cached.page + 1);
-            setHasNextPage(cached.hasNextPage);
-            setLoadedAtLeastOnce(true);
-            setError(null);
+        if (!force && isLoading) {
             return;
         }
 
@@ -117,17 +103,15 @@ export const LeaderboardModal = memo(({ onClose, closeLabel }: LeaderboardModalP
         requestIdRef.current = requestId;
 
         try {
-            const data = await leaderboardClient.getEntries(pageToLoad, PER_PAGE);
+            const data = await leaderboardClient.getEntries(cursor, PER_PAGE);
             if (requestId !== requestIdRef.current) {
                 return;
             }
-            pageCacheRef.current.set(pageToLoad, data);
-            loadedPagesRef.current.add(pageToLoad);
             appendUniqueItems(data.items);
-            setNextPage(data.page + 1);
             setHasNextPage(data.hasNextPage);
+            setNextCursor(data.nextCursor);
             setLoadedAtLeastOnce(true);
-            failedPageRef.current = null;
+            failedCursorRef.current = null;
         } catch (rawError) {
             if (requestId !== requestIdRef.current) {
                 return;
@@ -135,7 +119,7 @@ export const LeaderboardModal = memo(({ onClose, closeLabel }: LeaderboardModalP
             const normalizedError = rawError instanceof LeaderboardApiError
                 ? rawError
                 : new LeaderboardApiError(500, "Unable to load leaderboard.");
-            failedPageRef.current = pageToLoad;
+            failedCursorRef.current = cursor;
             setError(normalizedError);
         } finally {
             if (requestId === requestIdRef.current) {
@@ -144,20 +128,20 @@ export const LeaderboardModal = memo(({ onClose, closeLabel }: LeaderboardModalP
         }
     }, [appendUniqueItems, isLoading]);
 
-    const loadNextPage = useCallback((options?: { force?: boolean; page?: number }) => {
-        const page = options?.page ?? nextPage;
+    const loadNextPage = useCallback((options?: { force?: boolean; cursor?: string | null }) => {
         if (!options?.force && !hasNextPage) {
             return;
         }
-        void loadPage(page, { force: options?.force ?? false });
-    }, [hasNextPage, loadPage, nextPage]);
+        const cursor = options?.cursor ?? nextCursor;
+        void loadMore(cursor, { force: options?.force ?? false });
+    }, [hasNextPage, loadMore, nextCursor]);
 
     useEffect(() => {
         if (bootstrappedRef.current) {
             return;
         }
         bootstrappedRef.current = true;
-        loadNextPage({ page: 1 });
+        loadNextPage({ cursor: null });
     }, [loadNextPage]);
 
     useEffect(() => {
@@ -193,7 +177,7 @@ export const LeaderboardModal = memo(({ onClose, closeLabel }: LeaderboardModalP
         && rankedItems.length > 0
         && !showAppendLoading
         && !showAppendError
-        && (nextPage > 2 || rankedItems.length >= PER_PAGE);
+        && (rankedItems.length >= PER_PAGE || loadedAtLeastOnce);
     const errorMessage = useMemo(() => formatErrorMessage(error), [error]);
 
     return (
@@ -213,14 +197,14 @@ export const LeaderboardModal = memo(({ onClose, closeLabel }: LeaderboardModalP
                         <div className="ts-action-row ts-system-actions">
                             <button
                                 type="button"
-                                className="generic-field button ts-devtools-button ts-focusable"
-                                onClick={() => {
-                                    loadNextPage({ force: true, page: failedPageRef.current ?? 1 });
-                                }}
-                            >
-                                Retry
-                            </button>
-                        </div>
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={() => {
+                                loadNextPage({ force: true, cursor: failedCursorRef.current });
+                            }}
+                        >
+                            Retry
+                        </button>
+                    </div>
                     </div>
                 ) : null}
                 {!showInitialLoading && !showInitialError && loadedAtLeastOnce && rankedItems.length === 0 ? (
@@ -245,7 +229,7 @@ export const LeaderboardModal = memo(({ onClose, closeLabel }: LeaderboardModalP
                             type="button"
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={() => {
-                                loadNextPage({ force: true, page: failedPageRef.current ?? nextPage });
+                                loadNextPage({ force: true, cursor: failedCursorRef.current ?? nextCursor });
                             }}
                         >
                             Retry

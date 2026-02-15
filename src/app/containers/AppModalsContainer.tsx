@@ -1,16 +1,40 @@
+import { lazy, Suspense } from "react";
 import type { OfflineSummaryState, SkillId } from "../../core/types";
 import type { SwUpdateAvailableDetail } from "../../pwa/serviceWorker";
 import type { PersistenceLoadReport } from "../../adapters/persistence/loadReport";
 import type { CrashReport } from "../../observability/crashReporter";
 import { HeroNameModal } from "../components/HeroNameModal";
+import { ModalShell } from "../components/ModalShell";
 import { OfflineSummaryModal } from "../components/OfflineSummaryModal";
 import { SafeModeModal } from "../components/SafeModeModal";
 import { ServiceWorkerUpdateModal } from "../components/ServiceWorkerUpdateModal";
-import { DevToolsModal } from "../components/DevToolsModal";
-import { LocalSaveModal } from "../components/LocalSaveModal";
-import { CloudSaveModal } from "../components/CloudSaveModal";
 import { OnboardingHeroModal } from "../components/OnboardingHeroModal";
-import { SystemModalContainer } from "./SystemModalContainer";
+
+const LazySystemModalContainer = lazy(async () => {
+    const mod = await import("./SystemModalContainer");
+    return { default: mod.SystemModalContainer };
+});
+
+const LazyLocalSaveModal = lazy(async () => {
+    const mod = await import("../components/LocalSaveModal");
+    return { default: mod.LocalSaveModal };
+});
+
+const LazyCloudSaveModal = lazy(async () => {
+    const mod = await import("../components/CloudSaveModal");
+    return { default: mod.CloudSaveModal };
+});
+
+const LazyDevToolsModal = lazy(async () => {
+    const mod = await import("../components/DevToolsModal");
+    return { default: mod.DevToolsModal };
+});
+
+const LoadingModal = ({ onClose }: { onClose: () => void }) => (
+    <ModalShell kicker="System" title="Loading" onClose={onClose}>
+        <p className="ts-system-helper">Loading...</p>
+    </ModalShell>
+);
 
 type AppModalsContainerProps = {
     version: string;
@@ -151,37 +175,45 @@ export const AppModalsContainer = ({
                 />
             ) : null}
             {isSystemOpen ? (
-                <SystemModalContainer
-                    version={version}
-                    crashReports={crashReports}
-                    onExportSave={onExportSave}
-                    onImportSave={onImportSave}
-                    onResetSave={onResetSave}
-                    onSimulateOffline={onSimulateOffline}
-                    onSimulateOfflineHour={onSimulateOfflineHour}
-                    onSimulateOfflineDay={onSimulateOfflineDay}
-                    onClearCrashReports={onClearCrashReports}
-                    onClose={onCloseSystem}
-                />
+                <Suspense fallback={<LoadingModal onClose={onCloseSystem} />}>
+                    <LazySystemModalContainer
+                        version={version}
+                        crashReports={crashReports}
+                        onExportSave={onExportSave}
+                        onImportSave={onImportSave}
+                        onResetSave={onResetSave}
+                        onSimulateOffline={onSimulateOffline}
+                        onSimulateOfflineHour={onSimulateOfflineHour}
+                        onSimulateOfflineDay={onSimulateOfflineDay}
+                        onClearCrashReports={onClearCrashReports}
+                        onClose={onCloseSystem}
+                    />
+                </Suspense>
             ) : null}
             {isLocalSaveOpen ? (
-                <LocalSaveModal
-                    onExportSave={onExportSave}
-                    onImportSave={onImportSave}
-                    onResetSave={onResetSave}
-                    onClose={onCloseLocalSave}
-                />
+                <Suspense fallback={<LoadingModal onClose={onCloseLocalSave} />}>
+                    <LazyLocalSaveModal
+                        onExportSave={onExportSave}
+                        onImportSave={onImportSave}
+                        onResetSave={onResetSave}
+                        onClose={onCloseLocalSave}
+                    />
+                </Suspense>
             ) : null}
             {isCloudSaveOpen ? (
-                <CloudSaveModal onClose={onCloseCloudSave} />
+                <Suspense fallback={<LoadingModal onClose={onCloseCloudSave} />}>
+                    <LazyCloudSaveModal onClose={onCloseCloudSave} />
+                </Suspense>
             ) : null}
             {import.meta.env.DEV && isDevToolsOpen ? (
-                <DevToolsModal
-                    onClose={onCloseDevTools}
-                    onSimulateOffline={onSimulateOffline}
-                    onSimulateOfflineHour={onSimulateOfflineHour}
-                    onSimulateOfflineDay={onSimulateOfflineDay}
-                />
+                <Suspense fallback={<LoadingModal onClose={onCloseDevTools} />}>
+                    <LazyDevToolsModal
+                        onClose={onCloseDevTools}
+                        onSimulateOffline={onSimulateOffline}
+                        onSimulateOfflineHour={onSimulateOfflineHour}
+                        onSimulateOfflineDay={onSimulateOfflineDay}
+                    />
+                </Suspense>
             ) : null}
             {offlineSummary ? (
                 <OfflineSummaryModal

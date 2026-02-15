@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { ComponentProps } from "react";
 import type { SwUpdateAvailableDetail } from "../../../src/pwa/serviceWorker";
@@ -175,13 +175,15 @@ describe("AppModalsContainer", () => {
         expect(props.onRenameHero).toHaveBeenCalledTimes(1);
     });
 
-    it("renders system modal when open and closes", () => {
+    it("renders system modal when open and closes", async () => {
         const props = baseProps();
         props.isSystemOpen = true;
         render(<AppModalsContainer {...props} />);
 
-        expect(systemSpy).toHaveBeenCalledTimes(1);
-        fireEvent.click(screen.getByRole("button", { name: "close-system" }));
+        await waitFor(() => {
+            expect(systemSpy).toHaveBeenCalledTimes(1);
+        });
+        fireEvent.click(await screen.findByRole("button", { name: "close-system" }));
         expect(props.onCloseSystem).toHaveBeenCalledTimes(1);
     });
 

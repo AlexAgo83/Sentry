@@ -62,9 +62,9 @@ describe("SystemModal", () => {
                                 isExAequo: true
                             }
                         ],
-                        page: 1,
                         perPage: 10,
-                        hasNextPage: false
+                        hasNextPage: false,
+                        nextCursor: null
                     }),
                     {
                         status: 200,
@@ -102,25 +102,25 @@ describe("SystemModal", () => {
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Action journal" }));
-        expect(screen.getByRole("heading", { name: "Journal" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Journal" })).toBeTruthy();
         expect(screen.queryByRole("heading", { name: "Settings" })).toBeNull();
         expect(screen.getByText("No actions recorded yet.")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Save options" }));
-        expect(screen.getByRole("heading", { name: "Save" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Save" })).toBeTruthy();
         expect(screen.queryByRole("heading", { name: "Settings" })).toBeNull();
 
         fireEvent.click(screen.getByRole("button", { name: "Local save" }));
-        expect(screen.getByRole("heading", { name: "Local save" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Local save" })).toBeTruthy();
         expect(screen.queryByRole("heading", { name: "Save" })).toBeNull();
 
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Save" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Cloud save" }));
-        expect(screen.getByRole("heading", { name: "Cloud Save" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Cloud Save" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Save" })).toBeTruthy();
@@ -129,7 +129,7 @@ describe("SystemModal", () => {
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Telemetry" }));
-        expect(screen.getByRole("heading", { name: "Telemetry" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Telemetry" })).toBeTruthy();
         expect(screen.getByText("Overview")).toBeTruthy();
         expect(screen.getByText("Tick")).toBeTruthy();
         expect(screen.getByText("Drift")).toBeTruthy();
@@ -147,7 +147,7 @@ describe("SystemModal", () => {
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
 
         fireEvent.click(screen.getByRole("button", { name: "Graphics" }));
-        expect(screen.getByRole("heading", { name: "Graphics" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Graphics" })).toBeTruthy();
         const smoothToggle = screen.getByRole("checkbox", { name: "Smooth action progress" }) as HTMLInputElement;
         expect(smoothToggle.checked).toBe(true);
         expect(screen.getByText("If disabled, action progress updates once per loop tick.")).toBeTruthy();
@@ -164,7 +164,7 @@ describe("SystemModal", () => {
         const devButton = screen.queryByRole("button", { name: "Dev tools" });
         if (devButton) {
             fireEvent.click(devButton);
-            expect(screen.getByRole("heading", { name: "Dev tools" })).toBeTruthy();
+            expect(await screen.findByRole("heading", { name: "Dev tools" })).toBeTruthy();
             fireEvent.click(screen.getByRole("button", { name: "Back" }));
             expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
         }
@@ -174,7 +174,7 @@ describe("SystemModal", () => {
         expect(saveOptionsButton.compareDocumentPosition(leaderboardButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
         fireEvent.click(leaderboardButton);
-        expect(screen.getByRole("heading", { name: "Scrore" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Scrore" })).toBeTruthy();
         expect(await screen.findByText("Aegis")).toBeTruthy();
         expect(screen.getAllByText("Ex aequo").length).toBeGreaterThan(0);
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
@@ -187,7 +187,7 @@ describe("SystemModal", () => {
         expect(changelogsButton.compareDocumentPosition(aboutButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
         fireEvent.click(changelogsButton);
-        expect(screen.getByRole("heading", { name: "Change" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Change" })).toBeTruthy();
         expect(await screen.findByText("Latest commit")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(screen.getByRole("heading", { name: "Settings" })).toBeTruthy();
@@ -229,7 +229,7 @@ describe("SystemModal", () => {
         render(<SystemModal {...props} />);
 
         fireEvent.click(screen.getByRole("button", { name: "Crash reports" }));
-        expect(screen.getByRole("heading", { name: "Reports" })).toBeTruthy();
+        expect(await screen.findByRole("heading", { name: "Reports" })).toBeTruthy();
         expect(screen.getByText("[error] Boom")).toBeTruthy();
         expect(screen.getByText("[unhandledrejection] Nope")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Copy crash logs" }));

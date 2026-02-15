@@ -100,20 +100,64 @@ const buildMockPrisma = () => {
             }
         },
         save: {
-            findUnique: async ({ where }: { where: { userId: string } }) => {
-                return db.saves.find((s) => s.userId === where.userId) ?? null;
+            findUnique: async ({ where }: { where: { userId?: string; id?: string } }) => {
+                if (where.id) {
+                    return db.saves.find((s) => s.id === where.id) ?? null;
+                }
+                if (where.userId) {
+                    return db.saves.find((s) => s.userId === where.userId) ?? null;
+                }
+                return null;
             },
             findMany: async ({
                 skip = 0,
                 take = db.saves.length,
+                where,
                 include
             }: {
                 skip?: number;
                 take?: number;
+                where?: unknown;
                 orderBy?: Array<{ virtualScore?: "desc" | "asc"; updatedAt?: "desc" | "asc"; id?: "desc" | "asc" }>;
                 include?: { user?: { select?: { id?: boolean; email?: boolean; username?: boolean } } };
             }) => {
-                const ordered = [...db.saves].sort((a, b) => {
+                const matchesWhere = (row: (typeof db.saves)[number]) => {
+                    if (!where) {
+                        return true;
+                    }
+                    const clause = where as any;
+                    if (!Array.isArray(clause?.OR)) {
+                        return true;
+                    }
+                    return clause.OR.some((branch: any) => {
+                        if (branch?.virtualScore?.lt !== undefined) {
+                            return row.virtualScore < branch.virtualScore.lt;
+                        }
+                        if (Array.isArray(branch?.AND)) {
+                            const andParts = branch.AND as any[];
+                            return andParts.every((part) => {
+                                if (part?.virtualScore !== undefined) {
+                                    return row.virtualScore === part.virtualScore;
+                                }
+                                if (part?.updatedAt?.lt !== undefined) {
+                                    return row.updatedAt.getTime() < new Date(part.updatedAt.lt).getTime();
+                                }
+                                if (part?.updatedAt !== undefined) {
+                                    return row.updatedAt.getTime() === new Date(part.updatedAt).getTime();
+                                }
+                                if (part?.id?.gt !== undefined) {
+                                    return row.id > part.id.gt;
+                                }
+                                return true;
+                            });
+                        }
+                        return true;
+                    });
+                };
+
+                const ordered = [...db.saves]
+                    .filter(matchesWhere)
+                    .sort((a, b) => {
                     if (a.virtualScore !== b.virtualScore) {
                         return b.virtualScore - a.virtualScore;
                     }
@@ -569,7 +613,7 @@ describe("cloud API", () => {
         await app.close();
     });
 
-    it("returns leaderboard sorted by score with masked fallback, app version, and tie marker", async () => {
+    it("returns leaderboard sorted by score with masked fallback, app version, and tie marker (cursor pagination)", async () => {
         const prisma = buildMockPrisma();
         const { buildServer } = await loadServer();
         const app = buildServer({ prismaClient: prisma, logger: false });
@@ -608,14 +652,14 @@ describe("cloud API", () => {
 
         const firstPage = await app.inject({
             method: "GET",
-            url: "/api/v1/leaderboard?page=1&perPage=2"
+            url: "/api/v1/leaderboard?perPage=2"
         });
 
         expect(firstPage.statusCode).toBe(200);
         const firstPayload = firstPage.json();
-        expect(firstPayload.page).toBe(1);
         expect(firstPayload.perPage).toBe(2);
         expect(firstPayload.hasNextPage).toBe(true);
+        expect(typeof firstPayload.nextCursor).toBe("string");
         expect(firstPayload.items).toHaveLength(2);
         expect(firstPayload.items[0].displayName).toBe("TopDog");
         expect(firstPayload.items[0].virtualScore).toBe(2000);
@@ -625,7 +669,7 @@ describe("cloud API", () => {
 
         const secondPage = await app.inject({
             method: "GET",
-            url: "/api/v1/leaderboard?page=2&perPage=2"
+            url: `/api/v1/leaderboard?perPage=2&cursor=${encodeURIComponent(firstPayload.nextCursor as string)}`
         });
         expect(secondPage.statusCode).toBe(200);
         const secondPayload = secondPage.json();
@@ -633,6 +677,7 @@ describe("cloud API", () => {
         expect(secondPayload.items[0].isExAequo).toBe(true);
         expect(secondPayload.items[1].virtualScore).toBe(250);
         expect(secondPayload.hasNextPage).toBe(false);
+        expect(secondPayload.nextCursor).toBeNull();
 
         await app.close();
     });
