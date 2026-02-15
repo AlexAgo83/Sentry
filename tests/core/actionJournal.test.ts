@@ -17,4 +17,22 @@ describe("appendActionJournalEntry", () => {
         expect(state.actionJournal[0]?.id).toBe(`entry-${ACTION_JOURNAL_LIMIT + 1}`);
         expect(state.actionJournal[ACTION_JOURNAL_LIMIT - 1]?.id).toBe("entry-2");
     });
+
+    it("replaces latest entry when consecutive offline summaries are appended", () => {
+        let state = createInitialGameState("test", { seedHero: false });
+        state = appendActionJournalEntry(state, {
+            id: "offline-1",
+            at: 1,
+            label: "Offline summary: 12m"
+        });
+        state = appendActionJournalEntry(state, {
+            id: "offline-2",
+            at: 2,
+            label: "Offline summary: 42m"
+        });
+
+        expect(state.actionJournal).toHaveLength(1);
+        expect(state.actionJournal[0]?.id).toBe("offline-2");
+        expect(state.actionJournal[0]?.label).toBe("Offline summary: 42m");
+    });
 });
