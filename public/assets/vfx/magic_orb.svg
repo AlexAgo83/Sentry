@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <defs>
     <radialGradient id="core" cx="35%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#E7FFF4" stop-opacity="0.85"/>
-      <stop offset="55%" stop-color="#7FF0C4" stop-opacity="0.75"/>
-      <stop offset="100%" stop-color="#7FF0C4" stop-opacity="0.0"/>
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.88"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0"/>
     </radialGradient>
     <filter id="glow" x="-70%" y="-70%" width="240%" height="240%">
       <feGaussianBlur stdDeviation="2.0" result="blur"/>
@@ -16,8 +16,7 @@
 
   <g filter="url(#glow)">
     <circle cx="12" cy="12" r="9" fill="url(#core)" opacity="0.95"/>
-    <circle cx="12" cy="12" r="4.8" fill="#7FF0C4" opacity="0.62"/>
-    <circle cx="12" cy="12" r="4.8" fill="none" stroke="#7FF0C4" stroke-width="2" opacity="0.45"/>
+    <circle cx="12" cy="12" r="4.8" fill="#FFFFFF" opacity="0.58"/>
+    <circle cx="12" cy="12" r="4.8" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.42"/>
   </g>
 </svg>
-

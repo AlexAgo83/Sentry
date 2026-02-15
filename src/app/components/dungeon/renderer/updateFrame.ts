@@ -15,11 +15,9 @@ import {
     MAGIC_PULSE_OFFSET_Y,
     MAX_FLOAT_POOL,
     MAX_ATTACK_VFX_POOL,
-    MELEE_ARC_VFX_COLOR,
     MELEE_ARC_VFX_MS,
     MELEE_ARC_VFX_OFFSET,
     PROJECTILE_VFX_RADIUS,
-    RANGED_PROJECTILE_VFX_COLOR,
     RANGED_PROJECTILE_VFX_MS,
     VFX_SVG_BASE_MAGIC_ORB_RADIUS,
     VFX_SVG_BASE_PROJECTILE_RADIUS,
@@ -36,8 +34,10 @@ import {
     drawTargetAndDeath,
     getAutoFitScale
 } from "./drawing";
-import { clamp, hashString, mixColors, toWorldX, toWorldY } from "./math";
+import { clamp, hashString, mixColors, parseHexColor, toWorldX, toWorldY } from "./math";
 import type { PixiRuntime } from "./types";
+import { getCombatSkillIdForWeaponType } from "../../../../data/equipment";
+import { getSkillIconColor } from "../../../ui/skillColors";
 
 export type AttackVfxKind = "melee_arc" | "ranged_projectile" | "magic_beam";
 
@@ -110,6 +110,10 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     const attackVfxSpecs = getAttackVfxSpecsForUnitMap(frame, unitById);
     const seen = new Set<string>();
     const lastSeen = runtime.lastSeen;
+
+    const meleeVfxColor = parseHexColor(getSkillIconColor(getCombatSkillIdForWeaponType("Melee" as any)), 0xf2c14e);
+    const rangedVfxColor = parseHexColor(getSkillIconColor(getCombatSkillIdForWeaponType("Ranged" as any)), 0x8ac926);
+    const magicVfxColor = parseHexColor(getSkillIconColor(getCombatSkillIdForWeaponType("Magic" as any)), 0x7cc6ff);
 
     if (runtime.attackVfxPool.length === 0) {
         for (let i = 0; i < MAX_ATTACK_VFX_POOL; i += 1) {
@@ -365,17 +369,18 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             if (ranged) ranged.visible = false;
             if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
             melee.visible = true;
-            melee.tint = MELEE_ARC_VFX_COLOR;
+            melee.tint = meleeVfxColor;
             melee.alpha = clamp(0.2 + 0.8 * alpha, 0, 1);
             melee.scale.set(1 + progress * 0.12);
         } else if (kind === "ranged_projectile") {
             const t = 1 - Math.pow(1 - clamp(progress * 1.08, 0, 1), 3);
+            const angle = Math.atan2(dy, dx);
             container.position.set(sx + dx * t, sy + dy * t);
-            container.rotation = 0;
+            container.rotation = angle;
             if (melee) melee.visible = false;
             if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
             ranged.visible = true;
-            ranged.tint = RANGED_PROJECTILE_VFX_COLOR;
+            ranged.tint = rangedVfxColor;
             ranged.alpha = clamp(0.15 + 0.85 * alpha, 0, 1);
             const base = PROJECTILE_VFX_RADIUS / Math.max(1e-4, VFX_SVG_BASE_PROJECTILE_RADIUS);
             const scale = base * (0.95 + (1 - progress) * 0.15);
@@ -416,7 +421,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
 
                 orb.position.set(dx * t, dy * t);
                 orb.alpha = clamp(0.18 + 0.82 * orbAlpha, 0, 1);
-                orb.tint = 0xffffff; // keep SVG colors
+                orb.tint = magicVfxColor;
                 const scale = base * (0.85 + 0.25 * Math.sin(Math.PI * local));
                 orb.scale.set(scale);
             }

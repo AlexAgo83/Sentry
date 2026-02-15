@@ -32,6 +32,6 @@ export const PROJECTILE_VFX_OUTLINE = 0x0e1220;
 export const MAGIC_ORBS_VFX_RADIUS = 4.4;
 export const MAGIC_ORBS_VFX_SPACING = 34;
 export const MAGIC_ORBS_VFX_TRAIL = 0.46;
-export const VFX_SVG_BASE_PROJECTILE_RADIUS = 5;
+export const VFX_SVG_BASE_PROJECTILE_RADIUS = 10;
 export const VFX_SVG_BASE_MAGIC_ORB_RADIUS = 4.8;
 export const MOBILE_VIEWPORT_MAX = 520;

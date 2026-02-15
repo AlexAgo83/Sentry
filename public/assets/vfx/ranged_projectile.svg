@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <defs>
-    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+    <filter id="glow" x="-70%" y="-70%" width="240%" height="240%">
       <feGaussianBlur stdDeviation="1.6" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
@@ -9,10 +9,9 @@
     </filter>
   </defs>
 
+  <!-- A thin spike pointing to the +X direction (towards the target). -->
   <g filter="url(#glow)">
-    <circle cx="12" cy="12" r="5" fill="#7AD6FF" opacity="0.92"/>
-    <circle cx="12" cy="12" r="5" fill="none" stroke="#0E1220" stroke-width="2" opacity="0.55"/>
-    <circle cx="10.2" cy="10.1" r="1.6" fill="#FFFFFF" opacity="0.35"/>
+    <polygon points="4,12 20.8,9.2 20.8,14.8" fill="#FFFFFF" opacity="0.9"/>
+    <polygon points="4,12 20.8,9.2 20.8,14.8" fill="none" stroke="#0E1220" stroke-width="1.6" opacity="0.55"/>
   </g>
 </svg>
-
