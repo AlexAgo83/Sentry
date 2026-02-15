@@ -18,6 +18,7 @@ import {
     MELEE_ARC_VFX_MS,
     MELEE_ARC_VFX_OFFSET,
     PROJECTILE_VFX_RADIUS,
+    RANGED_PROJECTILE_VFX_SCALE,
     RANGED_PROJECTILE_VFX_MS,
     VFX_SVG_BASE_MAGIC_ORB_RADIUS,
     VFX_SVG_BASE_PROJECTILE_RADIUS,
@@ -98,6 +99,7 @@ export const getAttackVfxSpecs = (frame: DungeonArenaFrame) => {
 export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     const viewportWidth = runtime.app.screen?.width ?? runtime.app.renderer.width;
     const viewportHeight = runtime.app.screen?.height ?? runtime.app.renderer.height;
+    const combatActive = (frame.statusLabel ?? "running") === "running";
     if (runtime.phaseLabel.parent !== runtime.app.stage) {
         runtime.phaseLabel.parent?.removeChild(runtime.phaseLabel);
         runtime.app.stage.addChild(runtime.phaseLabel);
@@ -266,7 +268,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         }
         const shakeSeed = Number(node.shakeSeed);
         const damageRatio = Number(node.damageRatio) || 0;
-        const shakeAmplitude = shakeProgress * (3 + damageRatio * 6);
+        const shakeAmplitude = combatActive ? (shakeProgress * (3 + damageRatio * 6)) : 0;
         const shakeTime = (frame.atMs + shakeSeed) * 0.08;
         const offsetX = Math.sin(shakeTime) * shakeAmplitude;
         const offsetY = Math.cos(shakeTime * 1.1) * shakeAmplitude;
@@ -274,7 +276,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         let lungeX = 0;
         let lungeY = 0;
         const attackCue = attackBySource.get(unit.id);
-        if (attackCue && shouldApplyLunge(unit.weaponType)) {
+        if (combatActive && attackCue && shouldApplyLunge(unit.weaponType)) {
             const age = frame.atMs - attackCue.atMs;
             if (age >= 0 && age <= ATTACK_LUNGE_MS) {
                 const target = unitById.get(attackCue.targetId);
@@ -344,6 +346,10 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             return;
         }
 
+        const vfxColor = sourceUnit.isEnemy
+            ? DAMAGE_TINT_COLOR
+            : (kind === "melee_arc" ? meleeVfxColor : kind === "ranged_projectile" ? rangedVfxColor : magicVfxColor);
+
         const sourceNode = runtime.unitNodes.get(sourceId);
         const targetNode = runtime.unitNodes.get(targetId);
         const sx = Number(sourceNode?.container?.position?.x) || toWorldX(sourceUnit.x);
@@ -369,7 +375,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             if (ranged) ranged.visible = false;
             if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
             melee.visible = true;
-            melee.tint = meleeVfxColor;
+            melee.tint = vfxColor;
             melee.alpha = clamp(0.2 + 0.8 * alpha, 0, 1);
             melee.scale.set(1 + progress * 0.12);
         } else if (kind === "ranged_projectile") {
@@ -380,10 +386,10 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             if (melee) melee.visible = false;
             if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
             ranged.visible = true;
-            ranged.tint = rangedVfxColor;
+            ranged.tint = vfxColor;
             ranged.alpha = clamp(0.15 + 0.85 * alpha, 0, 1);
             const base = PROJECTILE_VFX_RADIUS / Math.max(1e-4, VFX_SVG_BASE_PROJECTILE_RADIUS);
-            const scale = base * (0.95 + (1 - progress) * 0.15);
+            const scale = RANGED_PROJECTILE_VFX_SCALE * base * (0.95 + (1 - progress) * 0.15);
             ranged.scale.set(scale);
         } else {
             // Magic: a moving trail of orbs (sprites) along the path.
@@ -421,7 +427,7 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
 
                 orb.position.set(dx * t, dy * t);
                 orb.alpha = clamp(0.18 + 0.82 * orbAlpha, 0, 1);
-                orb.tint = magicVfxColor;
+                orb.tint = vfxColor;
                 const scale = base * (0.85 + 0.25 * Math.sin(Math.PI * local));
                 orb.scale.set(scale);
             }

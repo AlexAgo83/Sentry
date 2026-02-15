@@ -5,6 +5,7 @@ export type PixiModule = typeof import("pixi.js");
 
 export type DungeonArenaRendererProps = {
     frame: DungeonArenaFrame | null;
+    paused?: boolean;
     className?: string;
     style?: CSSProperties;
 };

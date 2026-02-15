@@ -203,6 +203,7 @@ export const DungeonScreen = memo(({
                     <DungeonReplayView
                         latestReplay={latestReplay}
                         replayFrame={replayFrame}
+                        replayPaused={replayPaused}
                         dungeonBackgroundUrl={replayDungeonBackgroundUrl}
                         replaySpeed={replaySpeed}
                         onReplaySpeedChange={setReplaySpeed}

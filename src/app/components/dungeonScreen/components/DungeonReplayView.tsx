@@ -13,6 +13,7 @@ type ReplayDeathMark = { atMs: number; label: string; id: string };
 type DungeonReplayViewProps = {
     latestReplay: DungeonReplayState;
     replayFrame: DungeonArenaFrame | null;
+    replayPaused: boolean;
     dungeonBackgroundUrl: string;
     replaySpeed: 0.2 | 0.5 | 1 | 2 | 4;
     onReplaySpeedChange: (speed: 0.2 | 0.5 | 1 | 2 | 4) => void;
@@ -44,6 +45,7 @@ type DungeonReplayViewProps = {
 export const DungeonReplayView = ({
     latestReplay,
     replayFrame,
+    replayPaused,
     dungeonBackgroundUrl,
     replaySpeed,
     onReplaySpeedChange,
@@ -70,7 +72,7 @@ export const DungeonReplayView = ({
 
     return (
         <div className="ts-dungeon-replay-body">
-            <DungeonArenaRenderer frame={replayFrame} style={arenaStyle} />
+            <DungeonArenaRenderer frame={replayFrame} paused={replayPaused} style={arenaStyle} />
             <div className="ts-dungeon-control-row">
                 <div className="ts-dungeon-speed-group" role="group" aria-label="Replay speed">
                     {replaySpeedOptions.map((speed) => (

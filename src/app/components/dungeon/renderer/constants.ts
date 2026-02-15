@@ -29,6 +29,7 @@ export const MELEE_ARC_VFX_SPREAD_RAD = Math.PI * 0.9;
 export const MELEE_ARC_VFX_OFFSET = 18;
 export const PROJECTILE_VFX_RADIUS = 4.8;
 export const PROJECTILE_VFX_OUTLINE = 0x0e1220;
+export const RANGED_PROJECTILE_VFX_SCALE = 2;
 export const MAGIC_ORBS_VFX_RADIUS = 4.4;
 export const MAGIC_ORBS_VFX_SPACING = 34;
 export const MAGIC_ORBS_VFX_TRAIL = 0.46;
