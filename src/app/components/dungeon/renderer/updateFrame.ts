@@ -6,6 +6,7 @@ import {
     DAMAGE_TINT_COLOR,
     DAMAGE_TINT_MS,
     ENEMY_SPAWN_FADE_MS,
+    MAGIC_SPIRAL_MS,
     MAGIC_SPIRAL_RADIUS,
     MAGIC_SPIRAL_TURNS,
     MAGIC_BEAM_VFX_MS,
@@ -21,6 +22,7 @@ import {
     MELEE_ARC_VFX_OFFSET,
     PROJECTILE_VFX_RADIUS,
     RANGED_RECOIL_DISTANCE,
+    RANGED_RECOIL_MS,
     RANGED_PROJECTILE_VFX_SCALE,
     RANGED_PROJECTILE_VFX_MS,
     VFX_SVG_BASE_MAGIC_ORB_RADIUS,
@@ -309,10 +311,15 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         const attackCue = attackBySource.get(unit.id);
         if (combatActive && attackCue) {
             const age = frame.atMs - attackCue.atMs;
-            if (age >= 0 && age <= ATTACK_LUNGE_MS) {
-                const phase = clamp(age / ATTACK_LUNGE_MS, 0, 1);
+            const kind = resolveAttackVfxKind(unit.weaponType);
+            const motionMs = kind === "magic_beam"
+                ? MAGIC_SPIRAL_MS
+                : kind === "ranged_projectile"
+                    ? RANGED_RECOIL_MS
+                    : ATTACK_LUNGE_MS;
+            if (age >= 0 && age <= motionMs) {
+                const phase = clamp(age / motionMs, 0, 1);
                 const ease = Math.sin(Math.PI * phase);
-                const kind = resolveAttackVfxKind(unit.weaponType);
                 const target = unitById.get(attackCue.targetId) ?? null;
 
                 if (kind === "melee_arc") {
@@ -339,12 +346,30 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
                         attackMotionY = -(dy / length) * distance * ease;
                     }
                 } else {
-                    // Magic: swirl around its anchor point in a small spiral.
+                    // Magic: swirl in a small spiral, oriented toward the target (when available).
                     const turns = MAGIC_SPIRAL_TURNS;
                     const angle = phase * Math.PI * 2 * turns;
-                    const radius = MAGIC_SPIRAL_RADIUS * ease * (0.75 + 0.25 * phase);
-                    attackMotionX = Math.cos(angle) * radius;
-                    attackMotionY = Math.sin(angle) * radius;
+                    // Make it feel like a spiral rather than a vibration:
+                    // start at 0, expand to max, then return to 0.
+                    const radius = MAGIC_SPIRAL_RADIUS * Math.sin(Math.PI * phase);
+                    const c = Math.cos(angle);
+                    const s = Math.sin(angle);
+                    if (target) {
+                        const targetX = toWorldX(target.x);
+                        const targetY = toWorldY(target.y);
+                        const dx = targetX - baseX;
+                        const dy = targetY - baseY;
+                        const length = Math.hypot(dx, dy) || 1;
+                        const nx = dx / length;
+                        const ny = dy / length;
+                        const px = -ny;
+                        const py = nx;
+                        attackMotionX = (nx * c + px * s) * radius;
+                        attackMotionY = (ny * c + py * s) * radius;
+                    } else {
+                        attackMotionX = c * radius;
+                        attackMotionY = s * radius;
+                    }
                 }
             }
         }
