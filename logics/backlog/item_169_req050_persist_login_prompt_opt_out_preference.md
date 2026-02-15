@@ -1,8 +1,8 @@
 ## item_169_req050_persist_login_prompt_opt_out_preference - Persist login prompt opt-out preference (and migrate safely)
 > From version: 0.9.31
 > Understanding: 94%
-> Confidence: 88%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UX / Persistence
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -35,4 +35,3 @@ The startup login prompt needs a durable “don’t ask again” choice so users
 
 # Notes
 - Derived from `logics/request/req_050_startup_login_prompt_when_backend_online_with_dismiss_option.md`.
-

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { gameRuntime, gameStore } from "./game";
 import { useGameStore } from "./hooks/useGameStore";
 import { useCrashReportsState } from "./hooks/useCrashReportsState";
@@ -19,6 +19,7 @@ import { generateUniqueEnglishHeroNames } from "./ui/heroNames";
 import { StartupSplashScreen } from "./components/StartupSplashScreen";
 import { startSilentBackendWarmup } from "./backendWarmup";
 import { resolveAutoDungeonOpenDecision } from "./autoDungeonOpen";
+import { useCloudSave } from "./hooks/useCloudSave";
 
 export const AppContainer = () => {
     useRenderCount("AppContainer");
@@ -36,6 +37,8 @@ export const AppContainer = () => {
     const isDungeonRunActive = useGameStore((state) => Boolean(state.dungeon.activeRunId));
     const dungeonOnboardingRequired = useGameStore((state) => state.dungeon.onboardingRequired);
     const persistence = useGameStore((state) => state.persistence);
+    const cloudLoginPromptDisabled = useGameStore((state) => Boolean(state.ui.cloud.loginPromptDisabled));
+    const cloud = useCloudSave();
 
     const {
         activeSidePanel,
@@ -55,6 +58,7 @@ export const AppContainer = () => {
         isLocalSaveOpen,
         closeLocalSave,
         isCloudSaveOpen,
+        openCloudSave,
         closeCloudSave,
         openActionSelection,
         closeActionSelection,
@@ -67,6 +71,8 @@ export const AppContainer = () => {
     const [heroMenuOpenSignal, setHeroMenuOpenSignal] = useState(0);
     const [isRosterDrawerOpen, setRosterDrawerOpen] = useState(false);
     const [hasContinued, setHasContinued] = useState(false);
+    const [isCloudLoginPromptOpen, setCloudLoginPromptOpen] = useState(false);
+    const cloudLoginPromptShownThisSessionRef = useRef(false);
     const isOnboardingOpen = dungeonOnboardingRequired && playerCount < 4;
 
     useEffect(() => {
@@ -274,6 +280,7 @@ export const AppContainer = () => {
         || isDevToolsOpen
         || isLocalSaveOpen
         || isCloudSaveOpen
+        || isCloudLoginPromptOpen
         || isOnboardingOpen
         || isRecruitOpen
         || isRenameOpen
@@ -282,6 +289,67 @@ export const AppContainer = () => {
         || isSafeModeOpen
         || !hasContinued
     );
+
+    const isAnyBlockingModalOpen = Boolean(
+        isSystemOpen
+        || isDevToolsOpen
+        || isLocalSaveOpen
+        || isCloudSaveOpen
+        || isOnboardingOpen
+        || isRecruitOpen
+        || isRenameOpen
+        || offlineSummary
+        || swUpdate
+        || isSafeModeOpen
+        || !hasContinued
+    );
+
+    useEffect(() => {
+        if (!hasContinued) {
+            return;
+        }
+        if (cloudLoginPromptShownThisSessionRef.current) {
+            return;
+        }
+        if (cloudLoginPromptDisabled) {
+            return;
+        }
+        if (cloud.accessToken) {
+            return;
+        }
+        if (isAnyBlockingModalOpen) {
+            return;
+        }
+
+        const backendOnline = cloud.isAvailable
+            && cloud.isBackendAwake
+            && cloud.status !== "warming"
+            && cloud.status !== "authenticating";
+
+        if (!backendOnline) {
+            return;
+        }
+
+        cloudLoginPromptShownThisSessionRef.current = true;
+        setCloudLoginPromptOpen(true);
+    }, [
+        cloud.accessToken,
+        cloud.isAvailable,
+        cloud.isBackendAwake,
+        cloud.status,
+        cloudLoginPromptDisabled,
+        hasContinued,
+        isAnyBlockingModalOpen
+    ]);
+
+    useEffect(() => {
+        if (!isCloudLoginPromptOpen) {
+            return;
+        }
+        if (cloud.accessToken) {
+            setCloudLoginPromptOpen(false);
+        }
+    }, [cloud.accessToken, isCloudLoginPromptOpen]);
 
     return (
         <div className={`app-shell${isAnyModalOpen ? " is-modal-open" : ""}`}>
@@ -364,6 +432,16 @@ export const AppContainer = () => {
                 onCloseLocalSave={closeLocalSave}
                 isCloudSaveOpen={isCloudSaveOpen}
                 onCloseCloudSave={closeCloudSave}
+                isCloudLoginPromptOpen={isCloudLoginPromptOpen}
+                onCloseCloudLoginPrompt={() => setCloudLoginPromptOpen(false)}
+                onCloudLoginPromptLogin={() => {
+                    setCloudLoginPromptOpen(false);
+                    openCloudSave();
+                }}
+                onCloudLoginPromptDisable={() => {
+                    setCloudLoginPromptOpen(false);
+                    gameStore.dispatch({ type: "uiSetCloudLoginPromptDisabled", disabled: true });
+                }}
                 isOnboardingOpen={isOnboardingOpen}
                 onboardingTitle={playerCount >= 3 ? "Create your 4th hero" : "Create your hero"}
                 onboardingHelperText={playerCount >= 3

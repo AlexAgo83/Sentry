@@ -1,8 +1,8 @@
 ## item_170_req050_login_prompt_modal_trigger_and_routing_to_cloud_login - Add startup login prompt modal and route to Cloud Save login flow
 > From version: 0.9.31
 > Understanding: 92%
-> Confidence: 86%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UX / Cloud
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -46,4 +46,3 @@ When backend is online and user is logged out, we want a non-blocking prompt to 
 
 # Notes
 - Derived from `logics/request/req_050_startup_login_prompt_when_backend_online_with_dismiss_option.md`.
-

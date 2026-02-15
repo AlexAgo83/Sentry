@@ -1,8 +1,8 @@
 ## task_101_execute_startup_login_prompt_across_backlog_items_169_to_171 - Execute startup login prompt across backlog items 169 to 171
 > From version: 0.9.31
 > Understanding: 94%
-> Confidence: 88%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: UX / Cloud
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -31,15 +31,15 @@ This task adds a non-blocking startup prompt suggesting login when the backend i
 - Prompt must not show while backend is warming/offline.
 
 # Plan
-- [ ] 1. Execute `item_169` (preference persistence):
+- [x] 1. Execute `item_169` (preference persistence):
   - Persist opt-out preference (prefer save payload; local fallback if needed).
   - Add migration/normalization for missing/invalid fields.
-- [ ] 2. Execute `item_170` (modal + trigger + routing):
+- [x] 2. Execute `item_170` (modal + trigger + routing):
   - Implement the prompt modal UI and trigger rules.
   - Wire Log in to route directly to Cloud Save login.
-- [ ] 3. Execute `item_171` (tests + polish):
+- [x] 3. Execute `item_171` (tests + polish):
   - Add tests for show/hide rules, session-only dismiss, persistent opt-out, and routing.
-- [ ] FINAL: Update related Logics docs (request/backlog/task alignment)
+- [x] FINAL: Update related Logics docs (request/backlog/task alignment)
 
 # Validation
 Final gate (mandatory at task end):
@@ -47,4 +47,3 @@ Final gate (mandatory at task end):
 - `npm run typecheck`
 - `npm run typecheck:tests`
 - `npm run test:ci`
-

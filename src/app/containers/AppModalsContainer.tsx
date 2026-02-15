@@ -9,6 +9,7 @@ import { OfflineSummaryModal } from "../components/OfflineSummaryModal";
 import { SafeModeModal } from "../components/SafeModeModal";
 import { ServiceWorkerUpdateModal } from "../components/ServiceWorkerUpdateModal";
 import { OnboardingHeroModal } from "../components/OnboardingHeroModal";
+import { CloudLoginPromptModal } from "../components/CloudLoginPromptModal";
 
 const LazySystemModalContainer = lazy(async () => {
     const mod = await import("./SystemModalContainer");
@@ -53,6 +54,10 @@ type AppModalsContainerProps = {
     onCloseLocalSave: () => void;
     isCloudSaveOpen: boolean;
     onCloseCloudSave: () => void;
+    isCloudLoginPromptOpen: boolean;
+    onCloseCloudLoginPrompt: () => void;
+    onCloudLoginPromptLogin: () => void;
+    onCloudLoginPromptDisable: () => void;
     isOnboardingOpen: boolean;
     onboardingTitle?: string;
     onboardingHelperText?: string;
@@ -104,6 +109,10 @@ export const AppModalsContainer = ({
     onCloseLocalSave,
     isCloudSaveOpen,
     onCloseCloudSave,
+    isCloudLoginPromptOpen,
+    onCloseCloudLoginPrompt,
+    onCloudLoginPromptLogin,
+    onCloudLoginPromptDisable,
     isOnboardingOpen,
     onboardingTitle,
     onboardingHelperText,
@@ -139,6 +148,13 @@ export const AppModalsContainer = ({
 }: AppModalsContainerProps) => {
     return (
         <>
+            {isCloudLoginPromptOpen ? (
+                <CloudLoginPromptModal
+                    onLogin={onCloudLoginPromptLogin}
+                    onNotNow={onCloseCloudLoginPrompt}
+                    onDisable={onCloudLoginPromptDisable}
+                />
+            ) : null}
             {isOnboardingOpen ? (
                 <OnboardingHeroModal
                     title={onboardingTitle}
