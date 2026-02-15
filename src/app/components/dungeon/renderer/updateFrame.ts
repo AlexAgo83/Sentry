@@ -100,7 +100,11 @@ export const getAttackVfxSpecs = (frame: DungeonArenaFrame) => {
 export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     const viewportWidth = runtime.app.screen?.width ?? runtime.app.renderer.width;
     const viewportHeight = runtime.app.screen?.height ?? runtime.app.renderer.height;
-    const combatActive = (frame.statusLabel ?? "running") === "running";
+    const statusLabel = frame.statusLabel ?? "running";
+    // Replay frames carry the overall replay status (victory/failed) even while the
+    // timeline cursor is mid-run. Use time to decide whether combat animations
+    // (shake/lunge) should run, while still allowing an explicit "paused" state to freeze.
+    const combatActive = statusLabel !== "paused" && (statusLabel === "running" || frame.atMs < frame.totalMs);
     if (runtime.phaseLabel.parent !== runtime.app.stage) {
         runtime.phaseLabel.parent?.removeChild(runtime.phaseLabel);
         runtime.app.stage.addChild(runtime.phaseLabel);
