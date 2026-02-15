@@ -266,7 +266,7 @@ const updateProfile = async (
 
 const probeReady = async (): Promise<void> => {
     // Use a public endpoint so first-launch probes don't spam 401s in the console.
-    const url = buildUrl("/api/v1/health");
+    const url = buildUrl("/health");
     if (!url) {
         throw new Error("Cloud API base is not configured.");
     }
