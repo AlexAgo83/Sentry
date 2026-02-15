@@ -711,6 +711,52 @@ describe("panel components", () => {
         expect(screen.getByText("80/100")).toBeTruthy();
     });
 
+    it("InventoryPanel shows a stats row for items with equipment modifiers", () => {
+        render(
+            <InventoryPanel
+                isCollapsed={false}
+                onToggleCollapsed={vi.fn()}
+                entries={[]}
+                gridEntries={[]}
+                selectedItem={{
+                    id: "cloth_cap",
+                    name: "Cloth Cap",
+                    count: 1,
+                    description: "A basic cap.",
+                    iconId: "cloth_cap",
+                    usedBy: [],
+                    obtainedBy: ["Tailoring"]
+                }}
+                selectedItemId="cloth_cap"
+                selectedItemCharges={null}
+                onSelectItem={vi.fn()}
+                onClearSelection={vi.fn()}
+                sellQuantity={1}
+                onSellQuantityChange={vi.fn()}
+                onSellSelected={vi.fn()}
+                canSellSelected={false}
+                sellGoldGain={0}
+                unitValue={0}
+                sellDisabledReason={null}
+                onSellAll={vi.fn()}
+                sort="Name"
+                onSortChange={vi.fn()}
+                search=""
+                onSearchChange={vi.fn()}
+                page={1}
+                pageCount={1}
+                onPageChange={vi.fn()}
+                totalItems={0}
+                emptyState="No items available"
+                selectionHint={null}
+            />
+        );
+
+        expect(screen.getByText("Stats")).toBeTruthy();
+        expect(screen.getByText(/\+1 Intellect/)).toBeTruthy();
+        expect(screen.getByText(/\+1 Armor/)).toBeTruthy();
+    });
+
     it("InventoryPanel renders sell actions in the item detail area", () => {
         const { container } = render(
             <InventoryPanel

@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { InventoryControls } from "./InventoryControls";
 import { getEquipmentDefinition } from "../../data/equipment";
+import type { EquipmentItemDefinition } from "../../core/types";
 import { InventoryIcon, type InventoryIconId } from "../ui/inventoryIcons";
 import { CollapseIcon } from "../ui/collapseIcon";
 import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
@@ -79,6 +80,21 @@ const InventorySlot = memo(({ item, isSelected, onSelect }: InventorySlotProps) 
     );
 });
 
+const formatModifiers = (modifiers: EquipmentItemDefinition["modifiers"]): string => {
+    if (modifiers.length === 0) {
+        return "";
+    }
+    return modifiers
+        .map((mod) => {
+            const valueLabel = mod.kind === "mult"
+                ? `${Math.round(mod.value * 100)}%`
+                : `${mod.value}`;
+            const prefix = mod.value > 0 ? "+" : "";
+            return `${prefix}${valueLabel} ${mod.stat}`;
+        })
+        .join(", ");
+};
+
 export const InventoryPanel = memo(({
     isCollapsed,
     onToggleCollapsed,
@@ -112,6 +128,9 @@ export const InventoryPanel = memo(({
             ? `${equipmentDef.slot} (${equipmentDef.weaponType})`
             : equipmentDef.slot
         : "None";
+    const statsLabel = equipmentDef && equipmentDef.modifiers.length > 0
+        ? formatModifiers(equipmentDef.modifiers)
+        : null;
 
     const maxSellQuantity = Math.max(1, selectedItem?.count ?? 1);
     const clampedSellQuantity = Math.min(Math.max(1, sellQuantity), maxSellQuantity);
@@ -291,6 +310,12 @@ export const InventoryPanel = memo(({
                                     : "--"}
                             </span>
                         </div>
+                        {selectedItem && statsLabel ? (
+                            <div className="ts-inventory-focus-row">
+                                <span className="ts-inventory-focus-label">Stats</span>
+                                <span className="ts-inventory-focus-value">{statsLabel}</span>
+                            </div>
+                        ) : null}
                         <p className="ts-inventory-focus-copy">
                             {selectedItem
                                 ? selectedItem.description
