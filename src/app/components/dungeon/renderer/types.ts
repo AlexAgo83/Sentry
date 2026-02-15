@@ -15,6 +15,7 @@ export type UnitNode = {
     silhouette: any;
     body: any;
     enemySprite?: any;
+    enemyOutlineSprites?: any[];
     attackBack: any;
     attackFill: any;
     hpBack: any;

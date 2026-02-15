@@ -6,6 +6,9 @@ import {
     DAMAGE_TINT_COLOR,
     DAMAGE_TINT_MS,
     ENEMY_SPAWN_FADE_MS,
+    ENTITY_OUTLINE_ALPHA,
+    ENTITY_OUTLINE_COLOR,
+    ENTITY_OUTLINE_OFFSET,
     MAGIC_SPIRAL_MS,
     MAGIC_SPIRAL_RADIUS,
     MAGIC_SPIRAL_TURNS,
@@ -220,9 +223,35 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
                 node.enemySprite.alpha = unit.alive ? 1 : 0.5;
                 node.enemySprite.tint = 0xffffff;
             }
+            const outlines = node.enemyOutlineSprites ?? [];
+            const outlineAlpha = Math.max(0, Math.min(1, ENTITY_OUTLINE_ALPHA * (unit.alive ? 1 : 0.5)));
+            const outlineOffset = ENTITY_OUTLINE_OFFSET;
+            const outlineDirections: Array<[number, number]> = [
+                [1, 0],
+                [-1, 0],
+                [0, 1],
+                [0, -1],
+                [1, 1],
+                [-1, 1],
+                [1, -1],
+                [-1, -1]
+            ];
+            for (let i = 0; i < outlines.length; i += 1) {
+                const sprite = outlines[i];
+                const dir = outlineDirections[i] ?? outlineDirections[0];
+                sprite.visible = Boolean(node.enemySprite?.visible);
+                sprite.texture = node.enemySprite?.texture;
+                sprite.scale?.set?.(node.enemySprite?.scale?.x ?? 1);
+                sprite.alpha = outlineAlpha;
+                sprite.tint = ENTITY_OUTLINE_COLOR;
+                sprite.position.set(dir[0] * outlineOffset, dir[1] * outlineOffset);
+            }
         } else {
             if (node.enemySprite) {
                 node.enemySprite.visible = false;
+            }
+            if (node.enemyOutlineSprites) {
+                node.enemyOutlineSprites.forEach((sprite) => { sprite.visible = false; });
             }
             node.body.visible = true;
             node.silhouette.visible = true;
@@ -525,6 +554,9 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
             node.magicPulse.visible = false;
             if (node.enemySprite) {
                 node.enemySprite.visible = false;
+            }
+            if (node.enemyOutlineSprites) {
+                node.enemyOutlineSprites.forEach((sprite) => { sprite.visible = false; });
             }
             node.attackBack.clear();
             node.attackFill.clear();

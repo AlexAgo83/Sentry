@@ -22,6 +22,13 @@ export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     const enemySprite = new (PIXI as any).Sprite((PIXI as any).Texture?.EMPTY ?? (PIXI as any).Texture?.WHITE);
     enemySprite.anchor?.set?.(0.5, 0.5);
     enemySprite.visible = false;
+    const enemyOutlineSprites: any[] = [];
+    for (let i = 0; i < 8; i += 1) {
+        const outline = new (PIXI as any).Sprite((PIXI as any).Texture?.EMPTY ?? (PIXI as any).Texture?.WHITE);
+        outline.anchor?.set?.(0.5, 0.5);
+        outline.visible = false;
+        enemyOutlineSprites.push(outline);
+    }
     const attackBack = new PIXI.Graphics();
     const attackFill = new PIXI.Graphics();
     const hpBack = new PIXI.Graphics();
@@ -41,6 +48,7 @@ export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
     container.addChild(targetRing);
     container.addChild(magicPulse);
     container.addChild(silhouette);
+    enemyOutlineSprites.forEach((sprite) => container.addChild(sprite));
     container.addChild(enemySprite);
     container.addChild(body);
     container.addChild(combatIcon);
@@ -57,6 +65,7 @@ export const createUnitNode = (PIXI: PixiModule, world: any): UnitNode => {
         silhouette,
         body,
         enemySprite,
+        enemyOutlineSprites,
         attackBack,
         attackFill,
         hpBack,
