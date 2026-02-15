@@ -408,11 +408,17 @@
 .ts-dungeon-loot-table {
     display: flex;
     flex-direction: column;
-    gap: var(--m3);
+    gap: var(--m2);
     border: 1px solid rgba(93, 217, 193, 0.2);
     border-radius: 10px;
     background: rgba(10, 16, 29, 0.82);
     padding: var(--m4);
+}
+
+.ts-dungeon-loot-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m2);
 }
 
 .ts-dungeon-loot-title {
@@ -427,19 +433,31 @@
     margin: 0;
     font-size: calc(var(--text-xs-size) - 1px);
     color: rgba(208, 219, 240, 0.75);
-    margin-bottom: var(--m1);
 }
 
 .ts-dungeon-loot-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     align-items: center;
     column-gap: var(--m3);
     row-gap: var(--m2);
     border: 1px solid rgba(93, 217, 193, 0.22);
     border-radius: 10px;
-    padding: 12px 14px;
+    padding: 10px;
     background: rgba(11, 17, 31, 0.88);
+}
+
+.ts-dungeon-loot-icon {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    opacity: 0.95;
+}
+
+.ts-dungeon-loot-icon .ts-inventory-icon {
+    width: 28px;
+    height: 28px;
 }
 
 .ts-dungeon-loot-row.is-unknown .ts-dungeon-loot-name {

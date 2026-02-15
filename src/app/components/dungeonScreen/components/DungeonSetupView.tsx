@@ -3,6 +3,7 @@ import { getCombatSkillIdForWeaponType, getEquippedWeaponType } from "../../../.
 import type { DungeonDefinition, DungeonId, PlayerId, PlayerState } from "../../../../core/types";
 import { SkillIcon } from "../../../ui/skillIcons";
 import { getSkillIconColor } from "../../../ui/skillColors";
+import { InventoryIcon, type InventoryIconId } from "../../../ui/inventoryIcons";
 
 type DungeonSetupViewProps = {
     definitions: DungeonDefinition[];
@@ -150,25 +151,31 @@ export const DungeonSetupView = ({
                 <div className="ts-dungeon-loot-table">
                     <p className="ts-dungeon-loot-title">Loot table</p>
                     <p className="ts-dungeon-loot-subtitle">1 reward per clear</p>
-                    {lootEntries.map((entry, index) => {
-                        const chance = totalLootWeight > 0 ? (entry.weight / totalLootWeight) * 100 : 0;
-                        const hasBeenDiscovered = Boolean(discoveredItemIds?.[entry.itemId])
-                            || (inventoryItems[entry.itemId] ?? 0) > 0;
-                        const displayName = hasBeenDiscovered ? (itemNameById[entry.itemId] ?? entry.itemId) : "??";
-                        const quantityLabel = entry.quantityMin === entry.quantityMax
-                            ? `x${entry.quantityMin}`
-                            : `x${entry.quantityMin}-${entry.quantityMax}`;
-                        return (
-                            <div
-                                key={`${entry.itemId}-${index}`}
-                                className={`ts-dungeon-loot-row${hasBeenDiscovered ? "" : " is-unknown"}`}
-                            >
-                                <span className="ts-dungeon-loot-name">{displayName}</span>
-                                <span className="ts-dungeon-loot-meta">{chance.toFixed(1)}%</span>
-                                <span className="ts-dungeon-loot-meta">{quantityLabel}</span>
-                            </div>
-                        );
-                    })}
+                    <div className="ts-dungeon-loot-rows">
+                        {lootEntries.map((entry, index) => {
+                            const chance = totalLootWeight > 0 ? (entry.weight / totalLootWeight) * 100 : 0;
+                            const hasBeenDiscovered = Boolean(discoveredItemIds?.[entry.itemId])
+                                || (inventoryItems[entry.itemId] ?? 0) > 0;
+                            const displayName = hasBeenDiscovered ? (itemNameById[entry.itemId] ?? entry.itemId) : "??";
+                            const iconId: InventoryIconId = hasBeenDiscovered ? (entry.itemId as InventoryIconId) : "generic";
+                            const quantityLabel = entry.quantityMin === entry.quantityMax
+                                ? `x${entry.quantityMin}`
+                                : `x${entry.quantityMin}-${entry.quantityMax}`;
+                            return (
+                                <div
+                                    key={`${entry.itemId}-${index}`}
+                                    className={`ts-dungeon-loot-row${hasBeenDiscovered ? "" : " is-unknown"}`}
+                                >
+                                    <span className="ts-dungeon-loot-icon" aria-hidden="true">
+                                        <InventoryIcon iconId={iconId} />
+                                    </span>
+                                    <span className="ts-dungeon-loot-name">{displayName}</span>
+                                    <span className="ts-dungeon-loot-meta">{chance.toFixed(1)}%</span>
+                                    <span className="ts-dungeon-loot-meta">{quantityLabel}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         </div>
