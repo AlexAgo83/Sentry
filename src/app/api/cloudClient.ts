@@ -265,14 +265,15 @@ const updateProfile = async (
 };
 
 const probeReady = async (): Promise<void> => {
-    const url = buildUrl("/api/v1/saves/latest");
+    // Use a public endpoint so first-launch probes don't spam 401s in the console.
+    const url = buildUrl("/api/v1/health");
     if (!url) {
         throw new Error("Cloud API base is not configured.");
     }
     const response = await fetchWithTimeout(url, {
         credentials: "include"
     }, DEFAULT_REQUEST_TIMEOUT_MS);
-    if ([200, 204, 401].includes(response.status)) {
+    if (response.ok) {
         return;
     }
     const message = await response.text();
