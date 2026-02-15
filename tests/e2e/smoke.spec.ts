@@ -89,6 +89,34 @@ test("cloud auth, upload, download, conflict", async ({ page }) => {
         await route.fallback();
     });
 
+    await page.route("**/api/v1/profile", async (route) => {
+        const method = route.request().method();
+        if (method === "GET") {
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify({
+                    email: "e2e@example.com",
+                    username: "E2EPlayer"
+                })
+            });
+            return;
+        }
+        if (method === "PUT") {
+            const requestBody = route.request().postDataJSON() as { username?: string | null };
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify({
+                    email: "e2e@example.com",
+                    username: requestBody?.username ?? null
+                })
+            });
+            return;
+        }
+        await route.fallback();
+    });
+
     await page.getByRole("button", { name: "Open settings" }).first().click();
     await page.getByTestId("open-save-options").click();
     await page.getByTestId("open-cloud-save").click();
