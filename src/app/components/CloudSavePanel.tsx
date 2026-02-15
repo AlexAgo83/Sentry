@@ -255,28 +255,44 @@ export const CloudSavePanel = memo(({
                     </div>
                 ) : null
             ) : (
-                <div className="ts-system-cloud-actions">
-                    <button
-                        type="button"
-                        className="generic-field button ts-devtools-button ts-focusable"
-                        onClick={onLogout}
-                        disabled={disabled}
-                        data-testid="cloud-logout"
-                        title="Logout"
-                    >
-                        Logout
-                    </button>
-                    <button
-                        type="button"
-                        className="generic-field button ts-devtools-button ts-focusable"
-                        onClick={onRefresh}
-                        disabled={authDisabled}
-                        data-testid="cloud-refresh"
-                        title="Check cloud"
-                    >
-                        Check cloud
-                    </button>
-                </div>
+                <>
+                    <div className="ts-system-cloud-actions">
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={onLogout}
+                            disabled={disabled}
+                            data-testid="cloud-logout"
+                            title="Logout"
+                        >
+                            Logout
+                        </button>
+                        <button
+                            type="button"
+                            className="generic-field button ts-devtools-button ts-focusable"
+                            onClick={onRefresh}
+                            disabled={authDisabled}
+                            data-testid="cloud-refresh"
+                            title="Check cloud"
+                        >
+                            Check cloud
+                        </button>
+                    </div>
+                    {onEditUsername ? (
+                        <div className="ts-system-cloud-actions">
+                            <button
+                                type="button"
+                                className="generic-field button ts-devtools-button ts-focusable"
+                                onClick={onEditUsername}
+                                disabled={authDisabled}
+                                data-testid="cloud-edit-username"
+                                title="Edit username"
+                            >
+                                Edit username
+                            </button>
+                        </div>
+                    ) : null}
+                </>
             )}
             {statusMessage ? (
                 <div className="ts-system-cloud-status">
@@ -315,66 +331,6 @@ export const CloudSavePanel = memo(({
                                 {username ?? "Not set"}
                             </span>
                         </div>
-                        {onEditUsername ? (
-                            <div className="ts-action-row ts-system-cloud-profile-actions">
-                                <button
-                                    type="button"
-                                    className="generic-field button ts-devtools-button ts-focusable"
-                                    onClick={onEditUsername}
-                                    disabled={authDisabled}
-                                    data-testid="cloud-edit-username"
-                                    title="Edit username"
-                                >
-                                    Edit username
-                                </button>
-                            </div>
-                        ) : null}
-                    </div>
-                    <div className="ts-system-cloud-profile ts-system-cloud-autosync" data-testid="cloud-autosync">
-                        <div className="ts-system-cloud-profile-row">
-                            <span className="ts-system-cloud-profile-label">Auto sync</span>
-                            <span className="ts-system-cloud-profile-value">
-                                {autoSyncState}
-                            </span>
-                        </div>
-                        <div className="ts-action-row ts-system-cloud-profile-actions">
-                            <label className="ts-system-cloud-autosync-toggle">
-                                <span className="ts-system-cloud-autosync-toggle-label">Enable</span>
-                                <input
-                                    type="checkbox"
-                                    checked={autoSyncEnabled}
-                                    onChange={(event) => onSetAutoSyncEnabled(event.currentTarget.checked)}
-                                    disabled={autoSyncToggleDisabled}
-                                    aria-label="Enable auto sync"
-                                    data-testid="cloud-autosync-toggle"
-                                />
-                            </label>
-                        </div>
-                        {autoSyncConflict ? (
-                            <div className="ts-system-cloud-status" data-testid="cloud-autosync-conflict">
-                                <span className="ts-system-cloud-error">{autoSyncConflict.message}</span>
-                                <div className="ts-system-cloud-actions">
-                                    <button
-                                        type="button"
-                                        className="generic-field button ts-devtools-button ts-focusable"
-                                        onClick={onResolveAutoSyncConflictLoadCloud}
-                                        disabled={disabled || !hasCloudSave}
-                                        title="Resolve by loading cloud save"
-                                    >
-                                        Load cloud save
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="generic-field button ts-devtools-button ts-focusable"
-                                        onClick={onResolveAutoSyncConflictOverwriteCloud}
-                                        disabled={disabled}
-                                        title="Resolve by overwriting cloud with local"
-                                    >
-                                        Overwrite cloud with local
-                                    </button>
-                                </div>
-                            </div>
-                        ) : null}
                     </div>
                     <div className="ts-system-cloud-sync" title={lastSyncTitle}>
                         Last sync: {lastSyncLabel}
@@ -447,6 +403,52 @@ export const CloudSavePanel = memo(({
                                 <span className="ts-system-cloud-reco">Reco</span>
                             ) : null}
                         </button>
+                    </div>
+                    <div className="ts-system-cloud-profile ts-system-cloud-autosync" data-testid="cloud-autosync">
+                        <div className="ts-system-cloud-profile-row">
+                            <span className="ts-system-cloud-profile-label">Auto sync</span>
+                            <span className="ts-system-cloud-profile-value">
+                                {autoSyncState}
+                            </span>
+                        </div>
+                        <div className="ts-action-row ts-system-cloud-profile-actions">
+                            <label className="ts-system-cloud-autosync-toggle">
+                                <span className="ts-system-cloud-autosync-toggle-label">Enable</span>
+                                <input
+                                    type="checkbox"
+                                    checked={autoSyncEnabled}
+                                    onChange={(event) => onSetAutoSyncEnabled(event.currentTarget.checked)}
+                                    disabled={autoSyncToggleDisabled}
+                                    aria-label="Enable auto sync"
+                                    data-testid="cloud-autosync-toggle"
+                                />
+                            </label>
+                        </div>
+                        {autoSyncConflict ? (
+                            <div className="ts-system-cloud-status" data-testid="cloud-autosync-conflict">
+                                <span className="ts-system-cloud-error">{autoSyncConflict.message}</span>
+                                <div className="ts-system-cloud-actions">
+                                    <button
+                                        type="button"
+                                        className="generic-field button ts-devtools-button ts-focusable"
+                                        onClick={onResolveAutoSyncConflictLoadCloud}
+                                        disabled={disabled || !hasCloudSave}
+                                        title="Resolve by loading cloud save"
+                                    >
+                                        Load cloud save
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="generic-field button ts-devtools-button ts-focusable"
+                                        onClick={onResolveAutoSyncConflictOverwriteCloud}
+                                        disabled={disabled}
+                                        title="Resolve by overwriting cloud with local"
+                                    >
+                                        Overwrite cloud with local
+                                    </button>
+                                </div>
+                            </div>
+                        ) : null}
                     </div>
                 </>
             ) : null}

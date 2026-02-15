@@ -34,6 +34,8 @@ const buildState = (options?: {
     const addSecondHero = options?.addSecondHero ?? true;
     const state = createInitialGameState("0.4.0", { seedHero });
     state.appReady = true;
+    // Keep this suite deterministic: the startup login prompt is covered by its own tests.
+    state.ui.cloud.loginPromptDisabled = true;
     if (addSecondHero) {
         state.players["2"] = createPlayerState("2", "Mara");
     }
