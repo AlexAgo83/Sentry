@@ -371,6 +371,7 @@ export const RosterPanel = memo(({
                             className="ts-icon-button ts-panel-action-button ts-roster-settings-button ts-focusable"
                             onClick={onOpenSystem}
                             aria-label="Open settings"
+                            title="Open settings"
                         >
                             <span className="ts-panel-action-icon" aria-hidden="true">
                                 <SystemIcon />
@@ -383,6 +384,7 @@ export const RosterPanel = memo(({
                             className="ts-collapse-button ts-focusable"
                             onClick={onToggleCollapsed}
                             aria-label={isCollapsed ? "Expand" : "Collapse"}
+                            title={isCollapsed ? "Expand" : "Collapse"}
                         >
                             <span className="ts-collapse-label">
                                 <CollapseIcon isCollapsed={isCollapsed} />

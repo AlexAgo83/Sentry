@@ -67,6 +67,7 @@ export const ModalShell = memo(({
                             type="button"
                             className="ts-modal-close ts-focusable"
                             onClick={onClose}
+                            title={closeLabel}
                         >
                             {closeLabel}
                         </button>

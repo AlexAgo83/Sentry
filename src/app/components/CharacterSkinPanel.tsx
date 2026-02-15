@@ -174,6 +174,7 @@ export const CharacterSkinPanel = memo(({
                             onClick={onRenameHero}
                             disabled={!canRenameHero}
                             aria-label="Rename"
+                            title="Rename"
                         >
                             <span className="ts-skin-action-icon">
                                 <RenameIcon />
@@ -187,6 +188,7 @@ export const CharacterSkinPanel = memo(({
                             disabled={!canRenameHero}
                             aria-pressed={isEditMode}
                             aria-label={isEditMode ? "Disable edit" : "Enable edit"}
+                            title={isEditMode ? "Disable edit" : "Enable edit"}
                         >
                             <span className="ts-skin-action-icon">
                                 {isEditMode ? <EditOnIcon /> : <EditOffIcon />}
@@ -199,6 +201,7 @@ export const CharacterSkinPanel = memo(({
                             className="ts-collapse-button ts-focusable"
                             onClick={onToggleCollapsed}
                             aria-label={isCollapsed ? "Expand" : "Collapse"}
+                            title={isCollapsed ? "Expand" : "Collapse"}
                         >
                             <span className="ts-collapse-label">
                                 <CollapseIcon isCollapsed={isCollapsed} />
@@ -223,6 +226,7 @@ export const CharacterSkinPanel = memo(({
                                 onClick={onRenameHero}
                                 disabled={!canRenameHero}
                                 aria-label="Rename"
+                                title="Rename"
                             >
                                 <span className="ts-skin-action-icon">
                                     <RenameIcon />
@@ -235,6 +239,7 @@ export const CharacterSkinPanel = memo(({
                                 onClick={onNextFace}
                                 disabled={!canRenameHero}
                                 aria-label="Next face"
+                                title="Next face"
                             >
                                 <span className="ts-skin-action-icon">
                                     <FaceIcon />
@@ -258,6 +263,7 @@ export const CharacterSkinPanel = memo(({
                                 onClick={onNextHair}
                                 disabled={!canRenameHero}
                                 aria-label="Next hair"
+                                title="Next hair"
                             >
                                 <span className="ts-skin-action-icon">
                                     <HairIcon />
@@ -282,6 +288,7 @@ export const CharacterSkinPanel = memo(({
                                 disabled={!canRenameHero}
                                 aria-pressed={showHelmet}
                                 aria-label={showHelmet ? "Hide helmet" : "Show helmet"}
+                                title={showHelmet ? "Hide helmet" : "Show helmet"}
                             >
                                 <span className="ts-skin-action-icon">
                                     {showHelmet ? <HelmetOnIcon /> : <HelmetOffIcon />}

@@ -79,6 +79,7 @@ export const DungeonReplayView = ({
                             type="button"
                             className={`ts-icon-button ts-focusable ts-dungeon-replay-button ts-dungeon-replay-speed${replaySpeed === speed ? " is-active" : ""}`}
                             onClick={() => onReplaySpeedChange(speed)}
+                            title={`Replay speed x${speed}`}
                         >
                             x{speed}
                         </button>

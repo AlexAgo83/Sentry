@@ -1,8 +1,8 @@
 ## task_096_execute_tooltip_coverage_across_backlog_items_145_to_147 - Execute tooltip coverage across backlog items 145 to 147
 > From version: 0.9.30
-> Understanding: 92%
-> Confidence: 88%
-> Progress: 0%
+> Understanding: 96%
+> Confidence: 92%
+> Progress: 100%
 > Complexity: High
 > Theme: UX / Accessibility
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -24,17 +24,17 @@ This task enforces a strict invariant: every clickable control has a hover descr
 - Regression tests must fail CI when a clickable control is missing required metadata.
 
 # Plan
-- [ ] 1. Execute `item_145` (convention + helper):
+- [x] 1. Execute `item_145` (convention + helper):
   - Pick a minimal helper/wrapper if it reduces repetition.
   - Document any explicit exceptions.
-- [ ] 2. Execute `item_146` (sweep UI):
+- [x] 2. Execute `item_146` (sweep UI):
   - Add missing `title` across major surfaces.
   - Add missing `aria-label` for icon-only clickables.
   - Ensure disabled controls explain why (when meaningful).
-- [ ] 3. Execute `item_147` (tests):
+- [x] 3. Execute `item_147` (tests):
   - Add invariant tests for key surfaces.
   - Ensure tests target interactive elements only (avoid false positives).
-- [ ] FINAL: Run validation
+- [x] FINAL: Run validation
 
 # Validation
 Final gate (mandatory at task end):
@@ -42,4 +42,3 @@ Final gate (mandatory at task end):
 - `npm run typecheck`
 - `npm run typecheck:tests`
 - `npm run test:ci`
-

@@ -134,6 +134,7 @@ export const InventoryPanel = memo(({
                 onClick={onSellSelected}
                 disabled={!canSellSelected}
                 data-testid="inventory-sell"
+                title="Sell"
             >
                 Sell
             </button>
@@ -145,6 +146,7 @@ export const InventoryPanel = memo(({
             onClick={onSellSelected}
             disabled={!canSellSelected}
             data-testid="inventory-sell"
+            title="Sell"
         >
             Sell
             {canSellSelected ? (
@@ -165,6 +167,7 @@ export const InventoryPanel = memo(({
                         className="ts-collapse-button ts-focusable"
                         onClick={onToggleCollapsed}
                         aria-label={isCollapsed ? "Expand" : "Collapse"}
+                        title={isCollapsed ? "Expand" : "Collapse"}
                     >
                         <span className="ts-collapse-label">
                             <CollapseIcon isCollapsed={isCollapsed} />
@@ -206,6 +209,7 @@ export const InventoryPanel = memo(({
                                 onClick={() => onPageChange(Math.max(1, page - 1))}
                                 disabled={page <= 1}
                                 aria-label="Prev"
+                                title="Previous page"
                             >
                                 ← Prev
                             </button>
@@ -216,6 +220,7 @@ export const InventoryPanel = memo(({
                                 onClick={() => onPageChange(Math.min(pageCount, page + 1))}
                                 disabled={page >= pageCount}
                                 aria-label="Next"
+                                title="Next page"
                             >
                                 Next →
                             </button>
@@ -234,6 +239,7 @@ export const InventoryPanel = memo(({
                                         className="generic-field button ts-inventory-clear ts-focusable"
                                         onClick={onClearSelection}
                                         data-testid="inventory-clear-selection"
+                                        title="Clear selection"
                                     >
                                         Clear
                                     </button>
@@ -326,6 +332,7 @@ export const InventoryPanel = memo(({
                                             className="generic-field button ts-focusable ts-inventory-sell ts-inventory-sell-action"
                                             onClick={onSellAll}
                                             data-testid="inventory-sell-all"
+                                            title="Sell all"
                                         >
                                             Sell all
                                         </button>

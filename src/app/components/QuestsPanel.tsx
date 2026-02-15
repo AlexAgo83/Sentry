@@ -111,6 +111,7 @@ export const QuestsPanel = memo(({
                         className="ts-collapse-button ts-focusable"
                         onClick={onToggleCollapsed}
                         aria-label={isCollapsed ? "Expand" : "Collapse"}
+                        title={isCollapsed ? "Expand" : "Collapse"}
                     >
                         <span className="ts-collapse-label">
                             <CollapseIcon isCollapsed={isCollapsed} />

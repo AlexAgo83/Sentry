@@ -5,6 +5,7 @@ import type { DungeonReplayState, DungeonRunState, PlayerState } from "../../src
 import { DUNGEON_DEFINITIONS } from "../../src/data/dungeons";
 import { ITEM_DEFINITIONS } from "../../src/data/definitions/items";
 import { DungeonScreen } from "../../src/app/components/DungeonScreen";
+import { getTooltipCoverageViolations } from "./helpers/tooltipAssertions";
 
 const getPlayersSorted = (players: Record<string, PlayerState>) => (
     Object.values(players).sort((a, b) => Number(a.id) - Number(b.id))
@@ -78,6 +79,87 @@ const getReplay = (): DungeonReplayState => ({
 });
 
 describe("DungeonScreen controls", () => {
+    it("exposes hover titles for all visible dungeon controls (live + replay)", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        // Live screen
+        const live = render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={getBaseRun()}
+                latestReplay={getReplay()}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        let violations = getTooltipCoverageViolations(document.body);
+        expect(violations.missingTitles, `Missing titles (live):\n${violations.missingTitles.join("\n")}`).toEqual([]);
+        expect(violations.iconOnlyButtonsMissingAria, `Missing aria-label (live):\n${violations.iconOnlyButtonsMissingAria.join("\n")}`).toEqual([]);
+
+        // Replay screen
+        live.unmount();
+        const replay = render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={getReplay()}
+                completionCounts={{}}
+                showReplay
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        violations = getTooltipCoverageViolations(document.body);
+        expect(violations.missingTitles, `Missing titles (replay):\n${violations.missingTitles.join("\n")}`).toEqual([]);
+        expect(violations.iconOnlyButtonsMissingAria, `Missing aria-label (replay):\n${violations.iconOnlyButtonsMissingAria.join("\n")}`).toEqual([]);
+        replay.unmount();
+    });
+
     it("shows replay controls in dedicated replay screen", () => {
         const state = createInitialGameState("0.9.0");
         state.players["2"] = createPlayerState("2", "Mara");

@@ -274,6 +274,7 @@ export const SystemModal = memo(({
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={() => openView("actionJournal")}
                             data-testid="open-action-journal"
+                            title="Action journal"
                         >
                             Action journal
                         </button>
@@ -286,6 +287,7 @@ export const SystemModal = memo(({
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={() => openView("telemetry")}
                             data-testid="open-telemetry"
+                            title="Telemetry"
                         >
                             Telemetry
                         </button>
@@ -298,6 +300,7 @@ export const SystemModal = memo(({
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={() => openView("graphics")}
                             data-testid="open-graphics"
+                            title="Graphics"
                         >
                             Graphics
                         </button>
@@ -310,6 +313,7 @@ export const SystemModal = memo(({
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={() => openView("saveOptions")}
                             data-testid="open-save-options"
+                            title="Save options"
                         >
                             Save options
                         </button>
@@ -322,6 +326,7 @@ export const SystemModal = memo(({
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={() => openView("leaderboard")}
                             data-testid="open-leaderboard"
+                            title="Leaderboard"
                         >
                             Leaderboard
                         </button>
@@ -335,6 +340,7 @@ export const SystemModal = memo(({
                                 className="generic-field button ts-devtools-button ts-focusable"
                                 onClick={() => openView("crashReports")}
                                 data-testid="open-crash-reports"
+                                title="Crash reports"
                             >
                                 Crash reports
                             </button>
@@ -348,6 +354,7 @@ export const SystemModal = memo(({
                                 type="button"
                                 className="generic-field button ts-devtools-button ts-focusable"
                                 onClick={() => openView("devTools")}
+                                title="Dev tools"
                             >
                                 Dev tools
                             </button>
@@ -361,6 +368,7 @@ export const SystemModal = memo(({
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={() => openView("changelogs")}
                             data-testid="open-changelogs"
+                            title="Changelogs"
                         >
                             Changelogs
                         </button>
@@ -373,6 +381,7 @@ export const SystemModal = memo(({
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={() => window.open("https://github.com/AlexAgo83/Sentry", "_blank", "noopener,noreferrer")}
                             data-testid="open-about-link"
+                            title="About"
                         >
                             About
                         </button>

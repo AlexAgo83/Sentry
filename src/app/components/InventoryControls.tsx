@@ -29,6 +29,7 @@ export const InventoryControls = memo(({ sort, onSortChange, search, onSearchCha
                     aria-selected={sort === "Name"}
                     className={`ts-chip${sort === "Name" ? " is-active" : ""}`}
                     onClick={() => onSortChange("Name")}
+                    title="Sort by name"
                 >
                     Name
                 </button>
@@ -38,6 +39,7 @@ export const InventoryControls = memo(({ sort, onSortChange, search, onSearchCha
                     aria-selected={sort === "Count"}
                     className={`ts-chip${sort === "Count" ? " is-active" : ""}`}
                     onClick={() => onSortChange("Count")}
+                    title="Sort by count"
                 >
                     Count
                 </button>

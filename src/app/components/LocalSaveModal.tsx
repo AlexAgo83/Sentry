@@ -44,6 +44,7 @@ export const LocalSaveModal = memo(({
                                     }
                                 }).catch(() => {});
                             }}
+                            title="Export save"
                         >
                             Export save
                         </button>
@@ -51,6 +52,7 @@ export const LocalSaveModal = memo(({
                             type="button"
                             className="generic-field button ts-devtools-button ts-focusable"
                             onClick={onImportSave}
+                            title="Import save"
                         >
                             Import save
                         </button>
@@ -70,6 +72,7 @@ export const LocalSaveModal = memo(({
                             type="button"
                             className="generic-field button ts-devtools-button ts-reset ts-focusable"
                             onClick={onResetSave}
+                            title="Reset save"
                         >
                             Reset save
                         </button>

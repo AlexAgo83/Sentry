@@ -252,6 +252,7 @@ export const StatsDashboardPanel = memo(({
                             role="tab"
                             aria-selected={resolvedTab === "hero-progression"}
                             aria-label="Hero progression"
+                            title="Hero progression"
                         >
                             <HeroProgressIcon className="ts-stats-tab-icon" />
                             <span className="ts-stats-tab-label">Hero progression</span>
@@ -263,6 +264,7 @@ export const StatsDashboardPanel = memo(({
                             role="tab"
                             aria-selected={resolvedTab === "hero-stats"}
                             aria-label="Hero statistics"
+                            title="Hero statistics"
                         >
                             <HeroStatsIcon className="ts-stats-tab-icon" />
                             <span className="ts-stats-tab-label">Hero statistics</span>
@@ -273,6 +275,7 @@ export const StatsDashboardPanel = memo(({
                         className="ts-collapse-button ts-focusable"
                         onClick={onToggleCollapsed}
                         aria-label={isCollapsed ? "Expand" : "Collapse"}
+                        title={isCollapsed ? "Expand" : "Collapse"}
                     >
                         <span className="ts-collapse-label">
                             <CollapseIcon isCollapsed={isCollapsed} />

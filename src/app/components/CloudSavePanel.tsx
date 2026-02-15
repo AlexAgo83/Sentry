@@ -218,6 +218,7 @@ export const CloudSavePanel = memo(({
                                     onClick={onRegister}
                                     disabled={disabled}
                                     data-testid="cloud-register"
+                                    title="Register"
                                 >
                                     Register
                                 </button>
@@ -226,6 +227,7 @@ export const CloudSavePanel = memo(({
                                     className="generic-field button ts-devtools-button ts-cloud-login-button ts-focusable"
                                     disabled={disabled}
                                     data-testid="cloud-login"
+                                    title="Login"
                                 >
                                     Login
                                 </button>
@@ -241,6 +243,7 @@ export const CloudSavePanel = memo(({
                         onClick={onLogout}
                         disabled={disabled}
                         data-testid="cloud-logout"
+                        title="Logout"
                     >
                         Logout
                     </button>
@@ -250,6 +253,7 @@ export const CloudSavePanel = memo(({
                         onClick={onRefresh}
                         disabled={authDisabled}
                         data-testid="cloud-refresh"
+                        title="Check cloud"
                     >
                         Check cloud
                     </button>
@@ -271,6 +275,7 @@ export const CloudSavePanel = memo(({
                         className="generic-field button ts-devtools-button ts-focusable"
                         onClick={onWarmupRetryNow}
                         data-testid="cloud-retry"
+                        title="Retry now"
                     >
                         Retry now
                     </button>
@@ -299,6 +304,7 @@ export const CloudSavePanel = memo(({
                                     onClick={onEditUsername}
                                     disabled={authDisabled}
                                     data-testid="cloud-edit-username"
+                                    title="Edit username"
                                 >
                                     Edit username
                                 </button>
@@ -356,6 +362,7 @@ export const CloudSavePanel = memo(({
                             onClick={onLoadCloud}
                             disabled={disabled || !hasCloudSave}
                             data-testid="cloud-load"
+                            title="Load cloud save"
                         >
                             Load cloud save
                             {recommendedAction === "cloud" ? (
@@ -368,6 +375,7 @@ export const CloudSavePanel = memo(({
                             onClick={onOverwriteCloud}
                             disabled={disabled}
                             data-testid="cloud-overwrite"
+                            title="Overwrite cloud with local"
                         >
                             Overwrite cloud with local
                             {recommendedAction === "local" ? (

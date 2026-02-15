@@ -109,6 +109,7 @@ export const DungeonHeaderActions = ({
                         type="button"
                         className={`ts-icon-button ts-panel-action-button ts-focusable ts-dungeon-replay-button ts-dungeon-replay-toggle${!replayPaused ? " is-active" : ""}`}
                         onClick={onReplayPlayPause}
+                        title={replayPaused ? "Play" : "Pause"}
                     >
                         <span className="ts-panel-action-icon" aria-hidden="true">
                             {replayPaused ? <StartActionIcon /> : <InterruptIcon />}
