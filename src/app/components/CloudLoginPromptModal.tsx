@@ -9,7 +9,17 @@ type CloudLoginPromptModalProps = {
 
 export const CloudLoginPromptModal = memo(({ onLogin, onNotNow, onDisable }: CloudLoginPromptModalProps) => {
     return (
-        <ModalShell kicker="Cloud" title="Cloud Save" onClose={onNotNow} closeLabel="Not now">
+        <ModalShell
+            kicker="Cloud"
+            title={(
+                <>
+                    <span className="ts-cloud-login-prompt-title-full">Cloud Save</span>
+                    <span className="ts-cloud-login-prompt-title-mobile">Save</span>
+                </>
+            )}
+            onClose={onNotNow}
+            closeLabel="Not now"
+        >
             <div className="ts-system-cloud-login-prompt">
                 <p className="ts-system-helper">
                     Log in to enable cloud backups and sync across devices.

@@ -223,6 +223,10 @@ progress.generic-field.progress.ts-progress-action.is-stunned::-moz-progress-bar
     color: var(--color-primary);
 }
 
+.ts-cloud-login-prompt-title-mobile {
+    display: none;
+}
+
 .ts-modal-close {
     border: 1px solid rgba(242, 193, 78, 0.25);
     background: rgba(21, 28, 46, 0.8);

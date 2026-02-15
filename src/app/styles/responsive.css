@@ -79,6 +79,14 @@
         display: none;
     }
 
+    .ts-cloud-login-prompt-title-full {
+        display: none;
+    }
+
+    .ts-cloud-login-prompt-title-mobile {
+        display: inline;
+    }
+
     .ts-dungeon-panel .ts-panel-meta {
         display: none;
     }
