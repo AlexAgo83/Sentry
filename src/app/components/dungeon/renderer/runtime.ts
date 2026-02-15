@@ -9,6 +9,8 @@ export const isJsdom = () => {
 
 export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<PixiRuntime> => {
     const PIXI = await import("pixi.js");
+    const baseUrl = (import.meta as any).env?.BASE_URL ?? "/";
+    const assetUrl = (path: string) => `${String(baseUrl).replace(/\/?$/, "/")}${path.replace(/^\/+/, "")}`;
 
     const bounds = hostElement.getBoundingClientRect();
     const app = new PIXI.Application({
@@ -27,6 +29,11 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
     arena.zIndex = 0;
     const vfxLayer = new PIXI.Container();
     vfxLayer.zIndex = 20;
+    const vfxTextures = {
+        meleeArc: PIXI.Texture.from(assetUrl("assets/vfx/melee_arc.svg")),
+        rangedProjectile: PIXI.Texture.from(assetUrl("assets/vfx/ranged_projectile.svg")),
+        magicOrb: PIXI.Texture.from(assetUrl("assets/vfx/magic_orb.svg"))
+    };
     const phaseLabel = new PIXI.Text("", {
         fill: 0xf5d18b,
         fontSize: 14,
@@ -63,6 +70,7 @@ export const createPixiRuntime = async (hostElement: HTMLDivElement): Promise<Pi
         world,
         arena,
         vfxLayer,
+        vfxTextures,
         phaseLabel,
         unitNodes: new Map(),
         floatingPool: [],

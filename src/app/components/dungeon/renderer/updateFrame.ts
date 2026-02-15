@@ -6,7 +6,6 @@ import {
     DAMAGE_TINT_COLOR,
     DAMAGE_TINT_MS,
     ENEMY_SPAWN_FADE_MS,
-    MAGIC_BEAM_VFX_COLOR,
     MAGIC_BEAM_VFX_MS,
     MAGIC_ORBS_VFX_RADIUS,
     MAGIC_ORBS_VFX_SPACING,
@@ -19,12 +18,11 @@ import {
     MELEE_ARC_VFX_COLOR,
     MELEE_ARC_VFX_MS,
     MELEE_ARC_VFX_OFFSET,
-    MELEE_ARC_VFX_RADIUS,
-    MELEE_ARC_VFX_SPREAD_RAD,
-    PROJECTILE_VFX_OUTLINE,
     PROJECTILE_VFX_RADIUS,
     RANGED_PROJECTILE_VFX_COLOR,
     RANGED_PROJECTILE_VFX_MS,
+    VFX_SVG_BASE_MAGIC_ORB_RADIUS,
+    VFX_SVG_BASE_PROJECTILE_RADIUS,
     WORLD_HEIGHT,
     WORLD_WIDTH
 } from "./constants";
@@ -115,11 +113,31 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
 
     if (runtime.attackVfxPool.length === 0) {
         for (let i = 0; i < MAX_ATTACK_VFX_POOL; i += 1) {
-            const gfx = new runtime.PIXI.Graphics();
-            gfx.visible = false;
-            gfx.alpha = 0;
-            runtime.vfxLayer.addChild(gfx);
-            runtime.attackVfxPool.push(gfx);
+            const container = new runtime.PIXI.Container();
+            container.visible = false;
+            container.alpha = 1;
+
+            const melee = new runtime.PIXI.Sprite(runtime.vfxTextures.meleeArc);
+            melee.anchor.set(0.5, 0.5);
+            melee.visible = false;
+
+            const ranged = new runtime.PIXI.Sprite(runtime.vfxTextures.rangedProjectile);
+            ranged.anchor.set(0.5, 0.5);
+            ranged.visible = false;
+
+            const magicOrbs: any[] = [];
+            for (let j = 0; j < 10; j += 1) {
+                const orb = new runtime.PIXI.Sprite(runtime.vfxTextures.magicOrb);
+                orb.anchor.set(0.5, 0.5);
+                orb.visible = false;
+                magicOrbs.push(orb);
+                container.addChild(orb);
+            }
+
+            container.addChild(melee);
+            container.addChild(ranged);
+            runtime.vfxLayer.addChild(container);
+            runtime.attackVfxPool.push({ container, melee, ranged, magicOrbs });
         }
     }
 
@@ -275,16 +293,21 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
     });
 
     const vfxKeysToRelease: string[] = [];
-    runtime.attackVfxByKey.forEach((gfx, key) => {
-        const kind = (gfx as any).__vfxKind as AttackVfxKind | undefined;
-        const sourceId = String((gfx as any).__vfxSourceId ?? "");
-        const targetId = String((gfx as any).__vfxTargetId ?? "");
-        const atMs = Number((gfx as any).__vfxAtMs);
+    runtime.attackVfxByKey.forEach((node, key) => {
+        const kind = (node as any).__vfxKind as AttackVfxKind | undefined;
+        const sourceId = String((node as any).__vfxSourceId ?? "");
+        const targetId = String((node as any).__vfxTargetId ?? "");
+        const atMs = Number((node as any).__vfxAtMs);
+        const container = (node as any).container;
+        const melee = (node as any).melee;
+        const ranged = (node as any).ranged;
+        const magicOrbs = (node as any).magicOrbs as any[] | undefined;
         if (!kind || !sourceId || !targetId || !Number.isFinite(atMs)) {
-            gfx.visible = false;
-            gfx.alpha = 0;
-            gfx.clear?.();
-            (gfx as any).__vfxKey = undefined;
+            container.visible = false;
+            if (melee) melee.visible = false;
+            if (ranged) ranged.visible = false;
+            if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
+            (node as any).__vfxKey = undefined;
             vfxKeysToRelease.push(key);
             return;
         }
@@ -292,14 +315,15 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         const durationMs = getAttackVfxDurationMs(kind);
         const age = frame.atMs - atMs;
         if (age < 0) {
-            gfx.visible = false;
+            container.visible = false;
             return;
         }
         if (age > durationMs) {
-            gfx.visible = false;
-            gfx.alpha = 0;
-            gfx.clear();
-            (gfx as any).__vfxKey = undefined;
+            container.visible = false;
+            if (melee) melee.visible = false;
+            if (ranged) ranged.visible = false;
+            if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
+            (node as any).__vfxKey = undefined;
             vfxKeysToRelease.push(key);
             return;
         }
@@ -307,10 +331,11 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         const sourceUnit = unitById.get(sourceId);
         const targetUnit = unitById.get(targetId);
         if (!sourceUnit || !targetUnit) {
-            gfx.visible = false;
-            gfx.alpha = 0;
-            gfx.clear();
-            (gfx as any).__vfxKey = undefined;
+            container.visible = false;
+            if (melee) melee.visible = false;
+            if (ranged) ranged.visible = false;
+            if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
+            (node as any).__vfxKey = undefined;
             vfxKeysToRelease.push(key);
             return;
         }
@@ -330,63 +355,70 @@ export const updateFrame = (runtime: PixiRuntime, frame: DungeonArenaFrame) => {
         const progress = clamp(age / durationMs, 0, 1);
         const alpha = clamp(1 - progress, 0, 1);
 
-        gfx.visible = alpha > 0.02;
-        gfx.alpha = 1;
-        gfx.clear();
+        container.visible = alpha > 0.02;
+        container.alpha = 1;
 
         if (kind === "melee_arc") {
             const angle = Math.atan2(dy, dx);
-            gfx.position.set(sx + nx * MELEE_ARC_VFX_OFFSET, sy + ny * MELEE_ARC_VFX_OFFSET);
-            gfx.rotation = angle;
-            const radius = MELEE_ARC_VFX_RADIUS * (1 + progress * 0.12);
-            const spread = MELEE_ARC_VFX_SPREAD_RAD;
-            const start = -spread / 2;
-            const end = spread / 2;
-            gfx.lineStyle(9, MELEE_ARC_VFX_COLOR, 0.22 * alpha);
-            gfx.arc(0, 0, radius, start, end);
-            gfx.lineStyle(4.2, MELEE_ARC_VFX_COLOR, 0.55 * alpha);
-            gfx.arc(0, 0, radius, start, end);
+            container.position.set(sx + nx * MELEE_ARC_VFX_OFFSET, sy + ny * MELEE_ARC_VFX_OFFSET);
+            container.rotation = angle;
+            if (ranged) ranged.visible = false;
+            if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
+            melee.visible = true;
+            melee.tint = MELEE_ARC_VFX_COLOR;
+            melee.alpha = clamp(0.2 + 0.8 * alpha, 0, 1);
+            melee.scale.set(1 + progress * 0.12);
         } else if (kind === "ranged_projectile") {
             const t = 1 - Math.pow(1 - clamp(progress * 1.08, 0, 1), 3);
-            gfx.position.set(sx + dx * t, sy + dy * t);
-            const radius = PROJECTILE_VFX_RADIUS * (0.95 + (1 - progress) * 0.15);
-            gfx.lineStyle(2, PROJECTILE_VFX_OUTLINE, 0.55 * alpha);
-            gfx.beginFill(RANGED_PROJECTILE_VFX_COLOR, 0.85 * alpha);
-            gfx.drawCircle(0, 0, radius);
-            gfx.endFill();
+            container.position.set(sx + dx * t, sy + dy * t);
+            container.rotation = 0;
+            if (melee) melee.visible = false;
+            if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
+            ranged.visible = true;
+            ranged.tint = RANGED_PROJECTILE_VFX_COLOR;
+            ranged.alpha = clamp(0.15 + 0.85 * alpha, 0, 1);
+            const base = PROJECTILE_VFX_RADIUS / Math.max(1e-4, VFX_SVG_BASE_PROJECTILE_RADIUS);
+            const scale = base * (0.95 + (1 - progress) * 0.15);
+            ranged.scale.set(scale);
         } else {
-            // Magic: a moving trail of glowing orbs along the path.
-            gfx.position.set(sx, sy);
-            gfx.rotation = 0;
+            // Magic: a moving trail of orbs (sprites) along the path.
+            container.position.set(sx, sy);
+            container.rotation = 0;
+            if (melee) melee.visible = false;
+            if (ranged) ranged.visible = false;
 
             const count = clamp(Math.round(length / MAGIC_ORBS_VFX_SPACING) + 1, 4, 10);
             const head = clamp(progress * 1.18, 0, 1);
             const tail = clamp(head - MAGIC_ORBS_VFX_TRAIL, 0, 1);
             const span = Math.max(1e-4, head - tail);
 
-            for (let i = 0; i < count; i += 1) {
+            const base = MAGIC_ORBS_VFX_RADIUS / Math.max(1e-4, VFX_SVG_BASE_MAGIC_ORB_RADIUS);
+            for (let i = 0; i < 10; i += 1) {
+                const orb = (magicOrbs && magicOrbs[i]) ? magicOrbs[i] : null;
+                if (!orb) {
+                    continue;
+                }
+                orb.visible = i < count;
+                if (!orb.visible) {
+                    continue;
+                }
                 const t = count === 1 ? 0 : i / (count - 1);
                 if (t < tail || t > head) {
+                    orb.visible = false;
                     continue;
                 }
                 const local = (t - tail) / span; // 0..1
                 const orbAlpha = Math.sin(Math.PI * local) * alpha;
                 if (orbAlpha <= 0.02) {
+                    orb.visible = false;
                     continue;
                 }
 
-                const x = dx * t;
-                const y = dy * t;
-                const r = MAGIC_ORBS_VFX_RADIUS * (0.85 + 0.25 * Math.sin(Math.PI * local));
-
-                gfx.beginFill(MAGIC_BEAM_VFX_COLOR, 0.14 * orbAlpha);
-                gfx.drawCircle(x, y, r + 7);
-                gfx.endFill();
-
-                gfx.lineStyle(2, MAGIC_BEAM_VFX_COLOR, 0.5 * orbAlpha);
-                gfx.beginFill(MAGIC_BEAM_VFX_COLOR, 0.55 * orbAlpha);
-                gfx.drawCircle(x, y, r);
-                gfx.endFill();
+                orb.position.set(dx * t, dy * t);
+                orb.alpha = clamp(0.18 + 0.82 * orbAlpha, 0, 1);
+                orb.tint = 0xffffff; // keep SVG colors
+                const scale = base * (0.85 + 0.25 * Math.sin(Math.PI * local));
+                orb.scale.set(scale);
             }
         }
     });

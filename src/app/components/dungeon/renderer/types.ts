@@ -33,6 +33,11 @@ export type PixiRuntime = {
     world: any;
     arena: any;
     vfxLayer: any;
+    vfxTextures: {
+        meleeArc: any;
+        rangedProjectile: any;
+        magicOrb: any;
+    };
     phaseLabel: any;
     unitNodes: Map<string, UnitNode>;
     floatingPool: any[];
