@@ -56,8 +56,6 @@ describe("CloudSavePanel", () => {
         expect(screen.getByText(/Last sync:/)).toBeTruthy();
         expect(screen.getByRole("button", { name: "Load cloud save" })).toBeTruthy();
         expect(screen.getByRole("button", { name: "Overwrite cloud with local" })).toBeTruthy();
-        expect(screen.getByText("Display name")).toBeTruthy();
-        expect(screen.getByTestId("cloud-profile-display-name").textContent).toBe("Aegis");
         expect(screen.getByRole("button", { name: "Edit username" })).toBeTruthy();
     });
 
