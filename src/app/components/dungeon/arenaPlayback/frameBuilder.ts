@@ -1,4 +1,4 @@
-import { ATTACK_LUNGE_WINDOW_MS, MAGIC_PULSE_WINDOW_MS } from "./constants";
+import { ATTACK_LUNGE_WINDOW_MS, DUNGEON_FLOAT_WINDOW_MS, MAGIC_PULSE_WINDOW_MS } from "./constants";
 import {
     buildFloatingTexts,
     clamp,
@@ -235,11 +235,15 @@ export const buildDungeonArenaLiveFrame = (
         const player = players[member.playerId];
         return createHeroSeed(member.playerId, player, player?.name, member.hpMax, player?.equipment);
     });
-    const boundedAtMs = clamp(atMs, 0, Math.max(run.elapsedMs, run.events.at(-1)?.atMs ?? 0));
+    const totalMs = Math.max(run.elapsedMs, run.events.at(-1)?.atMs ?? 0);
+    // If auto-restart is queued, the UI playback cursor intentionally overruns the run end.
+    // Preserve that overrun so renderer-only VFX can age out (similar to floating texts).
+    const overrunCapMs = totalMs + DUNGEON_FLOAT_WINDOW_MS * 2;
+    const boundedAtMs = clamp(atMs, 0, run.restartAt ? overrunCapMs : totalMs);
     const frame = buildFrameFromEvents({
         events: run.events,
         partySeeds,
-        totalMs: Math.max(run.elapsedMs, run.events.at(-1)?.atMs ?? 0),
+        totalMs,
         atMs: boundedAtMs,
         floatingAtMs: floatingAtMs ?? atMs,
         overrideTargetEnemyId: run.targetEnemyId,
