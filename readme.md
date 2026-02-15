@@ -1,186 +1,216 @@
 # Sentry
 
-Sentry is a TypeScript + React idle RPG with roster progression, dungeon combat, and offline catch-up. PWA-first with a modern fantasy UI.
+Sentry is a TypeScript + React idle RPG focused on roster progression, dungeon runs, and offline continuity.
 
 [![CI](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/Sentry/actions/workflows/ci.yml) [![License](https://img.shields.io/github/license/AlexAgo83/Sentry)](LICENSE)
 
-## Features
+## Overview
 
-* Multi-hero roster with skills, recipes, and actions.
-* Party-based dungeon runs with headless combat simulation.
-* Live dungeon arena + latest-run replay with timeline scrub.
-* Combat XP progression in dungeons; Roaming remains the action loop.
-* Offline catch-up with recap summary on return (action + dungeon gains).
-* Local persistence via localStorage adapter.
-* Cloud saves with conflict UI (date/score/version), last sync, and warmup handling.
-* PWA support (manifest + service worker).
-* Modern fantasy UI shell with performance telemetry.
-* Inventory QoL: compact numbers, sell all, unit value, and new item badges.
-* Action summary tooltips (speed/XP formulas) + explicit stun time display.
+Sentry includes:
+
+- Multi-hero roster progression (actions, crafting, equipment, economy).
+- Dungeon simulation with live arena rendering (PixiJS) and replay controls.
+- Offline catch-up recap when returning to the app.
+- Local save import/export/reset.
+- Cloud save sync (auth, conflict view, profile username).
+- Leaderboard (virtual score) and changelog feed (GitHub commits).
+- PWA support with service worker caching and update prompt.
+
+## Key Systems
+
+### Gameplay
+
+- Idle loop + deterministic tick runtime.
+- Party dungeon runs with boss phases and replay playback speed controls.
+- Inventory, equipment, shop, quests, action journal, telemetry.
+
+### System modal
+
+- `Journal`
+- `Telemetry`
+- `Graphics`
+- `Save` (local + cloud)
+- `Leaderboard`
+- `Changelogs`
+- `Crash reports` (when available)
+- `About` (GitHub link)
+
+### Save flows
+
+- Local export uses a compressed envelope (`schemaVersion: 3`, `deflate-base64`) with SHA-256 checksum.
+- Local import accepts current compressed saves and legacy formats.
+- Cloud save stores payload + metadata (`updatedAt`, `virtualScore`, `appVersion`).
 
 ## Tech Stack
 
-### App
-
-* TypeScript + React (functional components + hooks).
-* Vite (build/dev server) + `@vitejs/plugin-react-swc` (fast React/TS transforms).
-* Custom CSS (global styles in `styles/` + app styles in `src/app/styles/`).
-* SweetAlert2 (dialogs/confirm flows).
-* PixiJS (dungeon arena renderer + replay playback).
-
-### Game engine & state
-
-* Reducer-driven state machine: `src/core/reducer.ts`.
-* Runtime tick loop + offline catch-up: `src/core/runtime.ts`, `src/core/loop.ts`.
-* Dungeon simulation + replay generation: `src/core/dungeon.ts`.
-* Lightweight store (subscribe/dispatch): `src/store/gameStore.ts`.
-* Persistence + save migrations: `src/adapters/persistence/*`, `src/core/state.ts`.
-
-### Backend (optional)
-
-* Fastify API server (email/password auth + JWT).
-* Prisma ORM + Postgres for cloud save storage.
-* Rate limiting and payload size enforcement.
-
-### Testing & quality
-
-* Vitest + Testing Library + jsdom (unit + UI tests).
-* Playwright (E2E smoke tests).
-* Coverage via `@vitest/coverage-v8` (HTML report in `coverage/`).
-* `jest-axe` accessibility smoke checks.
-* ESLint + TypeScript typecheck.
+- **Frontend:** React 19, TypeScript, Vite, custom CSS, SweetAlert2.
+- **Rendering:** PixiJS (dungeon arena).
+- **Backend (optional):** Fastify, Prisma, PostgreSQL, JWT + refresh tokens.
+- **Testing:** Vitest, Testing Library, Playwright, jest-axe.
+- **Quality:** ESLint, TypeScript typecheck, bundle budget script.
 
 ## Project Structure
 
-* `src/app`: React UI (components, hooks, styles).
-* `src/app/components/dungeon`: Dungeon UI, arena renderer, replay controls.
-* `src/core`: Game loop, state, runtime, serialization, types.
-* `src/data`: Definitions for skills, recipes, and actions.
-* `src/store`: Lightweight store for the game state.
-* `src/adapters`: Persistence adapters (localStorage).
-* `backend`: Fastify API server for cloud saves.
-* `prisma`: Prisma schema and migrations.
-* `tests`: Vitest test suite (unit + UI smoke tests).
-* `scripts`: Local helper scripts (e.g. `scripts/run-tests.js`).
-* `scripts/db`: DB dump/restore/reset utilities.
-* `styles`: Global styles shared by the UI.
-* `public`: PWA assets (manifest, service worker, icons).
-* `logics`: Product workflow and planning artifacts.
-* `logics/architecture`: Architecture notes and decisions.
-* `logics/request`: Incoming requests or ideas (planning only).
-* `logics/backlog`: Core product items.
-* `logics/tasks`: Execution plans derived from backlog items.
-* `logics/external`: Generated artifacts (exports, images, etc.).
-* `logics/tuning`: Balance and cadence tuning notes.
-* `logics/skills`: Logics workflow tools (git submodule).
-* `dist`: Production build output (generated).
+- `src/app`: UI components, hooks, containers, selectors, styling.
+- `src/core`: game loop, reducer, serialization, dungeon domain.
+- `src/adapters/persistence`: save envelopes, migrations, storage helpers.
+- `src/pwa`: service worker registration/update flow.
+- `src/observability`: crash reporting and diagnostics.
+- `src/store`: app/game store.
+- `backend`: Fastify API server.
+- `prisma`: Prisma schema + migrations.
+- `tests`: unit/integration/E2E/backend/script tests.
+- `public`: PWA manifest, service worker, static assets.
+- `scripts`: helper scripts (tests, bundle budget, db utilities).
+- `logics`: product requests/backlog/tasks and automation docs.
 
-## Codex Instructions
+## Requirements
 
-Codex should load project-specific instructions from `logics/instructions.md`.
-For browser-based UI validation, use the Logics skill at `logics/skills/logics-mcp-chrome-devtools/`.
-For terminal access via MCP, use `logics/skills/logics-mcp-terminal/`.
-To validate/fix Logics doc structure, indicators, and references, use `logics/skills/logics-doc-fixer/`.
+- Node.js `>= 20`
+- npm
+- PostgreSQL (only if using cloud backend)
 
-## Setup
+## Getting Started (Frontend only)
 
-### Requirements
+1. Clone:
+   - `git clone https://github.com/AlexAgo83/Sentry.git`
+2. Initialize submodules (needed for logics tooling used in CI):
+   - `git submodule update --init --recursive`
+3. Install dependencies:
+   - `npm ci`
+4. Start app:
+   - `npm run dev`
 
-* Node.js `>= 20` (CI uses Node 20).
-* npm (lockfile-based installs supported via `package-lock.json`).
+## Full-Stack Setup (Frontend + Backend)
 
-1. Clone the repository: `git clone https://github.com/AlexAgo83/Sentry.git`
-2. Install dependencies:
-   - Recommended (CI-like): `npm ci`
-   - Local dev: `npm install`
-3. Start the dev server: `npm run dev`
-
-### Backend setup (optional)
-
-1. Ensure Postgres is available and Prisma is generated:
+1. Create env file:
+   - `cp .env.example .env`
+2. Set required backend env values (`JWT_SECRET`, `DATABASE_URL`, etc.).
+3. Generate Prisma client and run migrations:
    - `npm run prisma:generate`
    - `npm run prisma:migrate`
-2. Set backend env vars (see below).
-3. Start the API server: `npm run backend:dev`
+4. Start backend:
+   - `npm run backend:dev`
+5. Ensure frontend points to backend:
+   - set `VITE_API_BASE=http://localhost:8787`
 
-### Environment variables
+## Environment Variables
 
-App (Vite):
-* `VITE_API_BASE`: Cloud API base URL (e.g. `http://localhost:8787`).
-* `PROD_RENDER_API_BASE`: Optional production warmup URL (Render cold-start mitigation).
-* `VITE_PROD_RENDER_API_BASE`: Same as above, but via Vite-prefixed envs (fallback).
-* `VITE_E2E`: Enables E2E test behavior (set by Playwright).
+### Frontend / Vite
 
-Backend:
-* `JWT_SECRET`: JWT signing secret (required).
-* `COOKIE_SECRET`: Cookie signing secret (defaults to `JWT_SECRET`).
-* `DATABASE_URL`: Postgres URL (must include `?schema=sentry`).
-* `ACCESS_TOKEN_TTL_MINUTES`: Access token TTL (default 15).
-* `REFRESH_TOKEN_TTL_DAYS`: Refresh token TTL (default 30).
+- `VITE_API_BASE`: backend API base URL for cloud save, leaderboard, changelogs.
+- `VITE_OFFLINE_CAP_DAYS`: offline progression cap in days.
+- `VITE_PROD_RENDER_API_BASE`: optional production backend warmup URL.
+- `PROD_RENDER_API_BASE`: same value injected at build-time for production warmup.
+- `VITE_E2E`: used by Playwright runs.
 
-DB utilities:
-* `DATABASE_URL_LOCAL`, `DATABASE_URL_RENDER`: Override per target.
-* `PGSSL_DISABLE=1`: Disable SSL for local (not allowed for render).
-* `SCHEMA_RESET_FORCE=1`: Required for render resets with `db:reset:dump`.
+### Backend
 
-## Scripts
+- `API_PORT`: API port (default `8787`).
+- `JWT_SECRET`: required JWT signing secret.
+- `COOKIE_SECRET`: cookie signing secret (falls back to `JWT_SECRET`).
+- `DATABASE_URL`: PostgreSQL connection string.
+- `ACCESS_TOKEN_TTL_MINUTES`: access token lifetime.
+- `REFRESH_TOKEN_TTL_DAYS`: refresh token lifetime.
 
-* `npm run dev`: Start the Vite dev server with debug logging.
-* `npm run live`: Start the Vite dev server.
-* `npm run build`: Build for production.
-* `npm run preview`: Preview the production build.
-* `npm run tests`: Run the test suite with Vitest (respects `TEST_TIMEOUT_MS`, `VITEST_STRICT`, `VITEST_LOG_CONSOLE`, `CI`).
-* `npm run test:ci`: Run tests with strict CI config (`vitest.ci.mjs`, bail=1, coverage thresholds enforced).
-* `npm run test:e2e`: Run Playwright E2E smoke tests (starts the dev server via Playwright webServer).
-* `npm run coverage`: Run coverage with local config.
-* `npm run coverage:ci`: Run coverage with CI config (same thresholds as tests).
-* `npm run lint`: Run ESLint on `src` and `tests`.
-* `npm run typecheck`: Type-check the app bundle.
-* `npm run typecheck:tests`: Type-check the test suite.
-* `npm run bundle:check`: Check bundle size thresholds.
-* `npm audit --audit-level=moderate`: Check for vulnerabilities (CI fails on moderate+).
-* `npm run backend:dev`: Start the Fastify cloud API server.
-* `npm run backend:start`: Start the Fastify cloud API server (prod-style).
-* `npm run prisma:generate`: Generate Prisma client.
-* `npm run prisma:migrate`: Run Prisma migrations.
-* `npm run db:dump`: Dump DB (custom format) to `scripts/db/dumps/`.
-* `npm run db:dump:render`: Dump the render database.
-* `npm run db:restore`: Restore from a dump (`--dump-file` required).
-* `npm run db:restore:render`: Restore the render database from a dump.
-* `npm run db:reset:dump`: Reset schema and restore from a dump (`--confirm` required).
-* `npm run db:reset:dump:render`: Reset render schema and restore from a dump.
+### Changelog feed (backend)
 
-## Testing & Coverage
+- `GITHUB_OWNER`: repository owner.
+- `GITHUB_REPO`: repository name.
+- `GITHUB_TOKEN` (optional): server-side token for better GitHub API rate limits.
 
-Coverage thresholds are enforced via Vitest (statements/lines/functions/branches >= 75%). Run `npm run coverage` to verify.
+`GITHUB_TOKEN` must stay server-side only (never exposed as `VITE_*`).
 
-### Test run knobs
+### DB utility helpers
 
-* `CI=true` disables strict mode by default (no bail, multithreaded, no console mirroring). Locally, strict mode stays enabled unless you set `VITEST_STRICT=false`.
-* `VITEST_STRICT=true|false` forces strictness (bail=1 + single-thread) on/off for the local config.
-* `VITEST_LOG_CONSOLE=true` echoes all console output during tests with a prefix.
-* `TEST_TIMEOUT_MS=<ms>` overrides the kill-timeout for `npm run tests` (default 90s locally, disabled in CI unless provided).
+- `DATABASE_URL_LOCAL`, `DATABASE_URL_RENDER`
+- `PGSSL_DISABLE`
+- `SCHEMA_RESET_FORCE`
 
-## CI (GitHub Actions)
+## API Surface (Backend)
 
-The `CI` workflow runs on push/PR to `main` and executes:
+- `GET /health`
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/refresh`
+- `GET /api/v1/saves/latest`
+- `PUT /api/v1/saves/latest`
+- `GET /api/v1/users/me/profile`
+- `PATCH /api/v1/users/me/profile`
+- `GET /api/v1/leaderboard`
+- `GET /api/changelog/commits`
 
-* `npm ci` (requires `package-lock.json`)
-* `npm run lint`
-* `npm run typecheck`
-* `npm run test:ci`
-* `npm run coverage:ci` (enforces thresholds)
-* `npm audit --audit-level=moderate`
-* `npm run build`
+## NPM Scripts
 
-## Troubleshooting
+### App lifecycle
 
-If you encounter any issues, check the console logs for errors.
+- `npm run dev`: Vite dev server.
+- `npm run dev:debug`: Vite with debug logs.
+- `npm run live`: alias of `dev`.
+- `npm run build`: production build.
+- `npm run preview`: preview built app.
+
+### Quality & tests
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm run typecheck:tests`
+- `npm run tests`: local Vitest runner via `scripts/run-tests.js`.
+- `npm run test:ci`: CI Vitest config.
+- `npm run coverage`
+- `npm run coverage:ci`
+- `npm run test:e2e`: Playwright smoke tests.
+- `npm run test:full`: full battery (`lint + typecheck + tests + coverage + build + e2e`).
+- `npm run bundle:check`: bundle budgets.
+
+### Backend / database
+
+- `npm run backend:dev`
+- `npm run backend:start`
+- `npm run prisma:generate`
+- `npm run prisma:migrate`
+- `npm run db:dump`
+- `npm run db:dump:render`
+- `npm run db:restore`
+- `npm run db:restore:render`
+- `npm run db:reset:dump`
+- `npm run db:reset:dump:render`
+
+## PWA & Offline Behavior
+
+- Service worker is registered in production builds.
+- Navigation requests use cache-first with background refresh.
+- Static assets use stale-while-revalidate behavior.
+- API requests (`/api/*`) are never cached by the service worker.
+- The app surfaces an update prompt when a new service worker is available.
+
+## CI
+
+GitHub Actions CI on `push`/`pull_request` to `main` runs:
+
+1. `npm ci`
+2. `npm run lint`
+3. logics doc lint
+4. `npm run typecheck`
+5. `npm run typecheck:tests`
+6. `npm run test:ci`
+7. `npm run coverage:ci`
+8. Playwright install + `npm run test:e2e`
+9. `npm audit --audit-level=moderate`
+10. `npm run build`
+11. `npm run bundle:check`
+12. offline recap smoke test
+
+## Notes
+
+- Usernames in cloud profile are optional, unique, max 16 chars, alphanumeric only.
+- Leaderboard ordering uses `virtualScore DESC`, then newest save update.
+- Equal virtual scores are flagged as `ex aequo` in leaderboard entries.
 
 ## Contributing
 
-Contributions are welcome. Please submit a pull request with a clear description of the changes and follow the project's coding conventions.
+See `CONTRIBUTING.md`.
 
 ## License
 
-This project is licensed under the MIT License (see `package.json`).
+MIT (`LICENSE`).
