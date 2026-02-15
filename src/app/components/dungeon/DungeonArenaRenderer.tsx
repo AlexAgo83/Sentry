@@ -17,6 +17,33 @@ export const DungeonArenaRenderer = memo(({
 
     frameRef.current = frame;
 
+    const clearAttackVfx = (runtime: PixiRuntime) => {
+        // Hide and release all VFX nodes so they don't "stick" while paused.
+        runtime.attackVfxByKey.forEach((node) => {
+            const container = (node as any).container;
+            const melee = (node as any).melee;
+            const ranged = (node as any).ranged;
+            const magicOrbs = (node as any).magicOrbs as any[] | undefined;
+            if (container) container.visible = false;
+            if (melee) melee.visible = false;
+            if (ranged) ranged.visible = false;
+            if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
+            (node as any).__vfxKey = undefined;
+        });
+        runtime.attackVfxByKey.clear();
+        runtime.attackVfxPool.forEach((node) => {
+            const container = (node as any).container;
+            const melee = (node as any).melee;
+            const ranged = (node as any).ranged;
+            const magicOrbs = (node as any).magicOrbs as any[] | undefined;
+            if (container) container.visible = false;
+            if (melee) melee.visible = false;
+            if (ranged) ranged.visible = false;
+            if (Array.isArray(magicOrbs)) magicOrbs.forEach((orb) => { orb.visible = false; });
+            (node as any).__vfxKey = undefined;
+        });
+    };
+
     useEffect(() => {
         const hostElement = hostRef.current;
         if (typeof window === "undefined" || !hostElement || isJsdom()) {
@@ -74,11 +101,21 @@ export const DungeonArenaRenderer = memo(({
             return;
         }
 
+        if (paused) {
+            clearAttackVfx(runtime);
+            return;
+        }
+
         // When a dungeon finishes, the upstream frame clock typically stops progressing.
         // Run a short tail animation so any queued VFX can finish their lifespan instead
         // of freezing on screen.
+        //
+        // IMPORTANT: replay frames can carry a global end status (victory/failed) even
+        // while the timeline cursor is mid-run. Only tail when we're at the end of the
+        // timeline, otherwise we create two competing clocks and visuals will flicker.
         const status = renderFrame.statusLabel ?? "";
-        if ((paused || status !== "running") && runtime.attackVfxByKey.size > 0) {
+        const isAtEnd = Number.isFinite(renderFrame.totalMs) && renderFrame.atMs >= renderFrame.totalMs;
+        if (status !== "running" && isAtEnd && runtime.attackVfxByKey.size > 0) {
             const baseAtMs = renderFrame.atMs;
             const start = performance.now();
             const MAX_TAIL_MS = 1_200;
