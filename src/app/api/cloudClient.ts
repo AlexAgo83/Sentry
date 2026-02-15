@@ -265,15 +265,39 @@ const updateProfile = async (
 };
 
 const probeReady = async (): Promise<void> => {
-    // Use a public endpoint so first-launch probes don't spam 401s in the console.
-    const url = buildUrl("/health");
+    // Prefer a public endpoint so first-launch probes don't spam 401s in the console.
+    // Fallback to `/api/v1/saves/latest` for older environments and e2e mocks.
+    const healthUrl = buildUrl("/health");
+    if (!healthUrl) {
+        throw new Error("Cloud API base is not configured.");
+    }
+    try {
+        const response = await fetchWithTimeout(healthUrl, {
+            credentials: "include"
+        }, DEFAULT_REQUEST_TIMEOUT_MS);
+        if (response.ok) {
+            return;
+        }
+        // If the backend doesn't expose /health (or we're in a mocked setup), fallback to the saves probe.
+        if (response.status !== 404) {
+            const message = await response.text();
+            throw new CloudApiError(response.status, message);
+        }
+    } catch (err) {
+        if (err instanceof CloudApiError && err.status !== 404) {
+            throw err;
+        }
+        // Network errors/aborts should not force warmup mode if the fallback probe succeeds.
+    }
+
+    const url = buildUrl("/api/v1/saves/latest");
     if (!url) {
         throw new Error("Cloud API base is not configured.");
     }
     const response = await fetchWithTimeout(url, {
         credentials: "include"
     }, DEFAULT_REQUEST_TIMEOUT_MS);
-    if (response.ok) {
+    if ([200, 204, 401].includes(response.status)) {
         return;
     }
     const message = await response.text();
