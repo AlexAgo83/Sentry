@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "tests": "node scripts/run-tests.js",
+    "test:full": "npm run lint && npm run typecheck && npm run typecheck:tests && npm run test:ci && npm run coverage:ci && npm run build && npm run test:e2e",
     "test:ci": "vitest --config vitest.ci.mjs run",
     "coverage": "vitest --coverage",
     "coverage:ci": "vitest --config vitest.ci.mjs --coverage",
