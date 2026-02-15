@@ -80,8 +80,6 @@ export const CloudSavePanel = memo(({
     lastSyncAt,
     localHasActiveDungeonRun,
     cloudHasActiveDungeonRun,
-    username,
-    displayName,
     autoSyncEnabled,
     autoSyncStatus,
     autoSyncConflict,
@@ -172,12 +170,11 @@ export const CloudSavePanel = memo(({
         return null;
     })();
     const autoSyncToggleDisabled = disabled || !isAuthenticated;
-    const autoSyncLabel = autoSyncEnabled ? "On" : "Off";
     const autoSyncState = autoSyncStatus === "syncing"
         ? "Syncing…"
         : autoSyncStatus === "conflict"
         ? "Conflict"
-        : autoSyncLabel;
+        : autoSyncEnabled ? "On" : "Off";
 
     const handleAuthSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -418,7 +415,7 @@ export const CloudSavePanel = memo(({
                         >
                             Auto sync{" "}
                             <span className={`ts-system-cloud-autosync-state ${autoSyncEnabled ? "is-on" : "is-off"}`}>
-                                {autoSyncEnabled ? "On" : "Off"}
+                                {autoSyncState}
                             </span>
                         </button>
                     </div>
