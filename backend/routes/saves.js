@@ -24,7 +24,8 @@ const registerSaveRoutes = (app, deps) => {
             meta: {
                 updatedAt: save.updatedAt.toISOString(),
                 virtualScore: save.virtualScore,
-                appVersion: save.appVersion
+                appVersion: save.appVersion,
+                revision: save.revision
             }
         });
     });
@@ -39,7 +40,7 @@ const registerSaveRoutes = (app, deps) => {
                 return;
             }
 
-            const { payload, virtualScore, appVersion } = request.body ?? {};
+            const { payload, virtualScore, appVersion, expectedRevision } = request.body ?? {};
             const validation = validateSavePayload(payload);
             if (!validation.ok) {
                 request.log?.warn({ reason: validation.error, schema: saveSchemaV1.$id }, "Invalid save payload.");
@@ -54,19 +55,53 @@ const registerSaveRoutes = (app, deps) => {
                 reply.code(400).send({ error: "Invalid app version." });
                 return;
             }
+            if (expectedRevision !== undefined && expectedRevision !== null && !Number.isFinite(expectedRevision)) {
+                reply.code(400).send({ error: "Invalid expected revision." });
+                return;
+            }
 
-            const saved = await prisma.save.upsert({
-                where: { userId },
-                update: {
-                    payload,
-                    virtualScore: Math.floor(virtualScore),
-                    appVersion: appVersion.trim()
-                },
-                create: {
+            const existing = await prisma.save.findUnique({ where: { userId } });
+            if (existing) {
+                if (expectedRevision !== undefined && expectedRevision !== null && existing.revision !== expectedRevision) {
+                    reply.code(409).send({
+                        error: "Conflict",
+                        meta: {
+                            updatedAt: existing.updatedAt.toISOString(),
+                            virtualScore: existing.virtualScore,
+                            appVersion: existing.appVersion,
+                            revision: existing.revision
+                        }
+                    });
+                    return;
+                }
+                const saved = await prisma.save.update({
+                    where: { userId },
+                    data: {
+                        payload,
+                        virtualScore: Math.floor(virtualScore),
+                        appVersion: appVersion.trim(),
+                        revision: { increment: 1 }
+                    }
+                });
+
+                reply.send({
+                    meta: {
+                        updatedAt: saved.updatedAt.toISOString(),
+                        virtualScore: saved.virtualScore,
+                        appVersion: saved.appVersion,
+                        revision: saved.revision
+                    }
+                });
+                return;
+            }
+
+            const saved = await prisma.save.create({
+                data: {
                     userId,
                     payload,
                     virtualScore: Math.floor(virtualScore),
-                    appVersion: appVersion.trim()
+                    appVersion: appVersion.trim(),
+                    revision: 1
                 }
             });
 
@@ -74,7 +109,8 @@ const registerSaveRoutes = (app, deps) => {
                 meta: {
                     updatedAt: saved.updatedAt.toISOString(),
                     virtualScore: saved.virtualScore,
-                    appVersion: saved.appVersion
+                    appVersion: saved.appVersion,
+                    revision: saved.revision
                 }
             });
         }
@@ -82,4 +118,3 @@ const registerSaveRoutes = (app, deps) => {
 };
 
 module.exports = { registerSaveRoutes };
-

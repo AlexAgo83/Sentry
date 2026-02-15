@@ -1,8 +1,8 @@
 ## task_100_execute_cloud_auto_sync_across_backlog_items_164_to_168 - Execute cloud auto-sync (auto-save/auto-load) across backlog items 164 to 168
 > From version: 0.9.31
 > Understanding: 92%
-> Confidence: 85%
-> Progress: 0%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Feature / Reliability
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -29,26 +29,26 @@ This task adds an optional Cloud auto-sync mode (default OFF) with safe conflict
 - Final delivery requires full validation battery pass.
 
 # Plan
-- [ ] 1. Execute `item_164` (backend token + 409 conflicts):
+- [x] 1. Execute `item_164` (backend token + 409 conflicts):
   - Add/return a concurrency token for saves.
   - Require `expected*` token on write; return 409 on mismatch.
   - Add backend tests for token increments + 409.
-- [ ] 2. Execute `item_165` (frontend toggle + core orchestration):
+- [x] 2. Execute `item_165` (frontend toggle + core orchestration):
   - Add Auto sync switch in Cloud Save options (default OFF).
   - Implement startup decision logic (auto-load vs auto-save scheduling).
   - Expose stable status semantics (ready/warming/offline/error/conflict).
-- [ ] 3. Execute `item_167` (triggers + rate limits + warmup integration):
+- [x] 3. Execute `item_167` (triggers + rate limits + warmup integration):
   - Add safe triggers + debouncing and “local changed” tracking.
   - Add per-attempt timeout + backoff + jitter + Retry now action.
-- [ ] 4. Execute `item_166` (conflict UI + resolution):
+- [x] 4. Execute `item_166` (conflict UI + resolution):
   - Surface conflict state and require explicit user action:
     - Load cloud
     - Overwrite cloud with local (with latest expected token)
   - Ensure auto-sync pauses on conflict and resumes after resolution.
-- [ ] 5. Execute `item_168` (regression + full battery):
+- [x] 5. Execute `item_168` (regression + full battery):
   - Add regression coverage for conflict safety + warmup/auth invariants.
   - Run full validation suite and fix failures.
-- [ ] FINAL: Update related Logics docs (request/backlog/task alignment)
+- [x] FINAL: Update related Logics docs (request/backlog/task alignment)
 
 # Validation
 Final gate (mandatory at task end):
@@ -59,4 +59,3 @@ Final gate (mandatory at task end):
 - `npm run coverage:ci`
 - `npm run build`
 - `npm run test:e2e`
-

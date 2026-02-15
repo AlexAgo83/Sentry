@@ -13,7 +13,8 @@ const cloudMock = {
     localMeta: {
         updatedAt: new Date("2024-01-01T00:00:00.000Z"),
         virtualScore: 0,
-        appVersion: "0.9.3"
+        appVersion: "0.9.3",
+        revision: null
     },
     lastSyncAt: null,
     hasCloudSave: false,
@@ -28,12 +29,18 @@ const cloudMock = {
     isUpdatingProfile: false,
     isAvailable: true,
     accessToken: null as string | null,
+    autoSyncEnabled: false,
+    autoSyncStatus: "idle" as const,
+    autoSyncConflict: null as { meta: any; message: string } | null,
     authenticate: vi.fn(async () => {}),
     refreshCloud: vi.fn(async () => {}),
     refreshProfile: vi.fn(async () => {}),
     updateUsername: vi.fn(async (): Promise<{ ok: true } | { ok: false; error: string }> => ({ ok: true })),
     loadCloud: vi.fn(async () => {}),
     overwriteCloud: vi.fn(async () => {}),
+    setAutoSyncEnabled: vi.fn(),
+    resolveAutoSyncConflictByLoadingCloud: vi.fn(async () => {}),
+    resolveAutoSyncConflictByOverwritingCloud: vi.fn(async () => {}),
     logout: vi.fn(),
     retryWarmupNow: vi.fn()
 };

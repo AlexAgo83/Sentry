@@ -7,6 +7,7 @@ type CloudSaveMeta = {
     updatedAt: string;
     virtualScore: number;
     appVersion: string;
+    revision: number;
 };
 
 type CloudSaveResponse = {
@@ -227,12 +228,19 @@ const putLatestSave = async (
     accessToken: string | null,
     payload: unknown,
     virtualScore: number,
-    appVersion: string
+    appVersion: string,
+    options?: { expectedRevision?: number | null }
 ): Promise<CloudSaveMetaResponse> => {
+    const expectedRevision = options?.expectedRevision;
     return requestJson<CloudSaveMetaResponse>("/api/v1/saves/latest", {
         method: "PUT",
         headers: authHeaders(accessToken),
-        body: JSON.stringify({ payload, virtualScore, appVersion })
+        body: JSON.stringify({
+            payload,
+            virtualScore,
+            appVersion,
+            ...(expectedRevision === undefined ? {} : { expectedRevision })
+        })
     }, SAVE_WRITE_TIMEOUT_MS);
 };
 

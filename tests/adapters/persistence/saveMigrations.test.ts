@@ -125,4 +125,22 @@ describe("saveMigrations", () => {
             label: `Entry ${ACTION_JOURNAL_LIMIT - 1}`
         });
     });
+
+    it("seeds UI inventory badge state from owned inventory when UI state is missing", () => {
+        const result = migrateAndValidateSave({
+            version: "0.9.31",
+            players: {
+                "1": { id: "1", name: "Mara" },
+            },
+            inventory: {
+                items: { gold: 5, wood: 2 }
+            }
+        });
+        expect(result.ok).toBe(true);
+        if (!result.ok) {
+            return;
+        }
+        expect(result.save.ui?.inventoryBadges?.seenItemIds?.wood).toBe(true);
+        expect(result.save.ui?.inventoryBadges?.seenMenuIds?.wood).toBe(true);
+    });
 });

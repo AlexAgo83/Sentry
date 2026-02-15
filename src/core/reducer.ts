@@ -75,6 +75,12 @@ export type GameAction =
     | { type: "setPerf"; perf: Partial<PerformanceState> }
     | { type: "setOfflineSummary"; summary: OfflineSummaryState | null }
     | { type: "setPersistenceStatus"; status: Partial<GameState["persistence"]> }
+    | { type: "uiInventoryBadgesSet"; seenItemIds: Record<ItemId, true>; seenMenuIds: Record<ItemId, true>; legacyImported?: boolean }
+    | { type: "uiInventoryBadgesMarkItemSeen"; itemId: ItemId }
+    | { type: "uiInventoryBadgesMarkMenuSeen" }
+    | { type: "uiInventoryBadgesLegacyImportChecked" }
+    | { type: "uiSetCloudLoginPromptDisabled"; disabled: boolean }
+    | { type: "uiSetCloudAutoSyncEnabled"; enabled: boolean }
     | { type: "grantRestedBuff"; timestamp: number }
     | { type: "setActivePlayer"; playerId: PlayerId }
     | { type: "addPlayer"; name?: string }
@@ -99,6 +105,104 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     switch (action.type) {
         case "hydrate":
             return hydrateGameState(action.version, action.save);
+        case "uiInventoryBadgesSet": {
+            return {
+                ...state,
+                ui: {
+                    ...state.ui,
+                    inventoryBadges: {
+                        seenItemIds: action.seenItemIds ?? {},
+                        seenMenuIds: action.seenMenuIds ?? {},
+                        legacyImported: action.legacyImported ?? true
+                    }
+                }
+            };
+        }
+        case "uiInventoryBadgesLegacyImportChecked": {
+            if (state.ui.inventoryBadges.legacyImported) {
+                return state;
+            }
+            return {
+                ...state,
+                ui: {
+                    ...state.ui,
+                    inventoryBadges: {
+                        ...state.ui.inventoryBadges,
+                        legacyImported: true
+                    }
+                }
+            };
+        }
+        case "uiInventoryBadgesMarkItemSeen": {
+            const itemId = action.itemId?.trim();
+            if (!itemId || state.ui.inventoryBadges.seenItemIds[itemId]) {
+                return state;
+            }
+            return {
+                ...state,
+                ui: {
+                    ...state.ui,
+                    inventoryBadges: {
+                        ...state.ui.inventoryBadges,
+                        seenItemIds: {
+                            ...state.ui.inventoryBadges.seenItemIds,
+                            [itemId]: true
+                        },
+                        legacyImported: true
+                    }
+                }
+            };
+        }
+        case "uiInventoryBadgesMarkMenuSeen": {
+            const ownedIds = Object.keys(state.inventory.items ?? {}).filter((itemId) => (state.inventory.items[itemId] ?? 0) > 0);
+            if (ownedIds.length === 0) {
+                return state;
+            }
+            const nextSeenMenu = { ...state.ui.inventoryBadges.seenMenuIds };
+            let didChange = false;
+            ownedIds.forEach((itemId) => {
+                if (!nextSeenMenu[itemId]) {
+                    nextSeenMenu[itemId] = true;
+                    didChange = true;
+                }
+            });
+            if (!didChange && state.ui.inventoryBadges.legacyImported) {
+                return state;
+            }
+            return {
+                ...state,
+                ui: {
+                    ...state.ui,
+                    inventoryBadges: {
+                        ...state.ui.inventoryBadges,
+                        seenMenuIds: nextSeenMenu,
+                        legacyImported: true
+                    }
+                }
+            };
+        }
+        case "uiSetCloudLoginPromptDisabled":
+            return {
+                ...state,
+                ui: {
+                    ...state.ui,
+                    cloud: {
+                        ...state.ui.cloud,
+                        loginPromptDisabled: action.disabled
+                    }
+                }
+            };
+        case "uiSetCloudAutoSyncEnabled":
+            return {
+                ...state,
+                ui: {
+                    ...state.ui,
+                    cloud: {
+                        ...state.ui.cloud,
+                        autoSyncEnabled: action.enabled
+                    }
+                }
+            };
         case "tick":
             return applyTick(state, action.deltaMs, action.timestamp);
         case "setHiddenAt":

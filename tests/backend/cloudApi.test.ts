@@ -17,6 +17,7 @@ const buildMockPrisma = () => {
             payload: unknown;
             virtualScore: number;
             appVersion: string;
+            revision: number;
             createdAt: Date;
             updatedAt: Date;
         }>,
@@ -109,6 +110,43 @@ const buildMockPrisma = () => {
                 }
                 return null;
             },
+            create: async ({ data }: { data: { userId: string; payload: unknown; virtualScore: number; appVersion: string; revision?: number } }) => {
+                const save = {
+                    id: `save_${saveCounter++}`,
+                    userId: data.userId,
+                    payload: data.payload,
+                    virtualScore: data.virtualScore,
+                    appVersion: data.appVersion,
+                    revision: Number.isFinite(data.revision) ? (data.revision as number) : 1,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+                db.saves.push(save);
+                return save;
+            },
+            update: async ({ where, data }: {
+                where: { userId: string };
+                data: { payload?: unknown; virtualScore?: number; appVersion?: string; revision?: { increment: number } };
+            }) => {
+                const existing = db.saves.find((entry) => entry.userId === where.userId);
+                if (!existing) {
+                    throw new Error("Save not found");
+                }
+                if ("payload" in data) {
+                    existing.payload = data.payload;
+                }
+                if ("virtualScore" in data && typeof data.virtualScore === "number") {
+                    existing.virtualScore = data.virtualScore;
+                }
+                if ("appVersion" in data && typeof data.appVersion === "string") {
+                    existing.appVersion = data.appVersion;
+                }
+                if (data.revision?.increment) {
+                    existing.revision += data.revision.increment;
+                }
+                existing.updatedAt = new Date();
+                return existing;
+            },
             findMany: async ({
                 skip = 0,
                 take = db.saves.length,
@@ -192,6 +230,7 @@ const buildMockPrisma = () => {
                     existing.payload = update.payload;
                     existing.virtualScore = update.virtualScore;
                     existing.appVersion = update.appVersion;
+                    existing.revision += 1;
                     existing.updatedAt = new Date();
                     return existing;
                 }
@@ -201,6 +240,7 @@ const buildMockPrisma = () => {
                     payload: create.payload,
                     virtualScore: create.virtualScore,
                     appVersion: create.appVersion,
+                    revision: 1,
                     createdAt: new Date(),
                     updatedAt: new Date()
                 };
@@ -358,11 +398,13 @@ describe("cloud API", () => {
             payload: {
                 payload: { version: "0.8.11", players: { "1": { id: "1" } } },
                 virtualScore: 123,
-                appVersion: "0.8.11"
+                appVersion: "0.8.11",
+                expectedRevision: null
             }
         });
         expect(saveResponse.statusCode).toBe(200);
         expect(saveResponse.json().meta.virtualScore).toBe(123);
+        expect(saveResponse.json().meta.revision).toBe(1);
 
         const latest = await app.inject({
             method: "GET",
@@ -371,6 +413,66 @@ describe("cloud API", () => {
         });
         expect(latest.statusCode).toBe(200);
         expect(latest.json().meta.appVersion).toBe("0.8.11");
+        expect(latest.json().meta.revision).toBe(1);
+
+        const secondSave = await app.inject({
+            method: "PUT",
+            url: "/api/v1/saves/latest",
+            headers: { Authorization: `Bearer ${accessToken}` },
+            payload: {
+                payload: { version: "0.8.12", players: { "1": { id: "1" } } },
+                virtualScore: 124,
+                appVersion: "0.8.12",
+                expectedRevision: 1
+            }
+        });
+        expect(secondSave.statusCode).toBe(200);
+        expect(secondSave.json().meta.revision).toBe(2);
+
+        await app.close();
+    });
+
+    it("returns 409 when expected revision is stale", async () => {
+        const prisma = buildMockPrisma();
+        const { buildServer } = await loadServer();
+        const app = buildServer({ prismaClient: prisma, logger: false });
+
+        const register = await app.inject({
+            method: "POST",
+            url: "/api/v1/auth/register",
+            payload: { email: "conflict@example.com", password: "password123" }
+        });
+        const { accessToken } = register.json();
+
+        const firstSave = await app.inject({
+            method: "PUT",
+            url: "/api/v1/saves/latest",
+            headers: { Authorization: `Bearer ${accessToken}` },
+            payload: {
+                payload: { version: "0.9.31", players: { "1": { id: "1" } } },
+                virtualScore: 10,
+                appVersion: "0.9.31",
+                expectedRevision: null
+            }
+        });
+        expect(firstSave.statusCode).toBe(200);
+        expect(firstSave.json().meta.revision).toBe(1);
+
+        const stale = await app.inject({
+            method: "PUT",
+            url: "/api/v1/saves/latest",
+            headers: { Authorization: `Bearer ${accessToken}` },
+            payload: {
+                payload: { version: "0.9.31", players: { "1": { id: "1" } } },
+                virtualScore: 11,
+                appVersion: "0.9.31",
+                expectedRevision: 0
+            }
+        });
+        expect(stale.statusCode).toBe(409);
+        const body = stale.json();
+        expect(body.error).toBe("Conflict");
+        expect(body.meta.revision).toBe(1);
 
         await app.close();
     });

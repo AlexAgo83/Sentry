@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { gameStore } from "../game";
+import { useGameStore } from "./useGameStore";
 
 const STORAGE_PREFIX = "sentry:seen-items";
-const GLOBAL_STORAGE_KEY = `${STORAGE_PREFIX}:global`;
-
 const getLegacyStorageKey = (version: string) => `${STORAGE_PREFIX}:${version}`;
 
 type StoredBadgeState = {
@@ -31,138 +31,88 @@ const parseStoredState = (raw: string | null): StoredBadgeState | null => {
     return { itemIds, menuIds };
 };
 
-type ReadStoredIdsResult = {
-    state: StoredBadgeState | null;
-    source: "global" | "legacy" | null;
-};
-
-const readStoredIds = (version: string): ReadStoredIdsResult => {
+// Legacy-only, best-effort import (once). The save payload is the source of truth.
+const readLegacyStoredIds = (version: string): StoredBadgeState | null => {
     if (typeof window === "undefined") {
-        return { state: null, source: null };
+        return null;
     }
     try {
-        const globalState = parseStoredState(window.localStorage.getItem(GLOBAL_STORAGE_KEY));
-        if (globalState) {
-            return { state: globalState, source: "global" };
-        }
-
         const versionLegacyState = parseStoredState(window.localStorage.getItem(getLegacyStorageKey(version)));
         if (versionLegacyState) {
-            return { state: versionLegacyState, source: "legacy" };
+            return versionLegacyState;
         }
 
         for (let index = 0; index < window.localStorage.length; index += 1) {
             const key = window.localStorage.key(index);
-            if (!key || key === GLOBAL_STORAGE_KEY || !key.startsWith(`${STORAGE_PREFIX}:`)) {
+            if (!key || !key.startsWith(`${STORAGE_PREFIX}:`)) {
                 continue;
             }
             const legacyState = parseStoredState(window.localStorage.getItem(key));
             if (legacyState) {
-                return { state: legacyState, source: "legacy" };
+                return legacyState;
             }
         }
-        return { state: null, source: null };
+        return null;
     } catch {
-        return { state: null, source: null };
+        return null;
     }
 };
 
-const writeStoredIds = (itemIds: Set<string>, menuIds: Set<string>) => {
-    if (typeof window === "undefined") {
-        return;
-    }
-    try {
-        window.localStorage.setItem(
-            GLOBAL_STORAGE_KEY,
-            JSON.stringify({ itemIds: Array.from(itemIds), menuIds: Array.from(menuIds) })
-        );
-    } catch {
-        // Ignore storage errors.
-    }
-};
+const toSeenRecord = (ids: string[]) => (
+    ids.reduce<Record<string, true>>((acc, itemId) => {
+        const trimmed = itemId.trim();
+        if (trimmed) {
+            acc[trimmed] = true;
+        }
+        return acc;
+    }, {})
+);
 
 export const useInventoryNewBadges = (inventoryItems: Record<string, number>, version: string) => {
-    const storedStateResult = readStoredIds(version);
-    const [seenItemIds, setSeenItemIds] = useState<Set<string>>(() => new Set(storedStateResult.state?.itemIds ?? []));
-    const [seenMenuIds, setSeenMenuIds] = useState<Set<string>>(() => new Set(storedStateResult.state?.menuIds ?? []));
-    const hasStorageRef = useRef(storedStateResult.state !== null);
-    const [isBootstrapPassComplete, setBootstrapPassComplete] = useState(false);
+    const seenItemIds = useGameStore((state) => state.ui.inventoryBadges.seenItemIds);
+    const seenMenuIds = useGameStore((state) => state.ui.inventoryBadges.seenMenuIds);
+    const legacyImported = useGameStore((state) => Boolean(state.ui.inventoryBadges.legacyImported));
+    const hasRequestedImportRef = useRef(false);
 
     useEffect(() => {
-        setBootstrapPassComplete(true);
-    }, []);
+        if (legacyImported || hasRequestedImportRef.current) {
+            return;
+        }
+        hasRequestedImportRef.current = true;
 
-    useEffect(() => {
-        const nextStoredResult = readStoredIds(version);
-        if (nextStoredResult.state) {
-            const nextItemIds = new Set(nextStoredResult.state.itemIds);
-            const nextMenuIds = new Set(nextStoredResult.state.menuIds);
-            setSeenItemIds(nextItemIds);
-            setSeenMenuIds(nextMenuIds);
-            hasStorageRef.current = true;
-            if (nextStoredResult.source === "legacy") {
-                writeStoredIds(nextItemIds, nextMenuIds);
-            }
+        const legacy = readLegacyStoredIds(version);
+        if (!legacy) {
+            gameStore.dispatch({ type: "uiInventoryBadgesLegacyImportChecked" });
             return;
         }
-        setSeenItemIds(new Set());
-        setSeenMenuIds(new Set());
-        hasStorageRef.current = false;
-    }, [version]);
+        const nextItemIds = toSeenRecord(legacy.itemIds);
+        const nextMenuIds = toSeenRecord(legacy.menuIds);
 
-    useEffect(() => {
-        if (!isBootstrapPassComplete || hasStorageRef.current) {
-            return;
-        }
-        const baselineIds = Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0);
-        if (baselineIds.length === 0) {
-            return;
-        }
-        const nextSet = new Set(baselineIds);
-        setSeenItemIds(nextSet);
-        setSeenMenuIds(nextSet);
-        writeStoredIds(nextSet, nextSet);
-        hasStorageRef.current = true;
-    }, [inventoryItems, isBootstrapPassComplete]);
+        gameStore.dispatch({
+            type: "uiInventoryBadgesSet",
+            seenItemIds: nextItemIds,
+            seenMenuIds: Object.keys(nextMenuIds).length > 0 ? nextMenuIds : nextItemIds,
+            legacyImported: true
+        });
+    }, [legacyImported, version]);
 
     const newItemIds = useMemo(() => (
-        Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0 && !seenItemIds.has(itemId))
+        Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0 && !seenItemIds[itemId])
     ), [inventoryItems, seenItemIds]);
     const newMenuIds = useMemo(() => (
-        Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0 && !seenMenuIds.has(itemId))
+        Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0 && !seenMenuIds[itemId])
     ), [inventoryItems, seenMenuIds]);
 
     const markItemSeen = useCallback((itemId: string) => {
-        if (!itemId || seenItemIds.has(itemId)) {
+        if (!itemId) {
             return;
         }
-        const nextSet = new Set(seenItemIds);
-        nextSet.add(itemId);
-        setSeenItemIds(nextSet);
-        writeStoredIds(nextSet, seenMenuIds);
-        hasStorageRef.current = true;
-    }, [seenItemIds, seenMenuIds]);
+        gameStore.dispatch({ type: "uiInventoryBadgesMarkItemSeen", itemId });
+    }, []);
 
     const markMenuSeen = useCallback(() => {
-        const allIds = Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0);
-        if (allIds.length === 0) {
-            return;
-        }
-        const nextSet = new Set(seenMenuIds);
-        let didChange = false;
-        allIds.forEach((itemId) => {
-            if (!nextSet.has(itemId)) {
-                nextSet.add(itemId);
-                didChange = true;
-            }
-        });
-        if (!didChange) {
-            return;
-        }
-        setSeenMenuIds(nextSet);
-        writeStoredIds(seenItemIds, nextSet);
-        hasStorageRef.current = true;
-    }, [inventoryItems, seenItemIds, seenMenuIds]);
+        gameStore.dispatch({ type: "uiInventoryBadgesMarkMenuSeen" });
+    }, []);
 
     return {
         newItemIds,
@@ -171,3 +121,4 @@ export const useInventoryNewBadges = (inventoryItems: Record<string, number>, ve
         markMenuSeen
     };
 };
+

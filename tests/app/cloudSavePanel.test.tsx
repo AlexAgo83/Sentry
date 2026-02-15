@@ -15,12 +15,14 @@ const baseProps = {
     localMeta: {
         updatedAt: new Date("2024-01-01T10:00:00Z"),
         virtualScore: 120,
-        appVersion: "0.8.11"
+        appVersion: "0.8.11",
+        revision: null
     },
     cloudMeta: {
         updatedAt: new Date("2024-01-02T10:00:00Z"),
         virtualScore: 140,
-        appVersion: "0.8.11"
+        appVersion: "0.8.11",
+        revision: 2
     },
     lastSyncAt: null,
     localHasActiveDungeonRun: false,
@@ -28,6 +30,9 @@ const baseProps = {
     username: "Aegis",
     displayName: "Aegis",
     maskedEmail: "a***s@example.com",
+    autoSyncEnabled: false,
+    autoSyncStatus: "idle" as const,
+    autoSyncConflict: null,
     onEmailChange: vi.fn(),
     onPasswordChange: vi.fn(),
     onLogin: vi.fn(),
@@ -37,7 +42,10 @@ const baseProps = {
     onLogout: vi.fn(),
     onEditUsername: vi.fn(),
     onLoadCloud: vi.fn(),
-    onOverwriteCloud: vi.fn()
+    onOverwriteCloud: vi.fn(),
+    onSetAutoSyncEnabled: vi.fn(),
+    onResolveAutoSyncConflictLoadCloud: vi.fn(),
+    onResolveAutoSyncConflictOverwriteCloud: vi.fn()
 };
 
 describe("CloudSavePanel", () => {

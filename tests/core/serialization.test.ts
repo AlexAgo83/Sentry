@@ -82,6 +82,28 @@ describe("serialization", () => {
         expect(hydratedLegacy.inventory.discoveredItemIds?.warding_amulet).toBe(true);
     });
 
+    it("round-trips UI inventory badge state through save and hydrate (and seeds when missing)", () => {
+        const state = createInitialGameState("0.9.31");
+        state.inventory.items.wood = 2;
+
+        // Explicitly mark only gold as seen for item badge (wood should be NEW).
+        state.ui.inventoryBadges.seenItemIds = { gold: true };
+        state.ui.inventoryBadges.seenMenuIds = { gold: true };
+        state.ui.inventoryBadges.legacyImported = true;
+
+        const save = toGameSave(state);
+        const hydrated = hydrateGameState("0.9.31", save);
+        expect(hydrated.ui.inventoryBadges.seenItemIds).toEqual({ gold: true });
+        expect(hydrated.ui.inventoryBadges.seenMenuIds).toEqual({ gold: true });
+
+        // If UI state is missing, we seed owned items as seen (no badge flood on upgrade).
+        const legacyLikeSave = { ...save };
+        delete (legacyLikeSave as any).ui;
+        const seeded = hydrateGameState("0.9.31", legacyLikeSave);
+        expect(seeded.ui.inventoryBadges.seenItemIds.wood).toBe(true);
+        expect(seeded.ui.inventoryBadges.seenMenuIds.wood).toBe(true);
+    });
+
     it("hydrates active player from save when available", () => {
         const state = createInitialGameState("0.3.1");
         const save = toGameSave(state);

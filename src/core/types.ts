@@ -78,6 +78,22 @@ export interface InventoryState {
     discoveredItemIds?: Record<ItemId, true>;
 }
 
+export interface InventoryBadgeState {
+    seenItemIds: Record<ItemId, true>;
+    seenMenuIds: Record<ItemId, true>;
+    legacyImported?: boolean;
+}
+
+export interface CloudUiPreferences {
+    autoSyncEnabled?: boolean;
+    loginPromptDisabled?: boolean;
+}
+
+export interface UiState {
+    inventoryBadges: InventoryBadgeState;
+    cloud: CloudUiPreferences;
+}
+
 export interface ItemDelta {
     [key: ItemId]: number;
 }
@@ -305,6 +321,7 @@ export interface GameState {
     rosterOrder: PlayerId[];
     rosterLimit: number;
     inventory: InventoryState;
+    ui: UiState;
     quests: QuestProgressState;
     loop: LoopState;
     progression: ProgressionState;
@@ -435,6 +452,7 @@ export interface GameSave {
     rosterOrder?: PlayerId[];
     rosterLimit?: number;
     inventory?: InventoryState;
+    ui?: UiState;
     quests?: QuestProgressState;
     progression?: ProgressionState;
     dungeon?: DungeonState;

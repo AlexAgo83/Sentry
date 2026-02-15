@@ -1,8 +1,10 @@
 import type {
     ActionId,
     ActionJournalEntry,
+    CloudUiPreferences,
     DungeonState,
     GameSave,
+    InventoryBadgeState,
     InventoryState,
     LastNonDungeonAction,
     LastNonDungeonActionByPlayer,
@@ -151,6 +153,74 @@ const normalizeInventory = (value: unknown): InventoryState | undefined => {
         normalizeDiscoveredItemIds(value.discoveredItemIds)
     );
     return { items, discoveredItemIds };
+};
+
+const normalizeBoolean = (value: unknown, fallback: boolean): boolean => {
+    if (typeof value === "boolean") {
+        return value;
+    }
+    return fallback;
+};
+
+const normalizeSeenIdRecord = (value: unknown): Record<string, true> => {
+    if (!isObject(value)) {
+        return {};
+    }
+    return Object.entries(value).reduce<Record<string, true>>((acc, [key, entry]) => {
+        if (entry === true) {
+            acc[key] = true;
+        }
+        return acc;
+    }, {});
+};
+
+const seedSeenFromInventory = (inventory: InventoryState): Record<string, true> => {
+    return Object.keys(inventory.items ?? {}).reduce<Record<string, true>>((acc, itemId) => {
+        if ((inventory.items[itemId] ?? 0) > 0) {
+            acc[itemId] = true;
+        }
+        return acc;
+    }, {});
+};
+
+const normalizeInventoryBadges = (value: unknown, inventory: InventoryState): InventoryBadgeState => {
+    const seeded = seedSeenFromInventory(inventory);
+    if (!isObject(value)) {
+        return { seenItemIds: seeded, seenMenuIds: seeded, legacyImported: false };
+    }
+    const seenItemIds = normalizeSeenIdRecord(value.seenItemIds);
+    const seenMenuIds = normalizeSeenIdRecord(value.seenMenuIds);
+    const hasAnyField = Object.keys(seenItemIds).length > 0 || Object.keys(seenMenuIds).length > 0;
+    const resolvedItemIds = hasAnyField ? seenItemIds : seeded;
+    const resolvedMenuIds = hasAnyField ? (Object.keys(seenMenuIds).length > 0 ? seenMenuIds : resolvedItemIds) : seeded;
+    return {
+        seenItemIds: resolvedItemIds,
+        seenMenuIds: resolvedMenuIds,
+        legacyImported: normalizeBoolean(value.legacyImported, false)
+    };
+};
+
+const normalizeCloudUi = (value: unknown): CloudUiPreferences => {
+    if (!isObject(value)) {
+        return { autoSyncEnabled: false, loginPromptDisabled: false };
+    }
+    return {
+        autoSyncEnabled: normalizeBoolean(value.autoSyncEnabled, false),
+        loginPromptDisabled: normalizeBoolean(value.loginPromptDisabled, false)
+    };
+};
+
+const normalizeUi = (value: unknown, inventory: InventoryState) => {
+    if (!isObject(value)) {
+        return {
+            inventoryBadges: normalizeInventoryBadges(undefined, inventory),
+            cloud: normalizeCloudUi(undefined)
+        };
+    }
+    return {
+        inventoryBadges: normalizeInventoryBadges(value.inventoryBadges, inventory),
+        cloud: normalizeCloudUi(value.cloud)
+    };
 };
 
 const normalizeQuests = (value: unknown): QuestProgressState | undefined => {
@@ -381,6 +451,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
         base.discoveredItemIds = mergeDiscoveredItemIds(base.items, base.discoveredItemIds);
         return base;
     })();
+    const ui = normalizeUi((input as { ui?: unknown }).ui, finalInventory ?? { items: {}, discoveredItemIds: {} });
 
     const playerIds = Object.keys(players);
     const activePlayerId = candidateActivePlayerId && players[candidateActivePlayerId]
@@ -433,6 +504,7 @@ export const migrateAndValidateSave = (input: unknown): MigrateSaveResult => {
             rosterOrder,
             rosterLimit,
             inventory: finalInventory,
+            ui,
             ...(quests ? { quests } : {}),
             progression,
             dungeon

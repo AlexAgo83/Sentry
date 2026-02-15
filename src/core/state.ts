@@ -42,12 +42,88 @@ import {
     normalizeDiscoveredItemIds,
     normalizeInventoryItems
 } from "./inventory";
+import type { CloudUiPreferences, InventoryBadgeState, UiState } from "./types";
 
 export const createActionProgress = (): ActionProgressState => ({
     currentInterval: 0,
     progressPercent: 0,
     lastExecutionTime: null
 });
+
+const normalizeBoolean = (value: unknown, fallback: boolean): boolean => {
+    if (typeof value === "boolean") {
+        return value;
+    }
+    return fallback;
+};
+
+const normalizeSeenIdRecord = (value: unknown): Record<string, true> => {
+    if (!value || typeof value !== "object") {
+        return {};
+    }
+    return Object.entries(value as Record<string, unknown>).reduce<Record<string, true>>((acc, [key, entry]) => {
+        if (entry === true) {
+            acc[key] = true;
+        }
+        return acc;
+    }, {});
+};
+
+const seedSeenFromInventory = (inventory: InventoryState): Record<string, true> => {
+    return Object.keys(inventory.items ?? {}).reduce<Record<string, true>>((acc, itemId) => {
+        if ((inventory.items[itemId] ?? 0) > 0) {
+            acc[itemId] = true;
+        }
+        return acc;
+    }, {});
+};
+
+const normalizeInventoryBadges = (value: unknown, inventory: InventoryState): InventoryBadgeState => {
+    const seeded = seedSeenFromInventory(inventory);
+    if (!value || typeof value !== "object") {
+        return {
+            seenItemIds: seeded,
+            seenMenuIds: seeded,
+            legacyImported: false
+        };
+    }
+    const record = value as Record<string, unknown>;
+    const seenItemIds = normalizeSeenIdRecord(record.seenItemIds);
+    const seenMenuIds = normalizeSeenIdRecord(record.seenMenuIds);
+    const hasAnyField = Object.keys(seenItemIds).length > 0 || Object.keys(seenMenuIds).length > 0;
+    const resolvedItemIds = hasAnyField ? seenItemIds : seeded;
+    const resolvedMenuIds = hasAnyField ? (Object.keys(seenMenuIds).length > 0 ? seenMenuIds : resolvedItemIds) : seeded;
+    return {
+        seenItemIds: resolvedItemIds,
+        seenMenuIds: resolvedMenuIds,
+        legacyImported: normalizeBoolean(record.legacyImported, false)
+    };
+};
+
+const normalizeCloudUi = (value: unknown): CloudUiPreferences => {
+    if (!value || typeof value !== "object") {
+        return { autoSyncEnabled: false, loginPromptDisabled: false };
+    }
+    const record = value as Record<string, unknown>;
+    return {
+        autoSyncEnabled: normalizeBoolean(record.autoSyncEnabled, false),
+        loginPromptDisabled: normalizeBoolean(record.loginPromptDisabled, false)
+    };
+};
+
+const normalizeUiState = (value: unknown, inventory: InventoryState): UiState => {
+    if (!value || typeof value !== "object") {
+        return {
+            inventoryBadges: normalizeInventoryBadges(undefined, inventory),
+            cloud: normalizeCloudUi(undefined)
+        };
+    }
+    const record = value as Record<string, unknown>;
+    return {
+        inventoryBadges: normalizeInventoryBadges(record.inventoryBadges, inventory),
+        cloud: normalizeCloudUi(record.cloud)
+    };
+};
 
 const createInventoryState = (gold: number): InventoryState => ({
     items: {
@@ -246,6 +322,7 @@ export const createInitialGameState = (version: string, options: InitialGameStat
     dungeon.onboardingRequired = !seedHero;
     const rosterOrder = player ? [playerId] : [];
 
+    const inventory = createInventoryState(DEFAULT_GOLD);
     return {
         version,
         appReady: false,
@@ -255,7 +332,8 @@ export const createInitialGameState = (version: string, options: InitialGameStat
         activePlayerId: player ? playerId : null,
         rosterOrder,
         rosterLimit: initialRosterLimit,
-        inventory: createInventoryState(DEFAULT_GOLD),
+        inventory,
+        ui: normalizeUiState(undefined, inventory),
         quests: createQuestProgressState(),
         loop: {
             lastTick: null,
@@ -495,6 +573,7 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
     const inventory = save.inventory || Object.keys(rawPlayers).length > 0
         ? resolveInventory(save.inventory, rawPlayers)
         : baseState.inventory;
+    const ui = normalizeUiState(save.ui, inventory);
     const resolvedRosterLimit = Number.isFinite(save.rosterLimit)
         ? Math.max(1, Math.floor(save.rosterLimit ?? baseState.rosterLimit))
         : baseState.rosterLimit;
@@ -523,6 +602,7 @@ export const hydrateGameState = (version: string, save?: GameSave | null): GameS
         ),
         rosterLimit,
         inventory,
+        ui,
         quests: normalizeQuestProgressState(save.quests),
         loop: {
             ...baseState.loop,

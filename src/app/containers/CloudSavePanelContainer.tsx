@@ -47,6 +47,9 @@ export const CloudSavePanelContainer = () => {
             cloudHasActiveDungeonRun={cloud.cloudHasActiveDungeonRun}
             username={cloud.profile?.username ?? null}
             displayName={cloud.profile?.displayName ?? null}
+            autoSyncEnabled={cloud.autoSyncEnabled}
+            autoSyncStatus={cloud.autoSyncStatus}
+            autoSyncConflict={cloud.autoSyncConflict}
             onEmailChange={setEmail}
             onPasswordChange={setPassword}
             onLogin={() => cloud.authenticate("login", email, password)}
@@ -54,8 +57,11 @@ export const CloudSavePanelContainer = () => {
             onRefresh={cloud.refreshCloud}
             onWarmupRetryNow={cloud.retryWarmupNow}
             onLogout={cloud.logout}
-            onLoadCloud={cloud.loadCloud}
-            onOverwriteCloud={cloud.overwriteCloud}
+            onLoadCloud={() => cloud.loadCloud()}
+            onOverwriteCloud={() => cloud.overwriteCloud()}
+            onSetAutoSyncEnabled={cloud.setAutoSyncEnabled}
+            onResolveAutoSyncConflictLoadCloud={cloud.resolveAutoSyncConflictByLoadingCloud}
+            onResolveAutoSyncConflictOverwriteCloud={cloud.resolveAutoSyncConflictByOverwritingCloud}
         />
     );
 };

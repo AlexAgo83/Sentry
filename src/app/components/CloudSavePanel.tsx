@@ -19,6 +19,9 @@ export type CloudSavePanelProps = {
     cloudHasActiveDungeonRun: boolean;
     username: string | null;
     displayName: string | null;
+    autoSyncEnabled: boolean;
+    autoSyncStatus: "idle" | "syncing" | "conflict";
+    autoSyncConflict: { meta: CloudSaveMeta; message: string } | null;
     showHeader?: boolean;
     onEmailChange: (value: string) => void;
     onPasswordChange: (value: string) => void;
@@ -30,6 +33,9 @@ export type CloudSavePanelProps = {
     onEditUsername?: () => void;
     onLoadCloud: () => void | Promise<unknown>;
     onOverwriteCloud: () => void;
+    onSetAutoSyncEnabled: (enabled: boolean) => void;
+    onResolveAutoSyncConflictLoadCloud: () => void | Promise<unknown>;
+    onResolveAutoSyncConflictOverwriteCloud: () => void | Promise<unknown>;
 };
 
 const formatMetaDate = (meta: CloudSaveMeta | null) => {
@@ -76,6 +82,9 @@ export const CloudSavePanel = memo(({
     cloudHasActiveDungeonRun,
     username,
     displayName,
+    autoSyncEnabled,
+    autoSyncStatus,
+    autoSyncConflict,
     showHeader = true,
     onEmailChange,
     onPasswordChange,
@@ -86,7 +95,10 @@ export const CloudSavePanel = memo(({
     onLogout,
     onEditUsername,
     onLoadCloud,
-    onOverwriteCloud
+    onOverwriteCloud,
+    onSetAutoSyncEnabled,
+    onResolveAutoSyncConflictLoadCloud,
+    onResolveAutoSyncConflictOverwriteCloud
 }: CloudSavePanelProps) => {
     const backendUnavailable = isAvailable && (!isBackendAwake || status === "warming");
     const disabled = !isAvailable || !isBackendAwake || status === "authenticating" || status === "warming";
@@ -152,6 +164,13 @@ export const CloudSavePanel = memo(({
         }
         return null;
     })();
+    const autoSyncToggleDisabled = disabled || !isAuthenticated;
+    const autoSyncLabel = autoSyncEnabled ? "On" : "Off";
+    const autoSyncState = autoSyncStatus === "syncing"
+        ? "Syncing…"
+        : autoSyncStatus === "conflict"
+        ? "Conflict"
+        : autoSyncLabel;
 
     const handleAuthSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -308,6 +327,52 @@ export const CloudSavePanel = memo(({
                                 >
                                     Edit username
                                 </button>
+                            </div>
+                        ) : null}
+                    </div>
+                    <div className="ts-system-cloud-profile ts-system-cloud-autosync" data-testid="cloud-autosync">
+                        <div className="ts-system-cloud-profile-row">
+                            <span className="ts-system-cloud-profile-label">Auto sync</span>
+                            <span className="ts-system-cloud-profile-value">
+                                {autoSyncState}
+                            </span>
+                        </div>
+                        <div className="ts-action-row ts-system-cloud-profile-actions">
+                            <label className="ts-system-cloud-autosync-toggle">
+                                <span className="ts-system-cloud-autosync-toggle-label">Enable</span>
+                                <input
+                                    type="checkbox"
+                                    checked={autoSyncEnabled}
+                                    onChange={(event) => onSetAutoSyncEnabled(event.currentTarget.checked)}
+                                    disabled={autoSyncToggleDisabled}
+                                    aria-label="Enable auto sync"
+                                    data-testid="cloud-autosync-toggle"
+                                />
+                            </label>
+                        </div>
+                        {autoSyncConflict ? (
+                            <div className="ts-system-cloud-status" data-testid="cloud-autosync-conflict">
+                                <span className="ts-system-cloud-error">{autoSyncConflict.message}</span>
+                                <div className="ts-system-cloud-actions">
+                                    <button
+                                        type="button"
+                                        className="generic-field button ts-devtools-button ts-focusable"
+                                        onClick={onResolveAutoSyncConflictLoadCloud}
+                                        disabled={disabled || !hasCloudSave}
+                                        title="Resolve by loading cloud save"
+                                    >
+                                        Load cloud save
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="generic-field button ts-devtools-button ts-focusable"
+                                        onClick={onResolveAutoSyncConflictOverwriteCloud}
+                                        disabled={disabled}
+                                        title="Resolve by overwriting cloud with local"
+                                    >
+                                        Overwrite cloud with local
+                                    </button>
+                                </div>
                             </div>
                         ) : null}
                     </div>

@@ -140,6 +140,9 @@ const CloudSaveModalBody = ({ onClose, closeLabel }: CloudSaveModalProps) => {
                     cloudHasActiveDungeonRun={cloud.cloudHasActiveDungeonRun}
                     username={effectiveUsername}
                     displayName={usernameDisplay}
+                    autoSyncEnabled={cloud.autoSyncEnabled}
+                    autoSyncStatus={cloud.autoSyncStatus}
+                    autoSyncConflict={cloud.autoSyncConflict}
                     showHeader={false}
                     onEmailChange={handleEmailChange}
                     onPasswordChange={setPassword}
@@ -149,8 +152,11 @@ const CloudSaveModalBody = ({ onClose, closeLabel }: CloudSaveModalProps) => {
                     onWarmupRetryNow={cloud.retryWarmupNow}
                     onLogout={cloud.logout}
                     onEditUsername={openEditUsername}
-                    onLoadCloud={cloud.loadCloud}
-                    onOverwriteCloud={cloud.overwriteCloud}
+                    onLoadCloud={() => cloud.loadCloud()}
+                    onOverwriteCloud={() => cloud.overwriteCloud()}
+                    onSetAutoSyncEnabled={cloud.setAutoSyncEnabled}
+                    onResolveAutoSyncConflictLoadCloud={cloud.resolveAutoSyncConflictByLoadingCloud}
+                    onResolveAutoSyncConflictOverwriteCloud={cloud.resolveAutoSyncConflictByOverwritingCloud}
                 />
             </div>
         </ModalShell>

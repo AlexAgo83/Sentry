@@ -15,6 +15,7 @@ export const toGameSave = (state: GameState): GameSave => {
         rosterOrder: state.rosterOrder,
         rosterLimit: state.rosterLimit,
         inventory: state.inventory,
+        ui: state.ui,
         quests: state.quests,
         progression: state.progression,
         dungeon: state.dungeon
