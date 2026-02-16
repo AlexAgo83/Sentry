@@ -80,9 +80,8 @@
 
 .ts-action-selection-layout {
     display: grid;
-    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
-    row-gap: var(--m6);
-    column-gap: var(--m8);
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--m8);
     align-items: stretch;
     min-height: 0;
 }
@@ -242,6 +241,11 @@
     text-align: left;
     font: inherit;
     color: inherit;
+    position: relative;
+}
+
+.ts-choice-card.ts-recipe-choice.ts-choice-card-button .ts-choice-copy {
+    width: 100%;
 }
 
 .ts-choice-card.ts-skill-choice {
@@ -579,9 +583,12 @@
 }
 
 .ts-choice-meta--recipe-trigger {
-    align-self: flex-start;
-    margin-left: 0;
+    position: absolute;
+    top: var(--m4);
+    right: var(--m5);
     min-width: max-content;
+    margin-left: 0;
+    align-items: flex-end;
 }
 
 .ts-choice-meta--skill-trigger {

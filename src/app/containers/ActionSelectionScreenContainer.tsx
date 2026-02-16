@@ -317,6 +317,7 @@ export const ActionSelectionScreenContainer = ({
                 pendingRecipeLabel={pendingRecipeLabel}
                 pendingConsumptionLabel={pendingConsumptionLabel}
                 pendingProductionLabel={pendingProductionLabel}
+                inventoryItems={inventoryItems}
                 pendingConsumptionEntries={hasPendingSelection ? pendingConsumptionEntries : []}
                 pendingProductionEntries={hasPendingSelection ? pendingProductionEntries : []}
                 pendingSpeedBonusLabel={pendingSpeedBonusLabel}

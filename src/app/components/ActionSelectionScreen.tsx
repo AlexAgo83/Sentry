@@ -36,6 +36,9 @@ type RecipeChoice = {
     productionLabel: string;
     consumptionFullLabel: string;
     productionFullLabel: string;
+    ownedEntries: ItemEntry[];
+    ownedLabel: string;
+    ownedFullLabel: string;
 };
 
 type SkillChoice = {
@@ -56,6 +59,7 @@ type ActionSelectionScreenProps = {
     pendingRecipeLabel: string;
     pendingConsumptionLabel: string;
     pendingProductionLabel: string;
+    inventoryItems: Record<string, number>;
     pendingConsumptionEntries: ItemEntry[];
     pendingProductionEntries: ItemEntry[];
     pendingSpeedBonusLabel: string;
@@ -88,6 +92,7 @@ export const ActionSelectionScreen = memo(({
     pendingRecipeLabel,
     pendingConsumptionLabel,
     pendingProductionLabel,
+    inventoryItems,
     pendingConsumptionEntries,
     pendingProductionEntries,
     pendingSpeedBonusLabel,
@@ -200,6 +205,26 @@ export const ActionSelectionScreen = memo(({
         return value;
     };
 
+    const pendingOwnedEntries = useMemo<ItemEntry[]>(() => {
+        if (!pendingSkillId || !pendingRecipeId || pendingProductionEntries.length === 0) {
+            return [];
+        }
+        return pendingProductionEntries.map((entry) => {
+            const rawCount = inventoryItems[entry.id];
+            const ownedAmount = Number.isFinite(rawCount) ? Math.max(0, Math.floor(rawCount as number)) : 0;
+            return {
+                id: entry.id,
+                name: entry.name,
+                amount: ownedAmount
+            };
+        });
+    }, [inventoryItems, pendingProductionEntries, pendingRecipeId, pendingSkillId]);
+
+    const pendingOwnedLabel = useMemo(
+        () => (pendingOwnedEntries.length > 0 ? formatItemListEntries(pendingOwnedEntries) : "None"),
+        [pendingOwnedEntries]
+    );
+
     const skillChoices = useMemo<SkillChoice[]>(() => {
         return skills.map((skill) => {
             const skillLevel = activePlayer?.skills[skill.id]?.level ?? 0;
@@ -261,6 +286,21 @@ export const ActionSelectionScreen = memo(({
                 const productionFullLabel = productionEntries.length > 0
                     ? formatItemListEntriesFull(productionEntries)
                     : productionLabel;
+                const ownedEntries = productionEntries.map((entry) => {
+                    const rawCount = inventoryItems[entry.id];
+                    const ownedAmount = Number.isFinite(rawCount) ? Math.max(0, Math.floor(rawCount as number)) : 0;
+                    return {
+                        id: entry.id,
+                        name: entry.name,
+                        amount: ownedAmount
+                    };
+                });
+                const ownedLabel = ownedEntries.length > 0
+                    ? formatItemListEntries(ownedEntries)
+                    : "None";
+                const ownedFullLabel = ownedEntries.length > 0
+                    ? formatItemListEntriesFull(ownedEntries)
+                    : ownedLabel;
                 return {
                     recipeDef,
                     unlockLevel,
@@ -276,10 +316,13 @@ export const ActionSelectionScreen = memo(({
                     consumptionLabel,
                     productionLabel,
                     consumptionFullLabel,
-                    productionFullLabel
+                    productionFullLabel,
+                    ownedEntries,
+                    ownedLabel,
+                    ownedFullLabel
                 };
             });
-    }, [pendingSkill, pendingSkillId]);
+    }, [inventoryItems, pendingSkill, pendingSkillId]);
 
     const selectedRecipeChoice = useMemo(() => {
         if (recipeChoices.length === 0) {
@@ -369,6 +412,25 @@ export const ActionSelectionScreen = memo(({
                                     ))}
                                 </span>
                             ) : choice.productionLabel}
+                        </span>
+                    </div>
+                    <div className="ts-choice-detail-row">
+                        <span className="ts-choice-detail-label">
+                            <span className="ts-choice-detail-label-full">Owned</span>
+                            <span className="ts-choice-detail-label-short">Own</span>
+                        </span>
+                        <span className="ts-choice-detail-value">
+                            {choice.ownedEntries.length > 0 ? (
+                                <span className="ts-item-inline-list" title={choice.ownedFullLabel}>
+                                    {choice.ownedEntries.map((entry, index) => (
+                                        <span key={entry.id} className="ts-item-inline">
+                                            {formatNumberCompact(entry.amount)} {entry.name}
+                                            <ItemIcon itemId={entry.id} tone="produce" />
+                                            {index < choice.ownedEntries.length - 1 ? ", " : null}
+                                        </span>
+                                    ))}
+                                </span>
+                            ) : choice.ownedLabel}
                         </span>
                     </div>
                 </div>
@@ -490,6 +552,16 @@ export const ActionSelectionScreen = memo(({
                                         {renderItemSummary(
                                             pendingProductionEntries,
                                             formatSummaryValue(pendingProductionLabel),
+                                            "produce"
+                                        )}
+                                    </span>
+                                </div>
+                                <div className="ts-action-summary-row">
+                                    <span className="ts-action-summary-label">Owned</span>
+                                    <span className="ts-action-summary-value">
+                                        {renderItemSummary(
+                                            pendingOwnedEntries,
+                                            formatSummaryValue(pendingOwnedLabel),
                                             "produce"
                                         )}
                                     </span>
