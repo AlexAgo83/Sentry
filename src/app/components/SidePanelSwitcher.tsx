@@ -25,7 +25,9 @@ type TabButtonProps = {
 
 const TabButton = memo(({ id, label, badge, isSelected, variant = "default", disabled = false, tooltip, onClick }: TabButtonProps) => {
     const ariaLabel = badge ? `${label} (${badge})` : label;
-    const iconKind: TabIconKind = id === "inventory" && label.toLowerCase() === "travel"
+    const iconKind: TabIconKind = id === "action" && label.toLowerCase() === "hero"
+        ? "hero"
+        : id === "inventory" && label.toLowerCase() === "travel"
         ? "travel"
         : id === "dungeon"
             ? "dungeon"
@@ -63,6 +65,8 @@ type SidePanelSwitcherProps = {
     isDungeonLocked?: boolean;
     dungeonLockReason?: string;
     isRosterActive?: boolean;
+    onShowHero?: () => void;
+    useHeroShortcut?: boolean;
     onShowAction: () => void;
     onShowStats: () => void;
     onShowRoster?: () => void;
@@ -89,6 +93,8 @@ export const SidePanelSwitcher = memo(({
     isDungeonLocked = false,
     dungeonLockReason,
     isRosterActive,
+    onShowHero,
+    useHeroShortcut = false,
     onShowAction,
     onShowStats,
     onShowRoster,
@@ -126,9 +132,10 @@ export const SidePanelSwitcher = memo(({
     const heroMenuRef = useRef<HTMLDivElement | null>(null);
     const shouldShowEquipmentInHero = useHeroMenu && heroIncludesEquipment;
     const isPanelSelected = (panel: SidePanelSwitcherProps["active"]) => !isDungeonMode && active === panel;
+    const shouldTreatEquipmentAsInventory = !shouldShowEquipmentInHero && !useHeroShortcut;
     const isInventorySelected = !isRosterActive && (
         isPanelSelected("inventory")
-        || (!shouldShowEquipmentInHero && isPanelSelected("equipment"))
+        || (shouldTreatEquipmentAsInventory && isPanelSelected("equipment"))
         || isPanelSelected("shop")
         || isPanelSelected("quests")
     );
@@ -318,6 +325,27 @@ export const SidePanelSwitcher = memo(({
                         </div>
                     ) : null}
                 </div>
+            ) : useHeroShortcut ? (
+                <>
+                    {canShowDungeon ? (
+                        <TabButton
+                            id="dungeon"
+                            label={resolvedLabels.dungeon}
+                            badge={badges?.dungeon}
+                            isSelected={Boolean(isDungeonActive)}
+                            variant="dungeon"
+                            disabled={Boolean(isDungeonLocked)}
+                            tooltip={isDungeonLocked ? dungeonTooltip : undefined}
+                            onClick={onShowDungeon ?? (() => {})}
+                        />
+                    ) : null}
+                    <TabButton
+                        id="action"
+                        label={resolvedHeroLabel}
+                        isSelected={!isDungeonMode && (isPanelSelected("action") || isPanelSelected("stats") || isPanelSelected("equipment"))}
+                        onClick={onShowHero ?? onShowAction}
+                    />
+                </>
             ) : (
                 <>
                     {canShowDungeon ? (
@@ -445,13 +473,15 @@ export const SidePanelSwitcher = memo(({
                 <>
                     {inventoryOrder === "equipment-first" ? (
                         <>
-                            <TabButton
-                                id="equipment"
-                                label={resolvedLabels.equipment}
-                                badge={badges?.equipment}
-                                isSelected={isPanelSelected("equipment")}
-                                onClick={onShowEquipment}
-                            />
+                            {!useHeroShortcut ? (
+                                <TabButton
+                                    id="equipment"
+                                    label={resolvedLabels.equipment}
+                                    badge={badges?.equipment}
+                                    isSelected={isPanelSelected("equipment")}
+                                    onClick={onShowEquipment}
+                                />
+                            ) : null}
                             <TabButton
                                 id="inventory"
                                 label={resolvedLabels.inventory}
@@ -469,13 +499,15 @@ export const SidePanelSwitcher = memo(({
                                 isSelected={isPanelSelected("inventory")}
                                 onClick={onShowInventory}
                             />
-                            <TabButton
-                                id="equipment"
-                                label={resolvedLabels.equipment}
-                                badge={badges?.equipment}
-                                isSelected={isPanelSelected("equipment")}
-                                onClick={onShowEquipment}
-                            />
+                            {!useHeroShortcut ? (
+                                <TabButton
+                                    id="equipment"
+                                    label={resolvedLabels.equipment}
+                                    badge={badges?.equipment}
+                                    isSelected={isPanelSelected("equipment")}
+                                    onClick={onShowEquipment}
+                                />
+                            ) : null}
                         </>
                     )}
                     <TabButton

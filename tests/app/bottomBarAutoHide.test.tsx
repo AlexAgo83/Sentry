@@ -12,6 +12,7 @@ describe("AppView (mobile bottom bar)", () => {
                 onOpenSystem={() => {}}
                 activeScreen="main"
                 activeSidePanel="action"
+                onShowHero={() => {}}
                 onShowAction={() => {}}
                 onShowDungeon={() => {}}
                 isDungeonLocked={false}

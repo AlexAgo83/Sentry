@@ -1,10 +1,13 @@
 import { useCallback, useState } from "react";
 import type { AppActiveScreen, AppActiveSidePanel } from "../AppView";
 
+type HeroSidePanel = Extract<AppActiveSidePanel, "action" | "stats" | "equipment">;
+
 export const useAppShellUi = () => {
     const [activeSidePanel, setActiveSidePanel] = useState<AppActiveSidePanel>("action");
     const [activeScreen, setActiveScreen] = useState<AppActiveScreen>("main");
     const [returnSidePanel, setReturnSidePanel] = useState<AppActiveSidePanel>("action");
+    const [lastHeroSidePanel, setLastHeroSidePanel] = useState<HeroSidePanel>("action");
     const [isSystemOpen, setSystemOpen] = useState(false);
     const [isDevToolsOpen, setDevToolsOpen] = useState(false);
     const [isLocalSaveOpen, setLocalSaveOpen] = useState(false);
@@ -52,6 +55,9 @@ export const useAppShellUi = () => {
     const closeActionSelection = useCallback(() => {
         setActiveScreen("main");
         setActiveSidePanel(returnSidePanel);
+        if (returnSidePanel === "action" || returnSidePanel === "stats" || returnSidePanel === "equipment") {
+            setLastHeroSidePanel(returnSidePanel);
+        }
     }, [returnSidePanel]);
 
     const openDungeonScreen = useCallback(() => {
@@ -61,15 +67,20 @@ export const useAppShellUi = () => {
     const closeDungeonScreen = useCallback(() => {
         setActiveScreen("main");
         setActiveSidePanel(returnSidePanel);
+        if (returnSidePanel === "action" || returnSidePanel === "stats" || returnSidePanel === "equipment") {
+            setLastHeroSidePanel(returnSidePanel);
+        }
     }, [returnSidePanel]);
 
     const showActionPanel = useCallback(() => {
         setActiveScreen("main");
         setActiveSidePanel("action");
+        setLastHeroSidePanel("action");
     }, []);
     const showStatsPanel = useCallback(() => {
         setActiveScreen("main");
         setActiveSidePanel("stats");
+        setLastHeroSidePanel("stats");
     }, []);
     const showRosterScreen = useCallback(() => {
         setActiveScreen("roster");
@@ -81,7 +92,12 @@ export const useAppShellUi = () => {
     const showEquipmentPanel = useCallback(() => {
         setActiveScreen("main");
         setActiveSidePanel("equipment");
+        setLastHeroSidePanel("equipment");
     }, []);
+    const showLastHeroPanel = useCallback(() => {
+        setActiveScreen("main");
+        setActiveSidePanel(lastHeroSidePanel);
+    }, [lastHeroSidePanel]);
     const showShopPanel = useCallback(() => {
         setActiveScreen("main");
         setActiveSidePanel("shop");
@@ -95,6 +111,7 @@ export const useAppShellUi = () => {
         activeSidePanel,
         activeScreen,
         showActionPanel,
+        showLastHeroPanel,
         showStatsPanel,
         showRosterScreen,
         showInventoryPanel,

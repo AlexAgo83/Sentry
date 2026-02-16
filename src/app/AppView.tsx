@@ -14,6 +14,7 @@ export interface AppViewProps {
     onCloseRosterDrawer?: () => void;
     activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
+    onShowHero: () => void;
     onShowAction: () => void;
     onShowDungeon: () => void;
     isDungeonLocked: boolean;
@@ -93,6 +94,7 @@ export const AppView = (props: AppViewProps) => {
         onCloseRosterDrawer,
         activeScreen,
         activeSidePanel,
+        onShowHero,
         onShowAction,
         onShowDungeon,
         isDungeonLocked,
@@ -185,6 +187,8 @@ export const AppView = (props: AppViewProps) => {
                                     isDungeonActive={activeScreen === "dungeon"}
                                     onShowDungeon={onShowDungeon}
                                     isDungeonLocked={isDungeonLocked}
+                                    onShowHero={onShowHero}
+                                    useHeroShortcut
                                     onShowAction={onShowAction}
                                     onShowStats={onShowStats}
                                     onShowInventory={onShowInventory}
@@ -206,6 +210,7 @@ export const AppView = (props: AppViewProps) => {
                                         shop: "Shop",
                                         quests: "Quests"
                                     }}
+                                    heroLabel="Hero"
                                 />
                             </div>
                         </div>

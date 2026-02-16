@@ -44,6 +44,7 @@ export const AppContainer = () => {
         activeSidePanel,
         activeScreen,
         showActionPanel,
+        showLastHeroPanel,
         showStatsPanel,
         showRosterScreen,
         showInventoryPanel,
@@ -392,6 +393,7 @@ export const AppContainer = () => {
                 onCloseRosterDrawer={() => setRosterDrawerOpen(false)}
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
+                onShowHero={showLastHeroPanel}
                 onShowAction={showActionPanel}
                 onShowDungeon={handleOpenDungeonScreen}
                 isDungeonLocked={playerCount < 4}

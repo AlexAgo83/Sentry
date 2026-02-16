@@ -9,6 +9,7 @@ const renderAppView = () => {
             onOpenSystem={() => {}}
             activeScreen="main"
             activeSidePanel="action"
+            onShowHero={() => {}}
             onShowAction={() => {}}
             onShowDungeon={() => {}}
             isDungeonLocked={false}

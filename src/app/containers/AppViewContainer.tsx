@@ -19,6 +19,7 @@ type AppViewContainerProps = {
     onCloseRosterDrawer?: () => void;
     activeScreen: AppActiveScreen;
     activeSidePanel: AppActiveSidePanel;
+    onShowHero: () => void;
     onShowAction: () => void;
     onShowDungeon: () => void;
     isDungeonLocked: boolean;
@@ -51,6 +52,7 @@ export const AppViewContainer = ({
     onCloseRosterDrawer,
     activeScreen,
     activeSidePanel,
+    onShowHero,
     onShowAction,
     onShowDungeon,
     isDungeonLocked,
@@ -84,6 +86,7 @@ export const AppViewContainer = ({
                 onCloseRosterDrawer={onCloseRosterDrawer}
                 activeScreen={activeScreen}
                 activeSidePanel={activeSidePanel}
+                onShowHero={onShowHero}
                 onShowAction={onShowAction}
                 onShowDungeon={onShowDungeon}
                 isDungeonLocked={isDungeonLocked}

@@ -105,7 +105,7 @@ describe("App", () => {
         }
 
         // Switch back to action
-        await user.click(screen.getByRole("tab", { name: "Action" }));
+        await user.click(screen.getByRole("tab", { name: "Hero" }));
         expect(screen.getByRole("heading", { name: "Action" })).toBeTruthy();
     });
 
@@ -229,7 +229,8 @@ describe("App", () => {
             Object.values(testStore.getState().players).some((player) => player.name === "Nova")
         ).toBe(true);
 
-        await user.click(screen.getByRole("tab", { name: "Stats" }));
+        await user.click(screen.getByRole("tab", { name: "Hero" }));
+        await user.click(screen.getByRole("button", { name: "Stats" }));
         await user.click(screen.getByRole("button", { name: "Enable edit" }));
         await user.click(screen.getByRole("button", { name: "Rename" }));
         const renameInput = screen.getByLabelText("Hero name") as HTMLInputElement;
@@ -242,7 +243,7 @@ describe("App", () => {
             expect(testStore.getState().players[activePlayerId].name).toBe("Alpha");
         }
 
-        await user.click(screen.getByRole("tab", { name: "Action" }));
+        await user.click(screen.getByRole("button", { name: "Action" }));
         await user.click(screen.getByRole("button", { name: "Change" }));
         fireEvent.keyDown(window, { key: "Escape" });
         expect(screen.queryByRole("button", { name: "Select skill" })).toBeNull();
@@ -388,7 +389,8 @@ describe("App", () => {
         await user.click(screen.getByRole("button", { name: "Start action" }));
         await user.click(screen.getByRole("button", { name: "Back" }));
 
-        await user.click(screen.getByRole("tab", { name: "Equip" }));
+        await user.click(screen.getByRole("tab", { name: "Hero" }));
+        await user.click(screen.getByRole("button", { name: "Equip" }));
         expect(screen.getByRole("heading", { name: "Equipment" })).toBeTruthy();
 
         await user.click(screen.getAllByRole("button", { name: "Open settings" })[0]);

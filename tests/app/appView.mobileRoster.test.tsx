@@ -14,6 +14,7 @@ const renderAppView = (props?: {
             isRosterDrawerOpen={props?.isRosterDrawerOpen}
             activeScreen={props?.activeScreen ?? "main"}
             activeSidePanel={props?.activeSidePanel ?? "action"}
+            onShowHero={() => {}}
             onShowAction={() => {}}
             onShowDungeon={() => {}}
             isDungeonLocked={false}
@@ -58,6 +59,7 @@ describe("AppView (mobile roster)", () => {
                 isRosterDrawerOpen
                 activeScreen="main"
                 activeSidePanel="action"
+                onShowHero={() => {}}
                 onShowAction={() => {}}
                 onShowDungeon={() => {}}
                 isDungeonLocked={false}
@@ -97,6 +99,7 @@ describe("AppView (mobile roster)", () => {
                 isRosterDrawerOpen={false}
                 activeScreen="main"
                 activeSidePanel="action"
+                onShowHero={() => {}}
                 onShowAction={() => {}}
                 onShowDungeon={() => {}}
                 isDungeonLocked={false}

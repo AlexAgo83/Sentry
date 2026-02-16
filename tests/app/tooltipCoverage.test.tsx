@@ -106,7 +106,7 @@ describe("Tooltip coverage", () => {
         assertTooltipCoverage();
         await user.click(screen.getByRole("tab", { name: /Quest/i }));
         assertTooltipCoverage();
-        await user.click(screen.getByRole("tab", { name: /Action/i }));
+        await user.click(screen.getByRole("tab", { name: /Hero/i }));
         assertTooltipCoverage();
 
         // Open Settings (System modal) and a couple of nested modals.
