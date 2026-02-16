@@ -118,6 +118,20 @@ export const AppView = (props: AppViewProps) => {
     const showRoster = !isMobile || activeScreen === "roster";
     const showMainStack = !isMobile || activeScreen !== "roster";
     const isSingleColumnLayout = !showRoster || !showMainStack;
+    const isHeroPanel = activeSidePanel === "action" || activeSidePanel === "stats" || activeSidePanel === "equipment";
+    const showHeroPanelBookmarks = activeScreen === "actionSelection" || (activeScreen === "main" && isHeroPanel);
+    const heroBookmarkActivePanel = activeScreen === "actionSelection" ? "action" : activeSidePanel;
+    const activeMainPanel = activeSidePanel === "action"
+        ? actionPanel
+        : activeSidePanel === "stats"
+            ? statsPanel
+            : activeSidePanel === "inventory"
+                ? inventoryPanel
+                : activeSidePanel === "equipment"
+                    ? equipmentPanel
+                    : activeSidePanel === "shop"
+                        ? shopPanel
+                        : questsPanel;
     const handleToggleRosterDrawer = () => {
         if (!onOpenRosterDrawer) {
             onOpenSystem();
@@ -202,32 +216,44 @@ export const AppView = (props: AppViewProps) => {
                 {showRoster ? roster : null}
                 {showMainStack ? (
                     <div className="ts-main-stack">
-                        {activeScreen === "actionSelection"
-                            ? actionSelectionScreen
-                            : activeScreen === "dungeon"
-                                ? dungeonScreen
-                            : (
-                                <>
-                                    {activeSidePanel === "action" ? (
-                                        actionPanel
-                                    ) : null}
-                                    {activeSidePanel === "stats" ? (
-                                        statsPanel
-                                    ) : null}
-                                    {activeSidePanel === "inventory" ? (
-                                        inventoryPanel
-                                    ) : null}
-                                    {activeSidePanel === "equipment" ? (
-                                        equipmentPanel
-                                    ) : null}
-                                    {activeSidePanel === "shop" ? (
-                                        shopPanel
-                                    ) : null}
-                                    {activeSidePanel === "quests" ? (
-                                        questsPanel
-                                    ) : null}
-                                </>
-                            )}
+                        {activeScreen === "dungeon" ? dungeonScreen : (
+                            <div className={`ts-main-panel-content${showHeroPanelBookmarks ? " has-bookmarks" : ""}`}>
+                                {showHeroPanelBookmarks ? (
+                                    <div className="ts-main-panel-bookmarks" aria-label="Hero panels">
+                                        <button
+                                            type="button"
+                                            className={`ts-main-panel-bookmark ts-focusable${heroBookmarkActivePanel === "action" ? " is-active" : ""}`}
+                                            onClick={onShowAction}
+                                            aria-pressed={heroBookmarkActivePanel === "action"}
+                                            title="Action"
+                                        >
+                                            Action
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`ts-main-panel-bookmark ts-focusable${heroBookmarkActivePanel === "stats" ? " is-active" : ""}`}
+                                            onClick={onShowStats}
+                                            aria-pressed={heroBookmarkActivePanel === "stats"}
+                                            title="Stats"
+                                        >
+                                            Stats
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`ts-main-panel-bookmark ts-focusable${heroBookmarkActivePanel === "equipment" ? " is-active" : ""}`}
+                                            onClick={onShowEquipment}
+                                            aria-pressed={heroBookmarkActivePanel === "equipment"}
+                                            title="Equip"
+                                        >
+                                            Equip
+                                        </button>
+                                    </div>
+                                ) : null}
+                                <div className="ts-main-panel-content-stack">
+                                    {activeScreen === "actionSelection" ? actionSelectionScreen : activeMainPanel}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : null}
             </main>
