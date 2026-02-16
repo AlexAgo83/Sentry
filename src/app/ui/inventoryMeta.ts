@@ -208,6 +208,22 @@ const INVENTORY_META: Record<ItemId, InventoryMeta> = {
         description: "Stone tablet etched with invocation sigils.",
         iconId: "invocation_tablet"
     },
+    forgebound_tablet: {
+        description: "Invocation tablet. +5 Strength.",
+        iconId: "forgebound_tablet"
+    },
+    nightveil_tablet: {
+        description: "Invocation tablet. +5 Agility.",
+        iconId: "nightveil_tablet"
+    },
+    starlit_sigil_tablet: {
+        description: "Invocation tablet. +5 Intellect.",
+        iconId: "starlit_sigil_tablet"
+    },
+    stoneward_tablet: {
+        description: "Invocation tablet. +5 Endurance.",
+        iconId: "stoneward_tablet"
+    },
     rusty_blade: {
         description: "Melee weapon. +25% threat from damage. -10% damage taken.",
         iconId: "rusty_blade"

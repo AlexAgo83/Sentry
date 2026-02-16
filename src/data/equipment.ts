@@ -123,7 +123,7 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         name: "Leather Gloves",
         slot: "Hands",
         modifiers: [
-            { stat: "Strength", kind: "flat", value: 1 },
+            { stat: "Agility", kind: "flat", value: 1 },
             { stat: "Armor", kind: "flat", value: 2 }
         ]
     },
@@ -309,6 +309,30 @@ export const EQUIPMENT_DEFINITIONS: EquipmentItemDefinition[] = [
         name: "Invocation Tablet",
         slot: "Tablet",
         modifiers: []
+    },
+    {
+        id: "forgebound_tablet",
+        name: "Forgebound Tablet",
+        slot: "Tablet",
+        modifiers: [{ stat: "Strength", kind: "flat", value: 5 }]
+    },
+    {
+        id: "nightveil_tablet",
+        name: "Nightveil Tablet",
+        slot: "Tablet",
+        modifiers: [{ stat: "Agility", kind: "flat", value: 5 }]
+    },
+    {
+        id: "starlit_sigil_tablet",
+        name: "Starlit Sigil Tablet",
+        slot: "Tablet",
+        modifiers: [{ stat: "Intellect", kind: "flat", value: 5 }]
+    },
+    {
+        id: "stoneward_tablet",
+        name: "Stoneward Tablet",
+        slot: "Tablet",
+        modifiers: [{ stat: "Endurance", kind: "flat", value: 5 }]
     },
     {
         id: "rusty_blade",
