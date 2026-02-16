@@ -192,6 +192,18 @@
     align-content: start;
 }
 
+.ts-action-selection-recipe-modal-list {
+    max-height: min(68vh, 640px);
+    overflow-y: auto;
+    padding-right: var(--m2);
+}
+
+.ts-action-selection-skill-modal-list {
+    max-height: min(68vh, 640px);
+    overflow-y: auto;
+    padding-right: var(--m2);
+}
+
 .ts-choice {
     display: block;
     position: relative;
@@ -222,6 +234,14 @@
     background: rgba(12, 18, 32, 0.7);
     cursor: pointer;
     user-select: none;
+}
+
+.ts-choice-card.ts-choice-card-button {
+    appearance: none;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
 }
 
 .ts-choice-card.ts-skill-choice {
@@ -260,6 +280,16 @@
 }
 
 .ts-choice-input:disabled + .ts-choice-card {
+    cursor: not-allowed;
+    opacity: 0.6;
+    border-style: dashed;
+}
+
+.ts-choice-card.ts-choice-card-button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(93, 217, 193, 0.35);
+}
+
+.ts-choice-card.ts-choice-card-button:disabled {
     cursor: not-allowed;
     opacity: 0.6;
     border-style: dashed;
@@ -546,6 +576,16 @@
     align-items: flex-end;
     gap: var(--m1);
     flex-shrink: 0;
+}
+
+.ts-choice-meta--recipe-trigger {
+    align-self: flex-start;
+    margin-left: 0;
+    min-width: max-content;
+}
+
+.ts-choice-meta--skill-trigger {
+    align-self: flex-start;
 }
 
 .ts-choice-level {
