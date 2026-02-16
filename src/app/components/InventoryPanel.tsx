@@ -220,31 +220,6 @@ export const InventoryPanel = memo(({
                                 <div className="ts-inventory-empty">{emptyState}</div>
                             )}
                         </div>
-                        {pageCount > 1 ? (
-                            <div className="ts-inventory-pagination">
-                            <button
-                                type="button"
-                                className="ts-pagination-button"
-                                onClick={() => onPageChange(Math.max(1, page - 1))}
-                                disabled={page <= 1}
-                                aria-label="Prev"
-                                title="Previous page"
-                            >
-                                ← Prev
-                            </button>
-                            <div className="ts-inventory-pagination-label">Page {page} of {pageCount}</div>
-                            <button
-                                type="button"
-                                className="ts-pagination-button"
-                                onClick={() => onPageChange(Math.min(pageCount, page + 1))}
-                                disabled={page >= pageCount}
-                                aria-label="Next"
-                                title="Next page"
-                            >
-                                Next →
-                            </button>
-                            </div>
-                        ) : null}
                     </div>
                     <div className="ts-inventory-focus">
                         <div className="ts-inventory-focus-header">
@@ -366,6 +341,40 @@ export const InventoryPanel = memo(({
                             </div>
                         ) : null}
                     </div>
+                    {pageCount > 1 ? (
+                        <div className="ts-inventory-pagination-row">
+                            <div className="ts-inventory-pagination" role="navigation" aria-label="Inventory pagination">
+                                <button
+                                    type="button"
+                                    className="ts-pagination-button"
+                                    onClick={() => onPageChange(Math.max(1, page - 1))}
+                                    disabled={page <= 1}
+                                    aria-label="Prev"
+                                    title="Previous page"
+                                >
+                                    <span className="ts-pagination-button-label">Prev</span>
+                                </button>
+                                <div className="ts-inventory-pagination-label" aria-live="polite">
+                                    <span className="ts-inventory-pagination-kicker">Page</span>
+                                    <span className="ts-inventory-pagination-value">
+                                        {page}
+                                        <span className="ts-inventory-pagination-separator" aria-hidden="true">/</span>
+                                        {pageCount}
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="ts-pagination-button"
+                                    onClick={() => onPageChange(Math.min(pageCount, page + 1))}
+                                    disabled={page >= pageCount}
+                                    aria-label="Next"
+                                    title="Next page"
+                                >
+                                    <span className="ts-pagination-button-label">Next</span>
+                                </button>
+                            </div>
+                        </div>
+                    ) : null}
                 </div>
             ) : null}
         </section>
