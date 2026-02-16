@@ -557,6 +557,10 @@ export const ActionSelectionScreen = memo(({
                                     </span>
                                 </div>
                                 <div className="ts-action-summary-row">
+                                    <span className="ts-action-summary-label">Stun time</span>
+                                    <span className="ts-action-summary-value">{formatSummaryValue(pendingStunTimeLabel)}</span>
+                                </div>
+                                <div className="ts-action-summary-row">
                                     <span className="ts-action-summary-label">Owned</span>
                                     <span className="ts-action-summary-value">
                                         {renderItemSummary(
@@ -565,10 +569,6 @@ export const ActionSelectionScreen = memo(({
                                             "produce"
                                         )}
                                     </span>
-                                </div>
-                                <div className="ts-action-summary-row">
-                                    <span className="ts-action-summary-label">Stun time</span>
-                                    <span className="ts-action-summary-value">{formatSummaryValue(pendingStunTimeLabel)}</span>
                                 </div>
                             </div>
                             {missingItemsLabel ? (
