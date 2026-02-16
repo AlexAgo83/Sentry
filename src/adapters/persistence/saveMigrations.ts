@@ -196,7 +196,7 @@ const normalizeInventoryBadges = (value: unknown, inventory: InventoryState): In
     return {
         seenItemIds: resolvedItemIds,
         seenMenuIds: resolvedMenuIds,
-        legacyImported: normalizeBoolean(value.legacyImported, false)
+        legacyImported: normalizeBoolean(value.legacyImported, hasAnyField)
     };
 };
 

@@ -69,13 +69,14 @@ const toSeenRecord = (ids: string[]) => (
 );
 
 export const useInventoryNewBadges = (inventoryItems: Record<string, number>, version: string) => {
+    const appReady = useGameStore((state) => state.appReady);
     const seenItemIds = useGameStore((state) => state.ui.inventoryBadges.seenItemIds);
     const seenMenuIds = useGameStore((state) => state.ui.inventoryBadges.seenMenuIds);
     const legacyImported = useGameStore((state) => Boolean(state.ui.inventoryBadges.legacyImported));
     const hasRequestedImportRef = useRef(false);
 
     useEffect(() => {
-        if (legacyImported || hasRequestedImportRef.current) {
+        if (!appReady || legacyImported || hasRequestedImportRef.current) {
             return;
         }
         hasRequestedImportRef.current = true;
@@ -94,7 +95,7 @@ export const useInventoryNewBadges = (inventoryItems: Record<string, number>, ve
             seenMenuIds: Object.keys(nextMenuIds).length > 0 ? nextMenuIds : nextItemIds,
             legacyImported: true
         });
-    }, [legacyImported, version]);
+    }, [appReady, legacyImported, version]);
 
     const newItemIds = useMemo(() => (
         Object.keys(inventoryItems).filter((itemId) => (inventoryItems[itemId] ?? 0) > 0 && !seenItemIds[itemId])
@@ -121,4 +122,3 @@ export const useInventoryNewBadges = (inventoryItems: Record<string, number>, ve
         markMenuSeen
     };
 };
-

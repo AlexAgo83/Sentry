@@ -104,6 +104,24 @@ describe("serialization", () => {
         expect(seeded.ui.inventoryBadges.seenMenuIds.wood).toBe(true);
     });
 
+    it("defaults legacyImported to true when seen badge state exists in save", () => {
+        const state = createInitialGameState("0.9.31");
+        const save = toGameSave(state);
+        save.ui = {
+            inventoryBadges: {
+                seenItemIds: { gold: true, wood: true },
+                seenMenuIds: { gold: true, wood: true }
+            },
+            cloud: {
+                autoSyncEnabled: false,
+                loginPromptDisabled: false
+            }
+        };
+
+        const hydrated = hydrateGameState("0.9.31", save);
+        expect(hydrated.ui.inventoryBadges.legacyImported).toBe(true);
+    });
+
     it("hydrates active player from save when available", () => {
         const state = createInitialGameState("0.3.1");
         const save = toGameSave(state);

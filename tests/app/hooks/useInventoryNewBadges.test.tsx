@@ -56,4 +56,33 @@ describe("useInventoryNewBadges", () => {
         result.current.markMenuSeen();
         expect(gameStore.getState().ui.inventoryBadges.seenMenuIds.wood).toBe(true);
     });
+
+    it("does not overwrite hydrated badge state with stale legacy storage", async () => {
+        window.localStorage.setItem(
+            "sentry:seen-items:0.9.3",
+            JSON.stringify({ itemIds: ["gold"], menuIds: ["gold"] })
+        );
+
+        const save = buildTestSave("0.9.31", { gold: 10, wood: 2 });
+        save.ui = {
+            inventoryBadges: {
+                seenItemIds: { gold: true, wood: true },
+                seenMenuIds: { gold: true, wood: true }
+            },
+            cloud: {
+                autoSyncEnabled: false,
+                loginPromptDisabled: false
+            }
+        };
+        gameStore.dispatch({ type: "hydrate", version: "0.9.31", save });
+
+        const { result } = renderHook(() => useInventoryNewBadges({ gold: 10, wood: 2 }, "0.9.31"));
+
+        await waitFor(() => {
+            expect(gameStore.getState().ui.inventoryBadges.legacyImported).toBe(true);
+        });
+        expect(gameStore.getState().ui.inventoryBadges.seenItemIds.wood).toBe(true);
+        expect(gameStore.getState().ui.inventoryBadges.seenMenuIds.wood).toBe(true);
+        expect(result.current.newItemIds).toEqual([]);
+    });
 });

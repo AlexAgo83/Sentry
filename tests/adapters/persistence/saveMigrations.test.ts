@@ -143,4 +143,31 @@ describe("saveMigrations", () => {
         expect(result.save.ui?.inventoryBadges?.seenItemIds?.wood).toBe(true);
         expect(result.save.ui?.inventoryBadges?.seenMenuIds?.wood).toBe(true);
     });
+
+    it("defaults legacyImported to true when seen badge state is present", () => {
+        const result = migrateAndValidateSave({
+            version: "0.9.31",
+            players: {
+                "1": { id: "1", name: "Mara" },
+            },
+            inventory: {
+                items: { gold: 5, wood: 2 }
+            },
+            ui: {
+                inventoryBadges: {
+                    seenItemIds: { gold: true, wood: true },
+                    seenMenuIds: { gold: true, wood: true }
+                },
+                cloud: {
+                    autoSyncEnabled: false,
+                    loginPromptDisabled: false
+                }
+            }
+        });
+        expect(result.ok).toBe(true);
+        if (!result.ok) {
+            return;
+        }
+        expect(result.save.ui?.inventoryBadges?.legacyImported).toBe(true);
+    });
 });
