@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { gameStore } from "../game";
+import { generateUniqueEnglishHeroNames } from "../ui/heroNames";
 
 type UseHeroNameModalsOptions = {
     onBeforeOpenRecruit?: () => void;
@@ -20,10 +21,19 @@ export const useHeroNameModals = (options: UseHeroNameModalsOptions = {}) => {
     }, []);
 
     const openRecruit = useCallback(() => {
+        const existingNames = new Set(
+            Object.values(gameStore.getState().players)
+                .map((player) => player.name.trim().toLowerCase())
+                .filter(Boolean)
+        );
+        const suggested = generateUniqueEnglishHeroNames(8).find((name) => !existingNames.has(name.toLowerCase()))
+            ?? generateUniqueEnglishHeroNames(1)[0]
+            ?? "";
         onBeforeOpenRecruit?.();
         setRenameOpen(false);
         setRenamePlayerId(null);
         setRenameHeroName("");
+        setNewHeroName(suggested);
         setRecruitOpen(true);
     }, [onBeforeOpenRecruit]);
 

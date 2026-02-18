@@ -222,6 +222,8 @@ describe("App", () => {
 
         await user.click(screen.getByRole("button", { name: "Enlist a new hero" }));
         const nameInput = screen.getByLabelText("Hero name") as HTMLInputElement;
+        expect(nameInput.value.trim().length).toBeGreaterThan(0);
+        await user.clear(nameInput);
         await user.type(nameInput, "Nova");
         await user.click(screen.getByRole("button", { name: "Create hero" }));
         expect(Object.keys(testStore.getState().players)).toHaveLength(3);
