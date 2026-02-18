@@ -65,6 +65,7 @@ export const ProgressionTrendChart = memo(({
                 </div>
                 <svg
                     viewBox={`0 0 ${chart.width} ${chart.height}`}
+                    preserveAspectRatio="none"
                     role="img"
                     aria-label="XP and gold trend"
                     onMouseLeave={() => onHoverIndexChange(null)}
