@@ -87,6 +87,39 @@ export const AppView = (props: AppViewProps) => {
         };
     }, [isMobile, props.isRosterDrawerOpen]);
 
+    useEffect(() => {
+        if (typeof window === "undefined" || typeof document === "undefined") {
+            return;
+        }
+        const topbar = document.querySelector(".app-topbar") as HTMLElement | null;
+        if (!topbar) {
+            return;
+        }
+        const root = document.documentElement;
+        const syncTopbarHeight = () => {
+            const height = Math.ceil(topbar.getBoundingClientRect().height);
+            if (height > 0) {
+                root.style.setProperty("--app-topbar-height", `${height}px`);
+            }
+        };
+
+        syncTopbarHeight();
+
+        const resizeObserver = typeof ResizeObserver !== "undefined"
+            ? new ResizeObserver(() => syncTopbarHeight())
+            : null;
+        resizeObserver?.observe(topbar);
+        window.addEventListener("resize", syncTopbarHeight);
+        window.visualViewport?.addEventListener("resize", syncTopbarHeight);
+
+        return () => {
+            resizeObserver?.disconnect();
+            window.removeEventListener("resize", syncTopbarHeight);
+            window.visualViewport?.removeEventListener("resize", syncTopbarHeight);
+            root.style.removeProperty("--app-topbar-height");
+        };
+    }, [isMobile]);
+
     const {
         onOpenSystem,
         isRosterDrawerOpen = false,

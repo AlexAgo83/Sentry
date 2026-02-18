@@ -26,12 +26,14 @@ body {
     --app-shell-pad-x: 15px;
     --app-shell-pad-y: var(--m5);
     --app-max-width: 1200px;
+    --app-topbar-height: calc(var(--m14) + var(--app-topbar-offset) + env(safe-area-inset-top));
+    --app-topbar-gap: var(--m4);
 }
 
 .app-shell {
     min-height: 100vh;
     padding: var(--app-shell-pad-y) var(--app-shell-pad-x);
-    padding-top: calc(var(--m14) + var(--app-topbar-offset) + env(safe-area-inset-top));
+    padding-top: calc(var(--app-topbar-height) + var(--app-topbar-gap));
     position: relative;
     overflow: hidden;
 }
@@ -326,11 +328,12 @@ body.is-roster-drawer-open {
 @media (max-width: 900px) {
     :root {
         --app-topbar-offset: calc(var(--m28) - var(--m4));
+        --app-topbar-gap: var(--m4);
     }
 
     .app-shell {
         padding: var(--app-shell-pad-y) var(--app-shell-pad-x);
-        padding-top: calc(var(--m10) + var(--app-topbar-offset) + env(safe-area-inset-top));
+        padding-top: calc(var(--app-topbar-height) + var(--app-topbar-gap));
     }
 
     .app-topbar {
@@ -449,7 +452,7 @@ body.is-roster-drawer-open {
     z-index: 1;
     display: grid;
     grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
-    gap: var(--m12);
+    gap: var(--m8);
     align-items: start;
 }
 
