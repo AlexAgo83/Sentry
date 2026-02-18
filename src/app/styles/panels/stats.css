@@ -861,6 +861,7 @@
 
     .ts-prog-chart svg {
         height: 180px;
+        padding: 0;
     }
 
     .ts-progression {
@@ -869,10 +870,6 @@
 
     .ts-prog-list-row {
         padding: var(--m3) var(--m4);
-    }
-
-    .ts-prog-chart-axis span:nth-child(odd) {
-        display: none;
     }
 
     .ts-character-header {
