@@ -16,6 +16,7 @@ type DungeonSetupViewProps = {
     canEnterDungeon: boolean;
     sortedPlayers: PlayerState[];
     selectedPartyPlayerIds: PlayerId[];
+    unavailablePartyPlayerIds?: PlayerId[];
     combatLabelBySkillId: Partial<Record<string, string>>;
     onTogglePartyPlayer: (playerId: PlayerId) => void;
     hasPartySelection: boolean;
@@ -38,6 +39,7 @@ export const DungeonSetupView = ({
     canEnterDungeon,
     sortedPlayers,
     selectedPartyPlayerIds,
+    unavailablePartyPlayerIds,
     combatLabelBySkillId,
     onTogglePartyPlayer,
     hasPartySelection,
@@ -48,6 +50,7 @@ export const DungeonSetupView = ({
     discoveredItemIds,
     inventoryItems
 }: DungeonSetupViewProps) => {
+    const unavailablePartyPlayerIdSet = new Set(unavailablePartyPlayerIds ?? []);
     const selectedDungeon = definitions.find((definition) => definition.id === selectedDungeonId) ?? null;
     const lootEntries = selectedDungeon?.lootTable.entries ?? [];
     const totalLootWeight = lootEntries.reduce((sum, entry) => sum + Math.max(0, entry.weight), 0);
@@ -101,7 +104,8 @@ export const DungeonSetupView = ({
                 ) : null}
                 <div className="ts-dungeon-party-list">
                     {sortedPlayers.map((player) => {
-                        const selected = selectedPartyPlayerIds.includes(player.id);
+                        const isUnavailable = unavailablePartyPlayerIdSet.has(player.id);
+                        const selected = selectedPartyPlayerIds.includes(player.id) && !isUnavailable;
                         const combatSkillId = getCombatSkillIdForWeaponType(getEquippedWeaponType(player.equipment));
                         const combatLabel = combatLabelBySkillId[combatSkillId] ?? "Melee";
                         const combatLevel = player.skills[combatSkillId]?.level ?? 0;
@@ -110,8 +114,9 @@ export const DungeonSetupView = ({
                             <button
                                 key={player.id}
                                 type="button"
-                                className={`ts-dungeon-party-option ts-focusable${selected ? " is-active" : ""}`}
+                                className={`ts-dungeon-party-option ts-focusable${selected ? " is-active" : ""}${isUnavailable ? " is-unavailable" : ""}`}
                                 onClick={() => onTogglePartyPlayer(player.id)}
+                                disabled={isUnavailable}
                             >
                                 <strong>{player.name}</strong>
                                 <div className="ts-dungeon-party-combat">
@@ -121,6 +126,9 @@ export const DungeonSetupView = ({
                                     <span className="ts-dungeon-party-combat-label">{combatLabel}</span>
                                     <span className="ts-dungeon-party-combat-badge">{combatLevel}</span>
                                 </div>
+                                {isUnavailable ? (
+                                    <span className="ts-dungeon-party-lock-badge">In dungeon</span>
+                                ) : null}
                             </button>
                         );
                     })}

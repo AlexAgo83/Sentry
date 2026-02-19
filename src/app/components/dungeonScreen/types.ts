@@ -24,10 +24,16 @@ export type DungeonScreenProps = {
     canUseConsumables: boolean;
     consumablesCount: number;
     activeRun: DungeonRunState | null;
+    activeRuns?: DungeonRunState[];
+    selectedRunId?: string | null;
+    isNewTabSelected?: boolean;
     latestReplay: DungeonReplayState | null;
     completionCounts: Record<DungeonId, number>;
     showReplay: boolean;
+    unavailablePartyPlayerIds?: PlayerId[];
     onToggleReplay: () => void;
+    onSelectRunTab?: (runId: string) => void;
+    onSelectNewTab?: () => void;
     onSelectDungeon: (dungeonId: string) => void;
     onTogglePartyPlayer: (playerId: PlayerId) => void;
     onToggleAutoRestart: (value: boolean) => void;

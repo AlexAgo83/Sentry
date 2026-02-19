@@ -192,14 +192,23 @@ export const pruneDungeonRuns = (
         return runs;
     }
     const keepIds = new Set<string>();
+    entries.forEach(([id, run]) => {
+        if (isRunActive(run)) {
+            keepIds.add(id);
+        }
+    });
     if (activeRunId && runs[activeRunId]) {
         keepIds.add(activeRunId);
+    }
+    const resolvedLimit = Math.max(limit, keepIds.size);
+    if (entries.length <= resolvedLimit) {
+        return runs;
     }
     const sorted = entries
         .filter(([id]) => !keepIds.has(id))
         .sort(([, a], [, b]) => (Number(b.startedAt) || 0) - (Number(a.startedAt) || 0));
     for (const [id] of sorted) {
-        if (keepIds.size >= limit) {
+        if (keepIds.size >= resolvedLimit) {
             break;
         }
         keepIds.add(id);

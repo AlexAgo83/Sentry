@@ -366,11 +366,6 @@ export const initializeFloor = (
     };
 };
 
-const getV1MaxConcurrentRuns = (dungeon: DungeonState): number => {
-    // v1 intentionally enforces single-run execution, while policy shape is already future-ready.
-    return Math.min(1, Math.max(1, Math.floor(dungeon.policy.maxConcurrentEnabled || 1)));
-};
-
 export const startDungeonRun = (
     state: GameState,
     dungeonId: string,
@@ -386,9 +381,6 @@ export const startDungeonRun = (
         return state;
     }
     const activeRuns = getActiveDungeonRuns(state.dungeon);
-    if (activeRuns.length >= getV1MaxConcurrentRuns(state.dungeon)) {
-        return state;
-    }
 
     const allPlayersPresent = uniquePartyIds.every((playerId) => Boolean(state.players[playerId]));
     if (!allPlayersPresent) {
@@ -405,7 +397,12 @@ export const startDungeonRun = (
         return state;
     }
 
-    const runId = `run-${timestamp}`;
+    let runId = `run-${timestamp}`;
+    let runIdAttempt = 1;
+    while (state.dungeon.runs[runId]) {
+        runIdAttempt += 1;
+        runId = `run-${timestamp}-${runIdAttempt}`;
+    }
     const runSeed = hashStringToSeed(`${runId}-${dungeonId}`);
     const baseAttackMs = DUNGEON_BASE_ATTACK_MS;
     const party = uniquePartyIds.map((playerId) => {

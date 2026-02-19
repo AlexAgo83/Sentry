@@ -65,7 +65,7 @@ import {
     buildThreatTieOrder,
     cloneInventory,
     decayThreat,
-    getActiveDungeonRun,
+    getActiveDungeonRunIds,
     getRunStorageInventorySnapshot,
     normalizeInventoryCount,
     pruneDungeonRuns,
@@ -530,230 +530,259 @@ export const applyDungeonTick = (
     deltaMs: number,
     timestamp: number
 ): ApplyDungeonTickResult => {
-    const activeRun = getActiveDungeonRun(state.dungeon);
-    if (!activeRun) {
+    const activeRunIds = getActiveDungeonRunIds(state.dungeon);
+    if (activeRunIds.length === 0) {
         return { state, itemDeltas: {}, combatActiveMsByPlayer: {}, combatXpByPlayer: {} };
     }
-
-    const wasRunning = activeRun.status === "running";
-    const definition = getDungeonDefinition(activeRun.dungeonId);
-    if (!definition) {
-        return { state, itemDeltas: {}, combatActiveMsByPlayer: {}, combatXpByPlayer: {} };
-    }
-
-    const mutable: MutableTickState = {
-        run: {
-            ...activeRun,
-            party: activeRun.party.map((member) => ({ ...member })),
-            enemies: activeRun.enemies.map((enemy) => ({ ...enemy })),
-            events: activeRun.events.slice()
-        },
-        inventory: cloneInventory(state.inventory),
-        players: state.players,
-        completionCounts: state.dungeon.completionCounts ?? {}
-    };
-
     const itemDeltas: ItemDelta = {};
     const combatActiveMsByPlayer: Record<PlayerId, number> = {};
     const combatXpByPlayer: Record<PlayerId, Partial<Record<CombatSkillId, number>>> = {};
-    let lootJournalLabel: string | null = null;
+    let mutableInventory = cloneInventory(state.inventory);
+    let mutablePlayers = state.players;
+    let dungeon = {
+        ...state.dungeon,
+        runs: { ...state.dungeon.runs },
+        completionCounts: state.dungeon.completionCounts ?? {}
+    };
+    const journalEntries: Array<{ at: number; label: string }> = [];
 
-    runAutoRestartPhase(mutable, timestamp, itemDeltas);
-    ensureRunCadenceState(mutable.run, mutable.players, timestamp);
-    ensureRunThreatState(mutable.run);
-
-    mutable.run.stepCarryMs += Math.max(0, deltaMs);
-    const steps = Math.floor(mutable.run.stepCarryMs / DUNGEON_SIMULATION_STEP_MS);
-    mutable.run.stepCarryMs -= steps * DUNGEON_SIMULATION_STEP_MS;
-
-    const partyById = new Map(mutable.run.party.map((member) => [member.playerId, member]));
-    const partyOrderIndex = new Map(mutable.run.party.map((member, index) => [member.playerId, index]));
-
-    for (let step = 0; step < steps; step += 1) {
-        if (mutable.run.status !== "running") {
-            break;
+    activeRunIds.forEach((runId) => {
+        const activeRun = dungeon.runs[runId];
+        if (!activeRun) {
+            return;
         }
 
-        const { push: pushEventWithStepCap } = createStepEventPusher(
-            mutable.run,
-            DUNGEON_STEP_EVENT_CAP,
-            () => {
-                mutable.run.truncatedEvents += 1;
+        const wasRunning = activeRun.status === "running";
+        const definition = getDungeonDefinition(activeRun.dungeonId);
+        if (!definition) {
+            return;
+        }
+
+        const mutable: MutableTickState = {
+            run: {
+                ...activeRun,
+                party: activeRun.party.map((member) => ({ ...member })),
+                enemies: activeRun.enemies.map((enemy) => ({ ...enemy })),
+                events: activeRun.events.slice()
+            },
+            inventory: mutableInventory,
+            players: mutablePlayers,
+            completionCounts: dungeon.completionCounts
+        };
+        let lootJournalLabel: string | null = null;
+
+        runAutoRestartPhase(mutable, timestamp, itemDeltas);
+        ensureRunCadenceState(mutable.run, mutable.players, timestamp);
+        ensureRunThreatState(mutable.run);
+
+        mutable.run.stepCarryMs += Math.max(0, deltaMs);
+        const steps = Math.floor(mutable.run.stepCarryMs / DUNGEON_SIMULATION_STEP_MS);
+        mutable.run.stepCarryMs -= steps * DUNGEON_SIMULATION_STEP_MS;
+
+        const partyById = new Map(mutable.run.party.map((member) => [member.playerId, member]));
+        const partyOrderIndex = new Map(mutable.run.party.map((member, index) => [member.playerId, index]));
+
+        for (let step = 0; step < steps; step += 1) {
+            if (mutable.run.status !== "running") {
+                break;
             }
-        );
 
-        const preStep = applyPreStepPhase(
-            mutable.run,
-            definition,
-            mutable.inventory,
-            itemDeltas,
-            combatActiveMsByPlayer
-        );
-        if (!preStep.continueStep) {
-            continue;
-        }
-
-        const { nowMs, encounterMs, aliveHeroIds } = preStep;
-        decayThreat(mutable.run.threatByHeroId);
-        mutable.run.party.forEach((member) => {
-            if (Number(member.tauntUntilMs) > nowMs) {
-                if (!Number.isFinite(member.tauntStartedAtMs)) {
-                    member.tauntStartedAtMs = nowMs;
-                    addThreat(mutable.run.threatByHeroId, member.playerId, member.tauntBonus ?? TAUNT_THREAT_BONUS);
+            const { push: pushEventWithStepCap } = createStepEventPusher(
+                mutable.run,
+                DUNGEON_STEP_EVENT_CAP,
+                () => {
+                    mutable.run.truncatedEvents += 1;
                 }
-                return;
-            }
-            if (Number.isFinite(member.tauntStartedAtMs)) {
-                member.tauntStartedAtMs = null;
-                member.tauntUntilMs = null;
-                member.tauntBonus = null;
-            }
-        });
-
-        const heroStepCache = createHeroStepCache(mutable.players, aliveHeroIds, timestamp);
-
-        const heroPhase = applyHeroAttackPhase(
-            mutable.run,
-            mutable.players,
-            aliveHeroIds,
-            partyById,
-            heroStepCache,
-            encounterMs,
-            pushEventWithStepCap
-        );
-
-        if (!heroPhase.hadEnemyAtPhaseStart) {
-            continue;
-        }
-
-        if (!heroPhase.targetEnemy) {
-            const floorCombatXp = getFloorCombatXp(definition.tier, mutable.run.floor);
-            const bossBonusCombatXp = mutable.run.floor >= mutable.run.floorCount ? floorCombatXp * 2 : 0;
-            mutable.players = grantCombatXpToParty(
-                mutable.players,
-                mutable.run.party,
-                floorCombatXp + bossBonusCombatXp,
-                combatXpByPlayer
             );
 
-            if (mutable.run.floor >= mutable.run.floorCount) {
-                const bossGold = Math.max(25, definition.tier * 75);
-                mutable.inventory.items.gold = normalizeInventoryCount(mutable.inventory.items.gold) + bossGold;
-                addItemDelta(itemDeltas, "gold", bossGold);
-                const completionIndex = mutable.completionCounts[mutable.run.dungeonId] ?? 0;
-                const lootSeed = hashStringToSeed(`${mutable.run.seed}:loot:${mutable.run.runIndex}:${completionIndex}`);
-                const lootReward = rollDungeonLootReward(definition.lootTable, lootSeed);
-                if (lootReward && lootReward.quantity > 0) {
-                    mutable.inventory.items[lootReward.itemId] = normalizeInventoryCount(mutable.inventory.items[lootReward.itemId])
-                        + lootReward.quantity;
-                    addItemDelta(itemDeltas, lootReward.itemId, lootReward.quantity);
-                    mutable.inventory.discoveredItemIds = mergeDiscoveredItemIdsFromDelta(
-                        mutable.inventory.discoveredItemIds,
-                        { [lootReward.itemId]: lootReward.quantity }
-                    );
-                    const lootName = ITEM_NAME_BY_ID[lootReward.itemId] ?? lootReward.itemId;
-                    lootJournalLabel = `Dungeon loot: ${lootName} x${lootReward.quantity}`;
-                }
-                mutable.run.status = "victory";
-                mutable.run.endReason = "victory";
-                mutable.run.floorPauseMs = null;
-                mutable.run.party = recoverRunParty(mutable.run.party);
-                pushEventWithGlobalCap(mutable.run, {
-                    type: "run_end",
-                    label: "victory"
-                });
-                if (mutable.run.autoRestart) {
-                    mutable.completionCounts = {
-                        ...mutable.completionCounts,
-                        [mutable.run.dungeonId]: (mutable.completionCounts[mutable.run.dungeonId] ?? 0) + 1
-                    };
-                    mutable.run.restartAt = timestamp + DUNGEON_AUTO_RESTART_DELAY_MS;
-                }
+            const preStep = applyPreStepPhase(
+                mutable.run,
+                definition,
+                mutable.inventory,
+                itemDeltas,
+                combatActiveMsByPlayer
+            );
+            if (!preStep.continueStep) {
                 continue;
             }
 
-            mutable.run.floorPauseMs = DUNGEON_FLOOR_PAUSE_MS;
-            mutable.run.enemies = [];
-            mutable.run.targetEnemyId = null;
-            continue;
-        }
-
-        applyEnemyAttackPhase(
-            mutable.run,
-            state.players,
-            heroPhase.targetEnemy,
-            partyById,
-            heroStepCache,
-            nowMs,
-            encounterMs,
-            pushEventWithStepCap
-        );
-
-        applyHealAndConsumablesPhase(
-            state,
-            mutable.run,
-            mutable.inventory,
-            heroStepCache,
-            partyOrderIndex,
-            nowMs,
-            itemDeltas,
-            pushEventWithStepCap
-        );
-
-        if (resolveAliveHeroIds(mutable.run).length === 0) {
-            mutable.run.status = "failed";
-            mutable.run.endReason = "wipe";
-            pushEventWithGlobalCap(mutable.run, {
-                type: "run_end",
-                label: "wipe"
+            const { nowMs, encounterMs, aliveHeroIds } = preStep;
+            decayThreat(mutable.run.threatByHeroId);
+            mutable.run.party.forEach((member) => {
+                if (Number(member.tauntUntilMs) > nowMs) {
+                    if (!Number.isFinite(member.tauntStartedAtMs)) {
+                        member.tauntStartedAtMs = nowMs;
+                        addThreat(mutable.run.threatByHeroId, member.playerId, member.tauntBonus ?? TAUNT_THREAT_BONUS);
+                    }
+                    return;
+                }
+                if (Number.isFinite(member.tauntStartedAtMs)) {
+                    member.tauntStartedAtMs = null;
+                    member.tauntUntilMs = null;
+                    member.tauntBonus = null;
+                }
             });
-            break;
-        }
-    }
 
-    let dungeon = {
-        ...state.dungeon,
-        runs: {
-            ...state.dungeon.runs,
-            [mutable.run.id]: mutable.run
-        },
-        completionCounts: mutable.completionCounts
-    };
+            const heroStepCache = createHeroStepCache(mutable.players, aliveHeroIds, timestamp);
+
+            const heroPhase = applyHeroAttackPhase(
+                mutable.run,
+                mutable.players,
+                aliveHeroIds,
+                partyById,
+                heroStepCache,
+                encounterMs,
+                pushEventWithStepCap
+            );
+
+            if (!heroPhase.hadEnemyAtPhaseStart) {
+                continue;
+            }
+
+            if (!heroPhase.targetEnemy) {
+                const floorCombatXp = getFloorCombatXp(definition.tier, mutable.run.floor);
+                const bossBonusCombatXp = mutable.run.floor >= mutable.run.floorCount ? floorCombatXp * 2 : 0;
+                mutable.players = grantCombatXpToParty(
+                    mutable.players,
+                    mutable.run.party,
+                    floorCombatXp + bossBonusCombatXp,
+                    combatXpByPlayer
+                );
+
+                if (mutable.run.floor >= mutable.run.floorCount) {
+                    const bossGold = Math.max(25, definition.tier * 75);
+                    mutable.inventory.items.gold = normalizeInventoryCount(mutable.inventory.items.gold) + bossGold;
+                    addItemDelta(itemDeltas, "gold", bossGold);
+                    const completionIndex = mutable.completionCounts[mutable.run.dungeonId] ?? 0;
+                    const lootSeed = hashStringToSeed(`${mutable.run.seed}:loot:${mutable.run.runIndex}:${completionIndex}`);
+                    const lootReward = rollDungeonLootReward(definition.lootTable, lootSeed);
+                    if (lootReward && lootReward.quantity > 0) {
+                        mutable.inventory.items[lootReward.itemId] = normalizeInventoryCount(mutable.inventory.items[lootReward.itemId])
+                            + lootReward.quantity;
+                        addItemDelta(itemDeltas, lootReward.itemId, lootReward.quantity);
+                        mutable.inventory.discoveredItemIds = mergeDiscoveredItemIdsFromDelta(
+                            mutable.inventory.discoveredItemIds,
+                            { [lootReward.itemId]: lootReward.quantity }
+                        );
+                        const lootName = ITEM_NAME_BY_ID[lootReward.itemId] ?? lootReward.itemId;
+                        lootJournalLabel = `Dungeon loot: ${lootName} x${lootReward.quantity}`;
+                    }
+                    mutable.run.status = "victory";
+                    mutable.run.endReason = "victory";
+                    mutable.run.floorPauseMs = null;
+                    mutable.run.party = recoverRunParty(mutable.run.party);
+                    pushEventWithGlobalCap(mutable.run, {
+                        type: "run_end",
+                        label: "victory"
+                    });
+                    if (mutable.run.autoRestart) {
+                        mutable.completionCounts = {
+                            ...mutable.completionCounts,
+                            [mutable.run.dungeonId]: (mutable.completionCounts[mutable.run.dungeonId] ?? 0) + 1
+                        };
+                        mutable.run.restartAt = timestamp + DUNGEON_AUTO_RESTART_DELAY_MS;
+                    }
+                    continue;
+                }
+
+                mutable.run.floorPauseMs = DUNGEON_FLOOR_PAUSE_MS;
+                mutable.run.enemies = [];
+                mutable.run.targetEnemyId = null;
+                continue;
+            }
+
+            applyEnemyAttackPhase(
+                mutable.run,
+                state.players,
+                heroPhase.targetEnemy,
+                partyById,
+                heroStepCache,
+                nowMs,
+                encounterMs,
+                pushEventWithStepCap
+            );
+
+            applyHealAndConsumablesPhase(
+                state,
+                mutable.run,
+                mutable.inventory,
+                heroStepCache,
+                partyOrderIndex,
+                nowMs,
+                itemDeltas,
+                pushEventWithStepCap
+            );
+
+            if (resolveAliveHeroIds(mutable.run).length === 0) {
+                mutable.run.status = "failed";
+                mutable.run.endReason = "wipe";
+                pushEventWithGlobalCap(mutable.run, {
+                    type: "run_end",
+                    label: "wipe"
+                });
+                break;
+            }
+        }
+
+        dungeon = {
+            ...dungeon,
+            runs: {
+                ...dungeon.runs,
+                [mutable.run.id]: mutable.run
+            },
+            completionCounts: mutable.completionCounts
+        };
+
+        if (mutable.run.status === "failed" || (mutable.run.status === "victory" && !mutable.run.autoRestart)) {
+            mutable.players = withRecoveredHeroes(mutable.players, mutable.run.party);
+            dungeon = finalizeRun(dungeon, mutable.run, mutable.players);
+        }
+
+        const runEndedNow = wasRunning && mutable.run.status !== "running";
+        if (runEndedNow) {
+            const dungeonLabel = definition.name ?? mutable.run.dungeonId;
+            const reasonLabel = formatDungeonEndReason(mutable.run.endReason ?? mutable.run.status);
+            journalEntries.push({
+                at: timestamp,
+                label: `Dungeon ended: ${dungeonLabel} (${reasonLabel})`
+            });
+            if (lootJournalLabel) {
+                journalEntries.push({
+                    at: timestamp,
+                    label: lootJournalLabel
+                });
+            }
+        }
+
+        mutableInventory = mutable.inventory;
+        mutablePlayers = mutable.players;
+    });
+
     dungeon = {
         ...dungeon,
         runs: pruneDungeonRuns(dungeon.runs, dungeon.activeRunId, DUNGEON_RUN_SAVE_LIMIT)
     };
-
-    if (mutable.run.status === "failed" || (mutable.run.status === "victory" && !mutable.run.autoRestart)) {
-        mutable.players = withRecoveredHeroes(mutable.players, mutable.run.party);
-        dungeon = finalizeRun(dungeon, mutable.run, mutable.players);
-    } else {
-        dungeon.activeRunId = mutable.run.id;
+    const activeRunIdSet = new Set(getActiveDungeonRunIds(dungeon));
+    if (!dungeon.activeRunId || !activeRunIdSet.has(dungeon.activeRunId)) {
+        dungeon = {
+            ...dungeon,
+            activeRunId: getActiveDungeonRunIds(dungeon)[0] ?? null
+        };
     }
 
-    const runEndedNow = wasRunning && mutable.run.status !== "running";
     let nextState: GameState = {
         ...state,
-        players: mutable.players,
-        inventory: mutable.inventory,
+        players: mutablePlayers,
+        inventory: mutableInventory,
         dungeon
     };
-    if (runEndedNow) {
-        const dungeonLabel = definition.name ?? mutable.run.dungeonId;
-        const reasonLabel = formatDungeonEndReason(mutable.run.endReason ?? mutable.run.status);
+    journalEntries.forEach((entry, index) => {
         nextState = appendActionJournalEntry(nextState, {
-            id: buildJournalEntryId(timestamp),
-            at: timestamp,
-            label: `Dungeon ended: ${dungeonLabel} (${reasonLabel})`
+            id: buildJournalEntryId(entry.at + index),
+            at: entry.at,
+            label: entry.label
         });
-        if (lootJournalLabel) {
-            nextState = appendActionJournalEntry(nextState, {
-                id: buildJournalEntryId(timestamp + 1),
-                at: timestamp,
-                label: lootJournalLabel
-            });
-        }
-    }
+    });
 
     return {
         state: nextState,

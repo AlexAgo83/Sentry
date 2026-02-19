@@ -265,7 +265,7 @@ describe("dungeon flow", () => {
         expect(getActiveDungeonRun(state.dungeon)?.autoRestart).toBe(false);
     });
 
-    it("enforces v1 single active run guard even with extra roster", () => {
+    it("allows multiple active runs with disjoint parties", () => {
         let state = createInitialGameState("0.4.0");
         state.players["2"] = createPlayerState("2", "Mara");
         state.players["3"] = createPlayerState("3", "Iris");
@@ -282,8 +282,8 @@ describe("dungeon flow", () => {
             playerIds: ["1", "2", "3", "4"],
             timestamp: 1_000
         });
-        const firstRunId = state.dungeon.activeRunId;
-        expect(firstRunId).toBeTruthy();
+        const firstRunId = state.dungeon.activeRunId ?? "";
+        expect(firstRunId).not.toBe("");
 
         state = gameReducer(state, {
             type: "dungeonStartRun",
@@ -292,8 +292,67 @@ describe("dungeon flow", () => {
             timestamp: 2_000
         });
 
-        expect(state.dungeon.activeRunId).toBe(firstRunId);
-        expect(getActiveDungeonRuns(state.dungeon)).toHaveLength(1);
+        const activeRuns = getActiveDungeonRuns(state.dungeon);
+        expect(activeRuns).toHaveLength(2);
+        expect(state.dungeon.activeRunId).not.toBe(firstRunId);
+        expect(activeRuns.map((run) => run.id)).toEqual([firstRunId, state.dungeon.activeRunId]);
+    });
+
+    it("keeps both runs when two starts happen with the same timestamp", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.players["5"] = createPlayerState("5", "Noa");
+        state.players["6"] = createPlayerState("6", "Rin");
+        state.players["7"] = createPlayerState("7", "Tao");
+        state.players["8"] = createPlayerState("8", "Uma");
+        state.inventory.items.food = 30;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_cryptes_dos",
+            playerIds: ["5", "6", "7", "8"],
+            timestamp: 1_000
+        });
+
+        const activeRuns = getActiveDungeonRuns(state.dungeon);
+        expect(activeRuns).toHaveLength(2);
+        expect(new Set(activeRuns.map((run) => run.id)).size).toBe(2);
+    });
+
+    it("does not drop previous active runs after tick pruning", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.players["5"] = createPlayerState("5", "Noa");
+        state.players["6"] = createPlayerState("6", "Rin");
+        state.players["7"] = createPlayerState("7", "Tao");
+        state.players["8"] = createPlayerState("8", "Uma");
+        state.inventory.items.food = 30;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_cryptes_dos",
+            playerIds: ["5", "6", "7", "8"],
+            timestamp: 2_000
+        });
+
+        const ticked = applyDungeonTick(state, 0, 2_100);
+        expect(getActiveDungeonRuns(ticked.state.dungeon)).toHaveLength(2);
     });
 
     it("supports collection-based active run selectors for multi-run shaped state", () => {
@@ -388,6 +447,51 @@ describe("dungeon flow", () => {
         expect(isPlayerAssignedToActiveDungeonRun(state, "1")).toBe(true);
         expect(isPlayerAssignedToActiveDungeonRun(state, "2")).toBe(true);
         expect(isPlayerAssignedToActiveDungeonRun(state, "3")).toBe(false);
+    });
+
+    it("updates active run selection with dungeonSetActiveRun and ignores invalid targets", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.players["5"] = createPlayerState("5", "Noa");
+        state.players["6"] = createPlayerState("6", "Rin");
+        state.players["7"] = createPlayerState("7", "Tao");
+        state.players["8"] = createPlayerState("8", "Uma");
+        state.inventory.items.food = 30;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+        const firstRunId = state.dungeon.activeRunId ?? "";
+        expect(firstRunId).not.toBe("");
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_cryptes_dos",
+            playerIds: ["5", "6", "7", "8"],
+            timestamp: 2_000
+        });
+        const secondRunId = state.dungeon.activeRunId ?? "";
+        expect(secondRunId).not.toBe("");
+        expect(secondRunId).not.toBe(firstRunId);
+
+        const selectedFirst = gameReducer(state, { type: "dungeonSetActiveRun", runId: firstRunId });
+        expect(selectedFirst.dungeon.activeRunId).toBe(firstRunId);
+
+        const ignoredMissing = gameReducer(selectedFirst, { type: "dungeonSetActiveRun", runId: "missing-run" });
+        expect(ignoredMissing.dungeon.activeRunId).toBe(firstRunId);
+
+        selectedFirst.dungeon.runs[firstRunId] = {
+            ...selectedFirst.dungeon.runs[firstRunId],
+            status: "failed",
+            restartAt: null
+        };
+        const ignoredInactive = gameReducer(selectedFirst, { type: "dungeonSetActiveRun", runId: firstRunId });
+        expect(ignoredInactive.dungeon.activeRunId).toBe(firstRunId);
     });
 
     it("auto-uses healing potions under 50% hp", () => {

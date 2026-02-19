@@ -122,7 +122,9 @@ describe("dungeon state normalization", () => {
         });
         const runB = buildRun({
             id: "run-b",
-            startedAt: 2_000
+            startedAt: 2_000,
+            status: "failed",
+            endReason: "wipe"
         });
 
         const input = {
@@ -160,6 +162,33 @@ describe("dungeon state normalization", () => {
         expect(normalizedRun.threatByHeroId["1"]).toBe(5);
         expect(normalizedRun.threatByHeroId["2"]).toBe(0);
         expect(normalizedRun.threatTieOrder).toHaveLength(2);
+    });
+
+    it("keeps all active runs even when prune limit is below active count", () => {
+        const runA = buildRun({ id: "run-a", startedAt: 1_000, status: "running" });
+        const runB = buildRun({ id: "run-b", startedAt: 2_000, status: "running" });
+        const runC = buildRun({ id: "run-c", startedAt: 3_000, status: "failed", endReason: "wipe" });
+
+        const pruned = normalizeDungeonState({
+            onboardingRequired: false,
+            setup: {
+                selectedDungeonId: "dungeon_ruines_humides",
+                selectedPartyPlayerIds: [],
+                autoRestart: true,
+                autoConsumables: true
+            },
+            runs: {
+                "run-a": runA,
+                "run-b": runB,
+                "run-c": runC
+            },
+            activeRunId: "run-b",
+            latestReplay: null,
+            completionCounts: {},
+            policy: { maxConcurrentSupported: 3, maxConcurrentEnabled: 1 }
+        } as DungeonState);
+
+        expect(Object.keys(pruned.runs).sort()).toEqual(["run-a", "run-b"]);
     });
 
     it("clamps completion counts to positive integers", () => {
@@ -359,6 +388,32 @@ describe("dungeon run guards and completion", () => {
 
         expect(nextState.dungeon.activeRunId).toBeNull();
         expect(nextState.inventory.items.food).toBe(20);
+    });
+
+    it("filters setup selection for heroes already assigned to active runs", () => {
+        let state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        state.players["5"] = createPlayerState("5", "Noa");
+        state.players["6"] = createPlayerState("6", "Rin");
+        state.players["7"] = createPlayerState("7", "Tao");
+        state.players["8"] = createPlayerState("8", "Uma");
+        state.inventory.items.food = 30;
+
+        state = gameReducer(state, {
+            type: "dungeonStartRun",
+            dungeonId: "dungeon_ruines_humides",
+            playerIds: ["1", "2", "3", "4"],
+            timestamp: 1_000
+        });
+
+        const nextState = gameReducer(state, {
+            type: "dungeonSetupSetParty",
+            playerIds: ["1", "5", "6", "7", "8"]
+        });
+
+        expect(nextState.dungeon.setup.selectedPartyPlayerIds).toEqual(["5", "6", "7", "8"]);
     });
 
     it("snapshots normalized start inventory on run start", () => {

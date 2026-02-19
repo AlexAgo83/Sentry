@@ -27,10 +27,16 @@ export const DungeonScreen = memo(({
     canUseConsumables,
     consumablesCount,
     activeRun,
+    activeRuns = activeRun ? [activeRun] : [],
+    selectedRunId = activeRun?.id ?? null,
+    isNewTabSelected = false,
     latestReplay,
     completionCounts,
     showReplay,
+    unavailablePartyPlayerIds,
     onToggleReplay,
+    onSelectRunTab,
+    onSelectNewTab,
     onSelectDungeon,
     onTogglePartyPlayer,
     onToggleAutoRestart,
@@ -98,6 +104,9 @@ export const DungeonScreen = memo(({
     }, [activeRun]);
 
     const selectedDungeon = definitions.find((definition) => definition.id === selectedDungeonId) ?? definitions[0] ?? null;
+    const activeDungeonDefinition = activeRun
+        ? (definitions.find((definition) => definition.id === activeRun.dungeonId) ?? null)
+        : null;
     const sortedPlayers = playersSorted;
     const requiredFoodForStart = selectedDungeon ? 1 + Math.floor((selectedDungeon.tier - 1) / 2) : 0;
     const safeRequiredFoodForStart = Number.isFinite(requiredFoodForStart) ? Math.max(0, Math.floor(requiredFoodForStart)) : 0;
@@ -141,6 +150,9 @@ export const DungeonScreen = memo(({
         : getDungeonBackgroundUrl(selectedDungeon?.id ?? null);
 
     const isReplayScreen = !activeRun && showReplay && Boolean(latestReplay);
+    const isSetupScreen = !activeRun && !isReplayScreen;
+    const hasActiveRuns = activeRuns.length > 0;
+    const startRunLabel = hasActiveRuns && isSetupScreen ? "Start new dungeon" : "Start";
 
     const handleReplayPlayPause = () => {
         if (replayPaused && replayCursorMs >= replayTotalMs) {
@@ -150,7 +162,42 @@ export const DungeonScreen = memo(({
     };
 
     return (
-        <section className="generic-panel ts-panel ts-dungeon-panel" data-testid="dungeon-screen">
+        <div className={`ts-main-panel-content${hasActiveRuns ? " has-bookmarks" : ""}`}>
+            {hasActiveRuns ? (
+                <div className="ts-main-panel-bookmarks ts-dungeon-run-tabs" role="tablist" aria-label="Dungeon runs">
+                    {activeRuns.map((run, index) => {
+                        const isSelected = !isNewTabSelected && selectedRunId === run.id;
+                        const tabLabel = String(index + 1);
+                        const tabTitle = `Dungeon ${index + 1}`;
+                        return (
+                            <button
+                                key={run.id}
+                                type="button"
+                                role="tab"
+                                aria-selected={isSelected}
+                                aria-label={tabLabel}
+                                className={`ts-main-panel-bookmark ts-dungeon-run-tab ts-focusable${isSelected ? " is-active" : ""}`}
+                                title={tabTitle}
+                                onClick={() => onSelectRunTab?.(run.id)}
+                            >
+                                <span className="ts-dungeon-run-tab-index">{tabLabel}</span>
+                            </button>
+                        );
+                    })}
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={isNewTabSelected}
+                        aria-label="New dungeon setup"
+                        className={`ts-main-panel-bookmark ts-dungeon-run-tab ts-dungeon-run-tab-new ts-focusable${isNewTabSelected ? " is-active" : ""}`}
+                        title="New dungeon setup"
+                        onClick={() => onSelectNewTab?.()}
+                    >
+                        <span className="ts-dungeon-run-tab-new-label">+</span>
+                    </button>
+                </div>
+            ) : null}
+            <section className="generic-panel ts-panel ts-dungeon-panel" data-testid="dungeon-screen">
             <div className="ts-panel-header">
                 <div className="ts-panel-heading">
                     <h2 className="ts-panel-title">Dungeon</h2>
@@ -160,6 +207,7 @@ export const DungeonScreen = memo(({
                     activeRun={activeRun}
                     isReplayScreen={isReplayScreen}
                     canStartRun={canStartRun}
+                    startRunLabel={startRunLabel}
                     latestReplay={latestReplay}
                     replayPaused={replayPaused}
                     replayView={replayView}
@@ -188,6 +236,7 @@ export const DungeonScreen = memo(({
                     canEnterDungeon={canEnterDungeon}
                     sortedPlayers={sortedPlayers}
                     selectedPartyPlayerIds={selectedPartyPlayerIds}
+                    unavailablePartyPlayerIds={unavailablePartyPlayerIds}
                     combatLabelBySkillId={combatLabelBySkillId}
                     onTogglePartyPlayer={onTogglePartyPlayer}
                     hasPartySelection={hasPartySelection}
@@ -228,7 +277,7 @@ export const DungeonScreen = memo(({
                 <DungeonLiveView
                     activeRun={activeRun}
                     players={players}
-                    selectedDungeonName={selectedDungeon?.name ?? activeRun.dungeonId}
+                    selectedDungeonName={activeDungeonDefinition?.name ?? activeRun.dungeonId}
                     safeCompletionCounts={safeCompletionCounts}
                     liveFrame={liveFrame}
                     dungeonBackgroundUrl={liveDungeonBackgroundUrl}
@@ -237,7 +286,8 @@ export const DungeonScreen = memo(({
                     topThreatValue={topThreatValue}
                 />
             ) : null}
-        </section>
+            </section>
+        </div>
     );
 });
 

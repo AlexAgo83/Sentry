@@ -30,6 +30,7 @@ import { getSellGoldGain } from "./economy";
 import { getDungeonDefinition } from "../data/dungeons";
 import {
     getActiveDungeonRun,
+    getActiveDungeonRuns,
     isPlayerAssignedToActiveDungeonRun,
     startDungeonRun,
     stopDungeonRun,
@@ -98,6 +99,7 @@ export type GameAction =
     | { type: "dungeonSetupSetParty"; playerIds: PlayerId[] }
     | { type: "dungeonSetupSetAutoRestart"; autoRestart: boolean }
     | { type: "dungeonSetupSetAutoConsumables"; autoConsumables: boolean }
+    | { type: "dungeonSetActiveRun"; runId: string }
     | { type: "dungeonStartRun"; dungeonId?: string; playerIds?: PlayerId[]; timestamp?: number }
     | { type: "dungeonStopRun" };
 
@@ -655,7 +657,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             };
         }
         case "dungeonSetupSetParty": {
-            const uniqueIds = Array.from(new Set(action.playerIds)).filter((id) => Boolean(state.players[id])).slice(0, 4);
+            const assignedToActiveRuns = new Set(
+                getActiveDungeonRuns(state.dungeon).flatMap((run) => run.party.map((member) => member.playerId))
+            );
+            const uniqueIds = Array.from(new Set(action.playerIds))
+                .filter((id) => Boolean(state.players[id]) && !assignedToActiveRuns.has(id))
+                .slice(0, 4);
             return {
                 ...state,
                 dungeon: {
@@ -696,6 +703,19 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                         ...state.dungeon.setup,
                         autoConsumables: action.autoConsumables
                     }
+                }
+            };
+        }
+        case "dungeonSetActiveRun": {
+            const run = state.dungeon.runs[action.runId];
+            if (!run || (run.status !== "running" && run.restartAt === null)) {
+                return state;
+            }
+            return {
+                ...state,
+                dungeon: {
+                    ...state.dungeon,
+                    activeRunId: action.runId
                 }
             };
         }

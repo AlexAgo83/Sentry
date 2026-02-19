@@ -11,6 +11,7 @@ type DungeonHeaderActionsProps = {
     activeRun: DungeonRunState | null;
     isReplayScreen: boolean;
     canStartRun: boolean;
+    startRunLabel?: string;
     latestReplay: DungeonReplayState | null;
     replayPaused: boolean;
     replayView: "group" | "log";
@@ -30,6 +31,7 @@ export const DungeonHeaderActions = ({
     activeRun,
     isReplayScreen,
     canStartRun,
+    startRunLabel = "Start",
     latestReplay,
     replayPaused,
     replayView,
@@ -44,6 +46,7 @@ export const DungeonHeaderActions = ({
     onToggleAutoConsumables,
     onStopRun
 }: DungeonHeaderActionsProps) => {
+    const startRunAriaLabel = startRunLabel === "Start" ? "Start run" : startRunLabel;
     const startRunButtonClassName = [
         "ts-collapse-button",
         "ts-focusable",
@@ -83,12 +86,12 @@ export const DungeonHeaderActions = ({
                         className={startRunButtonClassName}
                         onClick={onStartRun}
                         disabled={!canStartRun}
-                        aria-label="Start run"
-                        title="Start run"
+                        aria-label={startRunAriaLabel}
+                        title={startRunAriaLabel}
                         data-testid="dungeon-start-run"
                     >
                         <span className="ts-collapse-label"><StartActionIcon /></span>
-                        <span className="ts-action-button-label">Start</span>
+                        <span className="ts-action-button-label">{startRunLabel}</span>
                     </button>
                     <button
                         type="button"

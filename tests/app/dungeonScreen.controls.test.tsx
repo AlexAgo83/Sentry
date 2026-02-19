@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createInitialGameState, createPlayerState } from "../../src/core/state";
 import type { DungeonReplayState, DungeonRunState, PlayerState } from "../../src/core/types";
 import { DUNGEON_DEFINITIONS } from "../../src/data/dungeons";
@@ -16,7 +16,7 @@ const ITEM_NAME_BY_ID = ITEM_DEFINITIONS.reduce<Record<string, string>>((acc, it
     return acc;
 }, {});
 
-const getBaseRun = (): DungeonRunState => ({
+const getBaseRun = (overrides: Partial<DungeonRunState> = {}): DungeonRunState => ({
     id: "run-1",
     dungeonId: "dungeon_ruines_humides",
     status: "running",
@@ -52,7 +52,8 @@ const getBaseRun = (): DungeonRunState => ({
     truncatedEvents: 0,
     nonCriticalEventCount: 0,
     threatByHeroId: { "1": 0, "2": 0, "3": 0, "4": 0 },
-    threatTieOrder: ["1", "2", "3", "4"]
+    threatTieOrder: ["1", "2", "3", "4"],
+    ...overrides
 });
 
 const getReplay = (): DungeonReplayState => ({
@@ -79,6 +80,235 @@ const getReplay = (): DungeonReplayState => ({
 });
 
 describe("DungeonScreen controls", () => {
+    it("renders run tabs when active runs exist and wires run/new tab actions", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        const runA = getBaseRun({ id: "run-a", startedAt: 1_000 });
+        const runB = getBaseRun({ id: "run-b", startedAt: 2_000 });
+        const onSelectRunTab = vi.fn();
+        const onSelectNewTab = vi.fn();
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={runA}
+                activeRuns={[runA, runB]}
+                selectedRunId={runA.id}
+                isNewTabSelected={false}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectRunTab={onSelectRunTab}
+                onSelectNewTab={onSelectNewTab}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByRole("tablist", { name: "Dungeon runs" })).toBeTruthy();
+        fireEvent.click(screen.getByRole("tab", { name: "2" }));
+        expect(onSelectRunTab).toHaveBeenCalledWith("run-b");
+        fireEvent.click(screen.getByRole("tab", { name: "New dungeon setup" }));
+        expect(onSelectNewTab).toHaveBeenCalled();
+    });
+
+    it("does not render run tabs when no active run exists", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                activeRuns={[]}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.queryByRole("tablist", { name: "Dungeon runs" })).toBeNull();
+    });
+
+    it("shows setup CTA as Start new dungeon when New tab context is selected", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        const runA = getBaseRun({ id: "run-a", startedAt: 1_000 });
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                activeRuns={[runA]}
+                selectedRunId={runA.id}
+                isNewTabSelected
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByRole("button", { name: "Start new dungeon" })).toBeTruthy();
+        expect(screen.queryByRole("button", { name: "Stop run" })).toBeNull();
+    });
+
+    it("uses active run dungeon for live dungeon label instead of setup selection", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        const run = getBaseRun({ dungeonId: "dungeon_cryptes_dos" });
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={run}
+                activeRuns={[run]}
+                selectedRunId={run.id}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByText("Bone Crypts")).toBeTruthy();
+    });
+
+    it("disables unavailable heroes in setup with In dungeon badge", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["1"] = createPlayerState("1", "Ari");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+        const onTogglePartyPlayer = vi.fn();
+
+        render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={ITEM_NAME_BY_ID}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={null}
+                completionCounts={{}}
+                showReplay={false}
+                unavailablePartyPlayerIds={["1"]}
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={onTogglePartyPlayer}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        expect(screen.getByText("In dungeon")).toBeTruthy();
+        const unavailableHeroButton = screen.getByRole("button", { name: /Ari/i }) as HTMLButtonElement;
+        expect(unavailableHeroButton.disabled).toBe(true);
+        fireEvent.click(unavailableHeroButton);
+        expect(onTogglePartyPlayer).not.toHaveBeenCalled();
+    });
+
     it("exposes hover titles for all visible dungeon controls (live + replay)", () => {
         const state = createInitialGameState("0.9.0");
         state.players["2"] = createPlayerState("2", "Mara");
