@@ -138,6 +138,7 @@ const hasActiveDungeonRunInPayload = (payload: unknown): boolean => {
 };
 
 const LOCAL_CLOUD_DIVERGENCE_MESSAGE = "Both local and cloud saves changed since the last sync. Choose which version to keep.";
+const AUTO_SYNC_FEATURE_ENABLED = false;
 
 type LocalSaveSnapshot = {
     payload: ReturnType<typeof toGameSave>;
@@ -183,7 +184,8 @@ const useCloudSaveInternal = (): CloudSaveController => {
     const virtualScore = useGameStore(selectVirtualScore);
     const appVersion = useGameStore((state) => state.version);
     const localHasActiveDungeonRun = useGameStore((state) => Boolean(state.dungeon.activeRunId));
-    const autoSyncEnabled = useGameStore((state) => Boolean(state.ui.cloud.autoSyncEnabled));
+    const persistedAutoSyncEnabled = useGameStore((state) => Boolean(state.ui.cloud.autoSyncEnabled));
+    const autoSyncEnabled = AUTO_SYNC_FEATURE_ENABLED ? persistedAutoSyncEnabled : false;
     const [accessToken, setAccessToken] = useState<string | null>(() => cloudClient.loadAccessToken());
     const [cloudMeta, setCloudMeta] = useState<CloudSaveMeta | null>(null);
     const [cloudPayload, setCloudPayload] = useState<unknown | null>(null);
@@ -262,6 +264,12 @@ const useCloudSaveInternal = (): CloudSaveController => {
     }, []);
 
     const setAutoSyncEnabledPreference = useCallback((enabled: boolean) => {
+        if (!AUTO_SYNC_FEATURE_ENABLED) {
+            gameStore.dispatch({ type: "uiSetCloudAutoSyncEnabled", enabled: false });
+            setAutoSyncStatus("idle");
+            setAutoSyncConflict(null);
+            return;
+        }
         gameStore.dispatch({ type: "uiSetCloudAutoSyncEnabled", enabled });
         autoSyncBootstrapRef.current += 1;
         if (!enabled) {
@@ -269,6 +277,21 @@ const useCloudSaveInternal = (): CloudSaveController => {
             setAutoSyncConflict(null);
         }
     }, []);
+
+    useEffect(() => {
+        if (AUTO_SYNC_FEATURE_ENABLED) {
+            return;
+        }
+        if (persistedAutoSyncEnabled) {
+            gameStore.dispatch({ type: "uiSetCloudAutoSyncEnabled", enabled: false });
+        }
+        if (autoSyncStatus !== "idle") {
+            setAutoSyncStatus("idle");
+        }
+        if (autoSyncConflict) {
+            setAutoSyncConflict(null);
+        }
+    }, [autoSyncConflict, autoSyncStatus, persistedAutoSyncEnabled]);
 
     const persistSyncWatermark = useCallback((next: { cloudRevision: number | null; localFingerprint: string | null }) => {
         const persisted = writeCloudSyncWatermark(next);

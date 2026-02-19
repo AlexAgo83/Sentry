@@ -46,7 +46,6 @@ export const AppView = (props: AppViewProps) => {
         typeof window !== "undefined" ? window.innerWidth <= 900 : false
     ));
     const rosterDrawerPanelRef = useRef<HTMLElement | null>(null);
-    const rosterDrawerCloseRef = useRef<HTMLButtonElement | null>(null);
     const rosterDrawerTitleId = useId();
     const {
         onOpenSystem,
@@ -80,7 +79,6 @@ export const AppView = (props: AppViewProps) => {
 
     useDialogFocusManagement({
         dialogRef: rosterDrawerPanelRef,
-        initialFocusRef: rosterDrawerCloseRef,
         isOpen: Boolean(isMobile && isRosterDrawerOpen)
     });
 
@@ -350,16 +348,6 @@ export const AppView = (props: AppViewProps) => {
                                         <h2 id={rosterDrawerTitleId} className="app-title app-title--drawer">Sentry</h2>
                                     </div>
                                 </div>
-                                <button
-                                    ref={rosterDrawerCloseRef}
-                                    type="button"
-                                    className="app-roster-drawer-close ts-focusable"
-                                    aria-label="Close roster"
-                                    title="Close roster"
-                                    onClick={() => onCloseRosterDrawer?.()}
-                                >
-                                    Close
-                                </button>
                             </div>
                         </div>
                         {rosterDrawer ?? roster}

@@ -218,22 +218,6 @@ body.is-roster-drawer-open {
     height: 28px;
 }
 
-.app-roster-drawer-close {
-    border: 1px solid rgba(93, 217, 193, 0.32);
-    background: rgba(10, 18, 32, 0.8);
-    color: rgba(226, 235, 249, 0.9);
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: var(--text-xs-size);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-}
-
-.app-roster-drawer-close:hover {
-    border-color: rgba(93, 217, 193, 0.54);
-}
-
 .app-roster-drawer-panel .ts-player-list {
     flex: 0 0 auto;
     min-height: auto;

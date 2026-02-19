@@ -2,6 +2,8 @@ import { memo, type FormEvent } from "react";
 import type { CloudSaveMeta } from "../hooks/useCloudSave";
 import { formatNumberCompact, formatNumberFull } from "../ui/numberFormatters";
 
+const AUTO_SYNC_FEATURE_ENABLED = false;
+
 export type CloudSavePanelProps = {
     email: string;
     password: string;
@@ -151,29 +153,13 @@ export const CloudSavePanel = memo(({
     const localScoreTitle = formatNumberFull(localMeta.virtualScore);
     const cloudScoreLabel = cloudMeta ? formatNumberCompact(cloudMeta.virtualScore) : "--";
     const cloudScoreTitle = cloudMeta ? formatNumberFull(cloudMeta.virtualScore) : "--";
-    const hasConflict = Boolean(
-        isAuthenticated
-        && hasCloudSave
-        && cloudMeta
-        && (dateComparison !== 0 || scoreComparison !== 0 || versionMismatch)
-    );
-    const recommendedAction = (() => {
-        if (!hasConflict || (!localHasActiveDungeonRun && !cloudHasActiveDungeonRun)) {
-            return null;
-        }
-        if (dateComparison < 0) {
-            return "cloud";
-        }
-        if (dateComparison > 0) {
-            return "local";
-        }
-        return null;
-    })();
-    const autoSyncToggleDisabled = disabled || !isAuthenticated;
+    const autoSyncToggleDisabled = !AUTO_SYNC_FEATURE_ENABLED || disabled || !isAuthenticated;
     const autoSyncState = autoSyncStatus === "syncing"
         ? "Syncing…"
         : autoSyncStatus === "conflict"
         ? "Conflict"
+        : !AUTO_SYNC_FEATURE_ENABLED
+        ? "Disabled"
         : autoSyncEnabled ? "On" : "Off";
 
     const handleAuthSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -385,9 +371,6 @@ export const CloudSavePanel = memo(({
                             title="Load cloud save"
                         >
                             Load cloud save
-                            {recommendedAction === "cloud" ? (
-                                <span className="ts-system-cloud-reco">Reco</span>
-                            ) : null}
                         </button>
                         <button
                             type="button"
@@ -398,9 +381,6 @@ export const CloudSavePanel = memo(({
                             title="Overwrite cloud with local"
                         >
                             Overwrite cloud with local
-                            {recommendedAction === "local" ? (
-                                <span className="ts-system-cloud-reco">Reco</span>
-                            ) : null}
                         </button>
                     </div>
                     <div className="ts-system-cloud-actions" data-testid="cloud-autosync">

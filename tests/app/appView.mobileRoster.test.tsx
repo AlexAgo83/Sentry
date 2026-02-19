@@ -136,22 +136,21 @@ describe("AppView (mobile roster)", () => {
         renderAppView({ isRosterDrawerOpen: true });
 
         const dialog = screen.getByRole("dialog", { name: "Sentry" });
-        const closeButton = screen.getByRole("button", { name: "Close roster" });
 
         expect(dialog.getAttribute("aria-modal")).toBe("true");
-        expect(document.activeElement).toBe(closeButton);
+        expect(document.activeElement).toBe(dialog);
 
         await user.tab();
-        expect(document.activeElement).toBe(closeButton);
+        expect(document.activeElement).toBe(dialog);
     });
 
-    it("closes the drawer via close button and Escape key callbacks", async () => {
+    it("closes the drawer via overlay and Escape key callbacks", async () => {
         const user = userEvent.setup();
         Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
         const onCloseRosterDrawer = vi.fn();
         renderAppView({ isRosterDrawerOpen: true, onCloseRosterDrawer });
 
-        await user.click(screen.getByRole("button", { name: "Close roster" }));
+        await user.click(screen.getByRole("button", { name: "Dismiss roster overlay" }));
         expect(onCloseRosterDrawer).toHaveBeenCalledTimes(1);
 
         await user.keyboard("{Escape}");

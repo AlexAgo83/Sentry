@@ -57,6 +57,9 @@ describe("CloudSavePanel", () => {
         expect(screen.getByRole("button", { name: "Load cloud save" })).toBeTruthy();
         expect(screen.getByRole("button", { name: "Overwrite cloud with local" })).toBeTruthy();
         expect(screen.getByRole("button", { name: "Edit username" })).toBeTruthy();
+        const autoSyncToggle = screen.getByRole("button", { name: /Auto sync/i });
+        expect(autoSyncToggle.hasAttribute("disabled")).toBe(true);
+        expect(screen.getByText("Disabled")).toBeTruthy();
     });
 
     it("disables actions when unavailable", () => {
@@ -106,7 +109,7 @@ describe("CloudSavePanel", () => {
         expect(screen.getByRole("button", { name: "Logout" })).toBeTruthy();
     });
 
-    it("shows a recommendation badge when an active run conflicts with a newer save", () => {
+    it("does not render recommendation badges on cloud actions", () => {
         render(
             <CloudSavePanel
                 {...baseProps}
@@ -114,8 +117,6 @@ describe("CloudSavePanel", () => {
                 cloudHasActiveDungeonRun={false}
             />
         );
-        const loadButton = screen.getByTestId("cloud-load");
-        expect(loadButton.querySelector(".ts-system-cloud-reco")).toBeTruthy();
-        expect(screen.queryByTestId("cloud-run-active-warning")).toBeNull();
+        expect(screen.queryByText("Reco")).toBeNull();
     });
 });
