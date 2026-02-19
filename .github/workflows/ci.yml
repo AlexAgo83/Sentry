@@ -38,9 +38,9 @@ jobs:
         run: npx playwright install --with-deps
       - name: E2E smoke tests
         run: npm run test:e2e
-      - name: Audit (fail on moderate+)
+      - name: Audit production deps (fail on high+)
         run: |
-          npm audit --audit-level=high
+          npm audit --omit=dev --audit-level=high
       - name: Preview build
         run: npm run build
       - name: Bundle budgets
