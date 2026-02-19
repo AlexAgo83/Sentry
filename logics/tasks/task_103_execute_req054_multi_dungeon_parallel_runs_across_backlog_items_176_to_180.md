@@ -2,7 +2,7 @@
 > From version: 0.9.36
 > Understanding: 96%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Gameplay / Dungeon UX
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -40,28 +40,28 @@ This orchestration task delivers req054 end-to-end:
 - Mobile implementation does not introduce horizontal tab scrolling in this request.
 
 # Plan
-- [ ] 1. Execute `item_176` (core multi-run lifecycle enablement):
+- [x] 1. Execute `item_176` (core multi-run lifecycle enablement):
   - Remove single-run gating from dungeon start lifecycle.
   - Preserve start validation rules and hero exclusivity.
   - Keep deterministic active-run fallback on run end.
-- [ ] 2. Execute `item_177` (active run selection action + reducer coverage):
+- [x] 2. Execute `item_177` (active run selection action + reducer coverage):
   - Add explicit selection action (ex: `dungeonSetActiveRun`).
   - Guard invalid run ids safely.
   - Add reducer/state tests for selection and fallback behavior.
-- [ ] 3. Execute `item_178` (tabs UI + New entry + mobile labels):
+- [x] 3. Execute `item_178` (tabs UI + New entry + mobile labels):
   - Render run tabs above Dungeon panel only when at least one run is active.
   - Add trailing `New` tab and wire run tab switching.
   - Enforce desktop/mobile label rules and start-order rendering.
-- [ ] 4. Execute `item_179` (New setup flow + hero lock guardrails):
+- [x] 4. Execute `item_179` (New setup flow + hero lock guardrails):
   - Show setup view when `New` is selected while runs keep progressing.
   - Hide/disable run controls in `New` context.
   - Disable already-assigned heroes with visible `In dungeon` status.
   - Use setup CTA label `Start new dungeon`.
-- [ ] 5. Execute `item_180` (regression coverage and validation):
+- [x] 5. Execute `item_180` (regression coverage and validation):
   - Add/extend core tests for multi-run + hero exclusivity.
   - Add/extend UI tests for tabs, `New`, and disabled heroes behavior.
   - Validate renumbering, no-tabs-when-empty, and fallback selection rules.
-- [ ] FINAL: Update related Logics docs (request/backlog/task alignment)
+- [x] FINAL: Update related Logics docs (request/backlog/task alignment)
 
 # Validation
 Final gate (mandatory at task end):
