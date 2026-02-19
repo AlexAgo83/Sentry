@@ -191,13 +191,20 @@ body.is-roster-drawer-open {
     border-bottom: 1px solid rgba(242, 193, 78, 0.18);
 }
 
+.app-roster-drawer-header-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--m3);
+}
+
 .app-roster-drawer-header .app-title {
     display: inline;
     font-size: calc((var(--text-xl-size) + var(--m10)) * 0.7);
 }
 
 .app-roster-drawer-header .app-title-button {
-    width: 100%;
+    width: auto;
+    flex: 1 1 auto;
 }
 
 .app-roster-drawer-header .app-title-block {
@@ -209,6 +216,22 @@ body.is-roster-drawer-open {
 .app-roster-drawer-header .app-title-icon {
     width: 28px;
     height: 28px;
+}
+
+.app-roster-drawer-close {
+    border: 1px solid rgba(93, 217, 193, 0.32);
+    background: rgba(10, 18, 32, 0.8);
+    color: rgba(226, 235, 249, 0.9);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: var(--text-xs-size);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.app-roster-drawer-close:hover {
+    border-color: rgba(93, 217, 193, 0.54);
 }
 
 .app-roster-drawer-panel .ts-player-list {

@@ -1,8 +1,8 @@
 ## item_172_req053_modal_and_dialog_accessibility_contract_hardening - req053 modal and dialog accessibility contract hardening
 > From version: 0.9.36
-> Understanding: 95%
-> Confidence: 88%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Accessibility / UI Infrastructure
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -45,3 +45,19 @@ This can degrade keyboard and screen-reader usability and cause regressions acro
   - `src/app/components/ModalShell.tsx`
   - `src/app/components/StartupSplashScreen.tsx`
   - `src/app/AppView.tsx`
+
+# Delivery
+- Added document language metadata in `index.html` with `<html lang="en">`.
+- Hardened shared modal contract in `src/app/components/ModalShell.tsx`:
+  - moved dialog role semantics to modal container,
+  - linked title via `aria-labelledby`,
+  - added focus lifecycle (initial focus + tab trap + focus restore).
+- Added reusable focus management hook in `src/app/hooks/useDialogFocusManagement.ts`.
+- Applied dialog semantics and focus management to `src/app/components/StartupSplashScreen.tsx`:
+  - `aria-labelledby` + `aria-describedby`,
+  - initial focus on Continue when available.
+- Hardened mobile roster drawer dialog in `src/app/AppView.tsx`:
+  - `role="dialog"` + `aria-modal` + `aria-labelledby`,
+  - initial focus + trap + restore,
+  - added explicit in-drawer close button and Escape close handling.
+- Styled new drawer header/close affordance in `styles/global.css`.

@@ -264,21 +264,16 @@ export const DungeonReplayView = ({
                             : (event.label ? `- ${event.label}` : "");
                         const logSuffix = healInfo ? ` ${healInfo}` : "";
                         return (
-                            <p
+                            <button
                                 key={`${event.atMs}-${index}`}
+                                type="button"
                                 className={`ts-dungeon-replay-log-line${isActive ? " is-active" : ""}`}
-                                role="button"
-                                tabIndex={0}
+                                aria-current={isActive ? "true" : undefined}
                                 onClick={() => onReplayCursorChange(event.atMs)}
-                                onKeyDown={(action) => {
-                                    if (action.key === "Enter" || action.key === " ") {
-                                        action.preventDefault();
-                                        onReplayCursorChange(event.atMs);
-                                    }
-                                }}
+                                title={`Jump to ${event.atMs}ms`}
                             >
                                 [{event.atMs}ms] {event.type}{logSuffix}
-                            </p>
+                            </button>
                         );
                     })}
                 </div>

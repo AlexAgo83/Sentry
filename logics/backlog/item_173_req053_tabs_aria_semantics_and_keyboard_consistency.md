@@ -1,8 +1,8 @@
 ## item_173_req053_tabs_aria_semantics_and_keyboard_consistency - req053 tabs aria semantics and keyboard consistency
 > From version: 0.9.36
-> Understanding: 94%
-> Confidence: 87%
-> Progress: 0%
+> Understanding: 97%
+> Confidence: 94%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Accessibility / Navigation
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -38,3 +38,16 @@ Several tab-like controls currently expose partial ARIA semantics (`tablist`/`ta
   - `src/app/components/SidePanelSwitcher.tsx`
   - `src/app/components/InventoryControls.tsx`
   - `src/app/components/StatsDashboardPanel.tsx`
+
+# Delivery
+- Standardized keyboard navigation on all scoped tab widgets:
+  - `src/app/components/SidePanelSwitcher.tsx` now supports `ArrowLeft`/`ArrowRight`/`Home`/`End`.
+  - `src/app/components/InventoryControls.tsx` now supports horizontal arrow navigation and roving `tabIndex`.
+  - `src/app/components/StatsDashboardPanel.tsx` now supports horizontal arrow navigation and roving `tabIndex`.
+- Reinforced tab semantics:
+  - added explicit `aria-controls` linkage for side panel tabs toward `app-main-view`,
+  - linked stats tabs to a real `tabpanel` (`aria-controls` / `aria-labelledby`).
+- Added regression assertions for keyboard tab navigation in:
+  - `tests/app/sidePanelSwitcher.dungeonActive.test.tsx`
+  - `tests/app/inventoryControls.test.tsx`
+  - `tests/app/statsDashboardPanel.test.tsx`

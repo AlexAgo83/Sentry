@@ -1,5 +1,6 @@
-import { memo, useEffect } from "react";
+import { memo, useEffect, useId, useRef } from "react";
 import type { ReactNode } from "react";
+import { useDialogFocusManagement } from "../hooks/useDialogFocusManagement";
 
 let openModalCount = 0;
 
@@ -24,7 +25,16 @@ export const ModalShell = memo(({
     onBackdropClick,
     onEscape
 }: ModalShellProps) => {
+    const dialogRef = useRef<HTMLDivElement | null>(null);
+    const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+    const titleId = useId();
     const hasKicker = kicker !== null && kicker !== undefined && kicker !== false && kicker !== "";
+
+    useDialogFocusManagement({
+        dialogRef,
+        initialFocusRef: closeButtonRef,
+        isOpen: true
+    });
 
     useEffect(() => {
         openModalCount += 1;
@@ -50,20 +60,27 @@ export const ModalShell = memo(({
     return (
         <div
             className="ts-modal-backdrop"
-            role="dialog"
-            aria-modal="true"
             onClick={onBackdropClick ?? onClose}
         >
-            <div className="ts-modal" onClick={(event) => event.stopPropagation()}>
+            <div
+                ref={dialogRef}
+                className="ts-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                onClick={(event) => event.stopPropagation()}
+            >
                 <div className="ts-modal-header">
                     <div>
                         {hasKicker ? (
                             <p className="ts-modal-kicker">{kicker}</p>
                         ) : null}
-                        <h2 className="ts-modal-title">{title}</h2>
+                        <h2 id={titleId} className="ts-modal-title">{title}</h2>
                     </div>
                     {showClose ? (
                         <button
+                            ref={closeButtonRef}
                             type="button"
                             className="ts-modal-close ts-focusable"
                             onClick={onClose}

@@ -1,8 +1,8 @@
 ## item_174_req053_dungeon_replay_log_semantic_control_cleanup - req053 dungeon replay log semantic control cleanup
 > From version: 0.9.36
-> Understanding: 93%
-> Confidence: 88%
-> Progress: 0%
+> Understanding: 98%
+> Confidence: 96%
+> Progress: 100%
 > Complexity: Low
 > Theme: Accessibility / Dungeon UX
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
@@ -33,3 +33,12 @@ The dungeon replay log currently uses a non-native interactive element (`role="b
 - Derived from `logics/request/req_053_accessibility_compliance_hardening_for_dialogs_tabs_and_keyboard_flows.md`.
 - Likely touch point:
   - `src/app/components/dungeonScreen/components/DungeonReplayView.tsx`
+
+# Delivery
+- Replaced non-semantic replay log entries (`<p role="button">`) with native `<button type="button">` in:
+  - `src/app/components/dungeonScreen/components/DungeonReplayView.tsx`
+- Preserved replay seek behavior by keeping click-driven cursor jumps.
+- Preserved visual behavior with dedicated replay log button styling in:
+  - `src/app/styles/panels/dungeon.css`
+- Added regression coverage to verify semantic button rendering and timeline seek in:
+  - `tests/app/dungeonScreen.controls.test.tsx`

@@ -88,7 +88,7 @@ describe("CloudSaveModal", () => {
         render(<CloudSaveModal onClose={vi.fn()} />);
 
         fireEvent.click(screen.getByRole("button", { name: "Edit username" }));
-        const input = screen.getByLabelText("Username") as HTMLInputElement;
+        const input = screen.getByRole("textbox", { name: "Username" }) as HTMLInputElement;
         expect(input.value).toBe("Aegis");
         fireEvent.change(input, { target: { value: "Sentinel" } });
         fireEvent.click(screen.getByRole("button", { name: "Save username" }));
@@ -114,7 +114,7 @@ describe("CloudSaveModal", () => {
         render(<CloudSaveModal onClose={vi.fn()} />);
 
         fireEvent.click(screen.getByRole("button", { name: "Edit username" }));
-        fireEvent.change(screen.getByLabelText("Username"), { target: { value: "Aegis" } });
+        fireEvent.change(screen.getByRole("textbox", { name: "Username" }), { target: { value: "Aegis" } });
         fireEvent.click(screen.getByRole("button", { name: "Save username" }));
 
         expect(await screen.findByText("Username is already taken.")).toBeTruthy();

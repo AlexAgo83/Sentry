@@ -555,8 +555,17 @@
     line-height: 1.4;
 }
 
-.ts-dungeon-replay-log p {
+.ts-dungeon-replay-log-line {
+    display: block;
+    width: 100%;
     margin: 0 0 4px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
 }
 
 .ts-dungeon-replay-log-line.is-active {
@@ -565,7 +574,13 @@
     text-shadow: 0 0 8px rgba(244, 181, 76, 0.25);
 }
 
-.ts-dungeon-replay-log p:last-child {
+.ts-dungeon-replay-log-line:focus-visible {
+    outline: 1px solid rgba(93, 217, 193, 0.8);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+.ts-dungeon-replay-log-line:last-child {
     margin-bottom: 0;
 }
 

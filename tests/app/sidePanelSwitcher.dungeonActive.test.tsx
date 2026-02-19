@@ -87,4 +87,33 @@ describe("SidePanelSwitcher dungeon active state", () => {
         expect(screen.getByRole("menuitem", { name: "Action" })).toBeTruthy();
         expect(screen.getByRole("menuitem", { name: "Stats" })).toBeTruthy();
     });
+
+    it("supports horizontal arrow navigation in the tablist", async () => {
+        const user = userEvent.setup();
+        render(
+            <SidePanelSwitcher
+                active="action"
+                onShowDungeon={vi.fn()}
+                onShowAction={vi.fn()}
+                onShowStats={vi.fn()}
+                onShowInventory={vi.fn()}
+                onShowEquipment={vi.fn()}
+                onShowShop={vi.fn()}
+                onShowQuests={vi.fn()}
+            />
+        );
+
+        const actionTab = screen.getByRole("tab", { name: "Action" });
+        const statsTab = screen.getByRole("tab", { name: "Stats" });
+        const dungeonTab = screen.getByRole("tab", { name: "Dungeon" });
+
+        expect(actionTab.getAttribute("aria-controls")).toBe("app-main-view");
+
+        actionTab.focus();
+        await user.keyboard("{ArrowRight}");
+        expect(document.activeElement).toBe(statsTab);
+
+        await user.keyboard("{Home}");
+        expect(document.activeElement).toBe(dungeonTab);
+    });
 });

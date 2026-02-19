@@ -1,17 +1,20 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 import { AppView, type AppActiveScreen, type AppActiveSidePanel } from "../../src/app/AppView";
 
 const renderAppView = (props?: {
     activeScreen?: AppActiveScreen;
     activeSidePanel?: AppActiveSidePanel;
     isRosterDrawerOpen?: boolean;
+    onCloseRosterDrawer?: () => void;
 }) => {
     return render(
         <AppView
             version="0.0.0"
             onOpenSystem={() => {}}
             isRosterDrawerOpen={props?.isRosterDrawerOpen}
+            onCloseRosterDrawer={props?.onCloseRosterDrawer}
             activeScreen={props?.activeScreen ?? "main"}
             activeSidePanel={props?.activeSidePanel ?? "action"}
             onShowHero={() => {}}
@@ -125,5 +128,33 @@ describe("AppView (mobile roster)", () => {
         expect(document.body.classList.contains("is-roster-drawer-open")).toBe(false);
         expect(document.body.style.overflow).toBe("");
         expect(document.documentElement.style.overflow).toBe("");
+    });
+
+    it("applies dialog semantics and keeps keyboard focus trapped in drawer", async () => {
+        const user = userEvent.setup();
+        Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
+        renderAppView({ isRosterDrawerOpen: true });
+
+        const dialog = screen.getByRole("dialog", { name: "Sentry" });
+        const closeButton = screen.getByRole("button", { name: "Close roster" });
+
+        expect(dialog.getAttribute("aria-modal")).toBe("true");
+        expect(document.activeElement).toBe(closeButton);
+
+        await user.tab();
+        expect(document.activeElement).toBe(closeButton);
+    });
+
+    it("closes the drawer via close button and Escape key callbacks", async () => {
+        const user = userEvent.setup();
+        Object.defineProperty(window, "innerWidth", { value: 360, writable: true });
+        const onCloseRosterDrawer = vi.fn();
+        renderAppView({ isRosterDrawerOpen: true, onCloseRosterDrawer });
+
+        await user.click(screen.getByRole("button", { name: "Close roster" }));
+        expect(onCloseRosterDrawer).toHaveBeenCalledTimes(1);
+
+        await user.keyboard("{Escape}");
+        expect(onCloseRosterDrawer).toHaveBeenCalledTimes(2);
     });
 });

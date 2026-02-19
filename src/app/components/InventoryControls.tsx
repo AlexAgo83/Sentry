@@ -1,4 +1,5 @@
 import { memo } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { InventorySort } from "./InventoryPanel";
 
 type InventoryControlsProps = {
@@ -8,44 +9,64 @@ type InventoryControlsProps = {
     onSearchChange: (value: string) => void;
 };
 
-export const InventoryControls = memo(({ sort, onSortChange, search, onSearchChange }: InventoryControlsProps) => (
-    <div className="ts-inventory-controls">
-        <div className="ts-filter-row">
-            <label className="ts-filter-label" htmlFor="inventory-search">Search</label>
-            <input
-                id="inventory-search"
-                className="generic-field input ts-inventory-search"
-                placeholder="Filter by name"
-                value={search}
-                onChange={(event) => onSearchChange(event.target.value)}
-            />
-        </div>
-        <div className="ts-filter-row">
-            <span className="ts-filter-label">Sort</span>
-            <div className="ts-filter-tabs" role="tablist" aria-label="Sort inventory">
-                <button
-                    type="button"
-                    role="tab"
-                    aria-selected={sort === "Name"}
-                    className={`ts-chip${sort === "Name" ? " is-active" : ""}`}
-                    onClick={() => onSortChange("Name")}
-                    title="Sort by name"
-                >
-                    Name
-                </button>
-                <button
-                    type="button"
-                    role="tab"
-                    aria-selected={sort === "Count"}
-                    className={`ts-chip${sort === "Count" ? " is-active" : ""}`}
-                    onClick={() => onSortChange("Count")}
-                    title="Sort by count"
-                >
-                    Count
-                </button>
+const SORT_OPTIONS: InventorySort[] = ["Name", "Count"];
+const getSortTabId = (sort: InventorySort) => `inventory-sort-tab-${sort.toLowerCase()}`;
+
+export const InventoryControls = memo(({ sort, onSortChange, search, onSearchChange }: InventoryControlsProps) => {
+    const handleSortKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>, currentSort: InventorySort) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+            return;
+        }
+        event.preventDefault();
+        const index = SORT_OPTIONS.indexOf(currentSort);
+        const nextIndex = event.key === "Home"
+            ? 0
+            : event.key === "End"
+            ? SORT_OPTIONS.length - 1
+            : event.key === "ArrowRight"
+            ? (index + 1) % SORT_OPTIONS.length
+            : (index - 1 + SORT_OPTIONS.length) % SORT_OPTIONS.length;
+        onSortChange(SORT_OPTIONS[nextIndex]);
+    };
+
+    return (
+        <div className="ts-inventory-controls">
+            <div className="ts-filter-row">
+                <label className="ts-filter-label" htmlFor="inventory-search">Search</label>
+                <input
+                    id="inventory-search"
+                    className="generic-field input ts-inventory-search"
+                    placeholder="Filter by name"
+                    value={search}
+                    onChange={(event) => onSearchChange(event.target.value)}
+                />
+            </div>
+            <div className="ts-filter-row">
+                <span className="ts-filter-label">Sort</span>
+                <div className="ts-filter-tabs" role="tablist" aria-label="Sort inventory">
+                    {SORT_OPTIONS.map((option) => {
+                        const isSelected = sort === option;
+                        return (
+                            <button
+                                key={option}
+                                id={getSortTabId(option)}
+                                type="button"
+                                role="tab"
+                                aria-selected={isSelected}
+                                tabIndex={isSelected ? 0 : -1}
+                                className={`ts-chip${isSelected ? " is-active" : ""}`}
+                                onClick={() => onSortChange(option)}
+                                onKeyDown={(event) => handleSortKeyDown(event, option)}
+                                title={`Sort by ${option.toLowerCase()}`}
+                            >
+                                {option}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
         </div>
-    </div>
-));
+    );
+});
 
 InventoryControls.displayName = "InventoryControls";

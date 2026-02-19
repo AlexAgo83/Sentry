@@ -1,4 +1,5 @@
 import { memo, useMemo, useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { CombatSkillId, PlayerStatsState, ProgressionState, SkillId, StatId, StatModifier, WeaponType } from "../../core/types";
 import { STAT_IDS } from "../../core/stats";
 import { DEFAULT_HP_MAX, SKILL_MAX_LEVEL, STAT_PERCENT_PER_POINT } from "../../core/constants";
@@ -106,6 +107,14 @@ const COMBAT_SKILL_LABELS: Record<CombatSkillId, string> = {
     CombatRanged: "Ranged",
     CombatMagic: "Magic"
 };
+const STATS_TAB_ORDER = ["global-progression", "hero-progression", "hero-stats"] as const;
+type StatsTab = typeof STATS_TAB_ORDER[number];
+const STATS_TAB_IDS: Record<StatsTab, string> = {
+    "global-progression": "stats-tab-global-progression",
+    "hero-progression": "stats-tab-hero-progression",
+    "hero-stats": "stats-tab-hero-stats"
+};
+const STATS_TAB_PANEL_ID = "stats-tabpanel-content";
 
 const numberFormatter = new Intl.NumberFormat();
 
@@ -144,7 +153,7 @@ export const StatsDashboardPanel = memo(({
     onToggleCollapsed
 }: StatsDashboardPanelProps) => {
     const [activeTab, setActiveTab] = usePersistedPanelTab("stats", "hero-progression");
-    const resolvedTab: "hero-stats" | "global-progression" | "hero-progression" =
+    const resolvedTab: StatsTab =
         activeTab === "hero-stats" ? "hero-stats" : activeTab === "global-progression"
         ? "global-progression"
         : "hero-progression";
@@ -226,6 +235,22 @@ export const StatsDashboardPanel = memo(({
     const totalResistance = (1 - (resolveDamageTakenMultiplier(weaponType) * resolveArmorDamageMultiplier(totalArmor))) * 100;
     const resistanceModifiers = totalResistance - baseResistance;
 
+    const handleStatsTabKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>, currentTab: StatsTab) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+            return;
+        }
+        event.preventDefault();
+        const index = STATS_TAB_ORDER.indexOf(currentTab);
+        const nextIndex = event.key === "Home"
+            ? 0
+            : event.key === "End"
+            ? STATS_TAB_ORDER.length - 1
+            : event.key === "ArrowRight"
+            ? (index + 1) % STATS_TAB_ORDER.length
+            : (index - 1 + STATS_TAB_ORDER.length) % STATS_TAB_ORDER.length;
+        setActiveTab(STATS_TAB_ORDER[nextIndex]);
+    };
+
     return (
         <section className="generic-panel ts-panel ts-panel-stats">
             <div className="ts-panel-header">
@@ -240,6 +265,10 @@ export const StatsDashboardPanel = memo(({
                             onClick={() => setActiveTab("global-progression")}
                             role="tab"
                             aria-selected={resolvedTab === "global-progression"}
+                            aria-controls={STATS_TAB_PANEL_ID}
+                            id={STATS_TAB_IDS["global-progression"]}
+                            tabIndex={resolvedTab === "global-progression" ? 0 : -1}
+                            onKeyDown={(event) => handleStatsTabKeyDown(event, "global-progression")}
                             aria-label="Global progression"
                         >
                             <GlobalProgressIcon className="ts-stats-tab-icon" />
@@ -251,6 +280,10 @@ export const StatsDashboardPanel = memo(({
                             onClick={() => setActiveTab("hero-progression")}
                             role="tab"
                             aria-selected={resolvedTab === "hero-progression"}
+                            aria-controls={STATS_TAB_PANEL_ID}
+                            id={STATS_TAB_IDS["hero-progression"]}
+                            tabIndex={resolvedTab === "hero-progression" ? 0 : -1}
+                            onKeyDown={(event) => handleStatsTabKeyDown(event, "hero-progression")}
                             aria-label="Hero progression"
                             title="Hero progression"
                         >
@@ -263,6 +296,10 @@ export const StatsDashboardPanel = memo(({
                             onClick={() => setActiveTab("hero-stats")}
                             role="tab"
                             aria-selected={resolvedTab === "hero-stats"}
+                            aria-controls={STATS_TAB_PANEL_ID}
+                            id={STATS_TAB_IDS["hero-stats"]}
+                            tabIndex={resolvedTab === "hero-stats" ? 0 : -1}
+                            onKeyDown={(event) => handleStatsTabKeyDown(event, "hero-stats")}
                             aria-label="Hero statistics"
                             title="Hero statistics"
                         >
@@ -284,7 +321,12 @@ export const StatsDashboardPanel = memo(({
                 </div>
             </div>
             {!isCollapsed ? (
-                <div className="ts-panel-body">
+                <div
+                    id={STATS_TAB_PANEL_ID}
+                    className="ts-panel-body"
+                    role="tabpanel"
+                    aria-labelledby={STATS_TAB_IDS[resolvedTab]}
+                >
                     {resolvedTab === "hero-stats" ? (
                         <div className="ts-character-stack">
                             <div className="ts-character-breakdown">

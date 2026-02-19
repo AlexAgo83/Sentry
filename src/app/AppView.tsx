@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { SidePanelSwitcher } from "./components/SidePanelSwitcher";
 import { useRenderCount } from "./dev/renderDebug";
+import { useDialogFocusManagement } from "./hooks/useDialogFocusManagement";
 
 export type AppActiveSidePanel = "action" | "stats" | "inventory" | "equipment" | "shop" | "quests";
 export type AppActiveScreen = "main" | "actionSelection" | "dungeon" | "roster";
@@ -44,6 +45,44 @@ export const AppView = (props: AppViewProps) => {
     const [isMobile, setIsMobile] = useState(() => (
         typeof window !== "undefined" ? window.innerWidth <= 900 : false
     ));
+    const rosterDrawerPanelRef = useRef<HTMLElement | null>(null);
+    const rosterDrawerCloseRef = useRef<HTMLButtonElement | null>(null);
+    const rosterDrawerTitleId = useId();
+    const {
+        onOpenSystem,
+        isRosterDrawerOpen = false,
+        onOpenRosterDrawer,
+        onCloseRosterDrawer,
+        activeScreen,
+        activeSidePanel,
+        onShowHero,
+        onShowAction,
+        onShowDungeon,
+        isDungeonLocked,
+        onShowStats,
+        onShowInventory,
+        onShowEquipment,
+        onShowShop,
+        onShowQuests,
+        isDungeonRunActive,
+        hasNewInventoryItems,
+        roster,
+        rosterDrawer,
+        actionPanel,
+        statsPanel,
+        inventoryPanel,
+        equipmentPanel,
+        shopPanel,
+        questsPanel,
+        actionSelectionScreen,
+        dungeonScreen
+    } = props;
+
+    useDialogFocusManagement({
+        dialogRef: rosterDrawerPanelRef,
+        initialFocusRef: rosterDrawerCloseRef,
+        isOpen: Boolean(isMobile && isRosterDrawerOpen)
+    });
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -70,7 +109,7 @@ export const AppView = (props: AppViewProps) => {
         }
         const body = document.body;
         const root = document.documentElement;
-        const shouldLock = Boolean(isMobile && props.isRosterDrawerOpen);
+        const shouldLock = Boolean(isMobile && isRosterDrawerOpen);
         body.classList.remove("is-roster-drawer-open");
         body.style.removeProperty("overflow");
         body.style.removeProperty("touch-action");
@@ -85,7 +124,20 @@ export const AppView = (props: AppViewProps) => {
             body.style.removeProperty("touch-action");
             root.style.removeProperty("overflow");
         };
-    }, [isMobile, props.isRosterDrawerOpen]);
+    }, [isMobile, isRosterDrawerOpen]);
+
+    useEffect(() => {
+        if (!isMobile || !isRosterDrawerOpen) {
+            return;
+        }
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                onCloseRosterDrawer?.();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isMobile, isRosterDrawerOpen, onCloseRosterDrawer]);
 
     useEffect(() => {
         if (typeof window === "undefined" || typeof document === "undefined") {
@@ -119,36 +171,6 @@ export const AppView = (props: AppViewProps) => {
             root.style.removeProperty("--app-topbar-height");
         };
     }, [isMobile]);
-
-    const {
-        onOpenSystem,
-        isRosterDrawerOpen = false,
-        onOpenRosterDrawer,
-        onCloseRosterDrawer,
-        activeScreen,
-        activeSidePanel,
-        onShowHero,
-        onShowAction,
-        onShowDungeon,
-        isDungeonLocked,
-        onShowStats,
-        onShowInventory,
-        onShowEquipment,
-        onShowShop,
-        onShowQuests,
-        isDungeonRunActive,
-        hasNewInventoryItems,
-        roster,
-        rosterDrawer,
-        actionPanel,
-        statsPanel,
-        inventoryPanel,
-        equipmentPanel,
-        shopPanel,
-        questsPanel,
-        actionSelectionScreen,
-        dungeonScreen,
-    } = props;
 
     const showRoster = !isMobile || activeScreen === "roster";
     const showMainStack = !isMobile || activeScreen !== "roster";
@@ -244,13 +266,17 @@ export const AppView = (props: AppViewProps) => {
                                         quests: "Quests"
                                     }}
                                     heroLabel="Hero"
+                                    controlsId="app-main-view"
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
             </header>
-            <main className={`app-layout generic-global ts-layout${isSingleColumnLayout ? " app-layout--single-column" : ""}`}>
+            <main
+                id="app-main-view"
+                className={`app-layout generic-global ts-layout${isSingleColumnLayout ? " app-layout--single-column" : ""}`}
+            >
                 {showRoster ? roster : null}
                 {showMainStack ? (
                     <div className="ts-main-stack">
@@ -300,21 +326,40 @@ export const AppView = (props: AppViewProps) => {
                     <button
                         type="button"
                         className="app-roster-drawer-backdrop"
-                        aria-label="Close roster"
+                        aria-label="Dismiss roster overlay"
                         onClick={() => onCloseRosterDrawer?.()}
                     />
-                    <aside className="app-roster-drawer-panel" role="dialog" aria-label="Roster">
+                    <aside
+                        ref={rosterDrawerPanelRef}
+                        className="app-roster-drawer-panel"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby={rosterDrawerTitleId}
+                        tabIndex={-1}
+                    >
                         <div className="app-roster-drawer-header">
-                            <div className="app-title-button">
-                                <div className="app-title-block">
-                                    <img
-                                        className="app-title-icon"
-                                        src={`${import.meta.env.BASE_URL}icon_nobg.svg`}
-                                        alt=""
-                                        aria-hidden="true"
-                                    />
-                                    <h2 className="app-title app-title--drawer">Sentry</h2>
+                            <div className="app-roster-drawer-header-inner">
+                                <div className="app-title-button">
+                                    <div className="app-title-block">
+                                        <img
+                                            className="app-title-icon"
+                                            src={`${import.meta.env.BASE_URL}icon_nobg.svg`}
+                                            alt=""
+                                            aria-hidden="true"
+                                        />
+                                        <h2 id={rosterDrawerTitleId} className="app-title app-title--drawer">Sentry</h2>
+                                    </div>
                                 </div>
+                                <button
+                                    ref={rosterDrawerCloseRef}
+                                    type="button"
+                                    className="app-roster-drawer-close ts-focusable"
+                                    aria-label="Close roster"
+                                    title="Close roster"
+                                    onClick={() => onCloseRosterDrawer?.()}
+                                >
+                                    Close
+                                </button>
                             </div>
                         </div>
                         {rosterDrawer ?? roster}

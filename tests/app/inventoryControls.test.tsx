@@ -59,4 +59,28 @@ describe("InventoryControls", () => {
         await user.click(screen.getByRole("tab", { name: "Name" }));
         expect(onSortChange).toHaveBeenCalledWith("Name");
     });
+
+    it("supports arrow-key navigation between sort tabs", async () => {
+        const user = userEvent.setup();
+
+        const Harness = () => {
+            const [sort, setSort] = useState<"Name" | "Count">("Name");
+            return (
+                <InventoryControls
+                    sort={sort}
+                    onSortChange={(value) => setSort(value)}
+                    search=""
+                    onSearchChange={vi.fn()}
+                />
+            );
+        };
+
+        render(<Harness />);
+
+        const nameTab = screen.getByRole("tab", { name: "Name" });
+        nameTab.focus();
+        await user.keyboard("{ArrowRight}");
+
+        expect(screen.getByRole("tab", { name: "Count" }).getAttribute("aria-selected")).toBe("true");
+    });
 });

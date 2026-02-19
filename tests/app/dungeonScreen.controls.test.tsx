@@ -733,6 +733,53 @@ describe("DungeonScreen controls", () => {
         expect(screen.getByText("Dungeon: Damp Ruins")).toBeTruthy();
     });
 
+    it("renders replay log entries as semantic buttons and seeks timeline on click", () => {
+        const state = createInitialGameState("0.9.0");
+        state.players["2"] = createPlayerState("2", "Mara");
+        state.players["3"] = createPlayerState("3", "Iris");
+        state.players["4"] = createPlayerState("4", "Kai");
+
+        const { container } = render(
+            <DungeonScreen
+                definitions={DUNGEON_DEFINITIONS}
+                players={state.players}
+                playersSorted={getPlayersSorted(state.players)}
+                selectedDungeonId="dungeon_ruines_humides"
+                selectedPartyPlayerIds={["1", "2", "3", "4"]}
+                canEnterDungeon
+                foodCount={20}
+                inventoryItems={{}}
+                discoveredItemIds={{}}
+                itemNameById={{}}
+                currentPower={0}
+                usesPartyPower
+                autoConsumables={false}
+                canUseConsumables={false}
+                consumablesCount={0}
+                activeRun={null}
+                latestReplay={getReplay()}
+                completionCounts={{}}
+                showReplay
+                onToggleReplay={() => {}}
+                onSelectDungeon={() => {}}
+                onTogglePartyPlayer={() => {}}
+                onToggleAutoRestart={() => {}}
+                onToggleAutoConsumables={() => {}}
+                onStartRun={() => {}}
+                onStopRun={() => {}}
+            />
+        );
+
+        fireEvent.click(screen.getByRole("button", { name: "Switch to log view" }));
+
+        const timeline = screen.getByLabelText("Replay timeline") as HTMLInputElement;
+        const logEntry = screen.getByRole("button", { name: /\[100ms\]\s+death/i });
+        expect(container.querySelector("p[role='button']")).toBeNull();
+
+        fireEvent.click(logEntry);
+        expect(timeline.value).toBe("100");
+    });
+
     it("renders dungeon loot table with masked undiscovered entries and revealed discovered entries", () => {
         const state = createInitialGameState("0.9.0");
         state.players["2"] = createPlayerState("2", "Mara");

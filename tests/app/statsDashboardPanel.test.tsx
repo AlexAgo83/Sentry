@@ -128,4 +128,19 @@ describe("StatsDashboardPanel", () => {
         expect(screen.getByText("XP 8/120")).toBeTruthy();
     });
 
+    it("supports arrow-key navigation across stats tabs and tabpanel linkage", async () => {
+        const user = userEvent.setup();
+        render(<StatsDashboardPanel {...createProps()} />);
+
+        const globalTab = screen.getByRole("tab", { name: "Global progression" });
+        globalTab.focus();
+        await user.keyboard("{ArrowRight}");
+
+        const heroProgressTab = screen.getByRole("tab", { name: "Hero progression" });
+        const tabPanel = screen.getByRole("tabpanel");
+
+        expect(heroProgressTab.getAttribute("aria-selected")).toBe("true");
+        expect(tabPanel.getAttribute("aria-labelledby")).toBe(heroProgressTab.id);
+    });
+
 });
