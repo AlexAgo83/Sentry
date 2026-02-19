@@ -80,8 +80,6 @@ export const CloudSavePanel = memo(({
     localMeta,
     cloudMeta,
     lastSyncAt,
-    localHasActiveDungeonRun,
-    cloudHasActiveDungeonRun,
     autoSyncEnabled,
     autoSyncStatus,
     autoSyncConflict,
