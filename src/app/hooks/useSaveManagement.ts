@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { toGameSave } from "../../core/serialization";
 import { gameRuntime, gameStore } from "../game";
 import { createSaveEnvelopeV3, parseSaveEnvelopeOrLegacy, parseSaveEnvelopeV3 } from "../../adapters/persistence/saveEnvelope";
+import { clearCloudSyncWatermark } from "../../adapters/persistence/cloudSyncWatermark";
 import { readRawLastGoodSave, readRawSave } from "../../adapters/persistence/localStorageKeys";
 
 type UseSaveManagementOptions = {
@@ -47,6 +48,7 @@ export const useSaveManagement = ({
         closeActionSelection();
         closeAllHeroNameModals();
         closeOfflineSummary();
+        clearCloudSyncWatermark();
         gameRuntime.reset();
         closeSafeMode();
         refreshLoadReport();
@@ -67,6 +69,7 @@ export const useSaveManagement = ({
         const parsedV3 = parseSaveEnvelopeV3(raw);
         const parsed = parsedV3.status === "corrupt" ? parseSaveEnvelopeOrLegacy(raw) : parsedV3;
         if (parsed.status === "ok" || parsed.status === "migrated" || parsed.status === "recovered_last_good") {
+            clearCloudSyncWatermark();
             gameRuntime.importSave(parsed.save);
             refreshLoadReport();
             return;

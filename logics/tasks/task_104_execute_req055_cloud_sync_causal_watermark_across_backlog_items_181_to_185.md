@@ -2,7 +2,7 @@
 > From version: 0.9.36
 > Understanding: 96%
 > Confidence: 92%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Reliability / Cloud Sync Integrity
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
@@ -42,30 +42,30 @@ This orchestration task delivers req055 end-to-end:
   - optional startup hint can deep-link to Cloud Save but must remain dismissible.
 
 # Plan
-- [ ] 1. Execute `item_181` (watermark persistence + lifecycle):
+- [x] 1. Execute `item_181` (watermark persistence + lifecycle):
   - Add typed local storage adapter for sync watermark.
   - Define reset semantics on logout and save-invalidating flows.
   - Ensure missing/legacy watermark states are safe.
-- [ ] 2. Execute `item_182` (stable fingerprint utility):
+- [x] 2. Execute `item_182` (stable fingerprint utility):
   - Implement canonical save fingerprint generation.
   - Add deterministic tests for equivalent/non-equivalent payloads.
   - Expose utility for sync orchestrator usage.
-- [ ] 3. Execute `item_183` (causal bootstrap decision matrix):
+- [x] 3. Execute `item_183` (causal bootstrap decision matrix):
   - Replace heuristic-first bootstrap logic in cloud auto-sync.
   - Integrate watermark + fingerprint + cloud revision matrix.
   - Update watermark atomically after successful load/overwrite.
   - Align periodic push guards with fingerprint-based local-change detection.
-- [ ] 4. Execute `item_184` (non-blocking conflict UX):
+- [x] 4. Execute `item_184` (non-blocking conflict UX):
   - Surface “both local and cloud changed” conflict state in Cloud Save UI.
   - Keep explicit user actions: `Load cloud save` / `Overwrite cloud with local`.
   - Ensure unresolved conflict blocks automatic writes until user decision.
   - Add optional non-blocking startup hint routing to Cloud Save, if included.
-- [ ] 5. Execute `item_185` (regression coverage + validation):
+- [x] 5. Execute `item_185` (regression coverage + validation):
   - Add matrix tests (4 branches + ambiguous bootstrap).
   - Add watermark lifecycle/update tests.
   - Add rename-only divergence regression test.
   - Add delayed backend wakeup regression test.
-- [ ] FINAL: Update related Logics docs (request/backlog/task alignment)
+- [x] FINAL: Update related Logics docs (request/backlog/task alignment)
 
 # Validation
 Final gate (mandatory at task end):
