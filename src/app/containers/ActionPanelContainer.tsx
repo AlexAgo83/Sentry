@@ -135,6 +135,19 @@ export const ActionPanelContainer = ({
     const activeProductionLabel = hasActiveRecipeSelection
         ? (activeProductionEntries.length > 0 ? formatItemListEntries(activeProductionEntries) : "None")
         : "None";
+    const activeOwnedEntries = hasActiveRecipeSelection
+        ? activeProductionEntries.map((entry) => {
+            const rawCount = inventoryItems[entry.id] ?? 0;
+            const ownedAmount = Number.isFinite(rawCount) ? Math.max(0, Math.floor(rawCount as number)) : 0;
+            return {
+                ...entry,
+                amount: ownedAmount
+            };
+        })
+        : [];
+    const activeOwnedLabel = activeOwnedEntries.length > 0
+        ? formatItemListEntries(activeOwnedEntries)
+        : "None";
     const resourceHint = hasActiveRecipeSelection ? null : "Select a recipe to see resource flow.";
     const activeActionDef = activeSkillId ? (getActionDefinition(activeSkillId as SkillId) ?? null) : null;
     const actionIntervalLabel = getActionIntervalLabel(activeSkill, activeActionDef, true);
@@ -224,8 +237,10 @@ export const ActionPanelContainer = ({
                 activeRecipeLabel={activeRecipeLabel}
                 activeConsumptionLabel={activeConsumptionLabel}
                 activeProductionLabel={activeProductionLabel}
+                activeOwnedLabel={activeOwnedLabel}
                 activeConsumptionEntries={hasActiveRecipeSelection ? activeConsumptionEntries : []}
                 activeProductionEntries={hasActiveRecipeSelection ? activeProductionEntries : []}
+                activeOwnedEntries={activeOwnedEntries}
                 actionSpeedBonusLabel={actionSpeedBonusLabel}
                 actionSpeedBonusTooltip={actionSpeedBonusTooltip}
                 actionDurationLabel={actionIntervalLabel}

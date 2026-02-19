@@ -23,8 +23,10 @@ type ActionStatusPanelProps = {
     activeRecipeLabel: string;
     activeConsumptionLabel: string;
     activeProductionLabel: string;
+    activeOwnedLabel?: string;
     activeConsumptionEntries: ItemEntry[];
     activeProductionEntries: ItemEntry[];
+    activeOwnedEntries?: ItemEntry[];
     actionSpeedBonusLabel: string;
     actionSpeedBonusTooltip: string;
     actionDurationLabel: string;
@@ -73,8 +75,10 @@ export const ActionStatusPanel = memo(({
     activeRecipeLabel,
     activeConsumptionLabel,
     activeProductionLabel,
+    activeOwnedLabel = "None",
     activeConsumptionEntries,
     activeProductionEntries,
+    activeOwnedEntries = [],
     actionSpeedBonusLabel,
     actionSpeedBonusTooltip,
     actionDurationLabel,
@@ -303,6 +307,16 @@ export const ActionStatusPanel = memo(({
                             <div className="ts-action-summary-row">
                                 <span className="ts-action-summary-label">Stun time</span>
                                 <span className="ts-action-summary-value">{formatSummaryValue(stunTimeLabel)}</span>
+                            </div>
+                            <div className="ts-action-summary-row">
+                                <span className="ts-action-summary-label">Owned</span>
+                                <span className="ts-action-summary-value">
+                                    {renderItemSummary(
+                                        activeOwnedEntries,
+                                        formatSummaryValue(activeOwnedLabel),
+                                        "produce"
+                                    )}
+                                </span>
                             </div>
                             {resourceHint ? (
                                 <div className="ts-resource-hint">{resourceHint}</div>
