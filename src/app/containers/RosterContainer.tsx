@@ -9,7 +9,7 @@ import { RosterPanel } from "../components/RosterPanel";
 
 type RosterContainerProps = {
     onAddPlayer: () => void;
-    onAfterSetActivePlayer?: () => void;
+    onAfterSetActivePlayer?: (playerId: string) => void;
     forceExpanded?: boolean;
     onOpenSystem: () => void;
     showSettingsButton?: boolean;
@@ -59,7 +59,7 @@ export const RosterContainer = ({
             onToggleCollapsed={handleToggleCollapsed}
             onSetActivePlayer={(playerId) => {
                 gameStore.dispatch({ type: "setActivePlayer", playerId });
-                onAfterSetActivePlayer?.();
+                onAfterSetActivePlayer?.(playerId);
             }}
             onReorderPlayer={(playerId, targetIndex) => {
                 gameStore.dispatch({ type: "reorderRoster", playerId, targetIndex });

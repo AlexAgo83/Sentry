@@ -35,7 +35,7 @@ type AppViewContainerProps = {
     newInventoryItemIds: string[];
     onMarkInventoryItemSeen: (itemId: string) => void;
     onAddPlayer: () => void;
-    onRosterPlayerSelect?: () => void;
+    onRosterPlayerSelect?: (playerId: string) => void;
     onChangeAction: () => void;
     onCloseActionSelection: () => void;
     onRenameHero: () => void;

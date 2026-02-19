@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { gameStore } from "../game";
 import { useGameStore } from "../hooks/useGameStore";
 import { DUNGEON_DEFINITIONS } from "../../data/dungeons";
@@ -33,6 +33,7 @@ export const DungeonScreenContainer = () => {
     const canEnterDungeon = playerCount >= 4;
     const [showReplay, setShowReplay] = useState(false);
     const [isNewTabSelected, setIsNewTabSelected] = useState(false);
+    const previousActiveRunIdRef = useRef<string | null>(dungeon.activeRunId ?? null);
     const unavailablePartyPlayerIds = useMemo(() => {
         return Array.from(new Set(
             activeRuns.flatMap((run) => run.party.map((member) => member.playerId))
@@ -91,6 +92,16 @@ export const DungeonScreenContainer = () => {
         }
         setIsNewTabSelected(false);
     }, [activeRuns.length, isNewTabSelected]);
+
+    useEffect(() => {
+        const previousActiveRunId = previousActiveRunIdRef.current;
+        const nextActiveRunId = dungeon.activeRunId ?? null;
+        if (isNewTabSelected && previousActiveRunId !== nextActiveRunId && Boolean(nextActiveRunId)) {
+            setIsNewTabSelected(false);
+            setShowReplay(false);
+        }
+        previousActiveRunIdRef.current = nextActiveRunId;
+    }, [dungeon.activeRunId, isNewTabSelected]);
 
     const handleSelectDungeon = useCallback((dungeonId: string) => {
         gameStore.dispatch({ type: "dungeonSetupSelectDungeon", dungeonId });

@@ -20,6 +20,10 @@ import { StartupSplashScreen } from "./components/StartupSplashScreen";
 import { startSilentBackendWarmup } from "./backendWarmup";
 import { resolveAutoDungeonOpenDecision } from "./autoDungeonOpen";
 import { useCloudSave } from "./hooks/useCloudSave";
+import {
+    resolveActiveDungeonRunIdForPlayer,
+    resolveRosterSelectionDungeonNavigation
+} from "./rosterSelectionNavigation";
 
 export const AppContainer = () => {
     useRenderCount("AppContainer");
@@ -156,6 +160,14 @@ export const AppContainer = () => {
 
     const handleOpenDungeonScreen = useCallback(() => {
         setDidAutoOpenDungeon(true);
+        const state = gameStore.getState();
+        const nextActiveRunId = resolveActiveDungeonRunIdForPlayer({
+            playerId: state.activePlayerId,
+            dungeon: state.dungeon
+        });
+        if (nextActiveRunId && nextActiveRunId !== state.dungeon.activeRunId) {
+            gameStore.dispatch({ type: "dungeonSetActiveRun", runId: nextActiveRunId });
+        }
         openDungeonScreen();
     }, [openDungeonScreen]);
 
@@ -254,10 +266,23 @@ export const AppContainer = () => {
         gameRuntime.simulateOffline(24 * 60 * 60 * 1000);
     }, []);
 
-    const handleRosterPlayerSelect = useCallback(() => {
+    const handleRosterPlayerSelect = useCallback((playerId: string) => {
         setHeroMenuOpenSignal((current) => current + 1);
         setRosterDrawerOpen(false);
-    }, []);
+        const state = gameStore.getState();
+        const navigationDecision = resolveRosterSelectionDungeonNavigation({
+            activeScreen,
+            selectedPlayerId: playerId,
+            dungeon: state.dungeon
+        });
+        if (navigationDecision.nextActiveRunId) {
+            gameStore.dispatch({ type: "dungeonSetActiveRun", runId: navigationDecision.nextActiveRunId });
+            return;
+        }
+        if (navigationDecision.shouldExitDungeonToAction) {
+            showActionPanel();
+        }
+    }, [activeScreen, showActionPanel]);
 
     const {
         closeOfflineSummary,
